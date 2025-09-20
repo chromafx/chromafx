@@ -12,14 +12,14 @@
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<PackageProjectUrl>https://github.com/chromafx/chromafx</PackageProjectUrl>
 		<PackageIcon>icon.png</PackageIcon>
-		<Description>ChromaFX Legacy branch — stable fork of Structure.Sketching for .NET LTS.</Description>
-		<PackageReleaseNotes>This is a legacy package. Classes are frozen and will receive only minimal maintenance.</PackageReleaseNotes>
+		<Description>ChromaFX — modern, high-performance .NET image processing library.</Description>
+		<PackageReleaseNotes>Modern API with pipeline-friendly design. Classes may change until 1.0 stable.</PackageReleaseNotes>
 		<Copyright>Copyright $([System.DateTime]::Now.Year) Ho Tzin Mein</Copyright>
-		<PackageTags>image picture graphics gif jpg jpeg bitmap png processing system.drawing</PackageTags>
+		<PackageTags>image graphics bitmap png jpeg gif drawing effects imageprocessing dotnet csharp chromafx</PackageTags>
 
-		<!-- Use CI build number for prerelease if not overridden -->
-		<Version Condition=" '$(Version)' == '' ">0.3.$(BuildNumber)</Version>
-		<PackageId>$(AssemblyName).Legacy</PackageId>
+		<!-- Version for branch CI builds -->
+		<Version Condition=" '$(Version)' == '' ">1.0.0-beta.$(BuildNumber)</Version>
+		<PackageId>$(AssemblyName)</PackageId>
 		<Title>ChromaFx</Title>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/chromafx/chromafx</RepositoryUrl>

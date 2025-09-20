@@ -1,49 +1,27 @@
-# ChromaFX.Legacy
+# ChromaFX
 
-> ⚠️ **Legacy branch of ChromaFX.**
-> This branch preserves compatibility with the original **Structure.Sketching** API.
-> It is **not actively developed**. For new projects, please use the [`main`](https://github.com/chromafx/chromafx) branch instead.
+[![Build Status](https://github.com/chromafx/chromafx/actions/workflows/nuget.yml/badge.svg)](https://github.com/chromafx/chromafx/actions) 
+[![NuGet](https://img.shields.io/nuget/v/ChromaFx.svg)](https://www.nuget.org/packages/ChromaFx/) 
+[![NuGet](https://img.shields.io/nuget/v/ChromaFx.Legacy.svg)](https://www.nuget.org/packages/ChromaFx.Legacy/) 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
----
+Modern, high-performance .NET image processing and drawing library.  
 
-## About
-**ChromaFX.Legacy** is a hard fork of the abandoned [Structure.Sketching] library.
-This branch exists to provide:
-
-- A **drop-in replacement** for existing codebases that relied on Structure.Sketching.
-- Access to bugfixes and minimal maintenance where absolutely necessary.
-- A transition path to the new **ChromaFX** API.
-
----
+**Key points:**
+- Pure C#, zero dependency implementation
+- Image encoding/decoding (PNG, JPEG, GIF, BMP)
+- Drawing primitives and effects
+- Pipeline-friendly API for efficient image processing
 
 ## Installation
+Install via NuGet package:
 
-From NuGet:
-
-```powershell
-dotnet add package ChromaFx.Legacy
+```bash
+dotnet add package ChromaFx
 ```
 
----
-
-## Status
-
-- ✅ API compatible with Structure.Sketching (v0.2.x)
-- ❌ No new features planned
-- 🚀 Migration encouraged to [ChromaFX (main)](https://github.com/chromafx/chromafx)
-
----
-
-## Migration
-
-If you’re starting fresh, **don’t use this package**. Use the new [ChromaFX](https://github.com/chromafx/chromafx) instead.
-
-If you have existing code that uses Structure.Sketching:
-1. Replace your NuGet reference with `ChromaFx.Legacy`.
-2. Your code should compile without changes.
-3. When ready, plan a gradual migration to the new ChromaFX API.
-
----
+## Requirements
+- .NET 8 or later
 
 ## License
-Apache 2.0 (inherited from Structure.Sketching).
+Apache 2.0 - see [LICENSE](LICENSE)

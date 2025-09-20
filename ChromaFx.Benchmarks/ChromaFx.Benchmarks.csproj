@@ -6,8 +6,8 @@
     <AssemblyName>ChromaFx.Benchmarks</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>ChromaFx.Benchmarks</PackageId>
-	  <PackageTags>image picture graphics gif jpg jpeg bitmap png processing system.drawing</PackageTags>
-    <PackageProjectUrl>https://github.com/chromafx/chromafx</PackageProjectUrl>
+	  <PackageTags>image graphics bitmap png jpeg gif drawing effects imageprocessing dotnet csharp chromafx</PackageTags>
+	  <PackageProjectUrl>https://github.com/chromafx/chromafx</PackageProjectUrl>
 	  <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>

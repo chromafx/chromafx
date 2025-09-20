@@ -8,7 +8,7 @@
 		<AssemblyName>ChromaFx.Tests</AssemblyName>
 		<PackageId>ChromaFx.Tests</PackageId>
 		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-		<PackageTags>image picture graphics gif jpg jpeg bitmap png processing system.drawing</PackageTags>
+		<PackageTags>image graphics bitmap png jpeg gif drawing effects imageprocessing dotnet csharp chromafx</PackageTags>
 		<PackageProjectUrl>https://github.com/chromafx/chromafx</PackageProjectUrl>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
