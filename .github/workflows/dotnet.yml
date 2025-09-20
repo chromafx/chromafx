@@ -47,7 +47,7 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Pack NuGet package
-        run: dotnet pack ChromaFx/ChromaFx.csproj -c Release -o ./artifacts /p:Version=$VERSION --no-build
+        run: dotnet pack src/ChromaFx/ChromaFx.csproj -c Release -o ./artifacts /p:Version=$VERSION --no-build
 
       - name: Publish to NuGet
         run: dotnet nuget push "./artifacts/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
