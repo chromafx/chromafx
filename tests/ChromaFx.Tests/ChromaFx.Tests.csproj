@@ -26,6 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ChromaFx\ChromaFx.csproj" />
+    <ProjectReference Include="..\..\src\ChromaFx\ChromaFx.csproj" />
   </ItemGroup>
 </Project>

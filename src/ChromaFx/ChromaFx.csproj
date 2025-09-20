@@ -30,10 +30,14 @@
 		<RepositoryUrl>https://github.com/chromafx/chromafx</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
-  <ItemGroup>
-    <None Include="..\README.md">
+	<ItemGroup>
+		<None Include="../../assets/icon.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+    <None Include="../../README.md">
       <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
+      <PackagePath></PackagePath>
     </None>
   </ItemGroup>
 </Project>

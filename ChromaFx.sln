@@ -2,24 +2,23 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.0.11012.119
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{856069D5-295C-4318-BFCF-3A3B5B5114FB}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{677AD036-CCEB-4B5B-BA44-D267B9DE25BD}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
+		assets\icon.png = assets\icon.png
 		LICENSE = LICENSE
 		NOTICE = NOTICE
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChromaFx", "ChromaFx\ChromaFx.csproj", "{2EB260E7-D2B3-5CE1-B1E8-2EE0ADDD8AE0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChromaFx", "src\ChromaFx\ChromaFx.csproj", "{1E1E09F6-D5A1-BBAD-7F49-E0CCD938EEFE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChromaFx.Benchmarks", "ChromaFx.Benchmarks\ChromaFx.Benchmarks.csproj", "{BE5125C5-6F54-8E79-4A83-E13119359B9B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChromaFx.Tests", "tests\ChromaFx.Tests\ChromaFx.Tests.csproj", "{B0879E92-1BA2-F553-556D-869E31ED4053}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChromaFx.Tests", "ChromaFx.Tests\ChromaFx.Tests.csproj", "{796FFA36-78E4-CA36-7B91-400CE7B1C048}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChromaFx.Benchmarks", "tests\ChromaFx.Benchmarks\ChromaFx.Benchmarks.csproj", "{845E96E9-5DA0-350E-2E27-B82EE08B7591}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{069EDF1A-6E3F-4610-A28D-D44460D4AF21}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{4555E5F2-6DE3-4047-A385-9670BC949E8C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,26 +26,25 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2EB260E7-D2B3-5CE1-B1E8-2EE0ADDD8AE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2EB260E7-D2B3-5CE1-B1E8-2EE0ADDD8AE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2EB260E7-D2B3-5CE1-B1E8-2EE0ADDD8AE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2EB260E7-D2B3-5CE1-B1E8-2EE0ADDD8AE0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BE5125C5-6F54-8E79-4A83-E13119359B9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BE5125C5-6F54-8E79-4A83-E13119359B9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BE5125C5-6F54-8E79-4A83-E13119359B9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BE5125C5-6F54-8E79-4A83-E13119359B9B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{796FFA36-78E4-CA36-7B91-400CE7B1C048}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{796FFA36-78E4-CA36-7B91-400CE7B1C048}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{796FFA36-78E4-CA36-7B91-400CE7B1C048}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{796FFA36-78E4-CA36-7B91-400CE7B1C048}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E1E09F6-D5A1-BBAD-7F49-E0CCD938EEFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E1E09F6-D5A1-BBAD-7F49-E0CCD938EEFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E1E09F6-D5A1-BBAD-7F49-E0CCD938EEFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E1E09F6-D5A1-BBAD-7F49-E0CCD938EEFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0879E92-1BA2-F553-556D-869E31ED4053}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0879E92-1BA2-F553-556D-869E31ED4053}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0879E92-1BA2-F553-556D-869E31ED4053}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0879E92-1BA2-F553-556D-869E31ED4053}.Release|Any CPU.Build.0 = Release|Any CPU
+		{845E96E9-5DA0-350E-2E27-B82EE08B7591}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{845E96E9-5DA0-350E-2E27-B82EE08B7591}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{845E96E9-5DA0-350E-2E27-B82EE08B7591}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{845E96E9-5DA0-350E-2E27-B82EE08B7591}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{2EB260E7-D2B3-5CE1-B1E8-2EE0ADDD8AE0} = {069EDF1A-6E3F-4610-A28D-D44460D4AF21}
-		{BE5125C5-6F54-8E79-4A83-E13119359B9B} = {856069D5-295C-4318-BFCF-3A3B5B5114FB}
-		{796FFA36-78E4-CA36-7B91-400CE7B1C048} = {856069D5-295C-4318-BFCF-3A3B5B5114FB}
+		{B0879E92-1BA2-F553-556D-869E31ED4053} = {4555E5F2-6DE3-4047-A385-9670BC949E8C}
+		{845E96E9-5DA0-350E-2E27-B82EE08B7591} = {4555E5F2-6DE3-4047-A385-9670BC949E8C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F9342380-6063-4736-ABD5-FD066870517F}
