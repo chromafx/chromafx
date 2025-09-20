@@ -5,7 +5,12 @@
 		<BuildNumber Condition=" '$(BuildNumber)' == '' ">0</BuildNumber>
 
 		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
 		<Authors>Ho Tzin Mein</Authors>
 		<Company />
@@ -25,16 +30,6 @@
 		<RepositoryUrl>https://github.com/chromafx/chromafx</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <TreatSpecificWarningsAsErrors />
-    <DocumentationFile>bin\Debug\netstandard1.3\ChromaFx.xml</DocumentationFile>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\netstandard1.3\ChromaFx.xml</DocumentationFile>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-  </PropertyGroup>
   <ItemGroup>
     <None Include="..\build\icons\icon.png">
       <Pack>True</Pack>
