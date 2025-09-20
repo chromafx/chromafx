@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>Benchmarks for ChromaFx</Description>
+    <Description>Benchmarks for ChromaFX</Description>
     <Authors>Ho Tzin Mein</Authors>
     <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>ChromaFx.Benchmarks</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>ChromaFx.Benchmarks</PackageId>
-    <PackageTags>Image Picture Gif Jpg Jpeg Bitmap Png Processing</PackageTags>
+	  <PackageTags>image picture graphics gif jpg jpeg bitmap png processing system.drawing</PackageTags>
     <PackageProjectUrl>https://github.com/chromafx/chromafx</PackageProjectUrl>
-    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+	  <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
