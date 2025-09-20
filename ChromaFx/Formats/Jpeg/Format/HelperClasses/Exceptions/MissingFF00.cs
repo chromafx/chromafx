@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
-
 namespace ChromaFx.Formats.Jpeg.Format.HelperClasses.Exceptions;
 
 /// <summary>

@@ -16,8 +16,6 @@ limitations under the License.
 
 using ChromaFx.Exceptions;
 using ChromaFx.Formats.Jpeg.Format.HelperClasses.Exceptions;
-using System;
-using System.IO;
 
 namespace ChromaFx.Formats.Jpeg.Format.HelperClasses;
 

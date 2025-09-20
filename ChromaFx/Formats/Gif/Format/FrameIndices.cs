@@ -18,7 +18,6 @@ using ChromaFx.Formats.Gif.Format.BaseClasses;
 using ChromaFx.Formats.Gif.Format.Helpers;
 using ChromaFx.IO;
 using ChromaFx.Quantizers;
-using System.IO;
 
 namespace ChromaFx.Formats.Gif.Format;
 

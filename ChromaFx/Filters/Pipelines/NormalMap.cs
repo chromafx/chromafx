@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 using System.Numerics;
-using System.Threading.Tasks;
 using ChromaFx.Filters.Convolution.Enums;
 using ChromaFx.Filters.Interfaces;
 using ChromaFx.Numerics;

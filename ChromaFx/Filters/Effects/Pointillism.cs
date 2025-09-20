@@ -17,7 +17,6 @@ limitations under the License.
 using ChromaFx.Filters.Drawing;
 using ChromaFx.Filters.Interfaces;
 using ChromaFx.Colors;
-using System;
 using System.Numerics;
 
 namespace ChromaFx.Filters.Effects;

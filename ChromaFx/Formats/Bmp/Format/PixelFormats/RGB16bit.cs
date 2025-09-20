@@ -17,8 +17,6 @@ limitations under the License.
 using ChromaFx.ExtensionMethods;
 using ChromaFx.Formats.Bmp.Format.PixelFormats.BaseClasses;
 using ChromaFx.Formats.Bmp.Format.PixelFormats.Interfaces;
-using System;
-using System.Threading.Tasks;
 
 namespace ChromaFx.Formats.Bmp.Format.PixelFormats;
 

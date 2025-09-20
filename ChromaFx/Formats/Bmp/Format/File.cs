@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
-using System.IO;
 using ChromaFx.Formats.Interfaces;
 using ChromaFx.Formats.BaseClasses;
 

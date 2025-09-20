@@ -14,10 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Numerics;
-using System.Threading.Tasks;
 using ChromaFx.Filters.Interfaces;
 using ChromaFx.Filters.Resampling.Enums;
 using ChromaFx.Filters.Resampling.ResamplingFilters.Interfaces;

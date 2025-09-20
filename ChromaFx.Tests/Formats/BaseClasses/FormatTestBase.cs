@@ -1,7 +1,4 @@
-﻿using System.IO;
-using System.Linq;
-
-namespace ChromaFx.Tests.Formats.BaseClasses;
+﻿namespace ChromaFx.Tests.Formats.BaseClasses;
 
 public abstract class FormatTestBase
 {

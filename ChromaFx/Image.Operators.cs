@@ -1,5 +1,4 @@
-﻿using System;
-using ChromaFx.Filters.Arithmetic;
+﻿using ChromaFx.Filters.Arithmetic;
 using ChromaFx.Filters.ColorMatrix;
 using ChromaFx.Filters.Effects;
 using ChromaFx.Colors;

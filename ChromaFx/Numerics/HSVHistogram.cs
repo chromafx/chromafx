@@ -1,5 +1,4 @@
-﻿using System;
-using ChromaFx.Colors.ColorSpaces;
+﻿using ChromaFx.Colors.ColorSpaces;
 using ChromaFx.Numerics.Interfaces;
 using ChromaFx.Colors;
 

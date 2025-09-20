@@ -18,7 +18,6 @@ using ChromaFx.Filters.Interfaces;
 using ChromaFx.Filters.Resampling.BaseClasses;
 using ChromaFx.Filters.Resampling.Enums;
 using ChromaFx.Numerics;
-using System;
 using System.Numerics;
 
 namespace ChromaFx.Filters.Resampling;

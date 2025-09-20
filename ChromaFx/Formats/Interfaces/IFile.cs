@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace ChromaFx.Formats.Interfaces;
+﻿namespace ChromaFx.Formats.Interfaces;
 
 /// <summary>
 /// File format interface

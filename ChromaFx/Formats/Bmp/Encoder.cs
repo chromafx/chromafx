@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 using ChromaFx.Formats.BaseClasses;
-using ChromaFx.Formats.Bmp.Format;
+using File = ChromaFx.Formats.Bmp.Format.File;
 
 namespace ChromaFx.Formats.Bmp;
 

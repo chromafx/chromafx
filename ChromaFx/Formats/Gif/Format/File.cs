@@ -20,10 +20,6 @@ using ChromaFx.IO.Converters.BaseClasses;
 using ChromaFx.Quantizers;
 using ChromaFx.Quantizers.Interfaces;
 using ChromaFx.Quantizers.Octree;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace ChromaFx.Formats.Gif.Format;
 

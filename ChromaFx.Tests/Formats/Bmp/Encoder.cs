@@ -1,5 +1,4 @@
 ﻿using ChromaFx.Tests.Formats.BaseClasses;
-using System.IO;
 using Xunit;
 
 namespace ChromaFx.Tests.Formats.Bmp;

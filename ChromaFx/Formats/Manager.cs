@@ -19,9 +19,6 @@ using ChromaFx.Formats.Gif;
 using ChromaFx.Formats.Interfaces;
 using ChromaFx.Formats.Jpeg;
 using ChromaFx.Formats.Png;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace ChromaFx.Formats;
 

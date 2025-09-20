@@ -18,9 +18,6 @@ using ChromaFx.Filters.ColorMatrix;
 using ChromaFx.Filters.Interfaces;
 using ChromaFx.Numerics;
 using ChromaFx.Colors;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace ChromaFx.Filters.Binary;
 

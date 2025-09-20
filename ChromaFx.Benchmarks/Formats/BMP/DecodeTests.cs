@@ -1,5 +1,4 @@
 ﻿using BenchmarkDotNet.Attributes;
-using System.IO;
 
 namespace ChromaFx.Benchmarks.Formats.BMP;
 

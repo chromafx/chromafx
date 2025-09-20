@@ -16,9 +16,6 @@ limitations under the License.
 
 using ChromaFx.Formats.Bmp.Format.PixelFormats;
 using ChromaFx.Formats.Bmp.Format.PixelFormats.Interfaces;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace ChromaFx.Formats.Bmp.Format;
 

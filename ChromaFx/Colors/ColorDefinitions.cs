@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ChromaFx.Colors;
+﻿namespace ChromaFx.Colors;
 
 /// <summary>
 /// Color definitions

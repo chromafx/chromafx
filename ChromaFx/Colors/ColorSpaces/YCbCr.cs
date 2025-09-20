@@ -16,7 +16,6 @@ limitations under the License.
 
 using ChromaFx.Colors.ColorSpaces.Interfaces;
 using ChromaFx.ExtensionMethods;
-using System;
 
 namespace ChromaFx.Colors.ColorSpaces;
 

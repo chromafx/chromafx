@@ -17,9 +17,7 @@ limitations under the License.
 using ChromaFx.Filters.Interfaces;
 using ChromaFx.Numerics;
 using ChromaFx.Colors;
-using System;
 using System.Numerics;
-using System.Threading.Tasks;
 
 namespace ChromaFx.Filters.Convolution.BaseClasses;
 

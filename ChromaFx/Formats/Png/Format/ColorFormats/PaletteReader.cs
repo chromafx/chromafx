@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
 using ChromaFx.ExtensionMethods;
 using ChromaFx.Formats.Png.Format.ColorFormats.Interfaces;
 using ChromaFx.Formats.Png.Format.Enums;

@@ -1,5 +1,4 @@
-﻿using System;
-using ChromaFx.Colors.ColorSpaces.Interfaces;
+﻿using ChromaFx.Colors.ColorSpaces.Interfaces;
 using ChromaFx.ExtensionMethods;
 
 namespace ChromaFx.Colors.ColorSpaces;

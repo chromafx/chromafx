@@ -16,9 +16,6 @@ limitations under the License.
 
 using ChromaFx.Formats.BaseClasses;
 using ChromaFx.Formats.Png.Format.Helpers;
-using System;
-using System.Collections.Generic;
-using System.IO;
 
 namespace ChromaFx.Formats.Png.Format;
 

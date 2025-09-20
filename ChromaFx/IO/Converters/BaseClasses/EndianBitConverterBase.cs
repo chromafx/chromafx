@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 using ChromaFx.IO.Converters.Structs;
-using System;
 
 namespace ChromaFx.IO.Converters.BaseClasses;
 

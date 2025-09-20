@@ -18,7 +18,6 @@ using ChromaFx.Filters.ColorMatrix.BaseClasses;
 using ChromaFx.Filters.Convolution.BaseClasses;
 using ChromaFx.Filters.Interfaces;
 using ChromaFx.Numerics;
-using System.Collections.Generic;
 
 namespace ChromaFx.Filters.Pipelines.BaseClasses;
 

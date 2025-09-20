@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 using ChromaFx.Formats.Png.Format.ColorFormats.Interfaces;
-using System;
 
 namespace ChromaFx.Formats.Png.Format.ColorFormats;
 

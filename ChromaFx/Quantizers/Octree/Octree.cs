@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 using ChromaFx.Colors.ColorSpaces;
-using System.Collections.Generic;
 
 namespace ChromaFx.Quantizers.Octree;
 

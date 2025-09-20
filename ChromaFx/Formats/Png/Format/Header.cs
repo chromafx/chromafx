@@ -16,7 +16,6 @@ limitations under the License.
 
 using ChromaFx.Formats.Png.Format.Enums;
 using ChromaFx.Formats.Png.Format.Helpers;
-using System;
 
 namespace ChromaFx.Formats.Png.Format;
 

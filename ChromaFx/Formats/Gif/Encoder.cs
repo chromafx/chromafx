@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 using ChromaFx.Formats.BaseClasses;
-using ChromaFx.Formats.Gif.Format;
+using File = ChromaFx.Formats.Gif.Format.File;
 
 namespace ChromaFx.Formats.Gif;
 

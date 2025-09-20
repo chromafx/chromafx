@@ -1,9 +1,6 @@
 ﻿using ChromaFx.Formats;
 using ChromaFx.Tests.BaseClasses;
 using ChromaFx.Colors;
-using System;
-using System.IO;
-using System.Linq;
 using Xunit;
 
 namespace ChromaFx.Tests;

@@ -15,9 +15,6 @@ limitations under the License.
 */
 
 using ChromaFx.Colors;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ChromaFx.Formats.Jpeg.Format.Segments.BaseClasses;
 using ChromaFx.Formats.Jpeg.Format.Segments;
 using ChromaFx.Formats.Jpeg.Format.Enums;

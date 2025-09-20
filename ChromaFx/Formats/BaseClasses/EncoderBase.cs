@@ -15,9 +15,6 @@ limitations under the License.
 */
 
 using ChromaFx.Formats.Interfaces;
-using System;
-using System.IO;
-using System.Linq;
 
 namespace ChromaFx.Formats.BaseClasses;
 

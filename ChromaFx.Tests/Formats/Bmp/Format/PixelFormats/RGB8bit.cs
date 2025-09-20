@@ -1,7 +1,6 @@
 ﻿using ChromaFx.Formats.Bmp.Format;
 using ChromaFx.Formats.Bmp.Format.PixelFormats.Interfaces;
 using ChromaFx.Tests.Formats.Bmp.Format.PixelFormats.BaseClasses;
-using System.IO;
 using Xunit;
 
 namespace ChromaFx.Tests.Formats.Bmp.Format.PixelFormats;

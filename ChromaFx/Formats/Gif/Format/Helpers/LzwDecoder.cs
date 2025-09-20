@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 using ChromaFx.ExtensionMethods;
-using System.IO;
 
 namespace ChromaFx.Formats.Gif.Format.Helpers;
 

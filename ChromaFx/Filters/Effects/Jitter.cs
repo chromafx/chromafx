@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System.Threading.Tasks;
 using ChromaFx.Filters.Interfaces;
 using ChromaFx.Numerics;
 
@@ -61,8 +60,8 @@ public class Jitter : IFilter
             {
                 for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                 {
-                    var newX = Random.ThreadSafeNext(-Amount, Amount);
-                    var newY = Random.ThreadSafeNext(-Amount, Amount);
+                    var newX = Numerics.Random.ThreadSafeNext(-Amount, Amount);
+                    var newY = Numerics.Random.ThreadSafeNext(-Amount, Amount);
                     newX += x;
                     newY += y;
                     newX =

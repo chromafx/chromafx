@@ -1,5 +1,4 @@
-﻿using System.IO;
-using ChromaFx.Tests.Formats.BaseClasses;
+﻿using ChromaFx.Tests.Formats.BaseClasses;
 using Xunit;
 
 namespace ChromaFx.Tests.Formats.Png;

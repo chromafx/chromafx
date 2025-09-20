@@ -1,5 +1,4 @@
-﻿using System;
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
 using ChromaFx.Formats.Bmp.Format;
 using ChromaFx.Formats.Bmp.Format.PixelFormats;
 

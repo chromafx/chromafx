@@ -21,11 +21,7 @@ using ChromaFx.Formats.Png.Format.Filters;
 using ChromaFx.Formats.Png.Format.Filters.Interfaces;
 using ChromaFx.Formats.Png.Format.Helpers;
 using ChromaFx.Colors;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.IO.Compression;
-using System.Threading.Tasks;
 
 namespace ChromaFx.Formats.Png.Format;
 

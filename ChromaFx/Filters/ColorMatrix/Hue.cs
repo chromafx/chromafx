@@ -16,7 +16,6 @@ limitations under the License.
 
 using ChromaFx.Filters.ColorMatrix.BaseClasses;
 using ChromaFx.Numerics;
-using System;
 
 namespace ChromaFx.Filters.ColorMatrix;
 

@@ -17,7 +17,6 @@ limitations under the License.
 using ChromaFx.Filters.Interfaces;
 using ChromaFx.Filters.Resampling.BaseClasses;
 using ChromaFx.Numerics;
-using System;
 using System.Numerics;
 
 namespace ChromaFx.Filters.Resampling;

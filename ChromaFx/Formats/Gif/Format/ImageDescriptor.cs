@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
-using System.IO;
 using ChromaFx.Formats.Gif.Format.BaseClasses;
 using ChromaFx.Formats.Gif.Format.Helpers;
 using ChromaFx.IO;

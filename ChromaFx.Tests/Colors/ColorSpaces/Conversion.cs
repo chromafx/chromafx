@@ -1,6 +1,5 @@
 ﻿using ChromaFx.Colors.ColorSpaces;
 using ChromaFx.Colors.ColorSpaces.Interfaces;
-using System;
 using Xunit;
 
 namespace ChromaFx.Tests.Colors.ColorSpaces;

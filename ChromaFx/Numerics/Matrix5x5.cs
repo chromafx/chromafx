@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 using ChromaFx.Colors;
-using System;
 using System.Globalization;
 using System.Numerics;
 

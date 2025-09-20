@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ChromaFx.Numerics;
+﻿namespace ChromaFx.Numerics;
 
 /// <summary>
 /// Random class

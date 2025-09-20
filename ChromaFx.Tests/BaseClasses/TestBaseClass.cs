@@ -1,7 +1,4 @@
-﻿using System.IO;
-using System.Linq;
-
-namespace ChromaFx.Tests.BaseClasses;
+﻿namespace ChromaFx.Tests.BaseClasses;
 
 public abstract class TestBaseClass
 {

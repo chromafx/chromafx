@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using ChromaFx.ExtensionMethods;
+﻿using ChromaFx.ExtensionMethods;
 using ChromaFx.Filters.Interfaces;
 using ChromaFx.Numerics;
 

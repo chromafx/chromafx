@@ -1,5 +1,4 @@
-﻿using System;
-using ChromaFx.Numerics.Interfaces;
+﻿using ChromaFx.Numerics.Interfaces;
 using ChromaFx.Colors;
 
 namespace ChromaFx.Numerics;

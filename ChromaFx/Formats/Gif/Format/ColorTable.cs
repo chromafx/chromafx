@@ -17,9 +17,6 @@ limitations under the License.
 using ChromaFx.Formats.Gif.Format.BaseClasses;
 using ChromaFx.IO;
 using ChromaFx.Quantizers;
-using System;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace ChromaFx.Formats.Gif.Format;
 

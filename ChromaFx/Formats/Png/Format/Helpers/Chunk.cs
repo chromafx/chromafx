@@ -15,8 +15,6 @@ limitations under the License.
 */
 
 using ChromaFx.Exceptions;
-using System;
-using System.IO;
 using System.Text;
 
 namespace ChromaFx.Formats.Png.Format.Helpers;

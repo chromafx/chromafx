@@ -1,6 +1,5 @@
 ﻿using ChromaFx.Formats.Png.Format.Enums;
 using ChromaFx.Formats.Png.Format.Filters.BaseClasses;
-using System;
 
 namespace ChromaFx.Formats.Png.Format.Filters;
 
