@@ -1,30 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <BuildNumber Condition=" '$(APPVEYOR_BUILD_NUMBER)' != '' ">$(APPVEYOR_BUILD_NUMBER)</BuildNumber>
-    <!-- for AppVeyor -->
-    <BuildNumber Condition=" '$(BUILD_NUMBER)' != '' ">$(BUILD_NUMBER)</BuildNumber>
-    <!-- for Team City -->
-    <BuildNumber Condition=" '$(BuildNumber)' == '' ">0</BuildNumber>
-    <!-- if not set -->
-    <TargetFramework>net8.0</TargetFramework>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Authors>Ho Tzin Mein</Authors>
-    <Company />
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/chromafx/chromafx</PackageProjectUrl>
-    <PackageIcon>icon.png</PackageIcon>
-	<Description>ChromaFX Legacy branch — stable fork of Structure.Sketching for .NET LTS.</Description>
-	<PackageReleaseNotes>This is a legacy package. Classes are frozen and will receive only minimal maintenance.</PackageReleaseNotes>
-	<Copyright>Copyright $([System.DateTime]::Now.Year) Ho Tzin Mein</Copyright>
-	<PackageTags>image picture graphics gif jpg jpeg bitmap png processing system.drawing</PackageTags>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	<Version Condition=" '$(Version)' == '' ">0.3.$(BuildNumber)</Version>
-    <PackageId>$(AssemblyName).Legacy</PackageId>
-    <Title>ChromaFx</Title>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/chromafx/chromafx</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-  </PropertyGroup>
+	<PropertyGroup>
+		<!-- Build number from GitHub Actions -->
+		<BuildNumber Condition=" '$(GITHUB_RUN_NUMBER)' != '' ">$(GITHUB_RUN_NUMBER)</BuildNumber>
+		<BuildNumber Condition=" '$(BuildNumber)' == '' ">0</BuildNumber>
+
+		<TargetFramework>net8.0</TargetFramework>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+
+		<Authors>Ho Tzin Mein</Authors>
+		<Company />
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/chromafx/chromafx</PackageProjectUrl>
+		<PackageIcon>icon.png</PackageIcon>
+		<Description>ChromaFX Legacy branch — stable fork of Structure.Sketching for .NET LTS.</Description>
+		<PackageReleaseNotes>This is a legacy package. Classes are frozen and will receive only minimal maintenance.</PackageReleaseNotes>
+		<Copyright>Copyright $([System.DateTime]::Now.Year) Ho Tzin Mein</Copyright>
+		<PackageTags>image picture graphics gif jpg jpeg bitmap png processing system.drawing</PackageTags>
+
+		<!-- Use CI build number for prerelease if not overridden -->
+		<Version Condition=" '$(Version)' == '' ">0.3.$(BuildNumber)</Version>
+		<PackageId>$(AssemblyName).Legacy</PackageId>
+		<Title>ChromaFx</Title>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/chromafx/chromafx</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+	</PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <TreatSpecificWarningsAsErrors />
