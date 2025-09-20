@@ -3,7 +3,7 @@ name: Build & Publish NuGet
 on:
   push:
     branches:
-      - main
+      - master
       - legacy
     tags:
       - 'v*.*.*' # release tags
@@ -27,15 +27,24 @@ jobs:
       - name: Build
         run: dotnet build -c Release --no-restore
 
-      - name: Pack
+      - name: Set package version
+        id: vars
         run: |
           if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            # Tagged release: strip 'refs/tags/' prefix
             VERSION=${GITHUB_REF#refs/tags/}
+          elif [[ "${GITHUB_REF_NAME}" == "legacy" ]]; then
+            VERSION="0.3.${GITHUB_RUN_NUMBER}"        # Legacy branch prerelease
+          elif [[ "${GITHUB_REF_NAME}" == "master" ]]; then
+            VERSION="0.4.0-beta.${GITHUB_RUN_NUMBER}" # Master branch prerelease
           else
-            VERSION=$(date +%Y%m%d%H%M) # fallback if you want timestamp or use GITHUB_RUN_NUMBER
-            # For legacy branch, optional: VERSION=0.3.${GITHUB_RUN_NUMBER}
+            VERSION="0.0.0-ci.${GITHUB_RUN_NUMBER}"   # Fallback
           fi
-          dotnet pack -c Release -o ./artifacts /p:Version=$VERSION --no-build
+          echo "Version set to $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Pack NuGet package
+        run: dotnet pack -c Release -o ./artifacts /p:Version=$VERSION --no-build
 
       - name: Publish to NuGet
         run: dotnet nuget push "./artifacts/*.nupkg" \
