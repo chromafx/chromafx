@@ -48,23 +48,23 @@ public class Data
         {
             [ColorType.Greyscale] = new(
                 1,
-                new[] { 1, 2, 4, 8 },
+                [1, 2, 4, 8],
                 (_, _) => new GreyscaleNoAlphaReader()
             ),
-            [ColorType.TrueColor] = new(3, new[] { 8 }, (_, _) => new TrueColorNoAlphaReader()),
+            [ColorType.TrueColor] = new(3, [8], (_, _) => new TrueColorNoAlphaReader()),
             [ColorType.Palette] = new(
                 1,
-                new[] { 1, 2, 4, 8 },
+                [1, 2, 4, 8],
                 (x, y) => new PaletteReader(x, y)
             ),
             [ColorType.GreyscaleWithAlpha] = new(
                 2,
-                new[] { 8 },
+                [8],
                 (_, _) => new GreyscaleAlphaReader()
             ),
             [ColorType.TrueColorWithAlpha] = new(
                 4,
-                new[] { 8 },
+                [8],
                 (_, _) => new TrueColorAlphaReader()
             )
         };

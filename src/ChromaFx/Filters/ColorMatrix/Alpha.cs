@@ -23,16 +23,18 @@ namespace ChromaFx.Filters.ColorMatrix;
 /// Alpha matrix
 /// </summary>
 /// <seealso cref="MatrixBaseClass" />
-public class Alpha : MatrixBaseClass
+/// <remarks>
+/// Initializes a new instance of the <see cref="Alpha"/> class.
+/// </remarks>
+/// <param name="value">The alpha value (0 to 1).</param>
+public class Alpha(float value) : MatrixBaseClass
 {
+
     /// <summary>
-    /// Initializes a new instance of the <see cref="Alpha"/> class.
+    /// Gets the matrix.
     /// </summary>
-    /// <param name="value">The alpha value (0 to 1).</param>
-    public Alpha(float value)
-    {
-        Value = value;
-        Matrix = new Matrix5X5
+    /// <value>The matrix.</value>
+    public override Matrix5X5 Matrix { get; } = new Matrix5X5
         (
             1f, 0f, 0f, 0f, 0f,
             0f, 1f, 0f, 0f, 0f,
@@ -40,17 +42,10 @@ public class Alpha : MatrixBaseClass
             0f, 0f, 0f, value, 0f,
             0f, 0f, 0f, 0f, 1f
         );
-    }
-
-    /// <summary>
-    /// Gets the matrix.
-    /// </summary>
-    /// <value>The matrix.</value>
-    public override Matrix5X5 Matrix { get; }
 
     /// <summary>
     /// Gets the value.
     /// </summary>
     /// <value>The value.</value>
-    public float Value { get; }
+    public float Value { get; } = value;
 }

@@ -57,12 +57,12 @@ public class Sharpen : ConvolutionBaseClass
     /// Gets the matrix.
     /// </summary>
     /// <value>The matrix.</value>
-    public override float[] Matrix => new float[]
-    {
+    public override float[] Matrix =>
+    [
         -1, -2, -1,
         -2, 16, -2,
         -1, -2, -1
-    };
+    ];
 
     /// <summary>
     /// Gets the offset.

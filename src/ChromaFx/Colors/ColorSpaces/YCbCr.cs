@@ -24,38 +24,32 @@ namespace ChromaFx.Colors.ColorSpaces;
 /// </summary>
 /// <seealso cref="IColorSpace"/>
 /// <seealso cref="IEquatable{YCbCr}"/>
-public struct YCbCr : IEquatable<YCbCr>, IColorSpace
+/// <remarks>
+/// Initializes a new instance of the <see cref="YCbCr"/> struct.
+/// </remarks>
+/// <param name="yLuminance">The y luminance.</param>
+/// <param name="cbChroma">The cb chroma.</param>
+/// <param name="crChroma">The cr chroma.</param>
+public struct YCbCr(double yLuminance, double cbChroma, double crChroma) : IEquatable<YCbCr>, IColorSpace
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="YCbCr"/> struct.
-    /// </summary>
-    /// <param name="yLuminance">The y luminance.</param>
-    /// <param name="cbChroma">The cb chroma.</param>
-    /// <param name="crChroma">The cr chroma.</param>
-    public YCbCr(double yLuminance, double cbChroma, double crChroma)
-    {
-        YLuminance = yLuminance;
-        CbChroma = cbChroma;
-        CrChroma = crChroma;
-    }
 
     /// <summary>
     /// Gets or sets the cb chroma.
     /// </summary>
     /// <value>The cb chroma.</value>
-    public double CbChroma;
+    public double CbChroma = cbChroma;
 
     /// <summary>
     /// Gets or sets the cr chroma.
     /// </summary>
     /// <value>The cr chroma.</value>
-    public double CrChroma;
+    public double CrChroma = crChroma;
 
     /// <summary>
     /// Gets or sets the y luminance.
     /// </summary>
     /// <value>The y luminance.</value>
-    public double YLuminance;
+    public double YLuminance = yLuminance;
 
     /// <summary>
     /// The epsilon

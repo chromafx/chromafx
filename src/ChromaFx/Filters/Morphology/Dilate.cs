@@ -24,22 +24,18 @@ namespace ChromaFx.Filters.Morphology;
 /// Dilates an image
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class Dilate : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="Dilate"/> class.
+/// </remarks>
+/// <param name="apertureRadius">The aperture radius.</param>
+public class Dilate(int apertureRadius) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Dilate"/> class.
-    /// </summary>
-    /// <param name="apertureRadius">The aperture radius.</param>
-    public Dilate(int apertureRadius)
-    {
-        ApertureRadius = apertureRadius;
-    }
 
     /// <summary>
     /// Gets or sets the aperture radius.
     /// </summary>
     /// <value>The aperture radius.</value>
-    public int ApertureRadius { get; set; }
+    public int ApertureRadius { get; set; } = apertureRadius;
 
     /// <summary>
     /// Applies the filter to the specified image.

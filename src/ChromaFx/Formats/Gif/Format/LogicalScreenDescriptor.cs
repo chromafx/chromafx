@@ -24,31 +24,22 @@ namespace ChromaFx.Formats.Gif.Format;
 /// Logical screen descriptor
 /// </summary>
 /// <seealso cref="SectionBase" />
-public class LogicalScreenDescriptor : SectionBase
+/// <remarks>
+/// Initializes a new instance of the <see cref="LogicalScreenDescriptor" /> class.
+/// </remarks>
+/// <param name="width">The width.</param>
+/// <param name="height">The height.</param>
+/// <param name="backgroundColorIndex">Index of the background color.</param>
+/// <param name="pixelAspectRatio">The pixel aspect ratio.</param>
+/// <param name="globalColorTablePresent">if set to <c>true</c> [global color table present].</param>
+/// <param name="globalColorTableSize">Size of the global color table.</param>
+public class LogicalScreenDescriptor(short width,
+    short height,
+    byte backgroundColorIndex,
+    byte pixelAspectRatio,
+    bool globalColorTablePresent,
+    int globalColorTableSize) : SectionBase
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="LogicalScreenDescriptor" /> class.
-    /// </summary>
-    /// <param name="width">The width.</param>
-    /// <param name="height">The height.</param>
-    /// <param name="backgroundColorIndex">Index of the background color.</param>
-    /// <param name="pixelAspectRatio">The pixel aspect ratio.</param>
-    /// <param name="globalColorTablePresent">if set to <c>true</c> [global color table present].</param>
-    /// <param name="globalColorTableSize">Size of the global color table.</param>
-    public LogicalScreenDescriptor(short width,
-        short height,
-        byte backgroundColorIndex,
-        byte pixelAspectRatio,
-        bool globalColorTablePresent,
-        int globalColorTableSize)
-    {
-        PixelAspectRatio = pixelAspectRatio;
-        Width = width;
-        Height = height;
-        BackgroundColorIndex = backgroundColorIndex;
-        GlobalColorTablePresent = globalColorTablePresent;
-        GlobalColorTableSize = globalColorTableSize;
-    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="LogicalScreenDescriptor"/> class.
@@ -72,7 +63,7 @@ public class LogicalScreenDescriptor : SectionBase
     /// <value>
     /// The index of the background color.
     /// </value>
-    public byte BackgroundColorIndex { get; }
+    public byte BackgroundColorIndex { get; } = backgroundColorIndex;
 
     /// <summary>
     /// Gets a value indicating whether [global color table present].
@@ -80,7 +71,7 @@ public class LogicalScreenDescriptor : SectionBase
     /// <value>
     /// <c>true</c> if [global color table present]; otherwise, <c>false</c>.
     /// </value>
-    public bool GlobalColorTablePresent { get; }
+    public bool GlobalColorTablePresent { get; } = globalColorTablePresent;
 
     /// <summary>
     /// Gets the size of the global color table.
@@ -88,7 +79,7 @@ public class LogicalScreenDescriptor : SectionBase
     /// <value>
     /// The size of the global color table.
     /// </value>
-    public int GlobalColorTableSize { get; }
+    public int GlobalColorTableSize { get; } = globalColorTableSize;
 
     /// <summary>
     /// Gets the height.
@@ -96,7 +87,7 @@ public class LogicalScreenDescriptor : SectionBase
     /// <value>
     /// The height.
     /// </value>
-    public short Height { get; }
+    public short Height { get; } = height;
 
     /// <summary>
     /// Gets the pixel aspect ratio.
@@ -104,7 +95,7 @@ public class LogicalScreenDescriptor : SectionBase
     /// <value>
     /// The pixel aspect ratio.
     /// </value>
-    public byte PixelAspectRatio { get; }
+    public byte PixelAspectRatio { get; } = pixelAspectRatio;
 
     /// <summary>
     /// Gets the size.
@@ -120,7 +111,7 @@ public class LogicalScreenDescriptor : SectionBase
     /// <value>
     /// The width.
     /// </value>
-    public short Width { get; }
+    public short Width { get; } = width;
 
     /// <summary>
     /// Reads from the specified stream.
@@ -156,11 +147,11 @@ public class LogicalScreenDescriptor : SectionBase
         field.SetBit(4, false);
         field.SetBits(5, 3, GlobalColorTableSize);
 
-        byte[] arr = {
+        byte[] arr = [
             field.Byte,
             BackgroundColorIndex,
             PixelAspectRatio
-        };
+        ];
         writer.Write(arr);
         return true;
     }

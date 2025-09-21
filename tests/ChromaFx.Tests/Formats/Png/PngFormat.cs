@@ -17,7 +17,7 @@ public class PngFormat : FormatTestBase
     [Fact]
     public void CanDecodeByteArray()
     {
-        byte[] header = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
+        byte[] header = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
         Assert.True(new ChromaFx.Formats.Png.PngFormat().CanDecode(header));
         Assert.False(new ChromaFx.Formats.Png.PngFormat().CanDecode(BitConverter.GetBytes(19777)));
         Assert.False(new ChromaFx.Formats.Png.PngFormat().CanDecode(BitConverter.GetBytes(19779)));
@@ -37,7 +37,7 @@ public class PngFormat : FormatTestBase
     [Fact]
     public void CanDecodeStream()
     {
-        byte[] header = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
+        byte[] header = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
         Assert.True(new ChromaFx.Formats.Png.PngFormat().CanDecode(new MemoryStream(header)));
         Assert.False(
             new ChromaFx.Formats.Png.PngFormat().CanDecode(

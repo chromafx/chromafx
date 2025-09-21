@@ -19,16 +19,12 @@ namespace ChromaFx.Formats.Png.Format.Helpers;
 /// <summary>
 /// The different chunk types
 /// </summary>
-public class ChunkTypes
+/// <remarks>
+/// Initializes a new instance of the <see cref="ChunkTypes"/> class.
+/// </remarks>
+/// <param name="value">The value.</param>
+public class ChunkTypes(string value)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ChunkTypes"/> class.
-    /// </summary>
-    /// <param name="value">The value.</param>
-    public ChunkTypes(string value)
-    {
-        Value = value;
-    }
 
     /// <summary>
     /// Gets or sets the value.
@@ -36,7 +32,7 @@ public class ChunkTypes
     /// <value>
     /// The value.
     /// </value>
-    public string Value { get; }
+    public string Value { get; } = value;
 
     /// <summary>
     /// The background color

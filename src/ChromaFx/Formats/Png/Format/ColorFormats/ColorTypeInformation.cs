@@ -21,20 +21,14 @@ namespace ChromaFx.Formats.Png.Format.ColorFormats;
 /// <summary>
 /// Color type information
 /// </summary>
-public class ColorTypeInformation
+/// <remarks>
+/// Initializes a new instance of the <see cref="ColorTypeInformation"/> class.
+/// </remarks>
+/// <param name="scanlineFactor">The scanline factor.</param>
+/// <param name="supportedBitDepths">The supported bit depths.</param>
+/// <param name="scanlineReaderFactory">The scanline reader factory.</param>
+public class ColorTypeInformation(int scanlineFactor, int[] supportedBitDepths, Func<Palette, Palette, IColorReader> scanlineReaderFactory)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ColorTypeInformation"/> class.
-    /// </summary>
-    /// <param name="scanlineFactor">The scanline factor.</param>
-    /// <param name="supportedBitDepths">The supported bit depths.</param>
-    /// <param name="scanlineReaderFactory">The scanline reader factory.</param>
-    public ColorTypeInformation(int scanlineFactor, int[] supportedBitDepths, Func<Palette, Palette, IColorReader> scanlineReaderFactory)
-    {
-        ScanlineReaderFactory = scanlineReaderFactory;
-        SupportedBitDepths = supportedBitDepths;
-        ScanlineFactor = scanlineFactor;
-    }
 
     /// <summary>
     /// Gets or sets the scanline factor.
@@ -42,7 +36,7 @@ public class ColorTypeInformation
     /// <value>
     /// The scanline factor.
     /// </value>
-    public int ScanlineFactor { get; set; }
+    public int ScanlineFactor { get; set; } = scanlineFactor;
 
     /// <summary>
     /// Gets or sets the scanline reader factory.
@@ -50,7 +44,7 @@ public class ColorTypeInformation
     /// <value>
     /// The scanline reader factory.
     /// </value>
-    public Func<Palette, Palette, IColorReader> ScanlineReaderFactory { get; set; }
+    public Func<Palette, Palette, IColorReader> ScanlineReaderFactory { get; set; } = scanlineReaderFactory;
 
     /// <summary>
     /// Gets or sets the supported bit depths.
@@ -58,7 +52,7 @@ public class ColorTypeInformation
     /// <value>
     /// The supported bit depths.
     /// </value>
-    public int[] SupportedBitDepths { get; set; }
+    public int[] SupportedBitDepths { get; set; } = supportedBitDepths;
 
     /// <summary>
     /// Creates the color reader.

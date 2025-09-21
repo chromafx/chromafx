@@ -25,30 +25,25 @@ namespace ChromaFx.Filters.Sharpening;
 /// Does an unsharp filter on an image
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class Unsharp : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="Unsharp"/> class.
+/// </remarks>
+/// <param name="size">The size.</param>
+/// <param name="constant">The constant to scale by (usually 0.2 to 0.7).</param>
+public class Unsharp(int size, float constant) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Unsharp"/> class.
-    /// </summary>
-    /// <param name="size">The size.</param>
-    /// <param name="constant">The constant to scale by (usually 0.2 to 0.7).</param>
-    public Unsharp(int size, float constant)
-    {
-        Constant = constant;
-        Size = size;
-    }
 
     /// <summary>
     /// Gets or sets the constant.
     /// </summary>
     /// <value>The constant.</value>
-    public float Constant { get; set; }
+    public float Constant { get; set; } = constant;
 
     /// <summary>
     /// Gets or sets the size.
     /// </summary>
     /// <value>The size.</value>
-    public int Size { get; set; }
+    public int Size { get; set; } = size;
 
     /// <summary>
     /// Applies the filter to the specified image.

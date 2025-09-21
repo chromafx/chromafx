@@ -24,22 +24,18 @@ namespace ChromaFx.Filters.Effects;
 /// Solarizes an image
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class Solarize : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="Solarize"/> class.
+/// </remarks>
+/// <param name="threshold">The threshold (between 0 and 3).</param>
+public class Solarize(float threshold) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Solarize"/> class.
-    /// </summary>
-    /// <param name="threshold">The threshold (between 0 and 3).</param>
-    public Solarize(float threshold)
-    {
-        Threshold = threshold * 255;
-    }
 
     /// <summary>
     /// Gets or sets the threshold.
     /// </summary>
     /// <value>The threshold.</value>
-    public float Threshold { get; set; }
+    public float Threshold { get; set; } = threshold * 255;
 
     /// <summary>
     /// Applies the filter to the specified image.

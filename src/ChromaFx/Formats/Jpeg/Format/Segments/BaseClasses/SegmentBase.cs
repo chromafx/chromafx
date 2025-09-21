@@ -22,19 +22,13 @@ namespace ChromaFx.Formats.Jpeg.Format.Segments.BaseClasses;
 /// <summary>
 /// Abstract Class that defines an individual segment of the jpeg.
 /// </summary>
-public abstract class SegmentBase
+/// <remarks>
+/// Initializes a new instance of the <see cref="SegmentBase" /> class.
+/// </remarks>
+/// <param name="type">The type.</param>
+/// <param name="bytes">The bytes.</param>
+public abstract class SegmentBase(SegmentTypes type, ByteBuffer bytes)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SegmentBase" /> class.
-    /// </summary>
-    /// <param name="type">The type.</param>
-    /// <param name="bytes">The bytes.</param>
-    protected SegmentBase(SegmentTypes type, ByteBuffer bytes)
-    {
-        Bytes = bytes;
-        Type = type;
-        TempData = new byte[2 * Block.BlockSize];
-    }
 
     /// <summary>
     /// Gets or sets the bytes.
@@ -42,7 +36,7 @@ public abstract class SegmentBase
     /// <value>
     /// The bytes.
     /// </value>
-    public ByteBuffer Bytes { get; set; }
+    public ByteBuffer Bytes { get; set; } = bytes;
 
     /// <summary>
     /// Gets or sets the length.
@@ -58,7 +52,7 @@ public abstract class SegmentBase
     /// <value>
     /// The type.
     /// </value>
-    public SegmentTypes Type { get; }
+    public SegmentTypes Type { get; } = type;
 
     /// <summary>
     /// Gets or sets the temporary data.
@@ -66,7 +60,7 @@ public abstract class SegmentBase
     /// <value>
     /// The temporary data.
     /// </value>
-    protected byte[] TempData { get; set; }
+    protected byte[] TempData { get; set; } = new byte[2 * Block.BlockSize];
 
     /// <summary>
     /// Gets the segment actions.

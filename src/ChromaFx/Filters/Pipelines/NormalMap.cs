@@ -25,30 +25,25 @@ namespace ChromaFx.Filters.Pipelines;
 /// Normal map processing pipeline
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class NormalMap : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="NormalMap"/> class.
+/// </remarks>
+/// <param name="xDirection">The x direction.</param>
+/// <param name="yDirection">The y direction.</param>
+public class NormalMap(XDirection xDirection, YDirection yDirection) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="NormalMap"/> class.
-    /// </summary>
-    /// <param name="xDirection">The x direction.</param>
-    /// <param name="yDirection">The y direction.</param>
-    public NormalMap(XDirection xDirection, YDirection yDirection)
-    {
-        YDirection = yDirection;
-        XDirection = xDirection;
-    }
 
     /// <summary>
     /// Gets or sets the x direction.
     /// </summary>
     /// <value>The x direction.</value>
-    public XDirection XDirection { get; set; }
+    public XDirection XDirection { get; set; } = xDirection;
 
     /// <summary>
     /// Gets or sets the y direction.
     /// </summary>
     /// <value>The y direction.</value>
-    public YDirection YDirection { get; set; }
+    public YDirection YDirection { get; set; } = yDirection;
 
     /// <summary>
     /// Applies the filter to the specified image.

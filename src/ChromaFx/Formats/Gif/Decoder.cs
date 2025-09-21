@@ -55,7 +55,7 @@ public class Decoder : DecoderBase<Format.File>
     /// <value>
     /// The file extensions.
     /// </value>
-    protected override string[] FileExtensions => new[] { ".GIF" };
+    protected override string[] FileExtensions => [".GIF"];
 
     /// <summary>
     /// Determines whether this instance can decode the specified header.

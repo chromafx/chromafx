@@ -24,34 +24,24 @@ namespace ChromaFx.Formats.Gif.Format;
 /// Image descriptor
 /// </summary>
 /// <seealso cref="SectionBase" />
-public class ImageDescriptor : SectionBase
+/// <remarks>
+/// Initializes a new instance of the <see cref="ImageDescriptor"/> class.
+/// </remarks>
+/// <param name="left">The left.</param>
+/// <param name="top">The top.</param>
+/// <param name="width">The width.</param>
+/// <param name="height">The height.</param>
+/// <param name="localColorTableExists">if set to <c>true</c> [local color table exists].</param>
+/// <param name="localColorTableSize">Size of the local color table.</param>
+/// <param name="interlace">if set to <c>true</c> [interlace].</param>
+public class ImageDescriptor(short left,
+    short top,
+    short width,
+    short height,
+    bool localColorTableExists,
+    int localColorTableSize,
+    bool interlace) : SectionBase
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ImageDescriptor"/> class.
-    /// </summary>
-    /// <param name="left">The left.</param>
-    /// <param name="top">The top.</param>
-    /// <param name="width">The width.</param>
-    /// <param name="height">The height.</param>
-    /// <param name="localColorTableExists">if set to <c>true</c> [local color table exists].</param>
-    /// <param name="localColorTableSize">Size of the local color table.</param>
-    /// <param name="interlace">if set to <c>true</c> [interlace].</param>
-    public ImageDescriptor(short left,
-        short top,
-        short width,
-        short height,
-        bool localColorTableExists,
-        int localColorTableSize,
-        bool interlace)
-    {
-        Interlace = interlace;
-        LocalColorTableSize = localColorTableSize;
-        LocalColorTableExists = localColorTableExists;
-        Height = height;
-        Width = width;
-        Top = top;
-        Left = left;
-    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ImageDescriptor"/> class.
@@ -69,7 +59,7 @@ public class ImageDescriptor : SectionBase
     /// <value>
     /// The height.
     /// </value>
-    public short Height { get; }
+    public short Height { get; } = height;
 
     /// <summary>
     /// Gets a value indicating whether this <see cref="ImageDescriptor"/> is interlace.
@@ -77,7 +67,7 @@ public class ImageDescriptor : SectionBase
     /// <value>
     ///   <c>true</c> if interlace; otherwise, <c>false</c>.
     /// </value>
-    public bool Interlace { get; private set; }
+    public bool Interlace { get; private set; } = interlace;
 
     /// <summary>
     /// Gets the left.
@@ -85,7 +75,7 @@ public class ImageDescriptor : SectionBase
     /// <value>
     /// The left.
     /// </value>
-    public short Left { get; private set; }
+    public short Left { get; private set; } = left;
 
     /// <summary>
     /// Gets a value indicating whether [local color table exists].
@@ -93,7 +83,7 @@ public class ImageDescriptor : SectionBase
     /// <value>
     /// <c>true</c> if [local color table exists]; otherwise, <c>false</c>.
     /// </value>
-    public bool LocalColorTableExists { get; private set; }
+    public bool LocalColorTableExists { get; private set; } = localColorTableExists;
 
     /// <summary>
     /// Gets the size of the local color table.
@@ -101,7 +91,7 @@ public class ImageDescriptor : SectionBase
     /// <value>
     /// The size of the local color table.
     /// </value>
-    public int LocalColorTableSize { get; }
+    public int LocalColorTableSize { get; } = localColorTableSize;
 
     /// <summary>
     /// Gets the size.
@@ -117,7 +107,7 @@ public class ImageDescriptor : SectionBase
     /// <value>
     /// The top.
     /// </value>
-    public short Top { get; private set; }
+    public short Top { get; private set; } = top;
 
     /// <summary>
     /// Gets the width.
@@ -125,7 +115,7 @@ public class ImageDescriptor : SectionBase
     /// <value>
     /// The width.
     /// </value>
-    public short Width { get; }
+    public short Width { get; } = width;
 
     /// <summary>
     /// Reads from the specified stream.

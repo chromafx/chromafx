@@ -23,19 +23,13 @@ namespace ChromaFx;
 /// A series of images used in an animation
 /// </summary>
 /// <seealso cref="IList{Image}" />
-public class Animation : IList<Image>
+/// <remarks>
+/// Initializes a new instance of the <see cref="Animation" /> class.
+/// </remarks>
+/// <param name="images">The images.</param>
+/// <param name="delay">The delay.</param>
+public class Animation(IEnumerable<Image> images, short delay) : IList<Image>
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Animation" /> class.
-    /// </summary>
-    /// <param name="images">The images.</param>
-    /// <param name="delay">The delay.</param>
-    public Animation(IEnumerable<Image> images, short delay)
-    {
-        Frames = images.ToList();
-        Delay = delay;
-    }
-
     /// <summary>
     /// Initializes a new instance of the <see cref="Animation"/> class.
     /// </summary>
@@ -83,7 +77,7 @@ public class Animation : IList<Image>
     /// <value>
     /// The delay.
     /// </value>
-    public short Delay { get; set; }
+    public short Delay { get; set; } = delay;
 
     /// <summary>
     /// Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.
@@ -104,7 +98,7 @@ public class Animation : IList<Image>
     /// <value>
     /// The frames.
     /// </value>
-    private List<Image> Frames { get; }
+    private List<Image> Frames { get; } = images.ToList();
 
     /// <summary>
     /// Gets or sets the <see cref="Image"/> at the specified index.

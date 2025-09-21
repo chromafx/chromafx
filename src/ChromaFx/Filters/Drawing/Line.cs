@@ -23,48 +23,40 @@ namespace ChromaFx.Filters.Drawing;
 /// Line drawing item.
 /// </summary>
 /// <seealso cref="ShapeBaseClass"/>
-public class Line : ShapeBaseClass
+/// <remarks>
+/// Initializes a new instance of the <see cref="Line"/> class.
+/// </remarks>
+/// <param name="color">The color.</param>
+/// <param name="x1">The x1.</param>
+/// <param name="y1">The y1.</param>
+/// <param name="x2">The x2.</param>
+/// <param name="y2">The y2.</param>
+public class Line(Color color, int x1, int y1, int x2, int y2) : ShapeBaseClass(color)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Line"/> class.
-    /// </summary>
-    /// <param name="color">The color.</param>
-    /// <param name="x1">The x1.</param>
-    /// <param name="y1">The y1.</param>
-    /// <param name="x2">The x2.</param>
-    /// <param name="y2">The y2.</param>
-    public Line(Color color, int x1, int y1, int x2, int y2)
-        : base(color)
-    {
-        X1 = x1;
-        Y1 = y1;
-        X2 = x2;
-        Y2 = y2;
-    }
 
     /// <summary>
     /// Gets or sets the x1.
     /// </summary>
     /// <value>The x1.</value>
-    public int X1 { get; set; }
+    public int X1 { get; set; } = x1;
 
     /// <summary>
     /// Gets or sets the x2.
     /// </summary>
     /// <value>The x2.</value>
-    public int X2 { get; set; }
+    public int X2 { get; set; } = x2;
 
     /// <summary>
     /// Gets or sets the y1.
     /// </summary>
     /// <value>The y1.</value>
-    public int Y1 { get; set; }
+    public int Y1 { get; set; } = y1;
 
     /// <summary>
     /// Gets or sets the y2.
     /// </summary>
     /// <value>The y2.</value>
-    public int Y2 { get; set; }
+    public int Y2 { get; set; } = y2;
 
     /// <summary>
     /// Applies the specified image.

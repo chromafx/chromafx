@@ -19,18 +19,12 @@ namespace ChromaFx.IO;
 /// <summary>
 /// Bit reader
 /// </summary>
-public class BitReader : IDisposable
+/// <remarks>
+/// Initializes a new instance of the <see cref="BitReader"/> class.
+/// </remarks>
+/// <param name="stream">The stream.</param>
+public class BitReader(Stream stream) : IDisposable
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="BitReader"/> class.
-    /// </summary>
-    /// <param name="stream">The stream.</param>
-    public BitReader(Stream stream)
-    {
-        InternalStream = stream;
-        CurrentBit = 8;
-        CurrentByte = 0;
-    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="BitReader"/> class.
@@ -45,19 +39,19 @@ public class BitReader : IDisposable
     /// Gets the current bit.
     /// </summary>
     /// <value>The current bit.</value>
-    private int CurrentBit { get; set; }
+    private int CurrentBit { get; set; } = 8;
 
     /// <summary>
     /// Gets or sets the current byte.
     /// </summary>
     /// <value>The current byte.</value>
-    private byte CurrentByte { get; set; }
+    private byte CurrentByte { get; set; } = 0;
 
     /// <summary>
     /// Gets or sets the internal stream.
     /// </summary>
     /// <value>The internal stream.</value>
-    private Stream InternalStream { get; set; }
+    private Stream InternalStream { get; set; } = stream;
 
     /// <summary>
     /// Performs application-defined tasks associated with freeing, releasing, or resetting

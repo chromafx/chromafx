@@ -23,32 +23,26 @@ namespace ChromaFx.Filters.Drawing;
 /// Rectangle drawing class
 /// </summary>
 /// <seealso cref="ShapeBaseClass"/>
-public class Rectangle : ShapeBaseClass
+/// <remarks>
+/// Initializes a new instance of the <see cref="Rectangle"/> class.
+/// </remarks>
+/// <param name="color">The color.</param>
+/// <param name="fill">if set to <c>true</c> [fill].</param>
+/// <param name="bounds">The bounds.</param>
+public class Rectangle(Color color, bool fill, Numerics.Rectangle bounds) : ShapeBaseClass(color)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Rectangle"/> class.
-    /// </summary>
-    /// <param name="color">The color.</param>
-    /// <param name="fill">if set to <c>true</c> [fill].</param>
-    /// <param name="bounds">The bounds.</param>
-    public Rectangle(Color color, bool fill, Numerics.Rectangle bounds)
-        : base(color)
-    {
-        Bounds = bounds;
-        Fill = fill;
-    }
 
     /// <summary>
     /// Gets or sets the bounds.
     /// </summary>
     /// <value>The bounds.</value>
-    public Numerics.Rectangle Bounds { get; set; }
+    public Numerics.Rectangle Bounds { get; set; } = bounds;
 
     /// <summary>
     /// Gets or sets a value indicating whether this <see cref="Rectangle"/> is fill.
     /// </summary>
     /// <value><c>true</c> if fill; otherwise, <c>false</c>.</value>
-    public bool Fill { get; set; }
+    public bool Fill { get; set; } = fill;
 
     /// <summary>
     /// Applies the specified image.

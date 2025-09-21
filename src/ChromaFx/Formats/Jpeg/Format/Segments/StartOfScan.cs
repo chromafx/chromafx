@@ -82,7 +82,7 @@ public class StartOfScan : SegmentBase
     private const int MaximumTh = 3;
 
     private static readonly int[] Unzig =
-    {
+    [
         0, 1, 8, 16, 9, 2, 3, 10,
         17, 24, 32, 25, 18, 11, 4, 5,
         12, 19, 26, 33, 40, 48, 41, 34,
@@ -91,10 +91,10 @@ public class StartOfScan : SegmentBase
         29, 22, 15, 23, 30, 37, 44, 51,
         58, 59, 52, 45, 38, 31, 39, 46,
         53, 60, 61, 54, 47, 55, 62, 63
-    };
+    ];
 
     private readonly byte[] _bitCount =
-    {
+    [
         0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4,
         5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
         6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
@@ -111,16 +111,16 @@ public class StartOfScan : SegmentBase
         8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
         8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
         8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8
-    };
+    ];
 
     /// <summary>
     /// The sos header for y cb cr
     /// </summary>
     private readonly byte[] _sosHeaderYCbCr =
-    {
+    [
         0xff, 0xda, 0x00, 0x0c, 0x03, 0x01, 0x00, 0x02,
         0x11, 0x03, 0x11, 0x00, 0x3f, 0x00
-    };
+    ];
 
     private uint _bits;
     private ushort _endOfBlockRun;

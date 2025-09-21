@@ -37,7 +37,7 @@ public struct ColorStruct : IEquatable<ColorStruct>
     /// <param name="blue">The blue.</param>
     /// <param name="alpha">The alpha.</param>
     public ColorStruct(byte red, byte green = 0, byte blue = 0, byte alpha = 255)
-        : this(new[] { red, green, blue, alpha }) { }
+        : this([red, green, blue, alpha]) { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ColorStruct"/> struct.
@@ -146,7 +146,7 @@ public struct ColorStruct : IEquatable<ColorStruct>
     /// <returns>The result of the conversion.</returns>
     public static implicit operator byte[](ColorStruct color)
     {
-        return new[] { color.Red, color.Green, color.Blue, color.Alpha };
+        return [color.Red, color.Green, color.Blue, color.Alpha];
     }
 
     /// <summary>

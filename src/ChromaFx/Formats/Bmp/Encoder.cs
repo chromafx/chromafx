@@ -31,5 +31,5 @@ public class Encoder : EncoderBase<File>
     /// <value>
     /// The file extensions.
     /// </value>
-    protected override string[] FileExtensions => new[] { ".BMP", ".DIB" };
+    protected override string[] FileExtensions => [".BMP", ".DIB"];
 }

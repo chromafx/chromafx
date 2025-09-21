@@ -26,30 +26,25 @@ namespace ChromaFx.Filters.Resampling;
 /// </summary>
 /// <seealso cref="AffineBaseClass"/>
 /// <seealso cref="IFilter"/>
-public class Translate : AffineBaseClass
+/// <remarks>
+/// Initializes a new instance of the <see cref="Translate"/> class.
+/// </remarks>
+/// <param name="xDelta">The x delta.</param>
+/// <param name="yDelta">The y delta.</param>
+public class Translate(int xDelta, int yDelta) : AffineBaseClass
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Translate"/> class.
-    /// </summary>
-    /// <param name="xDelta">The x delta.</param>
-    /// <param name="yDelta">The y delta.</param>
-    public Translate(int xDelta, int yDelta)
-    {
-        YDelta = -yDelta;
-        XDelta = -xDelta;
-    }
 
     /// <summary>
     /// Gets or sets the x delta.
     /// </summary>
     /// <value>The x delta.</value>
-    public int XDelta { get; set; }
+    public int XDelta { get; set; } = -xDelta;
 
     /// <summary>
     /// Gets or sets the y delta.
     /// </summary>
     /// <value>The y delta.</value>
-    public int YDelta { get; set; }
+    public int YDelta { get; set; } = -yDelta;
 
     /// <summary>
     /// Gets the matrix.

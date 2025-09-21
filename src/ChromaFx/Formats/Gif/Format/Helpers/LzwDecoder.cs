@@ -21,16 +21,12 @@ namespace ChromaFx.Formats.Gif.Format.Helpers;
 /// <summary>
 /// LZW Decoder
 /// </summary>
-public class LzwDecoder
+/// <remarks>
+/// Initializes a new instance of the <see cref="LzwDecoder"/> class.
+/// </remarks>
+/// <param name="stream">The stream.</param>
+public class LzwDecoder(Stream stream)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="LzwDecoder"/> class.
-    /// </summary>
-    /// <param name="stream">The stream.</param>
-    public LzwDecoder(Stream stream)
-    {
-        Stream = stream;
-    }
 
     /// <summary>
     /// Gets or sets the stream.
@@ -38,7 +34,7 @@ public class LzwDecoder
     /// <value>
     /// The stream.
     /// </value>
-    public Stream Stream { get; set; }
+    public Stream Stream { get; set; } = stream;
 
     /// <summary>
     /// Decodes the stream to a byte array.

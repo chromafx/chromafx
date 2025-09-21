@@ -25,26 +25,21 @@ namespace ChromaFx.Filters.Resampling;
 /// Affine transformation
 /// </summary>
 /// <seealso cref="AffineBaseClass"/>
-public class AffineTransformation : AffineBaseClass
+/// <remarks>
+/// Initializes a new instance of the <see cref="AffineTransformation"/> class.
+/// </remarks>
+/// <param name="matrix">The matrix.</param>
+/// <param name="width">The new width.</param>
+/// <param name="height">The new height.</param>
+/// <param name="filter">The filter to use (defaults to nearest neighbor).</param>
+public class AffineTransformation(Matrix3x2 matrix, int width = -1, int height = -1, ResamplingFiltersAvailable filter = ResamplingFiltersAvailable.NearestNeighbor) : AffineBaseClass(width, height, filter)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="AffineTransformation"/> class.
-    /// </summary>
-    /// <param name="matrix">The matrix.</param>
-    /// <param name="width">The new width.</param>
-    /// <param name="height">The new height.</param>
-    /// <param name="filter">The filter to use (defaults to nearest neighbor).</param>
-    public AffineTransformation(Matrix3x2 matrix, int width = -1, int height = -1, ResamplingFiltersAvailable filter = ResamplingFiltersAvailable.NearestNeighbor)
-        : base(width, height, filter)
-    {
-        Matrix = matrix;
-    }
 
     /// <summary>
     /// Gets or sets the matrix.
     /// </summary>
     /// <value>The matrix.</value>
-    public Matrix3x2 Matrix { get; set; }
+    public Matrix3x2 Matrix { get; set; } = matrix;
 
     /// <summary>
     /// Implements the operator *.

@@ -25,22 +25,18 @@ namespace ChromaFx.Filters.Effects;
 /// Adds randomization to an image
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class Noise : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="Noise"/> class.
+/// </remarks>
+/// <param name="amount">The amount of potential randomization (0 to 1).</param>
+public class Noise(byte amount) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Noise"/> class.
-    /// </summary>
-    /// <param name="amount">The amount of potential randomization (0 to 1).</param>
-    public Noise(byte amount)
-    {
-        Amount = amount;
-    }
 
     /// <summary>
     /// Gets or sets the amount.
     /// </summary>
     /// <value>The amount.</value>
-    public byte Amount { get; set; }
+    public byte Amount { get; set; } = amount;
 
     /// <summary>
     /// Applies the filter to the specified image.

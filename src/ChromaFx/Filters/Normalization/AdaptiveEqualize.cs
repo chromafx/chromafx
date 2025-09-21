@@ -25,30 +25,25 @@ namespace ChromaFx.Filters.Normalization;
 /// Adaptive equalization of an image
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class AdaptiveEqualize : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="AdaptiveEqualize"/> class.
+/// </remarks>
+/// <param name="radius">The radius.</param>
+/// <param name="histogram">The histogram.</param>
+public class AdaptiveEqualize(int radius, Func<IHistogram> histogram = null) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="AdaptiveEqualize"/> class.
-    /// </summary>
-    /// <param name="radius">The radius.</param>
-    /// <param name="histogram">The histogram.</param>
-    public AdaptiveEqualize(int radius, Func<IHistogram> histogram = null)
-    {
-        Radius = radius;
-        Histogram = histogram ?? (() => new RgbHistogram());
-    }
 
     /// <summary>
     /// Gets or sets the radius.
     /// </summary>
     /// <value>The radius.</value>
-    public int Radius { get; set; }
+    public int Radius { get; set; } = radius;
 
     /// <summary>
     /// Gets or sets the histogram.
     /// </summary>
     /// <value>The histogram.</value>
-    private Func<IHistogram> Histogram { get; }
+    private Func<IHistogram> Histogram { get; } = histogram ?? (() => new RgbHistogram());
 
     /// <summary>
     /// Applies the filter to the specified image.

@@ -25,30 +25,25 @@ namespace ChromaFx.Formats.Png.Format.ColorFormats;
 /// Palette reader
 /// </summary>
 /// <seealso cref="IColorReader"/>
-public class PaletteReader : IColorReader
+/// <remarks>
+/// Initializes a new instance of the <see cref="PaletteReader"/> class.
+/// </remarks>
+/// <param name="palette">The palette.</param>
+/// <param name="alphaPalette">The alpha palette.</param>
+public class PaletteReader(Palette palette, Palette alphaPalette) : IColorReader
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="PaletteReader"/> class.
-    /// </summary>
-    /// <param name="palette">The palette.</param>
-    /// <param name="alphaPalette">The alpha palette.</param>
-    public PaletteReader(Palette palette, Palette alphaPalette)
-    {
-        Palette = palette ?? new Palette(Array.Empty<byte>(), PaletteType.Color);
-        AlphaPalette = alphaPalette ?? new Palette(Array.Empty<byte>(), PaletteType.Alpha);
-    }
 
     /// <summary>
     /// Gets or sets the alpha palette.
     /// </summary>
     /// <value>The alpha palette.</value>
-    public Palette AlphaPalette { get; set; }
+    public Palette AlphaPalette { get; set; } = alphaPalette ?? new Palette(Array.Empty<byte>(), PaletteType.Alpha);
 
     /// <summary>
     /// Gets or sets the palette.
     /// </summary>
     /// <value>The palette.</value>
-    public Palette Palette { get; set; }
+    public Palette Palette { get; set; } = palette ?? new Palette(Array.Empty<byte>(), PaletteType.Color);
 
     /// <summary>
     /// Reads the scanline.

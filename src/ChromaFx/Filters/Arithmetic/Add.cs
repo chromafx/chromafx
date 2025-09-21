@@ -23,22 +23,18 @@ namespace ChromaFx.Filters.Arithmetic;
 /// Does an add operation between two images.
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class Add : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="Add"/> class.
+/// </remarks>
+/// <param name="secondImage">The second image.</param>
+public class Add(Image secondImage) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Add"/> class.
-    /// </summary>
-    /// <param name="secondImage">The second image.</param>
-    public Add(Image secondImage)
-    {
-        SecondImage = secondImage;
-    }
 
     /// <summary>
     /// Gets or sets the second image.
     /// </summary>
     /// <value>The second image.</value>
-    public Image SecondImage { get; set; }
+    public Image SecondImage { get; set; } = secondImage;
 
     /// <summary>
     /// Applies the specified image.

@@ -23,22 +23,12 @@ namespace ChromaFx.Filters.Convolution;
 /// Sobel emboss convolution filter
 /// </summary>
 /// <seealso cref="ConvolutionBaseClass" />
-public class SobelEmboss : ConvolutionBaseClass
+/// <remarks>
+/// Initializes a new instance of the <see cref="SobelEmboss"/> class.
+/// </remarks>
+/// <param name="direction">The direction.</param>
+public class SobelEmboss(Direction direction = Direction.LeftToRight) : ConvolutionBaseClass
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SobelEmboss"/> class.
-    /// </summary>
-    /// <param name="direction">The direction.</param>
-    public SobelEmboss(Direction direction = Direction.LeftToRight)
-    {
-        Matrix = direction switch
-        {
-            Direction.TopToBottom => new float[] { 1, 2, 1, 0, 0, 0, -1, -2, -1 },
-            Direction.BottomToTop => new float[] { -1, -2, -1, 0, 0, 0, 1, 2, 1 },
-            Direction.LeftToRight => new float[] { -1, 0, 1, -2, 0, 2, -1, 0, 1 },
-            _ => new float[] { 1, 0, -1, 2, 0, -2, 1, 0, -1 }
-        };
-    }
 
     /// <summary>
     /// Gets a value indicating whether this <see cref="ConvolutionBaseClass"/> is absolute.
@@ -56,7 +46,13 @@ public class SobelEmboss : ConvolutionBaseClass
     /// Gets the matrix.
     /// </summary>
     /// <value>The matrix.</value>
-    public override float[] Matrix { get; }
+    public override float[] Matrix { get; } = direction switch
+    {
+        Direction.TopToBottom => [1, 2, 1, 0, 0, 0, -1, -2, -1],
+        Direction.BottomToTop => [-1, -2, -1, 0, 0, 0, 1, 2, 1],
+        Direction.LeftToRight => [-1, 0, 1, -2, 0, 2, -1, 0, 1],
+        _ => [1, 0, -1, 2, 0, -2, 1, 0, -1]
+    };
 
     /// <summary>
     /// Gets the offset.

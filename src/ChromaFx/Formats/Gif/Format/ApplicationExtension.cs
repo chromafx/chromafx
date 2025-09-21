@@ -23,18 +23,13 @@ namespace ChromaFx.Formats.Gif.Format;
 /// Application extension
 /// </summary>
 /// <seealso cref="SectionBase" />
-public class ApplicationExtension : SectionBase
+/// <remarks>
+/// Initializes a new instance of the <see cref="ApplicationExtension"/> class.
+/// </remarks>
+/// <param name="repeatCount">The repeat count.</param>
+/// <param name="frameCount">The frame count.</param>
+public class ApplicationExtension(ushort repeatCount, int frameCount) : SectionBase
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ApplicationExtension"/> class.
-    /// </summary>
-    /// <param name="repeatCount">The repeat count.</param>
-    /// <param name="frameCount">The frame count.</param>
-    public ApplicationExtension(ushort repeatCount, int frameCount)
-    {
-        FrameCount = frameCount;
-        RepeatCount = repeatCount;
-    }
 
     /// <summary>
     /// Gets or sets the frame count.
@@ -42,7 +37,7 @@ public class ApplicationExtension : SectionBase
     /// <value>
     /// The frame count.
     /// </value>
-    public int FrameCount { get; set; }
+    public int FrameCount { get; set; } = frameCount;
 
     /// <summary>
     /// Gets or sets the repeat count.
@@ -50,7 +45,7 @@ public class ApplicationExtension : SectionBase
     /// <value>
     /// The repeat count.
     /// </value>
-    public int RepeatCount { get; set; }
+    public int RepeatCount { get; set; } = repeatCount;
 
     /// <summary>
     /// Gets the size.
@@ -81,11 +76,11 @@ public class ApplicationExtension : SectionBase
         if (RepeatCount != 1 && FrameCount > 0)
         {
             byte[] ext =
-            {
+            [
                 SectionTypes.ExtensionIntroducer,
                 SectionTypes.ApplicationExtensionLabel,
                 (byte)Size
-            };
+            ];
 
             writer.Write(ext);
 

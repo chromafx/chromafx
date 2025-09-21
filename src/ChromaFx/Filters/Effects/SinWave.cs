@@ -25,38 +25,32 @@ namespace ChromaFx.Filters.Effects;
 /// Does a sin wave on an image
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class SinWave : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="SinWave"/> class.
+/// </remarks>
+/// <param name="amplitude">The amplitude.</param>
+/// <param name="frequency">The frequency.</param>
+/// <param name="direction">The direction.</param>
+public class SinWave(float amplitude, float frequency, Direction direction) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SinWave"/> class.
-    /// </summary>
-    /// <param name="amplitude">The amplitude.</param>
-    /// <param name="frequency">The frequency.</param>
-    /// <param name="direction">The direction.</param>
-    public SinWave(float amplitude, float frequency, Direction direction)
-    {
-        Direction = direction;
-        Frequency = frequency;
-        Amplitude = amplitude;
-    }
 
     /// <summary>
     /// Gets or sets the amplitude.
     /// </summary>
     /// <value>The amplitude.</value>
-    public float Amplitude { get; set; }
+    public float Amplitude { get; set; } = amplitude;
 
     /// <summary>
     /// Gets or sets the direction.
     /// </summary>
     /// <value>The direction.</value>
-    public Direction Direction { get; set; }
+    public Direction Direction { get; set; } = direction;
 
     /// <summary>
     /// Gets or sets the frequency.
     /// </summary>
     /// <value>The frequency.</value>
-    public float Frequency { get; set; }
+    public float Frequency { get; set; } = frequency;
 
     /// <summary>
     /// Applies the filter to the specified image.

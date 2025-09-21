@@ -70,21 +70,21 @@ public class Kayyali : Convolution2DBaseClass
     /// Gets the x matrix.
     /// </summary>
     /// <value>The x matrix.</value>
-    public override float[] XMatrix => new float[]
-    {
+    public override float[] XMatrix =>
+    [
         6, 0, -6,
         0, 0, 0,
         -6, 0, 6
-    };
+    ];
 
     /// <summary>
     /// Gets the y matrix.
     /// </summary>
     /// <value>The y matrix.</value>
-    public override float[] YMatrix => new float[]
-    {
+    public override float[] YMatrix =>
+    [
         -6, 0, 6,
         0, 0, 0,
         6, 0, -6
-    };
+    ];
 }

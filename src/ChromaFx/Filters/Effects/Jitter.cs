@@ -23,22 +23,18 @@ namespace ChromaFx.Filters.Effects;
 /// Adds randomization to each pixel in an image
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class Jitter : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="Jitter"/> class.
+/// </remarks>
+/// <param name="amount">The amount of potential randomization.</param>
+public class Jitter(int amount) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Jitter"/> class.
-    /// </summary>
-    /// <param name="amount">The amount of potential randomization.</param>
-    public Jitter(int amount)
-    {
-        Amount = amount;
-    }
 
     /// <summary>
     /// Gets or sets the amount.
     /// </summary>
     /// <value>The amount.</value>
-    public int Amount { get; set; }
+    public int Amount { get; set; } = amount;
 
     /// <summary>
     /// Applies the filter to the specified image.

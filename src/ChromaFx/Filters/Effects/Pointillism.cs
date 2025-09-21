@@ -25,22 +25,18 @@ namespace ChromaFx.Filters.Effects;
 /// Pointillism filter
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class Pointillism : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="Pointillism"/> class.
+/// </remarks>
+/// <param name="pointSize">Size of the points.</param>
+public class Pointillism(int pointSize) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Pointillism"/> class.
-    /// </summary>
-    /// <param name="pointSize">Size of the points.</param>
-    public Pointillism(int pointSize)
-    {
-        PointSize = pointSize;
-    }
 
     /// <summary>
     /// Gets or sets the size of the points.
     /// </summary>
     /// <value>The size of the points.</value>
-    public int PointSize { get; set; }
+    public int PointSize { get; set; } = pointSize;
 
     /// <summary>
     /// Applies the filter to the specified image.

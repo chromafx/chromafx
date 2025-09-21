@@ -22,21 +22,12 @@ namespace ChromaFx.Formats.Jpeg.Format.HelperClasses;
 /// <summary>
 /// Byte based buffer class
 /// </summary>
-public class ByteBuffer
+/// <remarks>
+/// Initializes a new instance of the <see cref="ByteBuffer" /> class.
+/// </remarks>
+/// <param name="stream">The stream.</param>
+public class ByteBuffer(Stream stream)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ByteBuffer" /> class.
-    /// </summary>
-    /// <param name="stream">The stream.</param>
-    public ByteBuffer(Stream stream)
-    {
-        Bits = new BitsBuffer();
-        Stream = stream;
-        Buffer = new byte[4096];
-        I = 0;
-        J = 0;
-        UnreadableBytes = 0;
-    }
 
     /// <summary>
     /// Gets or sets the Bits.
@@ -44,7 +35,7 @@ public class ByteBuffer
     /// <value>
     /// The Bits.
     /// </value>
-    public BitsBuffer Bits { get; set; }
+    public BitsBuffer Bits { get; set; } = new BitsBuffer();
 
     /// <summary>
     /// Gets or sets the buffer.
@@ -52,7 +43,7 @@ public class ByteBuffer
     /// <value>
     /// The buffer.
     /// </value>
-    public byte[] Buffer { get; set; }
+    public byte[] Buffer { get; set; } = new byte[4096];
 
     /// <summary>
     /// Gets or sets the i.
@@ -60,7 +51,7 @@ public class ByteBuffer
     /// <value>
     /// The i.
     /// </value>
-    public int I { get; set; }
+    public int I { get; set; } = 0;
 
     /// <summary>
     /// Gets or sets the j.
@@ -68,7 +59,7 @@ public class ByteBuffer
     /// <value>
     /// The j.
     /// </value>
-    public int J { get; set; }
+    public int J { get; set; } = 0;
 
     /// <summary>
     /// Gets or sets the stream.
@@ -76,12 +67,12 @@ public class ByteBuffer
     /// <value>
     /// The stream.
     /// </value>
-    public Stream Stream { get; set; }
+    public Stream Stream { get; set; } = stream;
 
     /// <summary>
     /// The unreadable bytes
     /// </summary>
-    public int UnreadableBytes;
+    public int UnreadableBytes = 0;
 
     /// <summary>
     /// Decodes the bit.

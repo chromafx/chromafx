@@ -25,28 +25,21 @@ namespace ChromaFx.Filters.Binary;
 /// Adaptive threshold an image
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class AdaptiveThreshold : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="AdaptiveThreshold" /> class.
+/// </remarks>
+/// <param name="apertureRadius">The aperture radius.</param>
+/// <param name="color1">The color1.</param>
+/// <param name="color2">The color2.</param>
+/// <param name="threshold">The threshold.</param>
+public class AdaptiveThreshold(int apertureRadius, Color color1, Color color2, float threshold) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="AdaptiveThreshold" /> class.
-    /// </summary>
-    /// <param name="apertureRadius">The aperture radius.</param>
-    /// <param name="color1">The color1.</param>
-    /// <param name="color2">The color2.</param>
-    /// <param name="threshold">The threshold.</param>
-    public AdaptiveThreshold(int apertureRadius, Color color1, Color color2, float threshold)
-    {
-        Threshold = threshold;
-        Color2 = color2;
-        Color1 = color1;
-        ApertureRadius = apertureRadius;
-    }
 
     /// <summary>
     /// Gets or sets the aperture radius.
     /// </summary>
     /// <value>The aperture radius.</value>
-    public int ApertureRadius { get; set; }
+    public int ApertureRadius { get; set; } = apertureRadius;
 
     /// <summary>
     /// Gets or sets the color1.
@@ -54,7 +47,7 @@ public class AdaptiveThreshold : IFilter
     /// <value>
     /// The color1.
     /// </value>
-    public Color Color1 { get; set; }
+    public Color Color1 { get; set; } = color1;
 
     /// <summary>
     /// Gets or sets the color2.
@@ -62,7 +55,7 @@ public class AdaptiveThreshold : IFilter
     /// <value>
     /// The color2.
     /// </value>
-    public Color Color2 { get; set; }
+    public Color Color2 { get; set; } = color2;
 
     /// <summary>
     /// Gets or sets the threshold.
@@ -70,7 +63,7 @@ public class AdaptiveThreshold : IFilter
     /// <value>
     /// The threshold.
     /// </value>
-    public float Threshold { get; set; }
+    public float Threshold { get; set; } = threshold;
 
     /// <summary>
     /// Applies the filter to the specified image.

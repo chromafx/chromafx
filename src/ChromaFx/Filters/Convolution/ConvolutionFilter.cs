@@ -39,52 +39,44 @@ namespace ChromaFx.Filters.Convolution;
 /// Generic convolution filter
 /// </summary>
 /// <seealso cref="ConvolutionBaseClass" />
-public class ConvolutionFilter : ConvolutionBaseClass
+/// <remarks>
+/// Initializes a new instance of the <see cref="ConvolutionFilter"/> class.
+/// </remarks>
+/// <param name="matrix">The matrix.</param>
+/// <param name="width">The width.</param>
+/// <param name="height">The height.</param>
+/// <param name="absolute">if set to <c>true</c> [absolute].</param>
+/// <param name="offset">The offset.</param>
+public class ConvolutionFilter(float[] matrix, int width, int height, bool absolute, float offset) : ConvolutionBaseClass
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ConvolutionFilter"/> class.
-    /// </summary>
-    /// <param name="matrix">The matrix.</param>
-    /// <param name="width">The width.</param>
-    /// <param name="height">The height.</param>
-    /// <param name="absolute">if set to <c>true</c> [absolute].</param>
-    /// <param name="offset">The offset.</param>
-    public ConvolutionFilter(float[] matrix, int width, int height, bool absolute, float offset)
-    {
-        Matrix = matrix;
-        Width = width;
-        Height = height;
-        Absolute = absolute;
-        Offset = offset;
-    }
 
     /// <summary>
     /// Gets a value indicating whether this <see cref="ConvolutionBaseClass"/> is absolute.
     /// </summary>
     /// <value><c>true</c> if absolute; otherwise, <c>false</c>.</value>
-    public override bool Absolute { get; }
+    public override bool Absolute { get; } = absolute;
 
     /// <summary>
     /// Gets the height.
     /// </summary>
     /// <value>The height.</value>
-    public override int Height { get; }
+    public override int Height { get; } = height;
 
     /// <summary>
     /// Gets the matrix.
     /// </summary>
     /// <value>The matrix.</value>
-    public override float[] Matrix { get; }
+    public override float[] Matrix { get; } = matrix;
 
     /// <summary>
     /// Gets the offset.
     /// </summary>
     /// <value>The offset.</value>
-    public override float Offset { get; }
+    public override float Offset { get; } = offset;
 
     /// <summary>
     /// Gets the width.
     /// </summary>
     /// <value>The width.</value>
-    public override int Width { get; }
+    public override int Width { get; } = width;
 }

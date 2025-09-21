@@ -22,18 +22,13 @@ namespace ChromaFx.Formats.Png.Format;
 /// <summary>
 /// Palette class
 /// </summary>
-public class Palette
+/// <remarks>
+/// Initializes a new instance of the <see cref="Palette" /> class.
+/// </remarks>
+/// <param name="data">The data.</param>
+/// <param name="type">The type.</param>
+public class Palette(byte[] data, PaletteType type)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Palette" /> class.
-    /// </summary>
-    /// <param name="data">The data.</param>
-    /// <param name="type">The type.</param>
-    public Palette(byte[] data, PaletteType type)
-    {
-        Type = type;
-        Data = data;
-    }
 
     /// <summary>
     /// Gets or sets the data.
@@ -41,7 +36,7 @@ public class Palette
     /// <value>
     /// The data.
     /// </value>
-    public byte[] Data { get; set; }
+    public byte[] Data { get; set; } = data;
 
     /// <summary>
     /// Gets or sets the type.
@@ -49,7 +44,7 @@ public class Palette
     /// <value>
     /// The type.
     /// </value>
-    public PaletteType Type { get; set; }
+    public PaletteType Type { get; set; } = type;
 
     /// <summary>
     /// Performs an implicit conversion from <see cref="Chunk" /> to <see cref="Palette" />.

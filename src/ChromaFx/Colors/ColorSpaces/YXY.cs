@@ -21,38 +21,32 @@ namespace ChromaFx.Colors.ColorSpaces;
 /// <summary>
 /// YXY color space
 /// </summary>
-public struct Yxy : IEquatable<Yxy>, IColorSpace
+/// <remarks>
+/// Initializes a new instance of the <see cref="Yxy"/> class.
+/// </remarks>
+/// <param name="y1">The y1.</param>
+/// <param name="x">The x.</param>
+/// <param name="y2">The y2.</param>
+public struct Yxy(double y1, double x, double y2) : IEquatable<Yxy>, IColorSpace
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Yxy"/> class.
-    /// </summary>
-    /// <param name="y1">The y1.</param>
-    /// <param name="x">The x.</param>
-    /// <param name="y2">The y2.</param>
-    public Yxy(double y1, double x, double y2)
-    {
-        Y2 = y2;
-        X = x;
-        Y1 = y1;
-    }
 
     /// <summary>
     /// Gets or sets the x.
     /// </summary>
     /// <value>The x.</value>
-    public double X { get; set; }
+    public double X { get; set; } = x;
 
     /// <summary>
     /// Gets or sets the y1.
     /// </summary>
     /// <value>The y1.</value>
-    public double Y1 { get; set; }
+    public double Y1 { get; set; } = y1;
 
     /// <summary>
     /// Gets or sets the y2.
     /// </summary>
     /// <value>The y2.</value>
-    public double Y2 { get; set; }
+    public double Y2 { get; set; } = y2;
 
     /// <summary>
     /// The epsilon

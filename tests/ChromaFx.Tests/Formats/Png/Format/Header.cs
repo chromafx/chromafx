@@ -20,7 +20,7 @@ public class Header
     [Fact]
     public void CreateFromChunk()
     {
-        byte[] data = { 0, 0, 0, 100, 0, 0, 0, 101, 8, 6, 8, 7, 7 };
+        byte[] data = [0, 0, 0, 100, 0, 0, 0, 101, 8, 6, 8, 7, 7];
         ChromaFx.Formats.Png.Format.Header testObject = new ChromaFx.Formats.Png.Format.Helpers.Chunk(12, "ASDF", data, 12);
         Assert.Equal(8, testObject.BitDepth);
         Assert.Equal(6, (byte)testObject.ColorType);

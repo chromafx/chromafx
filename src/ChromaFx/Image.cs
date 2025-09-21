@@ -134,7 +134,7 @@ public partial class Image
     /// <summary>
     /// The ASCII characters used
     /// </summary>
-    private static readonly string[] AsciiCharacters = { "#", "#", "@", "%", "=", "+", "*", ":", "-", ".", " " };
+    private static readonly string[] AsciiCharacters = ["#", "#", "@", "%", "=", "+", "*", ":", "-", ".", " "];
 
     /// <summary>
     /// Makes a copy of this image.

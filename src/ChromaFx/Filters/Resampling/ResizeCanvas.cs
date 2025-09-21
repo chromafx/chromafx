@@ -25,38 +25,32 @@ namespace ChromaFx.Filters.Resampling;
 /// Resizes the canvas
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class ResizeCanvas : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="ResizeCanvas"/> class.
+/// </remarks>
+/// <param name="width">The width.</param>
+/// <param name="height">The height.</param>
+/// <param name="options">The options.</param>
+public class ResizeCanvas(int width, int height, ResizeOptions options = ResizeOptions.UpperLeft) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ResizeCanvas"/> class.
-    /// </summary>
-    /// <param name="width">The width.</param>
-    /// <param name="height">The height.</param>
-    /// <param name="options">The options.</param>
-    public ResizeCanvas(int width, int height, ResizeOptions options = ResizeOptions.UpperLeft)
-    {
-        Options = options;
-        Width = width;
-        Height = height;
-    }
 
     /// <summary>
     /// Gets or sets the height.
     /// </summary>
     /// <value>The height.</value>
-    public int Height { get; set; }
+    public int Height { get; set; } = height;
 
     /// <summary>
     /// Gets or sets the options.
     /// </summary>
     /// <value>The options.</value>
-    public ResizeOptions Options { get; set; }
+    public ResizeOptions Options { get; set; } = options;
 
     /// <summary>
     /// Gets or sets the width.
     /// </summary>
     /// <value>The width.</value>
-    public int Width { get; set; }
+    public int Width { get; set; } = width;
 
     /// <summary>
     /// Applies the filter to the specified image.

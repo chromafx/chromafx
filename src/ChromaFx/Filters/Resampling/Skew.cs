@@ -27,32 +27,26 @@ namespace ChromaFx.Filters.Resampling;
 /// </summary>
 /// <seealso cref="AffineBaseClass"/>
 /// <seealso cref="IFilter"/>
-public class Skew : AffineBaseClass
+/// <remarks>
+/// Initializes a new instance of the <see cref="Skew"/> class.
+/// </remarks>
+/// <param name="xAngle">The x angle.</param>
+/// <param name="yAngle">The y angle.</param>
+/// <param name="filter">The filter.</param>
+public class Skew(float xAngle, float yAngle, ResamplingFiltersAvailable filter = ResamplingFiltersAvailable.NearestNeighbor) : AffineBaseClass(filter: filter)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Skew"/> class.
-    /// </summary>
-    /// <param name="xAngle">The x angle.</param>
-    /// <param name="yAngle">The y angle.</param>
-    /// <param name="filter">The filter.</param>
-    public Skew(float xAngle, float yAngle, ResamplingFiltersAvailable filter = ResamplingFiltersAvailable.NearestNeighbor)
-        : base(filter: filter)
-    {
-        XAngle = -xAngle * (float)(Math.PI / 180f);
-        YAngle = -yAngle * (float)(Math.PI / 180f);
-    }
 
     /// <summary>
     /// Gets or sets the x angle.
     /// </summary>
     /// <value>The x angle.</value>
-    public float XAngle { get; }
+    public float XAngle { get; } = -xAngle * (float)(Math.PI / 180f);
 
     /// <summary>
     /// Gets or sets the y angle.
     /// </summary>
     /// <value>The y angle.</value>
-    public float YAngle { get; }
+    public float YAngle { get; } = -yAngle * (float)(Math.PI / 180f);
 
     /// <summary>
     /// Gets the matrix.

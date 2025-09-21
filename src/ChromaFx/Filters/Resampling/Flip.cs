@@ -26,24 +26,19 @@ namespace ChromaFx.Filters.Resampling;
 /// Flips the image
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class Flip : AffineBaseClass
+/// <remarks>
+/// Initializes a new instance of the <see cref="Flip"/> class.
+/// </remarks>
+/// <param name="direction">The direction.</param>
+/// <param name="filter">The filter.</param>
+public class Flip(FlipDirection direction, ResamplingFiltersAvailable filter = ResamplingFiltersAvailable.NearestNeighbor) : AffineBaseClass(filter: filter)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Flip"/> class.
-    /// </summary>
-    /// <param name="direction">The direction.</param>
-    /// <param name="filter">The filter.</param>
-    public Flip(FlipDirection direction, ResamplingFiltersAvailable filter = ResamplingFiltersAvailable.NearestNeighbor)
-        : base(filter: filter)
-    {
-        Direction = direction;
-    }
 
     /// <summary>
     /// Gets or sets the direction.
     /// </summary>
     /// <value>The direction.</value>
-    public FlipDirection Direction { get; set; }
+    public FlipDirection Direction { get; set; } = direction;
 
     /// <summary>
     /// Gets the matrix.

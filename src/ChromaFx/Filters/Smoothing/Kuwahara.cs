@@ -33,10 +33,10 @@ public class Kuwahara : IFilter
     public Kuwahara(int apertureRadius)
     {
         ApertureRadius = apertureRadius;
-        _apertureMinX = new[] { -ApertureRadius, 0, -ApertureRadius, 0 };
-        _apertureMaxX = new[] { 0, ApertureRadius, 0, ApertureRadius };
-        _apertureMinY = new[] { -ApertureRadius, -ApertureRadius, 0, 0 };
-        _apertureMaxY = new[] { 0, 0, ApertureRadius, ApertureRadius };
+        _apertureMinX = [-ApertureRadius, 0, -ApertureRadius, 0];
+        _apertureMaxX = [0, ApertureRadius, 0, ApertureRadius];
+        _apertureMinY = [-ApertureRadius, -ApertureRadius, 0, 0];
+        _apertureMaxY = [0, 0, ApertureRadius, ApertureRadius];
     }
 
     /// <summary>
@@ -71,16 +71,16 @@ public class Kuwahara : IFilter
             {
                 for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                 {
-                    uint[] rValues = { 0, 0, 0, 0 };
-                    uint[] gValues = { 0, 0, 0, 0 };
-                    uint[] bValues = { 0, 0, 0, 0 };
-                    uint[] numPixels = { 0, 0, 0, 0 };
-                    uint[] maxRValue = { 0, 0, 0, 0 };
-                    uint[] maxGValue = { 0, 0, 0, 0 };
-                    uint[] maxBValue = { 0, 0, 0, 0 };
-                    uint[] minRValue = { 255, 255, 255, 255 };
-                    uint[] minGValue = { 255, 255, 255, 255 };
-                    uint[] minBValue = { 255, 255, 255, 255 };
+                    uint[] rValues = [0, 0, 0, 0];
+                    uint[] gValues = [0, 0, 0, 0];
+                    uint[] bValues = [0, 0, 0, 0];
+                    uint[] numPixels = [0, 0, 0, 0];
+                    uint[] maxRValue = [0, 0, 0, 0];
+                    uint[] maxGValue = [0, 0, 0, 0];
+                    uint[] maxBValue = [0, 0, 0, 0];
+                    uint[] minRValue = [255, 255, 255, 255];
+                    uint[] minGValue = [255, 255, 255, 255];
+                    uint[] minBValue = [255, 255, 255, 255];
 
                     for (var i = 0; i < 4; ++i)
                     {

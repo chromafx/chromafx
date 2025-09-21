@@ -24,16 +24,12 @@ namespace ChromaFx.Formats.Gif.Format;
 /// Comment section
 /// </summary>
 /// <seealso cref="SectionBase" />
-public class Comment : SectionBase
+/// <remarks>
+/// Initializes a new instance of the <see cref="Comment"/> class.
+/// </remarks>
+/// <param name="data">The data.</param>
+public class Comment(string data) : SectionBase
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Comment"/> class.
-    /// </summary>
-    /// <param name="data">The data.</param>
-    public Comment(string data)
-    {
-        Data = data;
-    }
 
     /// <summary>
     /// Gets the data.
@@ -41,7 +37,7 @@ public class Comment : SectionBase
     /// <value>
     /// The data.
     /// </value>
-    public string Data { get; private set; }
+    public string Data { get; private set; } = data;
 
     /// <summary>
     /// Reads from the specified stream.

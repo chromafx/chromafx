@@ -38,7 +38,7 @@ public class Decoder : DecoderBase<Format.File>
     /// <value>
     /// The file extensions.
     /// </value>
-    protected override string[] FileExtensions => new[] { ".PNG" };
+    protected override string[] FileExtensions => [".PNG"];
 
     /// <summary>
     /// Determines whether this instance can decode the specified header.

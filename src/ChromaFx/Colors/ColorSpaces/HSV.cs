@@ -8,38 +8,32 @@ namespace ChromaFx.Colors.ColorSpaces;
 /// </summary>
 /// <seealso cref="System.IEquatable{HSV}"/>
 /// <seealso cref="IColorSpace"/>
-public struct Hsv : IEquatable<Hsv>, IColorSpace
+/// <remarks>
+/// Initializes a new instance of the <see cref="Hsv"/> struct.
+/// </remarks>
+/// <param name="hue">The hue.</param>
+/// <param name="saturation">The saturation.</param>
+/// <param name="value">The value.</param>
+public struct Hsv(double hue, double saturation, double value) : IEquatable<Hsv>, IColorSpace
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Hsv"/> struct.
-    /// </summary>
-    /// <param name="hue">The hue.</param>
-    /// <param name="saturation">The saturation.</param>
-    /// <param name="value">The value.</param>
-    public Hsv(double hue, double saturation, double value)
-    {
-        Hue = hue;
-        Saturation = saturation;
-        Value = value;
-    }
 
     /// <summary>
     /// Gets or sets the hue.
     /// </summary>
     /// <value>The hue.</value>
-    public double Hue;
+    public double Hue = hue;
 
     /// <summary>
     /// Gets or sets the saturation.
     /// </summary>
     /// <value>The saturation.</value>
-    public double Saturation;
+    public double Saturation = saturation;
 
     /// <summary>
     /// Gets or sets the value.
     /// </summary>
     /// <value>The value.</value>
-    public double Value;
+    public double Value = value;
 
     /// <summary>
     /// The epsilon value for double comparison

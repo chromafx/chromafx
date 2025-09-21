@@ -21,38 +21,32 @@ namespace ChromaFx.Colors.ColorSpaces;
 /// <summary>
 /// LCH color space
 /// </summary>
-public struct Cielch : IEquatable<Cielch>, IColorSpace
+/// <remarks>
+/// Initializes a new instance of the <see cref="Cielch"/> struct.
+/// </remarks>
+/// <param name="l">The l.</param>
+/// <param name="c">The c.</param>
+/// <param name="h">The h.</param>
+public struct Cielch(double l, double c, double h) : IEquatable<Cielch>, IColorSpace
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Cielch"/> struct.
-    /// </summary>
-    /// <param name="l">The l.</param>
-    /// <param name="c">The c.</param>
-    /// <param name="h">The h.</param>
-    public Cielch(double l, double c, double h)
-    {
-        L = l;
-        C = c;
-        H = h;
-    }
 
     /// <summary>
     /// Gets or sets the c.
     /// </summary>
     /// <value>The c.</value>
-    public double C { get; set; }
+    public double C { get; set; } = c;
 
     /// <summary>
     /// Gets or sets the h.
     /// </summary>
     /// <value>The h.</value>
-    public double H { get; set; }
+    public double H { get; set; } = h;
 
     /// <summary>
     /// Gets or sets the l.
     /// </summary>
     /// <value>The l.</value>
-    public double L { get; set; }
+    public double L { get; set; } = l;
 
     /// <summary>
     /// The epsilon

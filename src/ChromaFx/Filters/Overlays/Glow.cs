@@ -25,38 +25,32 @@ namespace ChromaFx.Filters.Overlays;
 /// Adds a glow effect to an image
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class Glow : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="Glow"/> class.
+/// </remarks>
+/// <param name="color">The glow color.</param>
+/// <param name="xRadius">The x radius (between 0 and 1).</param>
+/// <param name="yRadius">The y radius (between 0 and 1).</param>
+public class Glow(Color color, float xRadius, float yRadius) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Glow"/> class.
-    /// </summary>
-    /// <param name="color">The glow color.</param>
-    /// <param name="xRadius">The x radius (between 0 and 1).</param>
-    /// <param name="yRadius">The y radius (between 0 and 1).</param>
-    public Glow(Color color, float xRadius, float yRadius)
-    {
-        XRadius = xRadius > 0 ? xRadius : 0.5f;
-        YRadius = yRadius > 0 ? yRadius : 0.5f;
-        Color = color;
-    }
 
     /// <summary>
     /// Gets or sets the color.
     /// </summary>
     /// <value>The color.</value>
-    public Color Color { get; }
+    public Color Color { get; } = color;
 
     /// <summary>
     /// Gets the x radius.
     /// </summary>
     /// <value>The x radius.</value>
-    public float XRadius { get; }
+    public float XRadius { get; } = xRadius > 0 ? xRadius : 0.5f;
 
     /// <summary>
     /// Gets the y radius.
     /// </summary>
     /// <value>The y radius.</value>
-    public float YRadius { get; }
+    public float YRadius { get; } = yRadius > 0 ? yRadius : 0.5f;
 
     /// <summary>
     /// Applies the specified image.

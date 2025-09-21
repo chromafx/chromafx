@@ -25,7 +25,12 @@ namespace ChromaFx.Formats.Gif.Format;
 /// Frame indices
 /// </summary>
 /// <seealso cref="SectionBase" />
-public class FrameIndices : SectionBase
+/// <remarks>
+/// Initializes a new instance of the <see cref="FrameIndices" /> class.
+/// </remarks>
+/// <param name="indices">The indices.</param>
+/// <param name="bitDepth">The bit depth.</param>
+public class FrameIndices(byte[] indices, byte bitDepth) : SectionBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="FrameIndices"/> class.
@@ -38,23 +43,12 @@ public class FrameIndices : SectionBase
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="FrameIndices" /> class.
-    /// </summary>
-    /// <param name="indices">The indices.</param>
-    /// <param name="bitDepth">The bit depth.</param>
-    public FrameIndices(byte[] indices, byte bitDepth)
-    {
-        Indices = indices;
-        BitDepth = bitDepth;
-    }
-
-    /// <summary>
     /// Gets or sets the bit depth.
     /// </summary>
     /// <value>
     /// The bit depth.
     /// </value>
-    public byte BitDepth { get; set; }
+    public byte BitDepth { get; set; } = bitDepth;
 
     /// <summary>
     /// Gets or sets the indices.
@@ -62,7 +56,7 @@ public class FrameIndices : SectionBase
     /// <value>
     /// The indices.
     /// </value>
-    public byte[] Indices { get; set; }
+    public byte[] Indices { get; set; } = indices;
 
     /// <summary>
     /// Reads from the specified stream.

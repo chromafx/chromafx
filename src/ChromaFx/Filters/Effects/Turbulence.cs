@@ -26,38 +26,32 @@ namespace ChromaFx.Filters.Effects;
 /// Adds turbulence to an image
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class Turbulence : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="SinWave"/> class.
+/// </remarks>
+/// <param name="roughness">The roughness.</param>
+/// <param name="power">The power.</param>
+/// <param name="seed">The seed.</param>
+public class Turbulence(int roughness = 8, float power = 0.02f, int seed = 25123864) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SinWave"/> class.
-    /// </summary>
-    /// <param name="roughness">The roughness.</param>
-    /// <param name="power">The power.</param>
-    /// <param name="seed">The seed.</param>
-    public Turbulence(int roughness = 8, float power = 0.02f, int seed = 25123864)
-    {
-        Seed = seed;
-        Power = power;
-        Roughness = roughness;
-    }
 
     /// <summary>
     /// Gets or sets the power.
     /// </summary>
     /// <value>The power.</value>
-    public float Power { get; set; }
+    public float Power { get; set; } = power;
 
     /// <summary>
     /// Gets or sets the roughness.
     /// </summary>
     /// <value>The roughness.</value>
-    public int Roughness { get; set; }
+    public int Roughness { get; set; } = roughness;
 
     /// <summary>
     /// Gets or sets the seed.
     /// </summary>
     /// <value>The seed.</value>
-    public int Seed { get; set; }
+    public int Seed { get; set; } = seed;
 
     /// <summary>
     /// Applies the filter to the specified image.

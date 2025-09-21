@@ -24,22 +24,18 @@ namespace ChromaFx.Filters.Morphology;
 /// Constricts an image
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class Constrict : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="Constrict"/> class.
+/// </remarks>
+/// <param name="apertureRadius">The aperture radius.</param>
+public class Constrict(int apertureRadius) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Constrict"/> class.
-    /// </summary>
-    /// <param name="apertureRadius">The aperture radius.</param>
-    public Constrict(int apertureRadius)
-    {
-        ApertureRadius = apertureRadius;
-    }
 
     /// <summary>
     /// Gets or sets the aperture radius.
     /// </summary>
     /// <value>The aperture radius.</value>
-    public int ApertureRadius { get; set; }
+    public int ApertureRadius { get; set; } = apertureRadius;
 
     /// <summary>
     /// Applies the filter to the specified image.

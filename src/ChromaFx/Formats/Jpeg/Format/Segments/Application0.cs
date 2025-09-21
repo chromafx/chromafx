@@ -23,16 +23,12 @@ namespace ChromaFx.Formats.Jpeg.Format.Segments;
 /// Application 0 segment
 /// </summary>
 /// <seealso cref="SegmentBase" />
-public class Application0 : SegmentBase
+/// <remarks>
+/// Initializes a new instance of the <see cref="Application0"/> class.
+/// </remarks>
+/// <param name="bytes">The bytes.</param>
+public class Application0(ByteBuffer bytes) : SegmentBase(SegmentTypes.Application0, bytes)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Application0"/> class.
-    /// </summary>
-    /// <param name="bytes">The bytes.</param>
-    public Application0(ByteBuffer bytes)
-        : base(SegmentTypes.Application0, bytes)
-    {
-    }
 
     /// <summary>
     /// Gets or sets a value indicating whether this instance is jfif.

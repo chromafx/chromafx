@@ -19,18 +19,13 @@ namespace ChromaFx.Formats.Jpeg.Format.HelperClasses;
 /// <summary>
 /// Huffman spec data holder
 /// </summary>
-public class HuffmanSpec
+/// <remarks>
+/// Initializes a new instance of the <see cref="HuffmanSpec" /> class.
+/// </remarks>
+/// <param name="count">The count.</param>
+/// <param name="values">The values.</param>
+public class HuffmanSpec(byte[] count, byte[] values)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="HuffmanSpec" /> class.
-    /// </summary>
-    /// <param name="count">The count.</param>
-    /// <param name="values">The values.</param>
-    public HuffmanSpec(byte[] count, byte[] values)
-    {
-        Count = count;
-        Values = values;
-    }
 
     /// <summary>
     /// Gets the count.
@@ -38,7 +33,7 @@ public class HuffmanSpec
     /// <value>
     /// The count.
     /// </value>
-    public byte[] Count { get; private set; }
+    public byte[] Count { get; private set; } = count;
 
     /// <summary>
     /// Gets the values.
@@ -46,5 +41,5 @@ public class HuffmanSpec
     /// <value>
     /// The values.
     /// </value>
-    public byte[] Values { get; private set; }
+    public byte[] Values { get; private set; } = values;
 }

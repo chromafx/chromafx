@@ -23,20 +23,16 @@ namespace ChromaFx.Filters.ColorMatrix;
 /// Generic ColorMatrix
 /// </summary>
 /// <seealso cref="MatrixBaseClass"/>
-public class ColorMatrix : MatrixBaseClass
+/// <remarks>
+/// Initializes a new instance of the <see cref="ColorMatrix"/> class.
+/// </remarks>
+/// <param name="matrix">The matrix.</param>
+public class ColorMatrix(Matrix5X5 matrix) : MatrixBaseClass
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ColorMatrix"/> class.
-    /// </summary>
-    /// <param name="matrix">The matrix.</param>
-    public ColorMatrix(Matrix5X5 matrix)
-    {
-        Matrix = matrix;
-    }
 
     /// <summary>
     /// Gets the matrix.
     /// </summary>
     /// <value>The matrix.</value>
-    public override Matrix5X5 Matrix { get; }
+    public override Matrix5X5 Matrix { get; } = matrix;
 }

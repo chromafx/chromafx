@@ -249,8 +249,8 @@ public class StartOfFrame : SegmentBase
     /// <param name="writer">The binary writer.</param>
     public override void Write(BinaryWriter writer)
     {
-        byte[] subsamples = { 0x11, 0x11, 0x11 };
-        byte[] chroma = { 0x00, 0x01, 0x01 };
+        byte[] subsamples = [0x11, 0x11, 0x11];
+        byte[] chroma = [0x00, 0x01, 0x01];
 
         Length = 8 + 3 * Components.Length;
         WriteSegmentHeader(writer);

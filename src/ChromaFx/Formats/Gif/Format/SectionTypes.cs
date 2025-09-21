@@ -19,16 +19,12 @@ namespace ChromaFx.Formats.Gif.Format;
 /// <summary>
 /// Section types class
 /// </summary>
-public class SectionTypes
+/// <remarks>
+/// Initializes a new instance of the <see cref="SectionTypes"/> class.
+/// </remarks>
+/// <param name="value">The value.</param>
+public class SectionTypes(byte value)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SectionTypes"/> class.
-    /// </summary>
-    /// <param name="value">The value.</param>
-    public SectionTypes(byte value)
-    {
-        Value = value;
-    }
 
     /// <summary>
     /// Gets or sets the value.
@@ -36,7 +32,7 @@ public class SectionTypes
     /// <value>
     /// The value.
     /// </value>
-    public byte Value { get; }
+    public byte Value { get; } = value;
 
     /// <summary>
     /// The application extension label

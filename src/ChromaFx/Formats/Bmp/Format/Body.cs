@@ -22,16 +22,12 @@ namespace ChromaFx.Formats.Bmp.Format;
 /// <summary>
 /// BMP body
 /// </summary>
-public class Body
+/// <remarks>
+/// Initializes a new instance of the <see cref="Body"/> class.
+/// </remarks>
+/// <param name="data">The data.</param>
+public class Body(byte[] data)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Body"/> class.
-    /// </summary>
-    /// <param name="data">The data.</param>
-    public Body(byte[] data)
-    {
-        Data = data;
-    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Body" /> class.
@@ -47,7 +43,7 @@ public class Body
     /// Gets or sets the data.
     /// </summary>
     /// <value>The data.</value>
-    public byte[] Data { get; set; }
+    public byte[] Data { get; set; } = data;
 
     /// <summary>
     /// The pixel formats

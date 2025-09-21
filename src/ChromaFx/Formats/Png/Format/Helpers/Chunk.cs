@@ -110,13 +110,12 @@ public class Chunk
     {
         stream.Write(GetValueAsArray(Length));
         stream.Write(
-            new[]
-            {
+            [
                 (byte)((string)Type)[0],
                 (byte)((string)Type)[1],
                 (byte)((string)Type)[2],
                 (byte)((string)Type)[3]
-            }
+            ]
         );
         stream.Write(Data);
         stream.Write(GetValueAsArray(Crc));
@@ -189,13 +188,12 @@ public class Chunk
         return numberOfBytes != 4
             ? string.Empty
             : new string(
-                new[]
-                {
+                [
                     (char)typeBuffer[0],
                     (char)typeBuffer[1],
                     (char)typeBuffer[2],
                     (char)typeBuffer[3]
-                }
+                ]
             );
     }
 

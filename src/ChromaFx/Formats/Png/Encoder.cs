@@ -47,5 +47,5 @@ public class Encoder : EncoderBase<Format.File>
     /// <value>
     /// The file extensions.
     /// </value>
-    protected override string[] FileExtensions => new[] { ".PNG" };
+    protected override string[] FileExtensions => [".PNG"];
 }

@@ -24,32 +24,27 @@ namespace ChromaFx.Filters.Pipelines.BaseClasses;
 /// <summary>
 /// Processing pipeline base class
 /// </summary>
-public abstract class ProcessingPipelineBaseClass : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="ProcessingPipelineBaseClass"/> class.
+/// </remarks>
+/// <param name="combine">
+/// if set to <c>true</c> [combine] the convolution filters when possible.
+/// </param>
+public abstract class ProcessingPipelineBaseClass(bool combine) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ProcessingPipelineBaseClass"/> class.
-    /// </summary>
-    /// <param name="combine">
-    /// if set to <c>true</c> [combine] the convolution filters when possible.
-    /// </param>
-    protected ProcessingPipelineBaseClass(bool combine)
-    {
-        Combine = combine;
-        Filters = new List<IFilter>();
-    }
 
     /// <summary>
     /// Gets or sets a value indicating whether this <see cref="ProcessingPipelineBaseClass"/>
     /// should combine the filters or not.
     /// </summary>
     /// <value><c>true</c> if combine; otherwise, <c>false</c>.</value>
-    public bool Combine { get; }
+    public bool Combine { get; } = combine;
 
     /// <summary>
     /// Gets the filters.
     /// </summary>
     /// <value>The filters.</value>
-    public List<IFilter> Filters { get; }
+    public List<IFilter> Filters { get; } = new List<IFilter>();
 
     /// <summary>
     /// Adds the filter to the pipeline

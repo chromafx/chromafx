@@ -21,38 +21,32 @@ namespace ChromaFx.Colors.ColorSpaces;
 /// <summary>
 /// LAB color space
 /// </summary>
-public struct HunterLab : IEquatable<HunterLab>, IColorSpace
+/// <remarks>
+/// Initializes a new instance of the <see cref="HunterLab"/> struct.
+/// </remarks>
+/// <param name="l">The l.</param>
+/// <param name="a">a.</param>
+/// <param name="b">The b.</param>
+public struct HunterLab(double l, double a, double b) : IEquatable<HunterLab>, IColorSpace
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="HunterLab"/> struct.
-    /// </summary>
-    /// <param name="l">The l.</param>
-    /// <param name="a">a.</param>
-    /// <param name="b">The b.</param>
-    public HunterLab(double l, double a, double b)
-    {
-        L = l;
-        A = a;
-        B = b;
-    }
 
     /// <summary>
     /// Gets or sets a.
     /// </summary>
     /// <value>a.</value>
-    public double A { get; set; }
+    public double A { get; set; } = a;
 
     /// <summary>
     /// Gets or sets the b.
     /// </summary>
     /// <value>The b.</value>
-    public double B { get; set; }
+    public double B { get; set; } = b;
 
     /// <summary>
     /// Gets or sets the l.
     /// </summary>
     /// <value>The l.</value>
-    public double L { get; set; }
+    public double L { get; set; } = l;
 
     /// <summary>
     /// The epsilon

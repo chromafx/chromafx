@@ -19,18 +19,13 @@ namespace ChromaFx.Formats.Bmp.Format;
 /// <summary>
 /// Bitmap file header
 /// </summary>
-public class FileHeader
+/// <remarks>
+/// Initializes a new instance of the <see cref="FileHeader"/> class.
+/// </remarks>
+/// <param name="fileSize">Size of the file.</param>
+/// <param name="offset">The offset.</param>
+public class FileHeader(int fileSize, int offset)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="FileHeader"/> class.
-    /// </summary>
-    /// <param name="fileSize">Size of the file.</param>
-    /// <param name="offset">The offset.</param>
-    public FileHeader(int fileSize, int offset)
-    {
-        FileSize = fileSize;
-        Offset = offset;
-    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="FileHeader"/> class.
@@ -45,13 +40,13 @@ public class FileHeader
     /// Gets the size of the file.
     /// </summary>
     /// <value>The size of the file.</value>
-    public int FileSize { get; }
+    public int FileSize { get; } = fileSize;
 
     /// <summary>
     /// Gets the offset.
     /// </summary>
     /// <value>The offset.</value>
-    public int Offset { get; }
+    public int Offset { get; } = offset;
 
     /// <summary>
     /// Gets the reserved.

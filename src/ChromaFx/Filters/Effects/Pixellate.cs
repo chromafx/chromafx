@@ -23,22 +23,18 @@ namespace ChromaFx.Filters.Effects;
 /// Pixellates an image
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class Pixellate : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="Pixellate"/> class.
+/// </remarks>
+/// <param name="pixelSize">Size of the pixel.</param>
+public class Pixellate(int pixelSize) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Pixellate"/> class.
-    /// </summary>
-    /// <param name="pixelSize">Size of the pixel.</param>
-    public Pixellate(int pixelSize)
-    {
-        PixelSize = pixelSize;
-    }
 
     /// <summary>
     /// Gets or sets the size of the pixel.
     /// </summary>
     /// <value>The size of the pixel.</value>
-    public int PixelSize { get; set; }
+    public int PixelSize { get; set; } = pixelSize;
 
     /// <summary>
     /// Applies the filter to the specified image.

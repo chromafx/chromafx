@@ -21,20 +21,14 @@ namespace ChromaFx.Colors.ColorSpaces;
 /// <summary>
 /// XYZ color space
 /// </summary>
-public struct Xyz : IEquatable<Xyz>, IColorSpace
+/// <remarks>
+/// Initializes a new instance of the <see cref="Xyz"/> class.
+/// </remarks>
+/// <param name="x">The x.</param>
+/// <param name="y">The y.</param>
+/// <param name="z">The z.</param>
+public struct Xyz(double x, double y, double z) : IEquatable<Xyz>, IColorSpace
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Xyz"/> class.
-    /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
-    /// <param name="z">The z.</param>
-    public Xyz(double x, double y, double z)
-    {
-        X = x;
-        Y = y;
-        Z = z;
-    }
 
     /// <summary>
     /// Gets the white reference.
@@ -46,19 +40,19 @@ public struct Xyz : IEquatable<Xyz>, IColorSpace
     /// Gets or sets the x.
     /// </summary>
     /// <value>The x.</value>
-    public double X { get; set; }
+    public double X { get; set; } = x;
 
     /// <summary>
     /// Gets or sets the y.
     /// </summary>
     /// <value>The y.</value>
-    public double Y { get; set; }
+    public double Y { get; set; } = y;
 
     /// <summary>
     /// Gets or sets the z.
     /// </summary>
     /// <value>The z.</value>
-    public double Z { get; set; }
+    public double Z { get; set; } = z;
 
     /// <summary>
     /// The epsilon

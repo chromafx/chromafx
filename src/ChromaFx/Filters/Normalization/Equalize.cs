@@ -24,22 +24,18 @@ namespace ChromaFx.Filters.Normalization;
 /// Equalizes of an image
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class Equalize : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="Equalize"/> class.
+/// </remarks>
+/// <param name="histogram">The histogram.</param>
+public class Equalize(IHistogram histogram = null) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Equalize"/> class.
-    /// </summary>
-    /// <param name="histogram">The histogram.</param>
-    public Equalize(IHistogram histogram = null)
-    {
-        Histogram = histogram ?? new RgbHistogram();
-    }
 
     /// <summary>
     /// Gets or sets the histogram.
     /// </summary>
     /// <value>The histogram.</value>
-    private IHistogram Histogram { get; }
+    private IHistogram Histogram { get; } = histogram ?? new RgbHistogram();
 
     /// <summary>
     /// Applies the filter to the specified image.

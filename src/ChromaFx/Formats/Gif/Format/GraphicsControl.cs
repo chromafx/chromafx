@@ -129,11 +129,11 @@ public class GraphicsControl : SectionBase
     /// </returns>
     public override bool Write(EndianBinaryWriter writer)
     {
-        byte[] intro = {
+        byte[] intro = [
             SectionTypes.ExtensionIntroducer,
             SectionTypes.GraphicControlLabel,
             4
-        };
+        ];
 
         writer.Write(intro);
 

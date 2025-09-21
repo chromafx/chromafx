@@ -85,7 +85,7 @@ public class Octree
     /// <summary>
     /// The mask
     /// </summary>
-    private static readonly int[] Mask = { 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 };
+    private static readonly int[] Mask = [0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01];
 
     /// <summary>
     /// Adds the color.

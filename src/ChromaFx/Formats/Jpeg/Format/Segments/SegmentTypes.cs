@@ -19,16 +19,12 @@ namespace ChromaFx.Formats.Jpeg.Format.Segments;
 /// <summary>
 /// The different segment types
 /// </summary>
-public class SegmentTypes
+/// <remarks>
+/// Initializes a new instance of the <see cref="SegmentTypes"/> class.
+/// </remarks>
+/// <param name="value">The value.</param>
+public class SegmentTypes(byte value)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SegmentTypes"/> class.
-    /// </summary>
-    /// <param name="value">The value.</param>
-    public SegmentTypes(byte value)
-    {
-        Value = value;
-    }
 
     /// <summary>
     /// Gets or sets the value.
@@ -36,7 +32,7 @@ public class SegmentTypes
     /// <value>
     /// The value.
     /// </value>
-    public byte Value { get; }
+    public byte Value { get; } = value;
 
     /// <summary>
     /// The application 0 tag
@@ -199,6 +195,6 @@ public class SegmentTypes
     /// </returns>
     public override string ToString()
     {
-        return new string(new[] { (char)Value });
+        return new string([(char)Value]);
     }
 }

@@ -25,24 +25,16 @@ namespace ChromaFx.Formats.Gif.Format;
 /// Frame data holder
 /// </summary>
 /// <seealso cref="SectionBase" />
-public class Frame : SectionBase
+/// <remarks>
+/// Initializes a new instance of the <see cref="Frame" /> class.
+/// </remarks>
+/// <param name="graphicsControl">The graphics control.</param>
+/// <param name="descriptor">The descriptor.</param>
+/// <param name="localColorTable">The local color table.</param>
+/// <param name="indices">The indices.</param>
+/// <param name="data">The data.</param>
+public class Frame(GraphicsControl graphicsControl, ImageDescriptor descriptor, ColorTable localColorTable, FrameIndices indices, byte[] data) : SectionBase
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Frame" /> class.
-    /// </summary>
-    /// <param name="graphicsControl">The graphics control.</param>
-    /// <param name="descriptor">The descriptor.</param>
-    /// <param name="localColorTable">The local color table.</param>
-    /// <param name="indices">The indices.</param>
-    /// <param name="data">The data.</param>
-    public Frame(GraphicsControl graphicsControl, ImageDescriptor descriptor, ColorTable localColorTable, FrameIndices indices, byte[] data)
-    {
-        Data = data;
-        Indices = indices;
-        Descriptor = descriptor;
-        LocalColorTable = localColorTable;
-        GraphicsControl = graphicsControl;
-    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Frame"/> class.
@@ -66,7 +58,7 @@ public class Frame : SectionBase
     /// <value>
     /// The data.
     /// </value>
-    public byte[] Data { get; }
+    public byte[] Data { get; } = data;
 
     /// <summary>
     /// Gets or sets the descriptor.
@@ -74,7 +66,7 @@ public class Frame : SectionBase
     /// <value>
     /// The descriptor.
     /// </value>
-    public ImageDescriptor Descriptor { get; set; }
+    public ImageDescriptor Descriptor { get; set; } = descriptor;
 
     /// <summary>
     /// Gets the graphics control.
@@ -82,7 +74,7 @@ public class Frame : SectionBase
     /// <value>
     /// The graphics control.
     /// </value>
-    public GraphicsControl GraphicsControl { get; }
+    public GraphicsControl GraphicsControl { get; } = graphicsControl;
 
     /// <summary>
     /// Gets or sets the indices.
@@ -90,7 +82,7 @@ public class Frame : SectionBase
     /// <value>
     /// The indices.
     /// </value>
-    public FrameIndices Indices { get; set; }
+    public FrameIndices Indices { get; set; } = indices;
 
     /// <summary>
     /// Gets or sets the color table using.
@@ -98,7 +90,7 @@ public class Frame : SectionBase
     /// <value>
     /// The color table using.
     /// </value>
-    public ColorTable LocalColorTable { get; set; }
+    public ColorTable LocalColorTable { get; set; } = localColorTable;
 
     /// <summary>
     /// Reads from the specified stream.

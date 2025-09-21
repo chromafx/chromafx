@@ -7,22 +7,18 @@ namespace ChromaFx.Filters.Drawing.BaseClasses;
 /// Shape base class
 /// </summary>
 /// <seealso cref="IShape"/>
-public abstract class ShapeBaseClass : IShape
+/// <remarks>
+/// Initializes a new instance of the <see cref="ShapeBaseClass"/> class.
+/// </remarks>
+/// <param name="color">The color.</param>
+public abstract class ShapeBaseClass(Color color) : IShape
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ShapeBaseClass"/> class.
-    /// </summary>
-    /// <param name="color">The color.</param>
-    protected ShapeBaseClass(Color color)
-    {
-        Color = color;
-    }
 
     /// <summary>
     /// Gets or sets the color.
     /// </summary>
     /// <value>The color.</value>
-    public Color Color { get; set; }
+    public Color Color { get; set; } = color;
 
     /// <summary>
     /// Applies the shape to the specified image.

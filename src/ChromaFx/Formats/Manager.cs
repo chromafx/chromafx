@@ -25,7 +25,12 @@ namespace ChromaFx.Formats;
 /// <summary>
 /// Format manager
 /// </summary>
-public class Manager
+/// <remarks>
+/// Initializes a new instance of the <see cref="Manager" /> class.
+/// </remarks>
+/// <param name="formats">The formats.</param>
+/// <param name="animationFormats">The animation formats.</param>
+public class Manager(IEnumerable<IFormat> formats, IEnumerable<IAnimationFormat> animationFormats)
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="Manager"/> class.
@@ -37,29 +42,18 @@ public class Manager
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Manager" /> class.
-    /// </summary>
-    /// <param name="formats">The formats.</param>
-    /// <param name="animationFormats">The animation formats.</param>
-    public Manager(IEnumerable<IFormat> formats, IEnumerable<IAnimationFormat> animationFormats)
-    {
-        Formats = formats.ToList();
-        AnimationFormats = animationFormats.ToList();
-    }
-
-    /// <summary>
     /// Gets or sets the animation formats.
     /// </summary>
     /// <value>
     /// The animation formats.
     /// </value>
-    private List<IAnimationFormat> AnimationFormats { get; }
+    private List<IAnimationFormat> AnimationFormats { get; } = animationFormats.ToList();
 
     /// <summary>
     /// Gets or sets the formats.
     /// </summary>
     /// <value>The formats.</value>
-    private List<IFormat> Formats { get; }
+    private List<IFormat> Formats { get; } = formats.ToList();
 
     /// <summary>
     /// Decodes the specified stream.

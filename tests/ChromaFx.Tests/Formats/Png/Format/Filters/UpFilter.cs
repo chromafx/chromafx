@@ -15,7 +15,7 @@ public class UpFilter
     public void Decode()
     {
         var testObject = new ChromaFx.Formats.Png.Format.Filters.UpFilter();
-        var result = testObject.Decode(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, new byte[] { 9, 8, 7, 6, 5, 4, 3, 2, 1 }, 1);
+        var result = testObject.Decode([1, 2, 3, 4, 5, 6, 7, 8, 9], [9, 8, 7, 6, 5, 4, 3, 2, 1], 1);
         Assert.Equal(new byte[] { 10, 10, 10, 10, 10, 10, 10, 10, 10 }, result);
     }
 
@@ -23,7 +23,7 @@ public class UpFilter
     public void Encode()
     {
         var testObject = new ChromaFx.Formats.Png.Format.Filters.UpFilter();
-        var result = testObject.Encode(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, new byte[] { 9, 8, 7, 6, 5, 4, 3, 2, 1 }, 1);
+        var result = testObject.Encode([1, 2, 3, 4, 5, 6, 7, 8, 9], [9, 8, 7, 6, 5, 4, 3, 2, 1], 1);
         Assert.Equal(new byte[] { 2, 248, 250, 252, 254, 0, 2, 4, 6, 8 }, result);
     }
 }

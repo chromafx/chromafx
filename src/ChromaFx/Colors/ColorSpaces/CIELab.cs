@@ -24,38 +24,32 @@ namespace ChromaFx.Colors.ColorSpaces;
 /// </summary>
 /// <seealso cref="IColorSpace"/>
 /// <seealso cref="IEquatable{CIELab}"/>
-public struct CieLab : IEquatable<CieLab>, IColorSpace
+/// <remarks>
+/// Initializes a new instance of the <see cref="CieLab"/> struct.
+/// </remarks>
+/// <param name="lightness">The lightness.</param>
+/// <param name="aComponent">The A component.</param>
+/// <param name="bComponent">The B component.</param>
+public struct CieLab(double lightness, double aComponent, double bComponent) : IEquatable<CieLab>, IColorSpace
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="CieLab"/> struct.
-    /// </summary>
-    /// <param name="lightness">The lightness.</param>
-    /// <param name="aComponent">The A component.</param>
-    /// <param name="bComponent">The B component.</param>
-    public CieLab(double lightness, double aComponent, double bComponent)
-    {
-        L = Math.Clamp(lightness, 0, 100);
-        A = Math.Clamp(aComponent, -100, 100);
-        B = Math.Clamp(bComponent, -100, 100);
-    }
 
     /// <summary>
     /// Gets or sets a component.
     /// </summary>
     /// <value>a component.</value>
-    public double A;
+    public double A = Math.Clamp(aComponent, -100, 100);
 
     /// <summary>
     /// Gets or sets the b component.
     /// </summary>
     /// <value>The b component.</value>
-    public double B;
+    public double B = Math.Clamp(bComponent, -100, 100);
 
     /// <summary>
     /// Gets or sets the lightness.
     /// </summary>
     /// <value>The lightness.</value>
-    public double L;
+    public double L = Math.Clamp(lightness, 0, 100);
 
     /// <summary>
     /// The epsilon

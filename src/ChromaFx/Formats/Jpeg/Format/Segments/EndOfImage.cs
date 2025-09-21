@@ -23,16 +23,12 @@ namespace ChromaFx.Formats.Jpeg.Format.Segments;
 /// End of image segment
 /// </summary>
 /// <seealso cref="SegmentBase" />
-public class EndOfImage : SegmentBase
+/// <remarks>
+/// Initializes a new instance of the <see cref="EndOfImage" /> class.
+/// </remarks>
+/// <param name="buffer">The buffer.</param>
+public class EndOfImage(ByteBuffer buffer) : SegmentBase(SegmentTypes.EndOfImage, buffer)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="EndOfImage" /> class.
-    /// </summary>
-    /// <param name="buffer">The buffer.</param>
-    public EndOfImage(ByteBuffer buffer)
-        : base(SegmentTypes.EndOfImage, buffer)
-    {
-    }
 
     /// <summary>
     /// Setups the specified segments.

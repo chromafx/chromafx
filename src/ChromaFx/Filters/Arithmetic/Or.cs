@@ -23,22 +23,18 @@ namespace ChromaFx.Filters.Arithmetic;
 /// Does an OR operation between two images.
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class Or : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="Or"/> class.
+/// </remarks>
+/// <param name="secondImage">The second image.</param>
+public class Or(Image secondImage) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Or"/> class.
-    /// </summary>
-    /// <param name="secondImage">The second image.</param>
-    public Or(Image secondImage)
-    {
-        SecondImage = secondImage;
-    }
 
     /// <summary>
     /// Gets or sets the second image.
     /// </summary>
     /// <value>The second image.</value>
-    public Image SecondImage { get; set; }
+    public Image SecondImage { get; set; } = secondImage;
 
     /// <summary>
     /// Applies the specified image.

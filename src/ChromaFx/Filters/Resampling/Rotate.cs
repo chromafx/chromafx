@@ -26,22 +26,18 @@ namespace ChromaFx.Filters.Resampling;
 /// </summary>
 /// <seealso cref="AffineBaseClass"/>
 /// <seealso cref="IFilter"/>
-public class Rotate : AffineBaseClass
+/// <remarks>
+/// Initializes a new instance of the <see cref="Rotate"/> class.
+/// </remarks>
+/// <param name="angle">The angle.</param>
+public class Rotate(float angle) : AffineBaseClass
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Rotate"/> class.
-    /// </summary>
-    /// <param name="angle">The angle.</param>
-    public Rotate(float angle)
-    {
-        Angle = -angle * (float)(Math.PI / 180f);
-    }
 
     /// <summary>
     /// Gets or sets the angle.
     /// </summary>
     /// <value>The angle.</value>
-    public float Angle { get; }
+    public float Angle { get; } = -angle * (float)(Math.PI / 180f);
 
     /// <summary>
     /// Gets the matrix.

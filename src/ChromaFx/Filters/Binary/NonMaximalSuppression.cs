@@ -25,46 +25,39 @@ namespace ChromaFx.Filters.Binary;
 /// Non-maximal suppression filter
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class NonMaximalSuppression : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="NonMaximalSuppression"/> class.
+/// </remarks>
+/// <param name="color1">The first color.</param>
+/// <param name="color2">The second color.</param>
+/// <param name="threshold1">The threshold1.</param>
+/// <param name="threshold2">The threshold2.</param>
+public class NonMaximalSuppression(Color color1, Color color2, float threshold1, float threshold2) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="NonMaximalSuppression"/> class.
-    /// </summary>
-    /// <param name="color1">The first color.</param>
-    /// <param name="color2">The second color.</param>
-    /// <param name="threshold1">The threshold1.</param>
-    /// <param name="threshold2">The threshold2.</param>
-    public NonMaximalSuppression(Color color1, Color color2, float threshold1, float threshold2)
-    {
-        Threshold2 = threshold2 * 255;
-        Threshold1 = threshold1 * 255;
-        Color1 = color1;
-        Color2 = color2;
-    }
 
     /// <summary>
     /// Gets or sets the color1.
     /// </summary>
     /// <value>The color1.</value>
-    public Color Color1 { get; set; }
+    public Color Color1 { get; set; } = color1;
 
     /// <summary>
     /// Gets or sets the color2.
     /// </summary>
     /// <value>The color2.</value>
-    public Color Color2 { get; set; }
+    public Color Color2 { get; set; } = color2;
 
     /// <summary>
     /// Gets or sets the threshold1.
     /// </summary>
     /// <value>The threshold1.</value>
-    public float Threshold1 { get; set; }
+    public float Threshold1 { get; set; } = threshold1 * 255;
 
     /// <summary>
     /// Gets or sets the threshold2.
     /// </summary>
     /// <value>The threshold2.</value>
-    public float Threshold2 { get; set; }
+    public float Threshold2 { get; set; } = threshold2 * 255;
 
     /// <summary>
     /// Applies the filter to the specified image.

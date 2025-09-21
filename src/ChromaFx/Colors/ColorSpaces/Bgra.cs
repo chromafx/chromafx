@@ -23,46 +23,39 @@ namespace ChromaFx.Colors.ColorSpaces;
 /// </summary>
 /// <seealso cref="IColorSpace"/>
 /// <seealso cref="IEquatable{Bgra}"/>
-public struct Bgra : IEquatable<Bgra>, IColorSpace
+/// <remarks>
+/// Initializes a new instance of the <see cref="Bgra"/> struct.
+/// </remarks>
+/// <param name="blue">The blue.</param>
+/// <param name="green">The green.</param>
+/// <param name="red">The red.</param>
+/// <param name="alpha">The alpha.</param>
+public struct Bgra(byte blue, byte green, byte red, byte alpha = 255) : IEquatable<Bgra>, IColorSpace
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Bgra"/> struct.
-    /// </summary>
-    /// <param name="blue">The blue.</param>
-    /// <param name="green">The green.</param>
-    /// <param name="red">The red.</param>
-    /// <param name="alpha">The alpha.</param>
-    public Bgra(byte blue, byte green, byte red, byte alpha = 255)
-    {
-        Red = Math.Clamp(red, (byte)0, (byte)255);
-        Green = Math.Clamp(green, (byte)0, (byte)255);
-        Blue = Math.Clamp(blue, (byte)0, (byte)255);
-        Alpha = Math.Clamp(alpha, (byte)0, (byte)255);
-    }
 
     /// <summary>
     /// Gets or sets the alpha.
     /// </summary>
     /// <value>The alpha.</value>
-    public byte Alpha { get; set; }
+    public byte Alpha { get; set; } = Math.Clamp(alpha, (byte)0, (byte)255);
 
     /// <summary>
     /// Gets or sets the blue.
     /// </summary>
     /// <value>The blue.</value>
-    public byte Blue { get; set; }
+    public byte Blue { get; set; } = Math.Clamp(blue, (byte)0, (byte)255);
 
     /// <summary>
     /// Gets or sets the green.
     /// </summary>
     /// <value>The green.</value>
-    public byte Green { get; set; }
+    public byte Green { get; set; } = Math.Clamp(green, (byte)0, (byte)255);
 
     /// <summary>
     /// Gets or sets the red.
     /// </summary>
     /// <value>The red.</value>
-    public byte Red { get; set; }
+    public byte Red { get; set; } = Math.Clamp(red, (byte)0, (byte)255);
 
     /// <summary>
     /// Performs an implicit conversion from <see cref="Color"/> to <see cref="Bgra"/>.

@@ -65,7 +65,7 @@ public class Node
     /// </summary>
     public Node NextReducible { get; }
 
-    private static readonly int[] Mask = { 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 };
+    private static readonly int[] Mask = [0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01];
 
     /// <summary>
     /// Pointers to any child nodes

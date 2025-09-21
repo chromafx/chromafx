@@ -27,38 +27,32 @@ namespace ChromaFx.Filters.Resampling;
 /// Resizes an image
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class Resize : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="Resize"/> class.
+/// </remarks>
+/// <param name="height">The new height.</param>
+/// <param name="width">The new width.</param>
+/// <param name="filter">The filter.</param>
+public class Resize(int width, int height, ResamplingFiltersAvailable filter) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Resize"/> class.
-    /// </summary>
-    /// <param name="height">The new height.</param>
-    /// <param name="width">The new width.</param>
-    /// <param name="filter">The filter.</param>
-    public Resize(int width, int height, ResamplingFiltersAvailable filter)
-    {
-        Height = height;
-        Width = width;
-        Filter = FilterList.Filters[filter];
-    }
 
     /// <summary>
     /// Gets or sets the filter.
     /// </summary>
     /// <value>The filter.</value>
-    public IResamplingFilter Filter { get; set; }
+    public IResamplingFilter Filter { get; set; } = FilterList.Filters[filter];
 
     /// <summary>
     /// Gets or sets the height.
     /// </summary>
     /// <value>The height.</value>
-    public int Height { get; set; }
+    public int Height { get; set; } = height;
 
     /// <summary>
     /// Gets or sets the width.
     /// </summary>
     /// <value>The width.</value>
-    public int Width { get; set; }
+    public int Width { get; set; } = width;
 
     /// <summary>
     /// Applies the resizing filter to the specified image.

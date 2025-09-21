@@ -5,7 +5,11 @@ namespace ChromaFx.Numerics;
 /// <summary>
 /// Rectangle struct, holds 4 points indicating a rectangular region.
 /// </summary>
-public struct Rectangle : IEquatable<Rectangle>
+/// <remarks>
+/// Initializes a new instance of the <see cref="Rectangle"/> struct.
+/// </remarks>
+/// <param name="value">The value.</param>
+public struct Rectangle(Vector4 value) : IEquatable<Rectangle>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="Rectangle"/> struct.
@@ -17,15 +21,6 @@ public struct Rectangle : IEquatable<Rectangle>
     public Rectangle(int x, int y, int width, int height)
         : this(new Vector4(x, y, x + width, y + height))
     {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Rectangle"/> struct.
-    /// </summary>
-    /// <param name="value">The value.</param>
-    public Rectangle(Vector4 value)
-    {
-        Data = value;
     }
 
     /// <summary>
@@ -74,7 +69,7 @@ public struct Rectangle : IEquatable<Rectangle>
     /// Gets or sets the data.
     /// </summary>
     /// <value>The data.</value>
-    private Vector4 Data { get; set; }
+    private Vector4 Data { get; set; } = value;
 
     /// <summary>
     /// Implements the operator !=.
@@ -82,7 +77,7 @@ public struct Rectangle : IEquatable<Rectangle>
     /// <param name="left">The left.</param>
     /// <param name="right">The right.</param>
     /// <returns>The result of the operator.</returns>
-        public static bool operator !=(Rectangle left, Rectangle right)
+    public static bool operator !=(Rectangle left, Rectangle right)
     {
         return !(left == right);
     }

@@ -23,22 +23,18 @@ namespace ChromaFx.Filters.Arithmetic;
 /// Does a subtract operation between two images.
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class Subtract : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="Subtract"/> class.
+/// </remarks>
+/// <param name="secondImage">The second image.</param>
+public class Subtract(Image secondImage) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Subtract"/> class.
-    /// </summary>
-    /// <param name="secondImage">The second image.</param>
-    public Subtract(Image secondImage)
-    {
-        SecondImage = secondImage;
-    }
 
     /// <summary>
     /// Gets or sets the second image.
     /// </summary>
     /// <value>The second image.</value>
-    public Image SecondImage { get; set; }
+    public Image SecondImage { get; set; } = secondImage;
 
     /// <summary>
     /// Applies the specified image.

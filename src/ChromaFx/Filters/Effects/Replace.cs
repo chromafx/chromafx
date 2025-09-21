@@ -24,38 +24,32 @@ namespace ChromaFx.Filters.Effects;
 /// Replaces a color with another color in the image
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class Replace : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="Replace"/> class.
+/// </remarks>
+/// <param name="sourceColor">Color in the image to replace.</param>
+/// <param name="targetColor">Color to replace the sourceColor with.</param>
+/// <param name="epsilon">The epsilon.</param>
+public class Replace(Color sourceColor, Color targetColor, float epsilon) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Replace"/> class.
-    /// </summary>
-    /// <param name="sourceColor">Color in the image to replace.</param>
-    /// <param name="targetColor">Color to replace the sourceColor with.</param>
-    /// <param name="epsilon">The epsilon.</param>
-    public Replace(Color sourceColor, Color targetColor, float epsilon)
-    {
-        Epsilon = epsilon * 255;
-        TargetColor = targetColor;
-        SourceColor = sourceColor;
-    }
 
     /// <summary>
     /// Gets or sets the epsilon.
     /// </summary>
     /// <value>The epsilon.</value>
-    public float Epsilon { get; set; }
+    public float Epsilon { get; set; } = epsilon * 255;
 
     /// <summary>
     /// Gets or sets the color of the source.
     /// </summary>
     /// <value>The color of the source.</value>
-    public Color SourceColor { get; set; }
+    public Color SourceColor { get; set; } = sourceColor;
 
     /// <summary>
     /// Gets or sets the color of the target.
     /// </summary>
     /// <value>The color of the target.</value>
-    public Color TargetColor { get; set; }
+    public Color TargetColor { get; set; } = targetColor;
 
     /// <summary>
     /// Applies the specified image.

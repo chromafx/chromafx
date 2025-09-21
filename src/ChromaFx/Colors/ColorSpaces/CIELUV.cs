@@ -22,38 +22,32 @@ namespace ChromaFx.Colors.ColorSpaces;
 /// <summary>
 /// LUV color space
 /// </summary>
-public struct Cieluv : IEquatable<Cieluv>, IColorSpace
+/// <remarks>
+/// Initializes a new instance of the <see cref="Cieluv"/> class.
+/// </remarks>
+/// <param name="l">The l.</param>
+/// <param name="u">The u.</param>
+/// <param name="v">The v.</param>
+public struct Cieluv(double l, double u, double v) : IEquatable<Cieluv>, IColorSpace
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Cieluv"/> class.
-    /// </summary>
-    /// <param name="l">The l.</param>
-    /// <param name="u">The u.</param>
-    /// <param name="v">The v.</param>
-    public Cieluv(double l, double u, double v)
-    {
-        L = l;
-        U = u;
-        V = v;
-    }
 
     /// <summary>
     /// Gets or sets the l.
     /// </summary>
     /// <value>The l.</value>
-    public double L { get; set; }
+    public double L { get; set; } = l;
 
     /// <summary>
     /// Gets or sets the u.
     /// </summary>
     /// <value>The u.</value>
-    public double U { get; set; }
+    public double U { get; set; } = u;
 
     /// <summary>
     /// Gets or sets the v.
     /// </summary>
     /// <value>The v.</value>
-    public double V { get; set; }
+    public double V { get; set; } = v;
 
     /// <summary>
     /// The epsilon

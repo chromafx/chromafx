@@ -63,15 +63,14 @@ public class DefineHuffmanTable : SegmentBase
     /// The huffman spec
     /// </summary>
     private readonly HuffmanSpec[] _theHuffmanSpec =
-    {
+    [
         // Luminance DC.
         new(
-            new byte[] { 0, 1, 5, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 },
-            new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }),
+            [0, 1, 5, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
         new(
-            new byte[] { 0, 2, 1, 3, 3, 2, 4, 3, 5, 5, 4, 4, 0, 0, 1, 125 },
-            new byte[]
-            {
+            [0, 2, 1, 3, 3, 2, 4, 3, 5, 5, 4, 4, 0, 0, 1, 125],
+            [
                 0x01, 0x02, 0x03, 0x00, 0x04, 0x11, 0x05, 0x12,
                 0x21, 0x31, 0x41, 0x06, 0x13, 0x51, 0x61, 0x07,
                 0x22, 0x71, 0x14, 0x32, 0x81, 0x91, 0xa1, 0x08,
@@ -93,16 +92,15 @@ public class DefineHuffmanTable : SegmentBase
                 0xe3, 0xe4, 0xe5, 0xe6, 0xe7, 0xe8, 0xe9, 0xea,
                 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8,
                 0xf9, 0xfa
-            }),
+            ]),
         new(
-            new byte[] { 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 },
-            new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }),
+            [0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
 
         // Chrominance AC.
         new(
-            new byte[] { 0, 2, 1, 2, 4, 4, 3, 4, 7, 5, 4, 4, 0, 1, 2, 119 },
-            new byte[]
-            {
+            [0, 2, 1, 2, 4, 4, 3, 4, 7, 5, 4, 4, 0, 1, 2, 119],
+            [
                 0x00, 0x01, 0x02, 0x03, 0x11, 0x04, 0x05, 0x21,
                 0x31, 0x06, 0x12, 0x41, 0x51, 0x07, 0x61, 0x71,
                 0x13, 0x22, 0x32, 0x81, 0x08, 0x14, 0x42, 0x91,
@@ -124,8 +122,8 @@ public class DefineHuffmanTable : SegmentBase
                 0xe2, 0xe3, 0xe4, 0xe5, 0xe6, 0xe7, 0xe8, 0xe9,
                 0xea, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8,
                 0xf9, 0xfa
-            })
-    };
+            ])
+    ];
 
     /// <summary>
     /// Setups the specified segments.
@@ -227,7 +225,7 @@ public class DefineHuffmanTable : SegmentBase
     /// <param name="writer">The binary writer.</param>
     public override void Write(BinaryWriter writer)
     {
-        byte[] headers = { 0x00, 0x10, 0x01, 0x11 };
+        byte[] headers = [0x00, 0x10, 0x01, 0x11];
         Length = 2;
         var specs = _theHuffmanSpec;
 

@@ -24,48 +24,40 @@ namespace ChromaFx.Filters.Drawing;
 /// Ellipse drawing class
 /// </summary>
 /// <seealso cref="ShapeBaseClass"/>
-public class Ellipse : ShapeBaseClass
+/// <remarks>
+/// Initializes a new instance of the <see cref="Ellipse"/> class.
+/// </remarks>
+/// <param name="color">The color.</param>
+/// <param name="fill">if set to <c>true</c> [fill].</param>
+/// <param name="width">The width.</param>
+/// <param name="height">The height.</param>
+/// <param name="center">The center.</param>
+public class Ellipse(Color color, bool fill, int width, int height, Vector2 center) : ShapeBaseClass(color)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Ellipse"/> class.
-    /// </summary>
-    /// <param name="color">The color.</param>
-    /// <param name="fill">if set to <c>true</c> [fill].</param>
-    /// <param name="width">The width.</param>
-    /// <param name="height">The height.</param>
-    /// <param name="center">The center.</param>
-    public Ellipse(Color color, bool fill, int width, int height, Vector2 center)
-        : base(color)
-    {
-        Center = center;
-        Height = height;
-        Width = width;
-        Fill = fill;
-    }
 
     /// <summary>
     /// Gets or sets the center.
     /// </summary>
     /// <value>The center.</value>
-    public Vector2 Center { get; set; }
+    public Vector2 Center { get; set; } = center;
 
     /// <summary>
     /// Gets or sets a value indicating whether this <see cref="Ellipse"/> is fill.
     /// </summary>
     /// <value><c>true</c> if fill; otherwise, <c>false</c>.</value>
-    public bool Fill { get; set; }
+    public bool Fill { get; set; } = fill;
 
     /// <summary>
     /// Gets or sets the height.
     /// </summary>
     /// <value>The height.</value>
-    public int Height { get; set; }
+    public int Height { get; set; } = height;
 
     /// <summary>
     /// Gets or sets the width.
     /// </summary>
     /// <value>The width.</value>
-    public int Width { get; set; }
+    public int Width { get; set; } = width;
 
     /// <summary>
     /// Applies the specified image.

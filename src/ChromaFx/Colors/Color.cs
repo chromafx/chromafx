@@ -157,7 +157,7 @@ public partial struct Color : IEquatable<Color>
     /// <returns>The result of the conversion.</returns>
     public static implicit operator byte[](Color color)
     {
-        return new[] { color.Red, color.Green, color.Blue, color.Alpha };
+        return [color.Red, color.Green, color.Blue, color.Alpha];
     }
 
     /// <summary>

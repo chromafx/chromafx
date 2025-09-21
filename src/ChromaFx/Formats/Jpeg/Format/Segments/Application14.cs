@@ -23,16 +23,12 @@ namespace ChromaFx.Formats.Jpeg.Format.Segments;
 /// Application 14 segment
 /// </summary>
 /// <seealso cref="SegmentBase" />
-public class Application14 : SegmentBase
+/// <remarks>
+/// Initializes a new instance of the <see cref="Application14"/> class.
+/// </remarks>
+/// <param name="bytes">The bytes.</param>
+public class Application14(ByteBuffer bytes) : SegmentBase(SegmentTypes.Application0, bytes)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Application14"/> class.
-    /// </summary>
-    /// <param name="bytes">The bytes.</param>
-    public Application14(ByteBuffer bytes)
-        : base(SegmentTypes.Application0, bytes)
-    {
-    }
 
     /// <summary>
     /// Gets or sets the adobe transform.

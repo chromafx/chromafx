@@ -19,19 +19,13 @@ namespace ChromaFx.Formats.Gif.Format.Helpers;
 /// <summary>
 /// LZW Encoder class
 /// </summary>
-public class LzwEncoder
+/// <remarks>
+/// Initializes a new instance of the <see cref="LzwEncoder"/> class.
+/// </remarks>
+/// <param name="indexedPixels">The indexed pixels.</param>
+/// <param name="colorDepth">The color depth.</param>
+public class LzwEncoder(byte[] indexedPixels, int colorDepth)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="LzwEncoder"/> class.
-    /// </summary>
-    /// <param name="indexedPixels">The indexed pixels.</param>
-    /// <param name="colorDepth">The color depth.</param>
-    public LzwEncoder(byte[] indexedPixels, int colorDepth)
-    {
-        _pixelArray = indexedPixels;
-        _initialCodeSize = Math.Max(2, colorDepth);
-    }
-
     private const int Bits = 12;
     private const int Eof = -1;
     private const int HashSize = 5003;
@@ -40,15 +34,15 @@ public class LzwEncoder
 
     private readonly int[] _codeTable = new int[HashSize];
     private readonly int[] _hashTable = new int[HashSize];
-    private readonly int _initialCodeSize;
+    private readonly int _initialCodeSize = Math.Max(2, colorDepth);
 
     private readonly int[] _masks =
-    {
+    [
         0x0000, 0x0001, 0x0003, 0x0007, 0x000F, 0x001F, 0x003F, 0x007F, 0x00FF,
         0x01FF, 0x03FF, 0x07FF, 0x0FFF, 0x1FFF, 0x3FFF, 0x7FFF, 0xFFFF
-    };
+    ];
 
-    private readonly byte[] _pixelArray;
+    private readonly byte[] _pixelArray = indexedPixels;
 
     private int _accumulatorCount;
     private int _bitCount;

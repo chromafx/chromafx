@@ -22,18 +22,13 @@ namespace ChromaFx.Formats.Png.Format;
 /// <summary>
 /// A key, value property
 /// </summary>
-public class Property
+/// <remarks>
+/// Initializes a new instance of the <see cref="Property"/> class.
+/// </remarks>
+/// <param name="key">The key.</param>
+/// <param name="value">The value.</param>
+public class Property(string key, string value)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Property"/> class.
-    /// </summary>
-    /// <param name="key">The key.</param>
-    /// <param name="value">The value.</param>
-    public Property(string key, string value)
-    {
-        Value = value ?? string.Empty;
-        Key = key ?? string.Empty;
-    }
 
     /// <summary>
     /// Gets or sets the key.
@@ -41,7 +36,7 @@ public class Property
     /// <value>
     /// The key.
     /// </value>
-    public string Key { get; set; }
+    public string Key { get; set; } = key ?? string.Empty;
 
     /// <summary>
     /// Gets or sets the value.
@@ -49,7 +44,7 @@ public class Property
     /// <value>
     /// The value.
     /// </value>
-    public string Value { get; set; }
+    public string Value { get; set; } = value ?? string.Empty;
 
     /// <summary>
     /// Performs an implicit conversion from <see cref="Chunk"/> to <see cref="Property"/>.

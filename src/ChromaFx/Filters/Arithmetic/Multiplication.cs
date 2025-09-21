@@ -23,22 +23,18 @@ namespace ChromaFx.Filters.Arithmetic;
 /// Does a multiplication operation between two images.
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class Multiplication : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="Multiplication"/> class.
+/// </remarks>
+/// <param name="secondImage">The second image.</param>
+public class Multiplication(Image secondImage) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Multiplication"/> class.
-    /// </summary>
-    /// <param name="secondImage">The second image.</param>
-    public Multiplication(Image secondImage)
-    {
-        SecondImage = secondImage;
-    }
 
     /// <summary>
     /// Gets or sets the second image.
     /// </summary>
     /// <value>The second image.</value>
-    public Image SecondImage { get; set; }
+    public Image SecondImage { get; set; } = secondImage;
 
     /// <summary>
     /// Applies the specified image.
