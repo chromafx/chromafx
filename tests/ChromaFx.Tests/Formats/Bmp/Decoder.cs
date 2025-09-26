@@ -11,8 +11,8 @@ public class Decoder : FormatTestBase
 
     public override string OutputDirectory => "./TestOutput/Formats/Bmp/Decoder/";
 
-    public static readonly TheoryData<string> InputFileNames = new()
-    {
+    public static readonly TheoryData<string> InputFileNames =
+    [
         "Car.bmp",
         "Test24.bmp",
         "EncodingTest.bmp",
@@ -22,7 +22,7 @@ public class Decoder : FormatTestBase
         "Test32.bmp",
         "TestRLE8.bmp",
         "Test1.bmp"
-    };
+    ];
 
     [Fact]
     public void CanDecodeByteArray()

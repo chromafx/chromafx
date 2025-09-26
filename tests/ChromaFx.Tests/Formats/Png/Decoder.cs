@@ -12,7 +12,7 @@ public class Decoder : FormatTestBase
     public override string OutputDirectory => "./TestOutput/Formats/Png/Decoder/";
 
     public static readonly TheoryData<string> InputFileNames =
-        new() { "splash.png", "48bit.png", "blur.png", "indexed.png", "splashbw.png", };
+        ["splash.png", "48bit.png", "blur.png", "indexed.png", "splashbw.png",];
 
     [Fact]
     public void CanDecodeByteArray()

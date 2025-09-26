@@ -11,14 +11,14 @@ public class JpegFormat : FormatTestBase
 
     public override string OutputDirectory => "./TestOutput/Formats/Jpg/";
 
-    public static readonly TheoryData<string> InputFileNames = new()
-    {
+    public static readonly TheoryData<string> InputFileNames =
+    [
         "Calliphora.jpg",
         "Floorplan.jpeg",
         "gamma_dalai_lama_gray.jpg",
         "rgb.jpg",
         "maltese_puppy-wide.jpg"
-    };
+    ];
 
     [Theory]
     [MemberData(nameof(InputFileNames))]

@@ -12,7 +12,7 @@ public class PngFormat : FormatTestBase
     public override string OutputDirectory => "./TestOutput/Formats/Png/";
 
     public static readonly TheoryData<string> InputFileNames =
-        new() { "splash.png", "48bit.png", "blur.png", "indexed.png", "splashbw.png" };
+        ["splash.png", "48bit.png", "blur.png", "indexed.png", "splashbw.png"];
 
     [Fact]
     public void CanDecodeByteArray()

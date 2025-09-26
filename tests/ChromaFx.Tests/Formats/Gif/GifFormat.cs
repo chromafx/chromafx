@@ -11,11 +11,11 @@ public class GifFormat : FormatTestBase
 
     public override string OutputDirectory => "./TestOutput/Formats/Gif/";
 
-    public static readonly TheoryData<string> InputFileNames = new()
-    {
+    public static readonly TheoryData<string> InputFileNames =
+    [
         "giphy.gif",
         "rings.gif"
-    };
+    ];
 
     [Theory]
     [MemberData(nameof(InputFileNames))]
