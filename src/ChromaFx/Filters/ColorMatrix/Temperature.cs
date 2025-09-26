@@ -86,20 +86,13 @@ public class Temperature : MatrixBaseClass
         }
 
 
-        Matrix = new Matrix5X5
-        {
-            M11 = red / 255f,
-            M12 = 0,
-            M13 = 0,
-            M21 = 0,
-            M22 = green / 255f,
-            M23 = 0,
-            M31 = 0,
-            M32 = 0,
-            M33 = blue / 255f,
-            M44 = 1,
-            M55 = 1
-        };
+        Matrix = new Matrix5X5(
+            red / 255f, 0, 0, 0, 0, // M11, M12, M13, M14, M15
+            0, green / 255f, 0, 0, 0, // M21, M22, M23, M24, M25
+            0, 0, blue / 255f, 0, 0, // M31, M32, M33, M34, M35
+            0, 0, 0, 1, 0, // M41, M42, M43, M44, M45
+            0, 0, 0, 0, 1 // M51, M52, M53, M54, M55
+        );
     }
 
     /// <summary>

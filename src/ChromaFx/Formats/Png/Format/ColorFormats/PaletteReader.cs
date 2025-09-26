@@ -37,13 +37,13 @@ public class PaletteReader(Palette palette, Palette alphaPalette) : IColorReader
     /// Gets or sets the alpha palette.
     /// </summary>
     /// <value>The alpha palette.</value>
-    public Palette AlphaPalette { get; set; } = alphaPalette ?? new Palette(Array.Empty<byte>(), PaletteType.Alpha);
+    public Palette AlphaPalette { get; set; } = alphaPalette ?? new Palette([], PaletteType.Alpha);
 
     /// <summary>
     /// Gets or sets the palette.
     /// </summary>
     /// <value>The palette.</value>
-    public Palette Palette { get; set; } = palette ?? new Palette(Array.Empty<byte>(), PaletteType.Color);
+    public Palette Palette { get; set; } = palette ?? new Palette([], PaletteType.Color);
 
     /// <summary>
     /// Reads the scanline.

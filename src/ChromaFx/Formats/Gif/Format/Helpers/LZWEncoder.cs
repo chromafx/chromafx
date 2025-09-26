@@ -224,7 +224,7 @@ public class LzwEncoder(byte[] indexedPixels, int colorDepth)
         if (_accumulatorCount > 0)
         {
             outs.WriteByte((byte)_accumulatorCount);
-            outs.Write(_accumulators, 0, _accumulatorCount);
+            outs.Write(_accumulators.AsSpan(0, _accumulatorCount));
             _accumulatorCount = 0;
         }
     }
@@ -239,10 +239,6 @@ public class LzwEncoder(byte[] indexedPixels, int colorDepth)
         {
             return Eof;
         }
-
-        if (_curPixel == _pixelArray.Length)
-            return Eof;
-
         _curPixel++;
         return _pixelArray[_curPixel - 1] & 0xff;
     }
@@ -306,9 +302,6 @@ public class LzwEncoder(byte[] indexedPixels, int colorDepth)
     /// <param name="size">The size.</param>
     private void ResetCodeTable(int size)
     {
-        for (var i = 0; i < size; ++i)
-        {
-            _hashTable[i] = -1;
-        }
+        Array.Fill(_hashTable, -1, 0, size);
     }
 }

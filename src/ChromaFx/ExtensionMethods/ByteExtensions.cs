@@ -29,7 +29,7 @@ public static class ByteExtensions
     /// <returns>The expanded array of bytes</returns>
     public static byte[] ExpandArray(this byte[] bytes, int bits)
     {
-        bytes ??= Array.Empty<byte>();
+        bytes ??= [];
         bits = Math.Clamp(bits, 0, int.MaxValue);
         if (bits >= 8)
         {

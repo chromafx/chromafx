@@ -175,6 +175,17 @@ public class File : FileBase
     }
 
     /// <summary>
+    /// Provides public access to the image conversion.
+    /// </summary>
+    /// <returns>
+    /// The image version of the file.
+    /// </returns>
+    public Image GetImage()
+    {
+        return ToImage();
+    }
+
+    /// <summary>
     /// Loads the image.
     /// </summary>
     /// <param name="image">The image.</param>
@@ -194,9 +205,9 @@ public class File : FileBase
     {
         foreach (var currentChunk in chunks)
         {
-            if (ChunkActions.ContainsKey(currentChunk.Type))
+            if (ChunkActions.TryGetValue(currentChunk.Type, out Action<Chunk> value))
             {
-                ChunkActions[currentChunk.Type](currentChunk);
+                value(currentChunk);
             }
         }
     }
@@ -215,7 +226,7 @@ public class File : FileBase
     /// </summary>
     /// <param name="stream">The stream.</param>
     /// <returns>A list of chunks from the stream</returns>
-    private static IEnumerable<Chunk> ReadChunks(Stream stream)
+    private static List<Chunk> ReadChunks(Stream stream)
     {
         var results = new List<Chunk>();
         while (true)

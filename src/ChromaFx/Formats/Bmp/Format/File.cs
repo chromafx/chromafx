@@ -116,7 +116,7 @@ public class File : FileBase
         var imageSize = image.Pixels.Length * 4;
         FileHeader = new FileHeader(54 + imageSize, 54);
         Header = new Header(image.Width, image.Height, 24, imageSize, 0, 0, 0, 0, Compression.Rgb);
-        Palette = new Palette(0, Array.Empty<byte>());
+        Palette = new Palette(0, []);
         Body = new Body(image, Header);
     }
 }

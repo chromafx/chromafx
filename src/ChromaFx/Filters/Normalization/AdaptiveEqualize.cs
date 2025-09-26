@@ -53,10 +53,7 @@ public class AdaptiveEqualize(int radius, Func<IHistogram> histogram = null) : I
     /// <returns>The image</returns>
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
-        targetLocation =
-            targetLocation == default
-                ? new Rectangle(0, 0, image.Width, image.Height)
-                : targetLocation.Clamp(image);
+        targetLocation = targetLocation.Normalize(image);
         var tempValues = new Color[image.Pixels.Length];
         Array.Copy(image.Pixels, tempValues, tempValues.Length);
         var apertureMin = -Radius;

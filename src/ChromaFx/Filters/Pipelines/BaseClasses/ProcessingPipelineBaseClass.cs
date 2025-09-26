@@ -44,7 +44,7 @@ public abstract class ProcessingPipelineBaseClass(bool combine) : IFilter
     /// Gets the filters.
     /// </summary>
     /// <value>The filters.</value>
-    public List<IFilter> Filters { get; } = new List<IFilter>();
+    public List<IFilter> Filters { get; } = [];
 
     /// <summary>
     /// Adds the filter to the pipeline

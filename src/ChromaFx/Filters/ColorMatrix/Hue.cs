@@ -43,20 +43,22 @@ public class Hue : MatrixBaseClass
         const float oneMinusLumR = 1f - lumR;
         const float oneMinusLumG = 1f - lumG;
         const float oneMinusLumB = 1f - lumB;
-        Matrix = new Matrix5X5
-        {
-            M11 = (float)(lumR + cosRadians * oneMinusLumR - sinRadians * lumR),
-            M12 = (float)(lumR - cosRadians * lumR - sinRadians * 0.143),
-            M13 = (float)(lumR - cosRadians * lumR - sinRadians * oneMinusLumR),
-            M21 = (float)(lumG - cosRadians * lumG - sinRadians * lumG),
-            M22 = (float)(lumG + cosRadians * oneMinusLumG + sinRadians * 0.140),
-            M23 = (float)(lumG - cosRadians * lumG + sinRadians * lumG),
-            M31 = (float)(lumB - cosRadians * lumB + sinRadians * oneMinusLumB),
-            M32 = (float)(lumB - cosRadians * lumB - sinRadians * 0.283),
-            M33 = (float)(lumB + cosRadians * oneMinusLumB + sinRadians * lumB),
-            M44 = 1,
-            M55 = 1
-        };
+        Matrix = new Matrix5X5(
+            (float)(lumR + cosRadians * oneMinusLumR - sinRadians * lumR), // M11
+            (float)(lumR - cosRadians * lumR - sinRadians * 0.143),        // M12
+            (float)(lumR - cosRadians * lumR - sinRadians * oneMinusLumR), // M13
+            0, 0,                                                         // M14, M15
+            (float)(lumG - cosRadians * lumG - sinRadians * lumG),         // M21
+            (float)(lumG + cosRadians * oneMinusLumG + sinRadians * 0.140),// M22
+            (float)(lumG - cosRadians * lumG + sinRadians * lumG),         // M23
+            0, 0,                                                         // M24, M25
+            (float)(lumB - cosRadians * lumB + sinRadians * oneMinusLumB), // M31
+            (float)(lumB - cosRadians * lumB - sinRadians * 0.283),        // M32
+            (float)(lumB + cosRadians * oneMinusLumB + sinRadians * lumB), // M33
+            0, 0,                                                         // M34, M35
+            0, 0, 0, 1, 0,                                                // M41, M42, M43, M44, M45
+            0, 0, 0, 0, 1                                                 // M51, M52, M53, M54, M55
+        );
     }
 
     /// <summary>

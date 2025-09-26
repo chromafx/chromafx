@@ -32,7 +32,7 @@ public class FileEnd
     /// </returns>
     public static implicit operator Chunk(FileEnd fileEnd)
     {
-        return new Chunk(0, ChunkTypes.End, Array.Empty<byte>());
+        return new Chunk(0, ChunkTypes.End, []);
     }
 
     /// <summary>

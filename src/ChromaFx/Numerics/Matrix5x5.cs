@@ -23,7 +23,7 @@ namespace ChromaFx.Numerics;
 /// <summary>
 /// 5x5 matrix
 /// </summary>
-public struct Matrix5X5 : IEquatable<Matrix5X5>
+public readonly struct Matrix5X5 : IEquatable<Matrix5X5>
 {
     /// <summary>
     /// Constructs a Matrix5x5 from the given components.
@@ -148,180 +148,145 @@ public struct Matrix5X5 : IEquatable<Matrix5X5>
     /// <summary>
     /// Gets or sets the translation component of this matrix.
     /// </summary>
-    public Vector4 Translation
-    {
-        readonly get => new(M51, M52, M53, M54);
-        set
-        {
-            M51 = value.X;
-            M52 = value.Y;
-            M53 = value.Z;
-            M54 = value.W;
-        }
-    }
+    public Vector4 Translation => new(M51, M52, M53, M54);
 
     /// <summary>
     /// Value at row 1, column 1 of the matrix.
     /// </summary>
-    public float M11;
+    public readonly float M11;
 
     /// <summary>
     /// Value at row 1, column 2 of the matrix.
     /// </summary>
-    public float M12;
+    public readonly float M12;
 
     /// <summary>
     /// Value at row 1, column 3 of the matrix.
     /// </summary>
-    public float M13;
+    public readonly float M13;
 
     /// <summary>
     /// Value at row 1, column 4 of the matrix.
     /// </summary>
-    public float M14;
+    public readonly float M14;
 
     /// <summary>
     /// Value at row 3, column 5 of the matrix.
     /// </summary>
-    public float M15;
+    public readonly float M15;
 
     /// <summary>
     /// Value at row 2, column 1 of the matrix.
     /// </summary>
-    public float M21;
+    public readonly float M21;
 
     /// <summary>
     /// Value at row 2, column 2 of the matrix.
     /// </summary>
-    public float M22;
+    public readonly float M22;
 
     /// <summary>
     /// Value at row 2, column 3 of the matrix.
     /// </summary>
-    public float M23;
+    public readonly float M23;
 
     /// <summary>
     /// Value at row 2, column 4 of the matrix.
     /// </summary>
-    public float M24;
+    public readonly float M24;
 
     /// <summary>
     /// Value at row 2, column 5 of the matrix.
     /// </summary>
-    public float M25;
+    public readonly float M25;
 
     /// <summary>
     /// Value at row 3, column 1 of the matrix.
     /// </summary>
-    public float M31;
+    public readonly float M31;
 
     /// <summary>
     /// Value at row 3, column 2 of the matrix.
     /// </summary>
-    public float M32;
+    public readonly float M32;
 
     /// <summary>
     /// Value at row 3, column 3 of the matrix.
     /// </summary>
-    public float M33;
+    public readonly float M33;
 
     /// <summary>
     /// Value at row 3, column 4 of the matrix.
     /// </summary>
-    public float M34;
+    public readonly float M34;
 
     /// <summary>
     /// Value at row 3, column 5 of the matrix.
     /// </summary>
-    public float M35;
+    public readonly float M35;
 
     /// <summary>
     /// Value at row 4, column 1 of the matrix.
     /// </summary>
-    public float M41;
+    public readonly float M41;
 
     /// <summary>
     /// Value at row 4, column 2 of the matrix.
     /// </summary>
-    public float M42;
+    public readonly float M42;
 
     /// <summary>
     /// Value at row 4, column 3 of the matrix.
     /// </summary>
-    public float M43;
+    public readonly float M43;
 
     /// <summary>
     /// Value at row 4, column 4 of the matrix.
     /// </summary>
-    public float M44;
+    public readonly float M44;
 
     /// <summary>
     /// Value at row 4, column 5 of the matrix.
     /// </summary>
-    public float M45;
+    public readonly float M45;
 
     /// <summary>
     /// Value at row 5, column 1 of the matrix.
     /// </summary>
-    public float M51;
+    public readonly float M51;
 
     /// <summary>
     /// Value at row 5, column 2 of the matrix.
     /// </summary>
-    public float M52;
+    public readonly float M52;
 
     /// <summary>
     /// Value at row 5, column 3 of the matrix.
     /// </summary>
-    public float M53;
+    public readonly float M53;
 
     /// <summary>
     /// Value at row 5, column 4 of the matrix.
     /// </summary>
-    public float M54;
+    public readonly float M54;
 
     /// <summary>
     /// Value at row 5, column 5 of the matrix.
     /// </summary>
-    public float M55;
+    public readonly float M55;
 
     /// <summary>
     /// Returns a new matrix with the negated elements of the given matrix.
     /// </summary>
     /// <param name="value">The source matrix.</param>
     /// <returns>The negated matrix.</returns>
-        public static Matrix5X5 operator -(Matrix5X5 value)
-    {
-        Matrix5X5 m;
-
-        m.M11 = -value.M11;
-        m.M12 = -value.M12;
-        m.M13 = -value.M13;
-        m.M14 = -value.M14;
-        m.M15 = -value.M15;
-        m.M21 = -value.M21;
-        m.M22 = -value.M22;
-        m.M23 = -value.M23;
-        m.M24 = -value.M24;
-        m.M25 = -value.M25;
-        m.M31 = -value.M31;
-        m.M32 = -value.M32;
-        m.M33 = -value.M33;
-        m.M34 = -value.M34;
-        m.M35 = -value.M35;
-        m.M41 = -value.M41;
-        m.M42 = -value.M42;
-        m.M43 = -value.M43;
-        m.M44 = -value.M44;
-        m.M45 = -value.M45;
-        m.M51 = -value.M51;
-        m.M52 = -value.M52;
-        m.M53 = -value.M53;
-        m.M54 = -value.M54;
-        m.M55 = -value.M55;
-
-        return m;
-    }
+    public static Matrix5X5 operator -(Matrix5X5 value) => new(
+        -value.M11, -value.M12, -value.M13, -value.M14, -value.M15,
+        -value.M21, -value.M22, -value.M23, -value.M24, -value.M25,
+        -value.M31, -value.M32, -value.M33, -value.M34, -value.M35,
+        -value.M41, -value.M42, -value.M43, -value.M44, -value.M45,
+        -value.M51, -value.M52, -value.M53, -value.M54, -value.M55
+    );
 
     /// <summary>
     /// Subtracts the second matrix from the first.
@@ -329,38 +294,13 @@ public struct Matrix5X5 : IEquatable<Matrix5X5>
     /// <param name="value1">The first source matrix.</param>
     /// <param name="value2">The second source matrix.</param>
     /// <returns>The result of the subtraction.</returns>
-        public static Matrix5X5 operator -(Matrix5X5 value1, Matrix5X5 value2)
-    {
-        Matrix5X5 m;
-
-        m.M11 = value1.M11 - value2.M11;
-        m.M12 = value1.M12 - value2.M12;
-        m.M13 = value1.M13 - value2.M13;
-        m.M14 = value1.M14 - value2.M14;
-        m.M15 = value1.M15 - value2.M15;
-        m.M21 = value1.M21 - value2.M21;
-        m.M22 = value1.M22 - value2.M22;
-        m.M23 = value1.M23 - value2.M23;
-        m.M24 = value1.M24 - value2.M24;
-        m.M25 = value1.M25 - value2.M25;
-        m.M31 = value1.M31 - value2.M31;
-        m.M32 = value1.M32 - value2.M32;
-        m.M33 = value1.M33 - value2.M33;
-        m.M34 = value1.M34 - value2.M34;
-        m.M35 = value1.M35 - value2.M35;
-        m.M41 = value1.M41 - value2.M41;
-        m.M42 = value1.M42 - value2.M42;
-        m.M43 = value1.M43 - value2.M43;
-        m.M44 = value1.M44 - value2.M44;
-        m.M45 = value1.M45 - value2.M45;
-        m.M51 = value1.M51 - value2.M51;
-        m.M52 = value1.M52 - value2.M52;
-        m.M53 = value1.M53 - value2.M53;
-        m.M54 = value1.M54 - value2.M54;
-        m.M55 = value1.M55 - value2.M55;
-
-        return m;
-    }
+    public static Matrix5X5 operator -(Matrix5X5 value1, Matrix5X5 value2) => new(
+        value1.M11 - value2.M11, value1.M12 - value2.M12, value1.M13 - value2.M13, value1.M14 - value2.M14, value1.M15 - value2.M15,
+        value1.M21 - value2.M21, value1.M22 - value2.M22, value1.M23 - value2.M23, value1.M24 - value2.M24, value1.M25 - value2.M25,
+        value1.M31 - value2.M31, value1.M32 - value2.M32, value1.M33 - value2.M33, value1.M34 - value2.M34, value1.M35 - value2.M35,
+        value1.M41 - value2.M41, value1.M42 - value2.M42, value1.M43 - value2.M43, value1.M44 - value2.M44, value1.M45 - value2.M45,
+        value1.M51 - value2.M51, value1.M52 - value2.M52, value1.M53 - value2.M53, value1.M54 - value2.M54, value1.M55 - value2.M55
+    );
 
     /// <summary>
     /// Returns a boolean indicating whether the given two matrices are not equal.
@@ -368,14 +308,11 @@ public struct Matrix5X5 : IEquatable<Matrix5X5>
     /// <param name="value1">The first matrix to compare.</param>
     /// <param name="value2">The second matrix to compare.</param>
     /// <returns>True if the given matrices are not equal; False if they are equal.</returns>
-        public static bool operator !=(Matrix5X5 value1, Matrix5X5 value2)
-    {
-        return value1.M11 != value2.M11 || value1.M12 != value2.M12 || value1.M13 != value2.M13 || value1.M14 != value2.M14 || value1.M15 != value2.M15 ||
-               value1.M21 != value2.M21 || value1.M22 != value2.M22 || value1.M23 != value2.M23 || value1.M24 != value2.M24 || value1.M25 != value2.M25 ||
-               value1.M31 != value2.M31 || value1.M32 != value2.M32 || value1.M33 != value2.M33 || value1.M34 != value2.M34 || value1.M35 != value2.M35 ||
-               value1.M41 != value2.M41 || value1.M42 != value2.M42 || value1.M43 != value2.M43 || value1.M44 != value2.M44 || value1.M45 != value2.M45 ||
-               value1.M51 != value2.M51 || value1.M52 != value2.M52 || value1.M53 != value2.M53 || value1.M54 != value2.M54 || value1.M55 != value2.M55;
-    }
+    public static bool operator !=(Matrix5X5 value1, Matrix5X5 value2) => value1.M11 != value2.M11 || value1.M12 != value2.M12 || value1.M13 != value2.M13 || value1.M14 != value2.M14 || value1.M15 != value2.M15 ||
+           value1.M21 != value2.M21 || value1.M22 != value2.M22 || value1.M23 != value2.M23 || value1.M24 != value2.M24 || value1.M25 != value2.M25 ||
+           value1.M31 != value2.M31 || value1.M32 != value2.M32 || value1.M33 != value2.M33 || value1.M34 != value2.M34 || value1.M35 != value2.M35 ||
+           value1.M41 != value2.M41 || value1.M42 != value2.M42 || value1.M43 != value2.M43 || value1.M44 != value2.M44 || value1.M45 != value2.M45 ||
+           value1.M51 != value2.M51 || value1.M52 != value2.M52 || value1.M53 != value2.M53 || value1.M54 != value2.M54 || value1.M55 != value2.M55;
 
     /// <summary>
     /// Multiplies a matrix by another matrix.
@@ -383,47 +320,39 @@ public struct Matrix5X5 : IEquatable<Matrix5X5>
     /// <param name="value1">The first source matrix.</param>
     /// <param name="value2">The second source matrix.</param>
     /// <returns>The result of the multiplication.</returns>
-        public static Matrix5X5 operator *(Matrix5X5 value1, Matrix5X5 value2)
-    {
-        Matrix5X5 m;
-
-        // First row
-        m.M11 = value1.M11 * value2.M11 + value1.M12 * value2.M21 + value1.M13 * value2.M31 + value1.M14 * value2.M41 + value1.M15 * value2.M51;
-        m.M12 = value1.M11 * value2.M12 + value1.M12 * value2.M22 + value1.M13 * value2.M32 + value1.M14 * value2.M42 + value1.M15 * value2.M52;
-        m.M13 = value1.M11 * value2.M13 + value1.M12 * value2.M23 + value1.M13 * value2.M33 + value1.M14 * value2.M43 + value1.M15 * value2.M53;
-        m.M14 = value1.M11 * value2.M14 + value1.M12 * value2.M24 + value1.M13 * value2.M34 + value1.M14 * value2.M44 + value1.M15 * value2.M54;
-        m.M15 = value1.M11 * value2.M15 + value1.M12 * value2.M25 + value1.M13 * value2.M35 + value1.M14 * value2.M45 + value1.M15 * value2.M55;
-
-        // Second row
-        m.M21 = value1.M21 * value2.M11 + value1.M22 * value2.M21 + value1.M23 * value2.M31 + value1.M24 * value2.M41 + value1.M25 * value2.M51;
-        m.M22 = value1.M21 * value2.M12 + value1.M22 * value2.M22 + value1.M23 * value2.M32 + value1.M24 * value2.M42 + value1.M25 * value2.M52;
-        m.M23 = value1.M21 * value2.M13 + value1.M22 * value2.M23 + value1.M23 * value2.M33 + value1.M24 * value2.M43 + value1.M25 * value2.M53;
-        m.M24 = value1.M21 * value2.M14 + value1.M22 * value2.M24 + value1.M23 * value2.M34 + value1.M24 * value2.M44 + value1.M25 * value2.M54;
-        m.M25 = value1.M21 * value2.M15 + value1.M22 * value2.M25 + value1.M23 * value2.M35 + value1.M24 * value2.M45 + value1.M25 * value2.M55;
-
-        // Third row
-        m.M31 = value1.M31 * value2.M11 + value1.M32 * value2.M21 + value1.M33 * value2.M31 + value1.M34 * value2.M41 + value1.M35 * value2.M51;
-        m.M32 = value1.M31 * value2.M12 + value1.M32 * value2.M22 + value1.M33 * value2.M32 + value1.M34 * value2.M42 + value1.M35 * value2.M52;
-        m.M33 = value1.M31 * value2.M13 + value1.M32 * value2.M23 + value1.M33 * value2.M33 + value1.M34 * value2.M43 + value1.M35 * value2.M53;
-        m.M34 = value1.M31 * value2.M14 + value1.M32 * value2.M24 + value1.M33 * value2.M34 + value1.M34 * value2.M44 + value1.M35 * value2.M54;
-        m.M35 = value1.M31 * value2.M15 + value1.M32 * value2.M25 + value1.M33 * value2.M35 + value1.M34 * value2.M45 + value1.M35 * value2.M55;
-
-        // Fourth row
-        m.M41 = value1.M41 * value2.M11 + value1.M42 * value2.M21 + value1.M43 * value2.M31 + value1.M44 * value2.M41 + value1.M45 * value2.M51;
-        m.M42 = value1.M41 * value2.M12 + value1.M42 * value2.M22 + value1.M43 * value2.M32 + value1.M44 * value2.M42 + value1.M45 * value2.M52;
-        m.M43 = value1.M41 * value2.M13 + value1.M42 * value2.M23 + value1.M43 * value2.M33 + value1.M44 * value2.M43 + value1.M45 * value2.M53;
-        m.M44 = value1.M41 * value2.M14 + value1.M42 * value2.M24 + value1.M43 * value2.M34 + value1.M44 * value2.M44 + value1.M45 * value2.M54;
-        m.M45 = value1.M41 * value2.M15 + value1.M42 * value2.M25 + value1.M43 * value2.M35 + value1.M44 * value2.M45 + value1.M45 * value2.M55;
-
-        // Fifth row
-        m.M51 = value1.M51 * value2.M11 + value1.M52 * value2.M21 + value1.M53 * value2.M31 + value1.M54 * value2.M41 + value1.M55 * value2.M51;
-        m.M52 = value1.M51 * value2.M12 + value1.M52 * value2.M22 + value1.M53 * value2.M32 + value1.M54 * value2.M42 + value1.M55 * value2.M52;
-        m.M53 = value1.M51 * value2.M13 + value1.M52 * value2.M23 + value1.M53 * value2.M33 + value1.M54 * value2.M43 + value1.M55 * value2.M53;
-        m.M54 = value1.M51 * value2.M14 + value1.M52 * value2.M24 + value1.M53 * value2.M34 + value1.M54 * value2.M44 + value1.M55 * value2.M54;
-        m.M55 = value1.M51 * value2.M15 + value1.M52 * value2.M25 + value1.M53 * value2.M35 + value1.M54 * value2.M45 + value1.M55 * value2.M55;
-
-        return m;
-    }
+    public static Matrix5X5 operator *(Matrix5X5 value1, Matrix5X5 value2) =>
+        new(
+            // First row
+            value1.M11 * value2.M11 + value1.M12 * value2.M21 + value1.M13 * value2.M31 + value1.M14 * value2.M41 + value1.M15 * value2.M51,
+            value1.M11 * value2.M12 + value1.M12 * value2.M22 + value1.M13 * value2.M32 + value1.M14 * value2.M42 + value1.M15 * value2.M52,
+            value1.M11 * value2.M13 + value1.M12 * value2.M23 + value1.M13 * value2.M33 + value1.M14 * value2.M43 + value1.M15 * value2.M53,
+            value1.M11 * value2.M14 + value1.M12 * value2.M24 + value1.M13 * value2.M34 + value1.M14 * value2.M44 + value1.M15 * value2.M54,
+            value1.M11 * value2.M15 + value1.M12 * value2.M25 + value1.M13 * value2.M35 + value1.M14 * value2.M45 + value1.M15 * value2.M55,
+            // Second row
+            value1.M21 * value2.M11 + value1.M22 * value2.M21 + value1.M23 * value2.M31 + value1.M24 * value2.M41 + value1.M25 * value2.M51,
+            value1.M21 * value2.M12 + value1.M22 * value2.M22 + value1.M23 * value2.M32 + value1.M24 * value2.M42 + value1.M25 * value2.M52,
+            value1.M21 * value2.M13 + value1.M22 * value2.M23 + value1.M23 * value2.M33 + value1.M24 * value2.M43 + value1.M25 * value2.M53,
+            value1.M21 * value2.M14 + value1.M22 * value2.M24 + value1.M23 * value2.M34 + value1.M24 * value2.M44 + value1.M25 * value2.M54,
+            value1.M21 * value2.M15 + value1.M22 * value2.M25 + value1.M23 * value2.M35 + value1.M24 * value2.M45 + value1.M25 * value2.M55,
+            // Third row
+            value1.M31 * value2.M11 + value1.M32 * value2.M21 + value1.M33 * value2.M31 + value1.M34 * value2.M41 + value1.M35 * value2.M51,
+            value1.M31 * value2.M12 + value1.M32 * value2.M22 + value1.M33 * value2.M32 + value1.M34 * value2.M42 + value1.M35 * value2.M52,
+            value1.M31 * value2.M13 + value1.M32 * value2.M23 + value1.M33 * value2.M33 + value1.M34 * value2.M43 + value1.M35 * value2.M53,
+            value1.M31 * value2.M14 + value1.M32 * value2.M24 + value1.M33 * value2.M34 + value1.M34 * value2.M44 + value1.M35 * value2.M54,
+            value1.M31 * value2.M15 + value1.M32 * value2.M25 + value1.M33 * value2.M35 + value1.M34 * value2.M45 + value1.M35 * value2.M55,
+            // Fourth row
+            value1.M41 * value2.M11 + value1.M42 * value2.M21 + value1.M43 * value2.M31 + value1.M44 * value2.M41 + value1.M45 * value2.M51,
+            value1.M41 * value2.M12 + value1.M42 * value2.M22 + value1.M43 * value2.M32 + value1.M44 * value2.M42 + value1.M45 * value2.M52,
+            value1.M41 * value2.M13 + value1.M42 * value2.M23 + value1.M43 * value2.M33 + value1.M44 * value2.M43 + value1.M45 * value2.M53,
+            value1.M41 * value2.M14 + value1.M42 * value2.M24 + value1.M43 * value2.M34 + value1.M44 * value2.M44 + value1.M45 * value2.M54,
+            value1.M41 * value2.M15 + value1.M42 * value2.M25 + value1.M43 * value2.M35 + value1.M44 * value2.M45 + value1.M45 * value2.M55,
+            // Fifth row
+            value1.M51 * value2.M11 + value1.M52 * value2.M21 + value1.M53 * value2.M31 + value1.M54 * value2.M41 + value1.M55 * value2.M51,
+            value1.M51 * value2.M12 + value1.M52 * value2.M22 + value1.M53 * value2.M32 + value1.M54 * value2.M42 + value1.M55 * value2.M52,
+            value1.M51 * value2.M13 + value1.M52 * value2.M23 + value1.M53 * value2.M33 + value1.M54 * value2.M43 + value1.M55 * value2.M53,
+            value1.M51 * value2.M14 + value1.M52 * value2.M24 + value1.M53 * value2.M34 + value1.M54 * value2.M44 + value1.M55 * value2.M54,
+            value1.M51 * value2.M15 + value1.M52 * value2.M25 + value1.M53 * value2.M35 + value1.M54 * value2.M45 + value1.M55 * value2.M55
+        );
 
     /// <summary>
     /// Multiplies a matrix by a scalar value.
@@ -431,37 +360,14 @@ public struct Matrix5X5 : IEquatable<Matrix5X5>
     /// <param name="value1">The source matrix.</param>
     /// <param name="value2">The scaling factor.</param>
     /// <returns>The scaled matrix.</returns>
-        public static Matrix5X5 operator *(Matrix5X5 value1, float value2)
-    {
-        Matrix5X5 m;
-
-        m.M11 = value1.M11 * value2;
-        m.M12 = value1.M12 * value2;
-        m.M13 = value1.M13 * value2;
-        m.M14 = value1.M14 * value2;
-        m.M15 = value1.M15 * value2;
-        m.M21 = value1.M21 * value2;
-        m.M22 = value1.M22 * value2;
-        m.M23 = value1.M23 * value2;
-        m.M24 = value1.M24 * value2;
-        m.M25 = value1.M25 * value2;
-        m.M31 = value1.M31 * value2;
-        m.M32 = value1.M32 * value2;
-        m.M33 = value1.M33 * value2;
-        m.M34 = value1.M34 * value2;
-        m.M35 = value1.M35 * value2;
-        m.M41 = value1.M41 * value2;
-        m.M42 = value1.M42 * value2;
-        m.M43 = value1.M43 * value2;
-        m.M44 = value1.M44 * value2;
-        m.M45 = value1.M45 * value2;
-        m.M51 = value1.M51 * value2;
-        m.M52 = value1.M52 * value2;
-        m.M53 = value1.M53 * value2;
-        m.M54 = value1.M54 * value2;
-        m.M55 = value1.M55 * value2;
-        return m;
-    }
+    public static Matrix5X5 operator *(Matrix5X5 value1, float value2) =>
+        new(
+            value1.M11 * value2, value1.M12 * value2, value1.M13 * value2, value1.M14 * value2, value1.M15 * value2,
+            value1.M21 * value2, value1.M22 * value2, value1.M23 * value2, value1.M24 * value2, value1.M25 * value2,
+            value1.M31 * value2, value1.M32 * value2, value1.M33 * value2, value1.M34 * value2, value1.M35 * value2,
+            value1.M41 * value2, value1.M42 * value2, value1.M43 * value2, value1.M44 * value2, value1.M45 * value2,
+            value1.M51 * value2, value1.M52 * value2, value1.M53 * value2, value1.M54 * value2, value1.M55 * value2
+        );
 
     /// <summary>
     /// Multiplies a matrix by a float value.
@@ -469,16 +375,24 @@ public struct Matrix5X5 : IEquatable<Matrix5X5>
     /// <param name="value1">The source matrix</param>
     /// <param name="value2">The vector</param>
     /// <returns>The resulting vector</returns>
-        public static Color operator *(Matrix5X5 value1, Color value2)
+    public static Color operator *(Matrix5X5 value1, Color value2)
     {
-        var r = value2.Red / 255f;
-        var g = value2.Green / 255f;
-        var b = value2.Blue / 255f;
-        var a = value2.Alpha / 255f;
-        return new Vector4(r * value1.M11 + g * value1.M21 + b * value1.M31 + a * value1.M41 + value1.M51,
-            r * value1.M12 + g * value1.M22 + b * value1.M32 + a * value1.M42 + value1.M52,
-            r * value1.M13 + g * value1.M23 + b * value1.M33 + a * value1.M43 + value1.M53,
-            r * value1.M14 + g * value1.M24 + b * value1.M34 + a * value1.M44 + value1.M54);
+        var r2 = value2.Red / 255f;
+        var g2 = value2.Green / 255f;
+        var b2 = value2.Blue / 255f;
+        var a2 = value2.Alpha / 255f;
+        var v4 = new Vector4(
+            r2 * value1.M11 + g2 * value1.M21 + b2 * value1.M31 + a2 * value1.M41 + value1.M51,
+            r2 * value1.M12 + g2 * value1.M22 + b2 * value1.M32 + a2 * value1.M42 + value1.M52,
+            r2 * value1.M13 + g2 * value1.M23 + b2 * value1.M33 + a2 * value1.M43 + value1.M53,
+            r2 * value1.M14 + g2 * value1.M24 + b2 * value1.M34 + a2 * value1.M44 + value1.M54
+        );
+        // Clamp to [0,1] and convert to byte
+        byte Rf = (byte)Math.Clamp(v4.X * 255f, 0, 255);
+        byte Gf = (byte)Math.Clamp(v4.Y * 255f, 0, 255);
+        byte Bf = (byte)Math.Clamp(v4.Z * 255f, 0, 255);
+        byte Af = (byte)Math.Clamp(v4.W * 255f, 0, 255);
+        return new Color(Rf, Gf, Bf, Af);
     }
 
     /// <summary>
@@ -487,38 +401,14 @@ public struct Matrix5X5 : IEquatable<Matrix5X5>
     /// <param name="value1">The first source matrix.</param>
     /// <param name="value2">The second source matrix.</param>
     /// <returns>The resulting matrix.</returns>
-        public static Matrix5X5 operator +(Matrix5X5 value1, Matrix5X5 value2)
-    {
-        Matrix5X5 m;
-
-        m.M11 = value1.M11 + value2.M11;
-        m.M12 = value1.M12 + value2.M12;
-        m.M13 = value1.M13 + value2.M13;
-        m.M14 = value1.M14 + value2.M14;
-        m.M15 = value1.M15 + value2.M15;
-        m.M21 = value1.M21 + value2.M21;
-        m.M22 = value1.M22 + value2.M22;
-        m.M23 = value1.M23 + value2.M23;
-        m.M24 = value1.M24 + value2.M24;
-        m.M25 = value1.M25 + value2.M25;
-        m.M31 = value1.M31 + value2.M31;
-        m.M32 = value1.M32 + value2.M32;
-        m.M33 = value1.M33 + value2.M33;
-        m.M34 = value1.M34 + value2.M34;
-        m.M35 = value1.M35 + value2.M35;
-        m.M41 = value1.M41 + value2.M41;
-        m.M42 = value1.M42 + value2.M42;
-        m.M43 = value1.M43 + value2.M43;
-        m.M44 = value1.M44 + value2.M44;
-        m.M45 = value1.M45 + value2.M45;
-        m.M51 = value1.M51 + value2.M51;
-        m.M52 = value1.M52 + value2.M52;
-        m.M53 = value1.M53 + value2.M53;
-        m.M54 = value1.M54 + value2.M54;
-        m.M55 = value1.M55 + value2.M55;
-
-        return m;
-    }
+        public static Matrix5X5 operator +(Matrix5X5 value1, Matrix5X5 value2) =>
+        new(
+            value1.M11 + value2.M11, value1.M12 + value2.M12, value1.M13 + value2.M13, value1.M14 + value2.M14, value1.M15 + value2.M15,
+            value1.M21 + value2.M21, value1.M22 + value2.M22, value1.M23 + value2.M23, value1.M24 + value2.M24, value1.M25 + value2.M25,
+            value1.M31 + value2.M31, value1.M32 + value2.M32, value1.M33 + value2.M33, value1.M34 + value2.M34, value1.M35 + value2.M35,
+            value1.M41 + value2.M41, value1.M42 + value2.M42, value1.M43 + value2.M43, value1.M44 + value2.M44, value1.M45 + value2.M45,
+            value1.M51 + value2.M51, value1.M52 + value2.M52, value1.M53 + value2.M53, value1.M54 + value2.M54, value1.M55 + value2.M55
+        );
 
     /// <summary>
     /// Returns a boolean indicating whether the given two matrices are equal.
@@ -526,25 +416,19 @@ public struct Matrix5X5 : IEquatable<Matrix5X5>
     /// <param name="value1">The first matrix to compare.</param>
     /// <param name="value2">The second matrix to compare.</param>
     /// <returns>True if the given matrices are equal; False otherwise.</returns>
-        public static bool operator ==(Matrix5X5 value1, Matrix5X5 value2)
-    {
-        return value1.M11 == value2.M11 && value1.M22 == value2.M22 && value1.M33 == value2.M33 && value1.M44 == value2.M44 && value1.M55 == value2.M55 && // Check diagonal element first for early out.
-               value1.M12 == value2.M12 && value1.M13 == value2.M13 && value1.M14 == value2.M14 && value1.M15 == value2.M15 &&
-               value1.M21 == value2.M21 && value1.M23 == value2.M23 && value1.M24 == value2.M24 && value1.M25 == value2.M25 &&
-               value1.M31 == value2.M31 && value1.M32 == value2.M32 && value1.M34 == value2.M34 && value1.M35 == value2.M35 &&
-               value1.M41 == value2.M41 && value1.M42 == value2.M42 && value1.M43 == value2.M43 && value1.M45 == value2.M45 &&
-               value1.M51 == value2.M51 && value1.M52 == value2.M52 && value1.M53 == value2.M53 && value1.M54 == value2.M54;
-    }
+    public static bool operator ==(Matrix5X5 value1, Matrix5X5 value2) => value1.M11 == value2.M11 && value1.M22 == value2.M22 && value1.M33 == value2.M33 && value1.M44 == value2.M44 && value1.M55 == value2.M55 && // Check diagonal element first for early out.
+           value1.M12 == value2.M12 && value1.M13 == value2.M13 && value1.M14 == value2.M14 && value1.M15 == value2.M15 &&
+           value1.M21 == value2.M21 && value1.M23 == value2.M23 && value1.M24 == value2.M24 && value1.M25 == value2.M25 &&
+           value1.M31 == value2.M31 && value1.M32 == value2.M32 && value1.M34 == value2.M34 && value1.M35 == value2.M35 &&
+           value1.M41 == value2.M41 && value1.M42 == value2.M42 && value1.M43 == value2.M43 && value1.M45 == value2.M45 &&
+           value1.M51 == value2.M51 && value1.M52 == value2.M52 && value1.M53 == value2.M53 && value1.M54 == value2.M54;
 
     /// <summary>
     /// Returns a boolean indicating whether this matrix instance is equal to the other given matrix.
     /// </summary>
     /// <param name="other">The matrix to compare this instance to.</param>
     /// <returns>True if the matrices are equal; False otherwise.</returns>
-        public readonly bool Equals(Matrix5X5 other)
-    {
-        return this == other;
-    }
+    public readonly bool Equals(Matrix5X5 other) => this == other;
 
 
     /// <summary>
@@ -552,15 +436,7 @@ public struct Matrix5X5 : IEquatable<Matrix5X5>
     /// </summary>
     /// <param name="obj">The Object to compare against.</param>
     /// <returns>True if the Object is equal to this matrix; False otherwise.</returns>
-        public readonly override bool Equals(object obj)
-    {
-        if (obj is Matrix5X5 x5)
-        {
-            return Equals(x5);
-        }
-
-        return false;
-    }
+    public readonly override bool Equals(object obj) => obj is Matrix5X5 x5 && Equals(x5);
 
     /// <summary>
     /// Returns the hash code for this instance.
@@ -568,11 +444,11 @@ public struct Matrix5X5 : IEquatable<Matrix5X5>
     /// <returns>The hash code.</returns>
     public readonly override int GetHashCode()
     {
-        return M11.GetHashCode() + M12.GetHashCode() + M13.GetHashCode() + M14.GetHashCode() + M15.GetHashCode() +
-               M21.GetHashCode() + M22.GetHashCode() + M23.GetHashCode() + M24.GetHashCode() + M25.GetHashCode() +
-               M31.GetHashCode() + M32.GetHashCode() + M33.GetHashCode() + M34.GetHashCode() + M35.GetHashCode() +
-               M41.GetHashCode() + M42.GetHashCode() + M43.GetHashCode() + M44.GetHashCode() + M45.GetHashCode() +
-               M51.GetHashCode() + M52.GetHashCode() + M53.GetHashCode() + M54.GetHashCode() + M55.GetHashCode();
+        int hash1 = HashCode.Combine(M11, M12, M13, M14, M15, M21, M22, M23);
+        int hash2 = HashCode.Combine(M24, M25, M31, M32, M33, M34, M35, M41);
+        int hash3 = HashCode.Combine(M42, M43, M44, M45, M51, M52, M53, M54);
+        int hash4 = HashCode.Combine(M55);
+        return HashCode.Combine(hash1, hash2, hash3, hash4);
     }
 
     /// <summary>

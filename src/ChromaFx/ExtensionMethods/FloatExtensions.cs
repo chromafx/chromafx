@@ -66,7 +66,7 @@ public static class Extensions
     {
         if (values == null || values.Length == 0)
         {
-            return Array.Empty<Vector4>();
+            return [];
         }
         var newData = new List<Vector4>();
         for (var x = 0; x < values.Length; x += 4)

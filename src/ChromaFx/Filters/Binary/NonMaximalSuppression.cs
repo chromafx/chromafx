@@ -67,7 +67,7 @@ public class NonMaximalSuppression(Color color1, Color color2, float threshold1,
     /// <returns>The image</returns>
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
-        targetLocation = targetLocation == default ? new Rectangle(0, 0, image.Width, image.Height) : targetLocation.Clamp(image);
+        targetLocation = targetLocation.Normalize(image);
         new Greyscale709().Apply(image, targetLocation);
         var result = new Image(image.Width, image.Height, new Color[image.Pixels.Length]);
         Array.Copy(image.Pixels, result.Pixels, result.Pixels.Length);

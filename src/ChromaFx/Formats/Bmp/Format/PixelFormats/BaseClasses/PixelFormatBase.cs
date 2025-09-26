@@ -137,6 +137,6 @@ public abstract class PixelFormatBase : IPixelFormat
             }
         }
 
-        return Array.Empty<byte>();
+        return [];
     }
 }

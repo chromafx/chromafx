@@ -1,5 +1,5 @@
 ﻿/*
-Copyright 2025 Ho Tzin Mein
+Copyright 2023 Ho Tzin Mein
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,11 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+using ChromaFx.Colors.ColorSpaces;
+using ChromaFx.Formats.Jpeg.Format.Enums;
 using ChromaFx.Formats.Jpeg.Format.HelperClasses;
 using ChromaFx.Formats.Jpeg.Format.HelperClasses.Enums;
 using ChromaFx.Formats.Jpeg.Format.Segments.BaseClasses;
-using ChromaFx.Formats.Jpeg.Format.Enums;
-using ChromaFx.Colors.ColorSpaces;
 
 namespace ChromaFx.Formats.Jpeg.Format.Segments;
 
@@ -296,7 +296,7 @@ public class StartOfScan : SegmentBase
         var mcu = 0;
         byte expectedRst = SegmentTypes.Restart0;
 
-        var b = new Block();
+        Block b = new();
         var dc = new int[MaximumNumberComponents];
 
         int bx, by, blockCount = 0;
@@ -720,18 +720,30 @@ public class StartOfScan : SegmentBase
 
     private void ToYCbCr(int x, int y, Block yBlock, Block cbBlock, Block crBlock)
     {
-        var xmax = Image.Width - 1;
-        var ymax = Image.Height - 1;
-        for (var j = 0; j < 8; j++)
+        int width = Image.Width;
+        int height = Image.Height;
+        int xmax = width - 1;
+        int ymax = height - 1;
+        var pixels = Image.Pixels.AsSpan();
+        var yData = yBlock.Data.AsSpan();
+        var cbData = cbBlock.Data.AsSpan();
+        var crData = crBlock.Data.AsSpan();
+
+        for (int j = 0; j < 8; j++)
         {
-            for (var i = 0; i < 8; i++)
+            int row = y + j;    
+            if (row > ymax) row = ymax;
+            int rowBase = row * width;
+            for (int i = 0; i < 8; i++)
             {
-                var offset = Math.Min(x + i, xmax) + Math.Min(y + j, ymax) * Image.Width;
-                YCbCr color = Image.Pixels[offset];
-                var index = 8 * j + i;
-                yBlock[index] = (int)color.YLuminance;
-                cbBlock[index] = (int)color.CbChroma;
-                crBlock[index] = (int)color.CrChroma;
+                int col = x + i;
+                if (col > xmax) col = xmax;
+                int offset = col + rowBase;
+                YCbCr color = pixels[offset];
+                int index = 8 * j + i;
+                yData[index] = (int)color.YLuminance;
+                cbData[index] = (int)color.CbChroma;
+                crData[index] = (int)color.CrChroma;
             }
         }
     }
@@ -773,3 +785,4 @@ public class StartOfScan : SegmentBase
         return dc;
     }
 }
+

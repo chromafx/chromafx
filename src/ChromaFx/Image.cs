@@ -14,11 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using ChromaFx.Filters.ColorMatrix;
-using ChromaFx.Formats;
-using ChromaFx.Colors;
 using System.Numerics;
 using System.Text;
+using ChromaFx.Colors;
+using ChromaFx.Filters.ColorMatrix;
+using ChromaFx.Formats;
 
 namespace ChromaFx;
 
@@ -33,9 +33,7 @@ public partial class Image
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
     public Image(int width, int height)
-        : this(width, height, new Color[width * height])
-    {
-    }
+        : this(width, height, new Color[width * height]) { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Image"/> class.
@@ -43,10 +41,7 @@ public partial class Image
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
     /// <param name="data">The data.</param>
-    public Image(int width, int height, Color[] data)
-    {
-        ReCreate(width, height, data);
-    }
+    public Image(int width, int height, Color[] data) => ReCreate(width, height, data);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Image"/> class.
@@ -56,7 +51,7 @@ public partial class Image
     /// <param name="data">The data.</param>
     public Image(int width, int height, byte[] data)
     {
-        if (data == null)
+        if (data is null)
         {
             ReCreate(width, height, null);
             return;
@@ -88,53 +83,54 @@ public partial class Image
     /// </summary>
     /// <param name="stream">The stream to copy the data from.</param>
     public Image(Stream stream)
-        : this(new Manager().Decode(stream))
-    {
-    }
+        : this(new Manager().Decode(stream)) { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Image"/> class.
     /// </summary>
     /// <param name="image">The image to copy the data from.</param>
     public Image(Image image)
-        : this(image.Width, image.Height, image.Pixels)
-    {
-    }
+        : this(image.Width, image.Height, image.Pixels) { }
 
     /// <summary>
     /// Gets the center.
     /// </summary>
-    /// <value>The center.</value>
     public Vector2 Center { get; private set; }
 
     /// <summary>
     /// Gets or sets the height.
     /// </summary>
-    /// <value>The height.</value>
     public int Height { get; private set; }
 
     /// <summary>
     /// Gets the pixel ratio.
     /// </summary>
-    /// <value>The pixel ratio.</value>
     public double PixelRatio { get; private set; }
 
     /// <summary>
     /// Gets or sets the pixels.
     /// </summary>
-    /// <value>The pixels.</value>
     public Color[] Pixels { get; private set; }
 
     /// <summary>
     /// Gets or sets the width.
     /// </summary>
-    /// <value>The width.</value>
     public int Width { get; private set; }
 
-    /// <summary>
-    /// The ASCII characters used
-    /// </summary>
-    private static readonly string[] AsciiCharacters = ["#", "#", "@", "%", "=", "+", "*", ":", "-", ".", " "];
+    private static readonly string[] AsciiCharacters =
+    [
+        "#",
+        "#",
+        "@",
+        "%",
+        "=",
+        "+",
+        "*",
+        ":",
+        "-",
+        ".",
+        " ",
+    ];
 
     /// <summary>
     /// Makes a copy of this image.
@@ -143,7 +139,7 @@ public partial class Image
     public Image Copy()
     {
         var data = new Color[Width * Height];
-        Array.Copy(Pixels, data, data.Length);
+        Pixels.AsSpan().CopyTo(data);
         return new Image(Width, Height, data);
     }
 
@@ -160,10 +156,10 @@ public partial class Image
         Height = height < 1 ? 1 : height;
         PixelRatio = (double)Width / Height;
         Center = new Vector2(Width >> 1, Height >> 1);
-        if (data == null)
+        if (data is null)
             return this;
         Pixels = new Color[width * height];
-        Array.Copy(data, Pixels, Pixels.Length);
+        data.AsSpan().CopyTo(Pixels);
         return this;
     }
 
@@ -188,10 +184,7 @@ public partial class Image
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns>True if it saves successfully, false otherwise</returns>
-    public bool Save(string fileName)
-    {
-        return new Manager().Encode(fileName, this);
-    }
+    public bool Save(string fileName) => new Manager().Encode(fileName, this);
 
     /// <summary>
     /// Saves the image to the specified stream.
@@ -199,10 +192,8 @@ public partial class Image
     /// <param name="stream">The stream.</param>
     /// <param name="format">The format.</param>
     /// <returns>True if it saves successfully, false otherwise</returns>
-    public bool Save(Stream stream, FileFormats format)
-    {
-        return new Manager().Encode(stream, this, format);
-    }
+    public bool Save(Stream stream, FileFormats format) =>
+        new Manager().Encode(stream, this, format);
 
     /// <summary>
     /// Converts the image to ASCII art.
@@ -217,7 +208,8 @@ public partial class Image
         {
             for (var x = 0; x < tempImage.Width; ++x)
             {
-                if (!showLine) continue;
+                if (!showLine)
+                    continue;
                 var rValue = tempImage.Pixels[y * tempImage.Width + x].Red / 255f;
                 builder.Append(AsciiCharacters[(int)(rValue * AsciiCharacters.Length)]);
             }
@@ -242,7 +234,8 @@ public partial class Image
     public string ToString(FileFormats desiredFormat)
     {
         using var stream = new MemoryStream();
-        if (!Save(stream, desiredFormat)) return string.Empty;
+        if (!Save(stream, desiredFormat))
+            return string.Empty;
         var tempArray = stream.ToArray();
         return Convert.ToBase64String(tempArray, 0, tempArray.Length);
     }

@@ -98,10 +98,7 @@ public abstract class AffineBaseClass : IFilter
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         Filter.Precompute(image.Width, image.Height, Width, Height);
-        targetLocation =
-            targetLocation == default
-                ? new Rectangle(0, 0, image.Width, image.Height)
-                : targetLocation.Clamp(image);
+        targetLocation = targetLocation.Normalize(image);
         var copy = new Color[image.Pixels.Length];
         Array.Copy(image.Pixels, copy, copy.Length);
         TransformationMatrix = GetMatrix(image, targetLocation);

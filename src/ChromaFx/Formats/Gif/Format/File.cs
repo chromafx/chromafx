@@ -34,7 +34,7 @@ public class File : FileBase
     /// </summary>
     public File()
     {
-        Frames = new List<Frame>();
+        Frames = [];
         Quantizer = new OctreeQuantizer { TransparencyThreshold = TransparencyThreshold };
         BitDepth = (int)Math.Ceiling(Math.Log(Quality, 2));
     }

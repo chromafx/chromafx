@@ -14,14 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+using ChromaFx.Colors;
 using ChromaFx.Formats.Png.Format.ColorFormats;
 using ChromaFx.Formats.Png.Format.ColorFormats.Interfaces;
 using ChromaFx.Formats.Png.Format.Enums;
 using ChromaFx.Formats.Png.Format.Filters;
 using ChromaFx.Formats.Png.Format.Filters.Interfaces;
 using ChromaFx.Formats.Png.Format.Helpers;
-using ChromaFx.Colors;
 using System.IO.Compression;
+using System.Numerics;
 
 namespace ChromaFx.Formats.Png.Format;
 
@@ -125,23 +126,16 @@ public class Data
     public static Data operator +(Data object1, Data object2)
     {
         if (object1 == null && object2 == null)
-            return new Data(Array.Empty<byte>());
+            return new Data([]);
         if (object1 == null)
             return new Data(object2.ImageData);
         if (object2 == null)
             return new Data(object1.ImageData);
-        var returnData = new Data(
-            new byte[object1.ImageData.Length + object2.ImageData.Length]
-        );
-        Array.Copy(object1.ImageData, 0, returnData.ImageData, 0, object1.ImageData.Length);
-        Array.Copy(
-            object2.ImageData,
-            0,
-            returnData.ImageData,
-            object1.ImageData.Length,
-            object2.ImageData.Length
-        );
-        return returnData;
+        // Use MemoryStream to efficiently concatenate byte arrays
+        using var ms = new MemoryStream(object1.ImageData.Length + object2.ImageData.Length);
+        ms.Write(object1.ImageData, 0, object1.ImageData.Length);
+        ms.Write(object2.ImageData, 0, object2.ImageData.Length);
+        return new Data(ms.ToArray());
     }
 
     /// <summary>
@@ -225,51 +219,147 @@ public class Data
         return pb <= pc ? above : upperLeft;
     }
 
-    private static byte[] ToScanlines(Image image)
+    internal static byte[] ToScanlines(Image image)
     {
-        var data = new byte[image.Width * image.Height * 4 + image.Height];
         var rowLength = image.Width * 4 + 1;
 
-        Parallel.For(
-            0,
-            image.Width,
-            x =>
-            {
-                var dataOffset = x * 4 + 1;
-                var pixelOffset = x;
-                data[dataOffset] = image.Pixels[pixelOffset].Red;
-                data[dataOffset + 1] = image.Pixels[pixelOffset].Green;
-                data[dataOffset + 2] = image.Pixels[pixelOffset].Blue;
-                data[dataOffset + 3] = image.Pixels[pixelOffset].Alpha;
-                data[0] = 0;
-                for (var y = 1; y < image.Height; ++y)
-                {
-                    dataOffset = y * rowLength + x * 4 + 1;
-                    pixelOffset = image.Width * y + x;
-                    var abovePixelOffset = image.Width * (y - 1) + x;
-                    data[dataOffset] = (byte)(
-                        image.Pixels[pixelOffset].Red - image.Pixels[abovePixelOffset].Red
-                    );
-                    data[dataOffset + 1] = (byte)(
-                        image.Pixels[pixelOffset].Green - image.Pixels[abovePixelOffset].Green
-                    );
-                    data[dataOffset + 2] = (byte)(
-                        image.Pixels[pixelOffset].Blue - image.Pixels[abovePixelOffset].Blue
-                    );
-                    data[dataOffset + 3] = (byte)(
-                        image.Pixels[pixelOffset].Alpha - image.Pixels[abovePixelOffset].Alpha
-                    );
-                    data[y * rowLength] = 2;
-                }
-            }
-        );
-
-        using var tempMemoryStream = new MemoryStream();
-        using (var tempDeflateStream = new ZLibStream(tempMemoryStream, CompressionMode.Compress))
+        using var ms = new MemoryStream();
+        using (var compressor = new ZLibStream(ms, CompressionLevel.Optimal, leaveOpen: true))
         {
-            tempDeflateStream.Write(data, 0, data.Length);
+            var prevRow = new byte[image.Width * 4];
+            var curRow = new byte[image.Width * 4];
+            var filteredRow = new byte[rowLength];
+
+            for (int y = 0; y < image.Height; y++)
+            {
+                // Fill current row (raw RGBA)
+                for (int x = 0; x < image.Width; x++)
+                {
+                    var pixel = image.Pixels[y * image.Width + x];
+                    int offset = x * 4;
+                    curRow[offset] = pixel.Red;
+                    curRow[offset + 1] = pixel.Green;
+                    curRow[offset + 2] = pixel.Blue;
+                    curRow[offset + 3] = pixel.Alpha;
+                }
+
+                // Try all filters (0–4), keep the one with lowest "cost"
+                int bestFilter = 0;
+                int bestScore = int.MaxValue;
+
+                for (int filter = 0; filter <= 4; filter++)
+                {
+                    ApplyFilter(filter, curRow, prevRow, filteredRow);
+                    int score = Score(filteredRow);
+                    if (score < bestScore)
+                    {
+                        bestScore = score;
+                        bestFilter = filter;
+                    }
+                }
+
+                // Write best row
+                ApplyFilter(bestFilter, curRow, prevRow, filteredRow);
+                compressor.Write(filteredRow, 0, filteredRow.Length);
+
+                // Swap rows
+                var tmp = prevRow;
+                prevRow = curRow;
+                curRow = tmp;
+            }
         }
-        return tempMemoryStream.ToArray();
+
+        return ms.ToArray();
+    }
+
+    private static void ApplyFilter(int filter, byte[] cur, byte[] prev, byte[] output)
+    {
+        output[0] = (byte)filter;
+        switch (filter)
+        {
+            case 0: // None
+                Buffer.BlockCopy(cur, 0, output, 1, cur.Length);
+                break;
+            case 1: // Sub
+                ApplySub(cur, output.AsSpan(1));
+                break;
+            case 2: // Up
+                ApplyUp(cur, prev, output.AsSpan(1));
+                break;
+            case 3: // Average
+                ApplyAverage(cur, prev, output.AsSpan(1));
+                break;
+            case 4: // Paeth
+                ApplyPaeth(cur, prev, output.AsSpan(1));
+                break;
+        }
+    }
+
+    private static void ApplySub(byte[] cur, Span<byte> dst)
+    {
+        int bpp = 4; // RGBA
+        for (int i = 0; i < cur.Length; i++)
+        {
+            byte left = i >= bpp ? cur[i - bpp] : (byte)0;
+            dst[i] = (byte)(cur[i] - left);
+        }
+    }
+
+    private static void ApplyUp(byte[] cur, byte[] prev, Span<byte> dst)
+    {
+        // Vectorized Up filter: cur - prev
+        int i = 0;
+        int simdLength = Vector<byte>.Count;
+
+        for (; i <= cur.Length - simdLength; i += simdLength)
+        {
+            var vCur = new Vector<byte>(cur, i);
+            var vPrev = new Vector<byte>(prev, i);
+            var vRes = vCur - vPrev;
+            vRes.CopyTo(dst.Slice(i));
+        }
+
+        for (; i < cur.Length; i++)
+            dst[i] = (byte)(cur[i] - prev[i]);
+    }
+
+    private static void ApplyAverage(byte[] cur, byte[] prev, Span<byte> dst)
+    {
+        int bpp = 4;
+        for (int i = 0; i < cur.Length; i++)
+        {
+            byte left = i >= bpp ? cur[i - bpp] : (byte)0;
+            byte up = prev[i];
+            dst[i] = (byte)(cur[i] - ((left + up) >> 1));
+        }
+    }
+
+    private static void ApplyPaeth(byte[] cur, byte[] prev, Span<byte> dst)
+    {
+        int bpp = 4;
+        for (int i = 0; i < cur.Length; i++)
+        {
+            byte a = i >= bpp ? cur[i - bpp] : (byte)0; // left
+            byte b = prev[i];                           // up
+            byte c = i >= bpp ? prev[i - bpp] : (byte)0; // up-left
+
+            int p = a + b - c;
+            int pa = Math.Abs(p - a);
+            int pb = Math.Abs(p - b);
+            int pc = Math.Abs(p - c);
+
+            byte predictor = (pa <= pb && pa <= pc) ? a : (pb <= pc ? b : c);
+            dst[i] = (byte)(cur[i] - predictor);
+        }
+    }
+
+    private static int Score(byte[] row)
+    {
+        // Heuristic: sum of absolute values of filtered bytes
+        int sum = 0;
+        for (int i = 1; i < row.Length; i++)
+            sum += (row[i] < 128 ? row[i] : 256 - row[i]); // abs as unsigned
+        return sum;
     }
 
     /// <summary>
@@ -281,7 +371,7 @@ public class Data
     /// <param name="colorTypeInformation">The color type information.</param>
     /// <param name="header">The header.</param>
     private static void ReadScanlines(
-        Stream dataStream,
+        MemoryStream dataStream,
         Color[] pixels,
         IColorReader colorReader,
         ColorTypeInformation colorTypeInformation,
@@ -349,23 +439,5 @@ public class Data
                 }
             }
         }
-        //using (var compressedStream = new ZLibStream(dataStream, CompressionMode.Decompress))
-        //{
-        //    using (MemoryStream DecompressedStream = new MemoryStream())
-        //    {
-        //        compressedStream.CopyTo(DecompressedStream);
-        //        DecompressedStream.Flush();
-        //        byte[] DecompressedArray = DecompressedStream.ToArray();
-        //        for (int y = 0, Column = 0; y < header.Height; ++y, Column += (scanLineLength + 1))
-        //        {
-        //            Array.Copy(DecompressedArray, Column + 1, currentScanLine, 0, scanLineLength);
-        //            if (DecompressedArray[Column] < 0)
-        //                break;
-        //            byte[] Result = Filters[(FilterType)DecompressedArray[Column]].Decode(currentScanLine, lastScanLine, scanLineStep);
-        //            colorReader.ReadScanline(Result, pixels, header, y);
-        //            Array.Copy(currentScanLine, lastScanLine, scanLineStep);
-        //        }
-        //    }
-        //}
     }
 }

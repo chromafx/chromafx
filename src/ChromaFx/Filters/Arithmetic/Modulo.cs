@@ -44,10 +44,7 @@ public class Modulo(Image secondImage) : IFilter
     /// <returns>The image</returns>
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
-        targetLocation =
-            targetLocation == default
-                ? new Rectangle(0, 0, image.Width, image.Height)
-                : targetLocation.Clamp(image);
+        targetLocation = targetLocation.Normalize(image);
 
         Parallel.For(
             targetLocation.Bottom,

@@ -140,7 +140,7 @@ public class EndianBinaryReader : IDisposable
         if (BaseStream == null)
             throw new NullReferenceException("Base stream is currently null.");
         count = count > data.Length ? data.Length : count;
-        data ??= Array.Empty<char>();
+        data ??= [];
         if (index > data.Length - count)
             index = data.Length - count;
         index = index < 0 ? 0 : index;
@@ -200,7 +200,7 @@ public class EndianBinaryReader : IDisposable
         if (BaseStream == null)
             throw new NullReferenceException("Base stream is currently null.");
         count = count > buffer.Length ? buffer.Length : count;
-        buffer ??= Array.Empty<byte>();
+        buffer ??= [];
         if (index > buffer.Length - count)
             index = buffer.Length - count;
         index = index < 0 ? 0 : index;

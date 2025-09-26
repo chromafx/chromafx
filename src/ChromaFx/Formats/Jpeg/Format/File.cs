@@ -109,7 +109,7 @@ public class File : FileBase
     /// </returns>
     protected override Animation ToAnimation()
     {
-        return new Animation(new[] { ToImage() }, 0);
+        return new Animation([ToImage()], 0);
     }
 
     /// <summary>
@@ -134,7 +134,7 @@ public class File : FileBase
     private Image ReadSegments(Stream stream)
     {
         var bytes = new ByteBuffer(stream);
-        Segments = new List<SegmentBase>();
+        Segments = [];
         while (true)
         {
             var tempSegment = SegmentBase.Read(bytes, Segments);

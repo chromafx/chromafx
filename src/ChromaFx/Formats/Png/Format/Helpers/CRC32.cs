@@ -90,7 +90,7 @@ public class Crc32
     /// <returns>The resulting value</returns>
     public long Update(byte[] buffer, int offset = -1, int count = int.MaxValue)
     {
-        buffer ??= Array.Empty<byte>();
+        buffer ??= [];
         count = count.Clamp(0, buffer.Length);
         offset = offset.Clamp(0, buffer.Length);
         if (offset > count)

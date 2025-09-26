@@ -18,6 +18,8 @@ using ChromaFx.Filters.Drawing;
 using ChromaFx.Filters.Interfaces;
 using ChromaFx.Colors;
 using System.Numerics;
+using ChromaFx.Numerics;
+using SysRandom = System.Random;
 
 namespace ChromaFx.Filters.Effects;
 
@@ -46,7 +48,7 @@ public class Pointillism(int pointSize) : IFilter
     /// <returns>The image</returns>
     public Image Apply(Image image, Numerics.Rectangle targetLocation = default)
     {
-        targetLocation = targetLocation == default ? new Numerics.Rectangle(0, 0, image.Width, image.Height) : targetLocation.Clamp(image);
+        targetLocation = targetLocation.Normalize(image);
         var pointSize2 = PointSize * 2;
         var copy = new Color[image.Pixels.Length];
         Array.Copy(image.Pixels, copy, copy.Length);
@@ -116,7 +118,7 @@ public class Pointillism(int pointSize) : IFilter
         }
         for (var y = targetLocation.Bottom; y < targetLocation.Top; y += pointSize2)
         {
-            var tempY = y + new Random(y).Next(-PointSize, PointSize);
+            var tempY = y + new SysRandom(y).Next(-PointSize, PointSize);
             var minY = Math.Clamp((tempY - PointSize), targetLocation.Bottom, targetLocation.Top - 1);
             var maxY = Math.Clamp((tempY + PointSize), targetLocation.Bottom, targetLocation.Top - 1);
             for (var x = targetLocation.Left + PointSize; x < targetLocation.Right; x += pointSize2)
@@ -124,7 +126,7 @@ public class Pointillism(int pointSize) : IFilter
                 uint rValue = 0;
                 uint gValue = 0;
                 uint bValue = 0;
-                var tempX = x + new Random(x).Next(-PointSize, PointSize);
+                var tempX = x + new SysRandom(x).Next(-PointSize, PointSize);
                 var minX = Math.Clamp((tempX - PointSize), targetLocation.Left, targetLocation.Right - 1);
                 var maxX = Math.Clamp((tempX + PointSize), targetLocation.Left, targetLocation.Right - 1);
                 var numberPixels = 0;

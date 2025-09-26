@@ -34,10 +34,7 @@ public class Crop : IFilter
     /// <returns>The image</returns>
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
-        targetLocation =
-            targetLocation == default
-                ? new Rectangle(0, 0, image.Width, image.Height)
-                : targetLocation.Clamp(image);
+        targetLocation = targetLocation.Normalize(image);
         var result = new Color[targetLocation.Width * targetLocation.Height];
 
         Parallel.For(

@@ -267,7 +267,7 @@ public class EndianBinaryWriter : IDisposable
     /// <param name="value">The values to write</param>
     public void Write(byte[] value)
     {
-        value ??= Array.Empty<byte>();
+        value ??= [];
         WriteInternal(value, value.Length);
     }
 
@@ -281,7 +281,7 @@ public class EndianBinaryWriter : IDisposable
     {
         if (BaseStream == null)
             throw new NullReferenceException("Base stream is null");
-        value ??= Array.Empty<byte>();
+        value ??= [];
         BaseStream.Write(value, offset, count);
     }
 
@@ -301,7 +301,7 @@ public class EndianBinaryWriter : IDisposable
     /// <param name="value">An array containing the characters to write</param>
     public void Write(char[] value)
     {
-        value ??= Array.Empty<char>();
+        value ??= [];
         if (BaseStream == null)
             throw new NullReferenceException("Base stream is null");
         var data = Encoding.GetBytes(value, 0, value.Length);

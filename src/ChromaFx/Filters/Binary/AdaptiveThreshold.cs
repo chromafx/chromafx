@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+using ChromaFx.Colors;
 using ChromaFx.Filters.ColorMatrix;
 using ChromaFx.Filters.Interfaces;
 using ChromaFx.Numerics;
-using ChromaFx.Colors;
 
 namespace ChromaFx.Filters.Binary;
 
@@ -26,43 +26,33 @@ namespace ChromaFx.Filters.Binary;
 /// </summary>
 /// <seealso cref="IFilter"/>
 /// <remarks>
-/// Initializes a new instance of the <see cref="AdaptiveThreshold" /> class.
+/// Initializes a new instance of the <see cref="AdaptiveThreshold"/> class.
 /// </remarks>
 /// <param name="apertureRadius">The aperture radius.</param>
 /// <param name="color1">The color1.</param>
 /// <param name="color2">The color2.</param>
 /// <param name="threshold">The threshold.</param>
-public class AdaptiveThreshold(int apertureRadius, Color color1, Color color2, float threshold) : IFilter
+public class AdaptiveThreshold(int apertureRadius, Color color1, Color color2, float threshold)
+    : IFilter
 {
-
     /// <summary>
     /// Gets or sets the aperture radius.
     /// </summary>
-    /// <value>The aperture radius.</value>
     public int ApertureRadius { get; set; } = apertureRadius;
 
     /// <summary>
     /// Gets or sets the color1.
     /// </summary>
-    /// <value>
-    /// The color1.
-    /// </value>
     public Color Color1 { get; set; } = color1;
 
     /// <summary>
     /// Gets or sets the color2.
     /// </summary>
-    /// <value>
-    /// The color2.
-    /// </value>
     public Color Color2 { get; set; } = color2;
 
     /// <summary>
     /// Gets or sets the threshold.
     /// </summary>
-    /// <value>
-    /// The threshold.
-    /// </value>
     public float Threshold { get; set; } = threshold;
 
     /// <summary>
@@ -73,10 +63,7 @@ public class AdaptiveThreshold(int apertureRadius, Color color1, Color color2, f
     /// <returns>The image</returns>
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
-        targetLocation =
-            targetLocation == default
-                ? new Rectangle(0, 0, image.Width, image.Height)
-                : targetLocation.Clamp(image);
+        targetLocation = targetLocation.Normalize(image);
         new Greyscale709().Apply(image, targetLocation);
 
         var tempValues = new Color[image.Width * image.Height];
@@ -93,7 +80,9 @@ public class AdaptiveThreshold(int apertureRadius, Color color1, Color color2, f
                 for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                 {
                     var targetIndex = y * image.Width + x;
-                    var rValues = new List<byte>();
+                    var rValues = new List<byte>(
+                        (apertureMax - apertureMin) * (apertureMax - apertureMin)
+                    );
 
                     for (var x2 = apertureMin; x2 < apertureMax; ++x2)
                     {
@@ -113,7 +102,9 @@ public class AdaptiveThreshold(int apertureRadius, Color color1, Color color2, f
                     }
 
                     tempValues[targetIndex] =
-                        rValues.Average(value => value / 255f) >= Threshold ? Color1 : Color2;
+                        rValues.Count > 0 && rValues.Average(value => value / 255f) >= Threshold
+                            ? Color1
+                            : Color2;
                 }
             }
         );

@@ -35,10 +35,7 @@ public class StretchContrast : IFilter
     /// <returns>The image</returns>
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
-        targetLocation =
-            targetLocation == default
-                ? new Rectangle(0, 0, image.Width, image.Height)
-                : targetLocation.Clamp(image);
+        targetLocation = targetLocation.Normalize(image);
         var minValue = new byte[3];
         var maxValue = new byte[3];
         GetMinMaxPixel(minValue, maxValue, image);
@@ -73,7 +70,7 @@ public class StretchContrast : IFilter
         return image;
     }
 
-    private static void GetMinMaxPixel(IList<byte> minValue, IList<byte> maxValue, Image image)
+    private static void GetMinMaxPixel(byte[] minValue, byte[] maxValue, Image image)
     {
         minValue[0] = minValue[1] = minValue[2] = 255;
         maxValue[0] = maxValue[1] = maxValue[2] = 0;

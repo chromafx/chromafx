@@ -60,10 +60,7 @@ public class SinWave(float amplitude, float frequency, Direction direction) : IF
     /// <returns>The image</returns>
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
-        targetLocation =
-            targetLocation == default
-                ? new Rectangle(0, 0, image.Width, image.Height)
-                : targetLocation.Clamp(image);
+        targetLocation = targetLocation.Normalize(image);
         var result = new Color[image.Pixels.Length];
         Array.Copy(image.Pixels, result, result.Length);
 

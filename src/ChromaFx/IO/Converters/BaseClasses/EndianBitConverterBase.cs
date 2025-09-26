@@ -377,7 +377,7 @@ public abstract class EndianBitConverterBase
     /// <exception cref="System.ArgumentOutOfRangeException"></exception>
     public static bool ToBoolean(byte[] value, int startIndex)
     {
-        value ??= Array.Empty<byte>();
+        value ??= [];
         if (value.Length - 1 < startIndex || startIndex < 0)
             throw new ArgumentOutOfRangeException(nameof(startIndex));
         return BitConverter.ToBoolean(value, startIndex);
@@ -527,7 +527,7 @@ public abstract class EndianBitConverterBase
     /// <exception cref="System.ArgumentOutOfRangeException"></exception>
     private long CheckedFromBytes(byte[] value, int startIndex, int bytesToConvert)
     {
-        value ??= Array.Empty<byte>();
+        value ??= [];
         if (value.Length - bytesToConvert < startIndex || startIndex < 0)
             throw new ArgumentOutOfRangeException(nameof(startIndex));
         return FromBytes(value, startIndex, bytesToConvert);
@@ -543,7 +543,7 @@ public abstract class EndianBitConverterBase
     /// <exception cref="System.ArgumentOutOfRangeException"></exception>
     private void CopyBytes(long value, int bytes, byte[] buffer, int index)
     {
-        buffer ??= Array.Empty<byte>();
+        buffer ??= [];
         if (buffer.Length - bytes < index || index < 0)
             throw new ArgumentOutOfRangeException(nameof(index));
         CopyBytesImpl(value, bytes, buffer, index);
