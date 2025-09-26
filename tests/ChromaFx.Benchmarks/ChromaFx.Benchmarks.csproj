@@ -13,10 +13,14 @@
     <Content Include="TestImage\BitmapFilter.bmp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="TestImage\splash.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.15.3" />
+    <PackageReference Include="Microsoft.VisualStudio.DiagnosticsHub.BenchmarkDotNetDiagnosers" Version="18.0.36421.1" />
     <PackageReference Include="System.Drawing.Common" Version="9.0.9" />
   </ItemGroup>
 
