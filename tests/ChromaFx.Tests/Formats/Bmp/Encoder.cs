@@ -37,12 +37,14 @@ public class Encoder : FormatTestBase
     [MemberData(nameof(InputFileNames))]
     public void Encode(string fileName)
     {
-        using var tempFile = File.OpenRead(InputDirectory + fileName);
-        var tempDecoder = new IO.Formats.Bmp.Decoder();
-        var tempImage = tempDecoder.Decode(tempFile);
-        var tempEncoder = new IO.Formats.Bmp.Encoder();
-        using var tempFile2 = File.OpenWrite(OutputDirectory + fileName);
-        tempEncoder.Encode(new BinaryWriter(tempFile2), tempImage);
+        using (var tempFile = File.OpenRead(InputDirectory + fileName))
+        {
+            var tempDecoder = new IO.Formats.Bmp.Decoder();
+            var tempImage = tempDecoder.Decode(tempFile);
+            var tempEncoder = new IO.Formats.Bmp.Encoder();
+            using var tempFile2 = File.OpenWrite(OutputDirectory + fileName);
+            tempEncoder.Encode(new BinaryWriter(tempFile2), tempImage);
+        }
         Assert.True(CheckFileCorrect(fileName));
     }
 }
