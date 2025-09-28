@@ -89,7 +89,7 @@ public class LzwDecoder(Stream stream)
             suffix[x] = (byte)x;
         }
 
-        byte[]? buffer = null;
+        byte[] buffer = null;
         while (xyz < pixels.Length)
         {
             if (top == 0)

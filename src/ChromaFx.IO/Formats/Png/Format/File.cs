@@ -29,19 +29,16 @@ public class File : FileBase
     /// <summary>
     /// Initializes a new instance of the <see cref="File" /> class.
     /// </summary>
-    public File()
+    public File() => ChunkActions = new Dictionary<ChunkTypes, Action<Chunk>>
     {
-        ChunkActions = new Dictionary<ChunkTypes, Action<Chunk>>
-        {
-            [ChunkTypes.Header] = ReadHeader,
-            [ChunkTypes.Physical] = _ => { },
-            [ChunkTypes.Palette] = ReadPalette,
-            [ChunkTypes.TransparencyInfo] = ReadAlphaPalette,
-            [ChunkTypes.Text] = ReadText,
-            [ChunkTypes.End] = _ => { },
-            [ChunkTypes.Data] = ReadData
-        };
-    }
+        [ChunkTypes.Header] = ReadHeader,
+        [ChunkTypes.Physical] = _ => { },
+        [ChunkTypes.Palette] = ReadPalette,
+        [ChunkTypes.TransparencyInfo] = ReadAlphaPalette,
+        [ChunkTypes.Text] = ReadText,
+        [ChunkTypes.End] = _ => { },
+        [ChunkTypes.Data] = ReadData
+    };
 
     /// <summary>
     /// Gets the alpha palette.
@@ -105,7 +102,7 @@ public class File : FileBase
     /// <value>
     /// The chunk actions.
     /// </value>
-    private IDictionary<ChunkTypes, Action<Chunk>> ChunkActions { get; }
+    private Dictionary<ChunkTypes, Action<Chunk>> ChunkActions { get; }
 
     /// <summary>
     /// Decodes the specified stream.

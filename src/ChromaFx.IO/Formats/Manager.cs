@@ -61,7 +61,7 @@ public class Manager(IEnumerable<IFormat> formats, IEnumerable<IAnimationFormat>
     /// </summary>
     /// <param name="stream">The stream.</param>
     /// <returns>An image object of the stream</returns>
-    public Image? Decode(Stream stream)
+    public Image Decode(Stream stream)
     {
         foreach (var format in Formats)
         {
@@ -78,7 +78,7 @@ public class Manager(IEnumerable<IFormat> formats, IEnumerable<IAnimationFormat>
     /// </summary>
     /// <param name="stream">The stream.</param>
     /// <returns>An animation object of the stream</returns>
-    public Animation? DecodeAnimation(Stream stream)
+    public Animation DecodeAnimation(Stream stream)
     {
         foreach (var format in AnimationFormats)
         {
