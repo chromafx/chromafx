@@ -1,10 +1,11 @@
 using BenchmarkDotNet.Attributes;
-using ChromaFx.Colors;
-using ChromaFx.Filters.Binary;
-using ChromaFx.Numerics;
+using ChromaFx.Core;
+using ChromaFx.Core.Colors;
+using ChromaFx.Processing.Filters.Binary;
+using ChromaFx.Processing.Numerics;
 using Microsoft.VSDiagnostics;
 
-namespace ChromaFx.Benchmarks.Filters.Binary
+namespace ChromaFx.Benchmarks
 {
     [CPUUsageDiagnoser]
     public class NonMaximalSuppressionBenchmark

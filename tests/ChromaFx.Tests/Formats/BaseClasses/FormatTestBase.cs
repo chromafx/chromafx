@@ -23,7 +23,7 @@ public abstract class FormatTestBase
         using var expectedStream = File.OpenRead(ExpectedDirectory + fileName);
         using var outputStream = File.OpenRead(OutputDirectory + fileName);
 
-        var imageFormat = new ChromaFx.Formats.Png.PngFormat();
+        var imageFormat = new IO.Formats.Png.PngFormat();
         var expectedImage = imageFormat.Decode(expectedStream);
         var outputImage = imageFormat.Decode(outputStream);
 

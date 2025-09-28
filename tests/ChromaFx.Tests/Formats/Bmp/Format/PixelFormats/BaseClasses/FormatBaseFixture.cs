@@ -1,4 +1,4 @@
-﻿using ChromaFx.Formats.Bmp.Format.PixelFormats.Interfaces;
+﻿using ChromaFx.IO.Formats.Bmp.Format.PixelFormats.Interfaces;
 
 namespace ChromaFx.Tests.Formats.Bmp.Format.PixelFormats.BaseClasses;
 

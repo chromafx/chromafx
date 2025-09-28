@@ -1,4 +1,4 @@
-﻿using ChromaFx.ExtensionMethods;
+﻿using ChromaFx.Core.ExtensionMethods;
 using Xunit;
 
 namespace ChromaFx.Tests.ExtensionMethods;

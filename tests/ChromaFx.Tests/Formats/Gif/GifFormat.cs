@@ -23,7 +23,7 @@ public class GifFormat : FormatTestBase
     {
         using (var tempFile = File.OpenRead(InputDirectory + fileName))
         {
-            var imageFormat = new ChromaFx.Formats.Gif.GifFormat();
+            var imageFormat = new IO.Formats.Gif.GifFormat();
             var tempImage = imageFormat.DecodeAnimation(tempFile);
             using var tempFile2 = File.OpenWrite(OutputDirectory + fileName);
             Assert.True(imageFormat.Encode(new BinaryWriter(tempFile2), tempImage));

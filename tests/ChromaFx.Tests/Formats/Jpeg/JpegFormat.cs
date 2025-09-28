@@ -26,7 +26,7 @@ public class JpegFormat : FormatTestBase
     {
         using (var tempFile = File.OpenRead(InputDirectory + fileName))
         {
-            var imageFormat = new ChromaFx.Formats.Jpeg.JpegFormat();
+            var imageFormat = new IO.Formats.Jpeg.JpegFormat();
             var tempImage = imageFormat.Decode(tempFile);
             using var tempFile2 = File.OpenWrite(OutputDirectory + fileName);
             Assert.True(imageFormat.Encode(new BinaryWriter(tempFile2), tempImage));

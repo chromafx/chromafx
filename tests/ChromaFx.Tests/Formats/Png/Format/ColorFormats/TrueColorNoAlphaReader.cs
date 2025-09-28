@@ -1,5 +1,4 @@
-﻿using ChromaFx.Colors;
-using Xunit;
+﻿using Xunit;
 
 namespace ChromaFx.Tests.Formats.Png.Format.ColorFormats;
 
@@ -33,8 +32,8 @@ public class TrueColorNoAlphaReader
             new Color(5, 6, 7),
             new Color(8, 9)
         };
-        var testObject = new ChromaFx.Formats.Png.Format.ColorFormats.TrueColorNoAlphaReader();
-        testObject.ReadScanline(data, result, new ChromaFx.Formats.Png.Format.Header(10, 1, 8, 3, 0, 0, 0), 0);
+        var testObject = new IO.Formats.Png.Format.ColorFormats.TrueColorNoAlphaReader();
+        testObject.ReadScanline(data, result, new IO.Formats.Png.Format.Header(10, 1, 8, 3, 0, 0, 0), 0);
         Assert.Equal(expectedResult, result);
     }
 }

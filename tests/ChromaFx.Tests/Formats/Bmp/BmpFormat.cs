@@ -27,44 +27,44 @@ public class BmpFormat : FormatTestBase
     [Fact]
     public void CanDecodeByteArray()
     {
-        Assert.True(new ChromaFx.Formats.Bmp.BmpFormat().CanDecode(BitConverter.GetBytes(19778)));
-        Assert.False(new ChromaFx.Formats.Bmp.BmpFormat().CanDecode(BitConverter.GetBytes(19777)));
-        Assert.False(new ChromaFx.Formats.Bmp.BmpFormat().CanDecode(BitConverter.GetBytes(19779)));
+        Assert.True(new IO.Formats.Bmp.BmpFormat().CanDecode(BitConverter.GetBytes(19778)));
+        Assert.False(new IO.Formats.Bmp.BmpFormat().CanDecode(BitConverter.GetBytes(19777)));
+        Assert.False(new IO.Formats.Bmp.BmpFormat().CanDecode(BitConverter.GetBytes(19779)));
     }
 
     [Fact]
     public void CanDecodeFileName()
     {
-        Assert.True(new ChromaFx.Formats.Bmp.BmpFormat().CanDecode("test.bmp"));
-        Assert.True(new ChromaFx.Formats.Bmp.BmpFormat().CanDecode("test.dib"));
-        Assert.True(new ChromaFx.Formats.Bmp.BmpFormat().CanDecode("TEST.BMP"));
-        Assert.True(new ChromaFx.Formats.Bmp.BmpFormat().CanDecode("TEST.DIB"));
-        Assert.False(new ChromaFx.Formats.Bmp.BmpFormat().CanDecode("test.jpg"));
-        Assert.False(new ChromaFx.Formats.Bmp.BmpFormat().CanDecode("BMP.jpg"));
+        Assert.True(new IO.Formats.Bmp.BmpFormat().CanDecode("test.bmp"));
+        Assert.True(new IO.Formats.Bmp.BmpFormat().CanDecode("test.dib"));
+        Assert.True(new IO.Formats.Bmp.BmpFormat().CanDecode("TEST.BMP"));
+        Assert.True(new IO.Formats.Bmp.BmpFormat().CanDecode("TEST.DIB"));
+        Assert.False(new IO.Formats.Bmp.BmpFormat().CanDecode("test.jpg"));
+        Assert.False(new IO.Formats.Bmp.BmpFormat().CanDecode("BMP.jpg"));
     }
 
     [Fact]
     public void CanDecodeStream()
     {
-        Assert.True(new ChromaFx.Formats.Bmp.BmpFormat().CanDecode(new MemoryStream(BitConverter.GetBytes(19778))));
-        Assert.False(new ChromaFx.Formats.Bmp.BmpFormat().CanDecode(new MemoryStream(BitConverter.GetBytes(19777))));
-        Assert.False(new ChromaFx.Formats.Bmp.BmpFormat().CanDecode(new MemoryStream(BitConverter.GetBytes(19779))));
+        Assert.True(new IO.Formats.Bmp.BmpFormat().CanDecode(new MemoryStream(BitConverter.GetBytes(19778))));
+        Assert.False(new IO.Formats.Bmp.BmpFormat().CanDecode(new MemoryStream(BitConverter.GetBytes(19777))));
+        Assert.False(new IO.Formats.Bmp.BmpFormat().CanDecode(new MemoryStream(BitConverter.GetBytes(19779))));
     }
 
     [Fact]
     public void CanEncode()
     {
-        Assert.True(new ChromaFx.Formats.Bmp.BmpFormat().CanEncode("ASDF.bmp"));
-        Assert.True(new ChromaFx.Formats.Bmp.BmpFormat().CanEncode("ASDF.dib"));
-        Assert.False(new ChromaFx.Formats.Bmp.BmpFormat().CanEncode("ASDF.jpg"));
-        Assert.False(new ChromaFx.Formats.Bmp.BmpFormat().CanEncode("bmp.gif"));
+        Assert.True(new IO.Formats.Bmp.BmpFormat().CanEncode("ASDF.bmp"));
+        Assert.True(new IO.Formats.Bmp.BmpFormat().CanEncode("ASDF.dib"));
+        Assert.False(new IO.Formats.Bmp.BmpFormat().CanEncode("ASDF.jpg"));
+        Assert.False(new IO.Formats.Bmp.BmpFormat().CanEncode("bmp.gif"));
     }
 
     [Fact]
     public void Decode()
     {
         using var tempFile = File.OpenRead("./TestImages/Formats/Bmp/EncodingTest.bmp");
-        var imageFormat = new ChromaFx.Formats.Bmp.BmpFormat();
+        var imageFormat = new IO.Formats.Bmp.BmpFormat();
         var tempImage = imageFormat.Decode(tempFile);
         Assert.Equal(1760, tempImage.Pixels.Length);
         Assert.Equal(44, tempImage.Width);
@@ -78,7 +78,7 @@ public class BmpFormat : FormatTestBase
     {
         using (var tempFile = File.OpenRead(InputDirectory + fileName))
         {
-            var imageFormat = new ChromaFx.Formats.Bmp.BmpFormat();
+            var imageFormat = new IO.Formats.Bmp.BmpFormat();
             var tempImage = imageFormat.Decode(tempFile);
             using var tempFile2 = File.OpenWrite(OutputDirectory + fileName);
             Assert.True(imageFormat.Encode(new BinaryWriter(tempFile2), tempImage));

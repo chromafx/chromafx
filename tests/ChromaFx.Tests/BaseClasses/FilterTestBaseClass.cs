@@ -1,5 +1,7 @@
-﻿using ChromaFx.Filters.Interfaces;
-using ChromaFx.Numerics;
+﻿using ChromaFx.IO;
+using ChromaFx.Processing;
+using ChromaFx.Processing.Filters.Interfaces;
+using ChromaFx.Processing.Numerics;
 using Xunit;
 
 namespace ChromaFx.Tests.BaseClasses;
@@ -26,7 +28,7 @@ public abstract class FilterTestBaseClass : TestBaseClass
         {
             var outputFileName =
                 Path.GetFileNameWithoutExtension(file) + "-" + name + Path.GetExtension(file);
-            new Image(file).Apply(filter, target).Save(OutputDirectory + outputFileName);
+            file.LoadImage().ApplyFilter(filter, target).Save(OutputDirectory + outputFileName);
         }
 
         foreach (

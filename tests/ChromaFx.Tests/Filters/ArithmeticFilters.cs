@@ -1,6 +1,5 @@
-﻿using ChromaFx.Filters.Arithmetic;
-using ChromaFx.Filters.Interfaces;
-using ChromaFx.Numerics;
+﻿using ChromaFx.IO;
+using ChromaFx.Processing.Filters.Arithmetic;
 using ChromaFx.Tests.BaseClasses;
 using Xunit;
 
@@ -14,14 +13,14 @@ public class ArithmeticFilters : FilterTestBaseClass
 
     public static readonly TheoryData<string, IFilter, Rectangle> Filters = new()
     {
-        { "XOr", new XOr(new Image("./TestImages/Formats/Bmp/Car.bmp")),new ChromaFx.Numerics.Rectangle(100,100,500,500)},
-        { "Or", new Or(new Image("./TestImages/Formats/Bmp/Car.bmp")),new ChromaFx.Numerics.Rectangle(100,100,500,500)},
-        { "And", new And(new Image("./TestImages/Formats/Bmp/Car.bmp")),new ChromaFx.Numerics.Rectangle(100,100,500,500)},
-        { "Subtract", new Subtract(new Image("./TestImages/Formats/Bmp/Car.bmp")),new ChromaFx.Numerics.Rectangle(100,100,500,500)},
-        { "Add", new Add(new Image("./TestImages/Formats/Bmp/Car.bmp")),new ChromaFx.Numerics.Rectangle(100,100,500,500)},
-        { "Division", new Division(new Image("./TestImages/Formats/Bmp/Car.bmp")),new ChromaFx.Numerics.Rectangle(100,100,500,500)},
-        { "Multiplication", new Multiplication(new Image("./TestImages/Formats/Bmp/Car.bmp")),new ChromaFx.Numerics.Rectangle(100,100,500,500)},
-        { "Modulo", new Modulo(new Image("./TestImages/Formats/Bmp/Car.bmp")),new ChromaFx.Numerics.Rectangle(100,100,500,500)}
+        { "XOr", new XOr("./TestImages/Formats/Bmp/Car.bmp".LoadImage()),new Rectangle(100,100,500,500)},
+        { "Or", new Or("./TestImages/Formats/Bmp/Car.bmp".LoadImage()),new Rectangle(100,100,500,500)},
+        { "And", new And("./TestImages/Formats/Bmp/Car.bmp".LoadImage()),new Rectangle(100,100,500,500)},
+        { "Subtract", new Subtract("./TestImages/Formats/Bmp/Car.bmp".LoadImage()),new Rectangle(100,100,500,500)},
+        { "Add", new Add("./TestImages/Formats/Bmp/Car.bmp".LoadImage()),new Rectangle(100,100,500,500)},
+        { "Division", new Division("./TestImages/Formats/Bmp/Car.bmp".LoadImage()),new Rectangle(100,100,500,500)},
+        { "Multiplication", new Multiplication("./TestImages/Formats/Bmp/Car.bmp".LoadImage()),new Rectangle(100,100,500,500)},
+        { "Modulo", new Modulo("./TestImages/Formats/Bmp/Car.bmp".LoadImage()),new Rectangle(100,100,500,500)}
     };
 
     [Theory]

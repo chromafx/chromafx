@@ -1,8 +1,6 @@
 using BenchmarkDotNet.Attributes;
+using ChromaFx.Core;
 using Microsoft.VSDiagnostics;
-using System.IO;
-using ChromaFx.Formats.Jpeg.Format;
-using ChromaFx;
 
 namespace ChromaFx.Benchmarks
 {
@@ -22,7 +20,7 @@ namespace ChromaFx.Benchmarks
         {
             using var stream = new MemoryStream();
             using var writer = new BinaryWriter(stream);
-            var file = new ChromaFx.Formats.Jpeg.Format.File();
+            var file = new IO.Formats.Jpeg.Format.File();
             file.Write(writer, _image);
         }
     }

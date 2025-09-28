@@ -1,6 +1,5 @@
-﻿using ChromaFx.Filters.Convolution;
-using ChromaFx.Filters.Interfaces;
-using ChromaFx.Numerics;
+﻿using ChromaFx.Processing.Filters.Convolution;
+using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Tests.BaseClasses;
 using Xunit;
 

@@ -17,7 +17,7 @@ public class ColorTests
     [Benchmark(Baseline = true, Description = "Old Color struct")]
     public void OldColorStruct()
     {
-        var testArray = new Colors.Color[10000];
+        var testArray = new Core.Colors.Color[10000];
         for (var x = 0; x < testArray.Length; ++x)
         {
             testArray[x] *= 3;

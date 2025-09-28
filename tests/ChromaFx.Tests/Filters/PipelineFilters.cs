@@ -1,12 +1,10 @@
-﻿using ChromaFx.Filters.Convolution.Enums;
-using ChromaFx.Filters.Interfaces;
-using ChromaFx.Numerics;
+﻿using ChromaFx.Processing;
+using ChromaFx.Processing.Filters.ColorMatrix;
+using ChromaFx.Processing.Filters.Convolution;
+using ChromaFx.Processing.Filters.Convolution.Enums;
+using ChromaFx.Processing.Filters.Pipelines;
 using ChromaFx.Tests.BaseClasses;
-using ChromaFx.Colors;
 using Xunit;
-using ChromaFx.Filters.ColorMatrix;
-using ChromaFx.Filters.Convolution;
-using ChromaFx.Filters.Pipelines;
 
 namespace ChromaFx.Tests.Filters;
 

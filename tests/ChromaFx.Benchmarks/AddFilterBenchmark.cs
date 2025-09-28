@@ -1,10 +1,10 @@
 using BenchmarkDotNet.Attributes;
-using ChromaFx.Filters.Arithmetic;
-using ChromaFx.Numerics;
-using ChromaFx;
+using ChromaFx.Core;
+using ChromaFx.Processing.Filters.Arithmetic;
+using ChromaFx.Processing.Numerics;
 using Microsoft.VSDiagnostics;
 
-namespace ChromaFx.Benchmarks.Filters.Arithmetic
+namespace ChromaFx.Benchmarks
 {
     [CPUUsageDiagnoser]
     public class AddFilterBenchmark

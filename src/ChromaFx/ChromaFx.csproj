@@ -1,43 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<!-- Build number from GitHub Actions -->
-		<BuildNumber Condition=" '$(GITHUB_RUN_NUMBER)' != '' ">$(GITHUB_RUN_NUMBER)</BuildNumber>
-		<BuildNumber Condition=" '$(BuildNumber)' == '' ">0</BuildNumber>
 
-		<TargetFramework>net8.0</TargetFramework>
-		<Nullable>disable</Nullable>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
 
-		<Authors>Ho Tzin Mein</Authors>
-		<Company />
-		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-		<PackageProjectUrl>https://github.com/chromafx/chromafx</PackageProjectUrl>
-		<PackageIcon>icon.png</PackageIcon>
-		<Description>ChromaFX — modern, high-performance .NET image processing library.</Description>
-		<PackageReleaseNotes>Modern API with pipeline-friendly design. Classes may change until 1.0 stable.</PackageReleaseNotes>
-		<Copyright>Copyright $([System.DateTime]::Now.Year) Ho Tzin Mein</Copyright>
-		<PackageTags>image graphics bitmap png jpeg gif drawing effects imageprocessing dotnet csharp chromafx</PackageTags>
-
-		<!-- Version for branch CI builds -->
-		<Version Condition=" '$(Version)' == '' ">1.0.0-beta.$(BuildNumber)</Version>
-		<PackageId>$(AssemblyName)</PackageId>
-		<Title>ChromaFx</Title>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<RepositoryUrl>https://github.com/chromafx/chromafx</RepositoryUrl>
-		<RepositoryType>git</RepositoryType>
-	</PropertyGroup>
-	<ItemGroup>
-		<None Include="../../assets/icon.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-    <None Include="../../README.md">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
+  <ItemGroup>
+    <ProjectReference Include="..\ChromaFx.Core\ChromaFx.Core.csproj" />
+    <ProjectReference Include="..\ChromaFx.IO\ChromaFx.IO.csproj" />
+    <ProjectReference Include="..\ChromaFx.Processing\ChromaFx.Processing.csproj" />
   </ItemGroup>
+
 </Project>

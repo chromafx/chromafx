@@ -1,5 +1,4 @@
-﻿using ChromaFx.Numerics;
-using Xunit;
+﻿using Xunit;
 
 namespace ChromaFx.Tests.Numerics;
 

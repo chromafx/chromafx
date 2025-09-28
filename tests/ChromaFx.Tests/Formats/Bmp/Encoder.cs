@@ -21,30 +21,28 @@ public class Encoder : FormatTestBase
         "Test16.bmp",
         "Test32.bmp",
         "TestRLE8.bmp",
-        "Test1.bmp"
+        "Test1.bmp",
     ];
 
     [Fact]
     public void CanEncode()
     {
-        Assert.True(new ChromaFx.Formats.Bmp.Encoder().CanEncode("ASDF.bmp"));
-        Assert.True(new ChromaFx.Formats.Bmp.Encoder().CanEncode("ASDF.dib"));
-        Assert.False(new ChromaFx.Formats.Bmp.Encoder().CanEncode("ASDF.jpg"));
-        Assert.False(new ChromaFx.Formats.Bmp.Encoder().CanEncode("bmp.gif"));
+        Assert.True(new IO.Formats.Bmp.Encoder().CanEncode("ASDF.bmp"));
+        Assert.True(new IO.Formats.Bmp.Encoder().CanEncode("ASDF.dib"));
+        Assert.False(new IO.Formats.Bmp.Encoder().CanEncode("ASDF.jpg"));
+        Assert.False(new IO.Formats.Bmp.Encoder().CanEncode("bmp.gif"));
     }
 
     [Theory]
     [MemberData(nameof(InputFileNames))]
     public void Encode(string fileName)
     {
-        using (var tempFile = File.OpenRead(InputDirectory + fileName))
-        {
-            var tempDecoder = new ChromaFx.Formats.Bmp.Decoder();
-            var tempImage = tempDecoder.Decode(tempFile);
-            var tempEncoder = new ChromaFx.Formats.Bmp.Encoder();
-            using var tempFile2 = File.OpenWrite(OutputDirectory + fileName);
-            tempEncoder.Encode(new BinaryWriter(tempFile2), tempImage);
-        }
+        using var tempFile = File.OpenRead(InputDirectory + fileName);
+        var tempDecoder = new IO.Formats.Bmp.Decoder();
+        var tempImage = tempDecoder.Decode(tempFile);
+        var tempEncoder = new IO.Formats.Bmp.Encoder();
+        using var tempFile2 = File.OpenWrite(OutputDirectory + fileName);
+        tempEncoder.Encode(new BinaryWriter(tempFile2), tempImage);
         Assert.True(CheckFileCorrect(fileName));
     }
 }

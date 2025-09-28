@@ -1,6 +1,8 @@
 ﻿using System.Drawing;
 using System.Runtime.Versioning;
 using BenchmarkDotNet.Attributes;
+using ChromaFx.Core;
+using ChromaFx.Processing.Numerics;
 
 namespace ChromaFx.Benchmarks.Filters;
 
@@ -15,17 +17,17 @@ public class Crop
     [Benchmark(Description = "ChromaFx Crop")]
     public void CropChromaFx()
     {
-        var testImage = new Image(Width, Height, new byte[Width * Height * 4]);
-        var cropFilter = new ChromaFx.Filters.Resampling.Crop();
-        cropFilter.Apply(testImage, new Numerics.Rectangle(0, 0, Count, Count));
+        var testImage = new Core.Image(Width, Height, new byte[Width * Height * 4]);
+        var cropFilter = new Processing.Filters.Resampling.Crop();
+        cropFilter.Apply(testImage, new Processing.Numerics.Rectangle(0, 0, Count, Count));
     }
 
     [Benchmark(Description = "ChromaFx Test Crop")]
     public void CropChromaFxTest()
     {
-        var testImage = new Image(Width, Height, new byte[Width * Height * 4]);
-        var testCropFilter = new ChromaFx.Filters.Resampling.Crop();
-        testCropFilter.Apply(testImage, new Numerics.Rectangle(0, 0, Count, Count));
+        var testImage = new Core.Image(Width, Height, new byte[Width * Height * 4]);
+        var testCropFilter = new Processing.Filters.Resampling.Crop();
+        testCropFilter.Apply(testImage, new Processing.Numerics.Rectangle(0, 0, Count, Count));
     }
 
     [SupportedOSPlatform("windows")]
@@ -33,6 +35,6 @@ public class Crop
     public void CropSystemDrawing()
     {
         using Bitmap source = new(Width, Height);
-        using var destination = source.Clone(new Rectangle(0, 0, Count, Count), source.PixelFormat);
+        using var destination = source.Clone(new System.Drawing.Rectangle(0, 0, Count, Count), source.PixelFormat);
     }
 }

@@ -6,7 +6,7 @@ namespace ChromaFx.Benchmarks;
 /// <summary>
 /// Benchmark config
 /// </summary>
-/// <seealso cref="BenchmarkDotNet.Configs.ManualConfig"/>
+/// <seealso cref="ManualConfig"/>
 public class Config : ManualConfig
 {
     /// <summary>

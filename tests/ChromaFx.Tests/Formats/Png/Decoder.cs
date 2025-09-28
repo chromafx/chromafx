@@ -18,34 +18,34 @@ public class Decoder : FormatTestBase
     public void CanDecodeByteArray()
     {
         byte[] header = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
-        Assert.True(new ChromaFx.Formats.Png.Decoder().CanDecode(header));
-        Assert.False(new ChromaFx.Formats.Png.Decoder().CanDecode(BitConverter.GetBytes(19777)));
-        Assert.False(new ChromaFx.Formats.Png.Decoder().CanDecode(BitConverter.GetBytes(19779)));
+        Assert.True(new IO.Formats.Png.Decoder().CanDecode(header));
+        Assert.False(new IO.Formats.Png.Decoder().CanDecode(BitConverter.GetBytes(19777)));
+        Assert.False(new IO.Formats.Png.Decoder().CanDecode(BitConverter.GetBytes(19779)));
     }
 
     [Fact]
     public void CanDecodeFileName()
     {
-        Assert.True(new ChromaFx.Formats.Png.Decoder().CanDecode("test.png"));
-        Assert.False(new ChromaFx.Formats.Png.Decoder().CanDecode("test.dib"));
-        Assert.True(new ChromaFx.Formats.Png.Decoder().CanDecode("TEST.PNG"));
-        Assert.False(new ChromaFx.Formats.Png.Decoder().CanDecode("TEST.DIB"));
-        Assert.False(new ChromaFx.Formats.Png.Decoder().CanDecode("test.jpg"));
-        Assert.False(new ChromaFx.Formats.Png.Decoder().CanDecode("PNG.jpg"));
+        Assert.True(new IO.Formats.Png.Decoder().CanDecode("test.png"));
+        Assert.False(new IO.Formats.Png.Decoder().CanDecode("test.dib"));
+        Assert.True(new IO.Formats.Png.Decoder().CanDecode("TEST.PNG"));
+        Assert.False(new IO.Formats.Png.Decoder().CanDecode("TEST.DIB"));
+        Assert.False(new IO.Formats.Png.Decoder().CanDecode("test.jpg"));
+        Assert.False(new IO.Formats.Png.Decoder().CanDecode("PNG.jpg"));
     }
 
     [Fact]
     public void CanDecodeStream()
     {
         byte[] header = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
-        Assert.True(new ChromaFx.Formats.Png.Decoder().CanDecode(new MemoryStream(header)));
+        Assert.True(new IO.Formats.Png.Decoder().CanDecode(new MemoryStream(header)));
         Assert.False(
-            new ChromaFx.Formats.Png.Decoder().CanDecode(
+            new IO.Formats.Png.Decoder().CanDecode(
                 new MemoryStream(BitConverter.GetBytes(19777))
             )
         );
         Assert.False(
-            new ChromaFx.Formats.Png.Decoder().CanDecode(
+            new IO.Formats.Png.Decoder().CanDecode(
                 new MemoryStream(BitConverter.GetBytes(19779))
             )
         );
@@ -55,7 +55,7 @@ public class Decoder : FormatTestBase
     public void Decode()
     {
         using var tempFile = File.OpenRead("./TestImages/Formats/Png/splash.png");
-        var tempDecoder = new ChromaFx.Formats.Png.Decoder();
+        var tempDecoder = new IO.Formats.Png.Decoder();
         var tempImage = tempDecoder.Decode(tempFile);
         Assert.Equal(241500, tempImage.Pixels.Length);
         Assert.Equal(500, tempImage.Width);

@@ -1,4 +1,5 @@
 using BenchmarkDotNet.Attributes;
+using ChromaFx.Core;
 using Microsoft.VSDiagnostics;
 
 namespace ChromaFx.Benchmarks;
@@ -14,7 +15,7 @@ public class PngFileEncodingDecodingBenchmarks
     {
         // Prepare a small PNG file in memory for decoding
         _pngData = File.ReadAllBytes("TestImage/splash.png");
-        var file = new ChromaFx.Formats.Png.Format.File();
+        var file = new IO.Formats.Png.Format.File();
         using var decodeStream = new MemoryStream(_pngData);
         file.Decode(decodeStream);
         _image = file.GetImage();
@@ -24,7 +25,7 @@ public class PngFileEncodingDecodingBenchmarks
     public void DecodeChromaFx()
     {
         var stream = new MemoryStream(_pngData);
-        var file = new ChromaFx.Formats.Png.Format.File();
+        var file = new IO.Formats.Png.Format.File();
         file.Decode(stream);
     }
 
@@ -33,7 +34,7 @@ public class PngFileEncodingDecodingBenchmarks
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        var file = new ChromaFx.Formats.Png.Format.File();
+        var file = new IO.Formats.Png.Format.File();
         file.Write(writer, _image);
     }
 }

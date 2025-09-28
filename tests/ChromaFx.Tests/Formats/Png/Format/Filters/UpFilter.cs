@@ -7,14 +7,14 @@ public class UpFilter
     [Fact]
     public void Creation()
     {
-        var testObject = new ChromaFx.Formats.Png.Format.Filters.UpFilter();
+        var testObject = new IO.Formats.Png.Format.Filters.UpFilter();
         Assert.Equal(2, testObject.FilterValue);
     }
 
     [Fact]
     public void Decode()
     {
-        var testObject = new ChromaFx.Formats.Png.Format.Filters.UpFilter();
+        var testObject = new IO.Formats.Png.Format.Filters.UpFilter();
         var result = testObject.Decode([1, 2, 3, 4, 5, 6, 7, 8, 9], [9, 8, 7, 6, 5, 4, 3, 2, 1], 1);
         Assert.Equal(new byte[] { 10, 10, 10, 10, 10, 10, 10, 10, 10 }, result);
     }
@@ -22,7 +22,7 @@ public class UpFilter
     [Fact]
     public void Encode()
     {
-        var testObject = new ChromaFx.Formats.Png.Format.Filters.UpFilter();
+        var testObject = new IO.Formats.Png.Format.Filters.UpFilter();
         var result = testObject.Encode([1, 2, 3, 4, 5, 6, 7, 8, 9], [9, 8, 7, 6, 5, 4, 3, 2, 1], 1);
         Assert.Equal(new byte[] { 2, 248, 250, 252, 254, 0, 2, 4, 6, 8 }, result);
     }

@@ -1,7 +1,5 @@
-﻿using ChromaFx.Filters.Interfaces;
-using ChromaFx.Filters.Resampling;
-using ChromaFx.Filters.Resampling.Enums;
-using ChromaFx.Numerics;
+﻿using ChromaFx.Processing.Filters.Resampling;
+using ChromaFx.Processing.Filters.Resampling.Enums;
 using ChromaFx.Tests.BaseClasses;
 using Xunit;
 

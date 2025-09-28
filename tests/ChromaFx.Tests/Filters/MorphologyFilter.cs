@@ -1,6 +1,4 @@
-﻿using ChromaFx.Filters.Interfaces;
-using ChromaFx.Filters.Morphology;
-using ChromaFx.Numerics;
+﻿using ChromaFx.Processing.Filters.Morphology;
 using ChromaFx.Tests.BaseClasses;
 using Xunit;
 

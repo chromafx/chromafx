@@ -1,6 +1,7 @@
-﻿using ChromaFx.Formats;
+﻿using ChromaFx.IO;
+using ChromaFx.IO.Formats;
+using ChromaFx.Processing;
 using ChromaFx.Tests.BaseClasses;
-using ChromaFx.Colors;
 using Xunit;
 
 namespace ChromaFx.Tests;
@@ -14,10 +15,10 @@ public class ImageTests : FilterTestBaseClass
     public static string SecondImage => "./TestImages/Formats/Bmp/Car.bmp";
 
     public static readonly TheoryData<string, Func<Image, int, Image>, int> ShiftOperations =
-        new() { { "ShiftLeft", (x, y) => x << y, 128 }, { "ShiftRight", (x, y) => x >> y, 128 } };
+        new() { { "BrightnessUp", (x, y) => x.BrightnessUp(y), 128 }, { "BrightnessDown", (x, y) => x.BrightnessDown(y), 128 } };
 
     public static readonly TheoryData<string, Func<Image, Image>> UnaryOperations =
-        new() { { "Not", x => !x } };
+        new() { { "Invert", x => x.Invert() } };
 
     [Fact]
     public void BadDataConstructor()
@@ -37,7 +38,7 @@ public class ImageTests : FilterTestBaseClass
         {
             var outputFileName =
                 Path.GetFileNameWithoutExtension(file) + "-" + name + Path.GetExtension(file);
-            var testImage = new Image(file);
+            var testImage = file.LoadImage();
             var resultImage = operation(testImage, value);
             resultImage.Save(OutputDirectory + outputFileName);
         }
@@ -67,7 +68,7 @@ public class ImageTests : FilterTestBaseClass
         {
             var outputFileName =
                 Path.GetFileNameWithoutExtension(file) + "-" + name + Path.GetExtension(file);
-            var testImage = new Image(file);
+            var testImage = file.LoadImage();
             var resultImage = operation(testImage);
             resultImage.Save(OutputDirectory + outputFileName);
         }
@@ -205,7 +206,7 @@ public class ImageTests : FilterTestBaseClass
         );
         Assert.Equal(
             "Qk1eAAAAAAAAADYAAAAoAAAAAQAAAAoAAAABABgAAAAAACgAAAAAAAAAAAAAAAAAAAAAAAAA5cyyAH9mTAAZ/+UAspl/AEwzGQDlzLIAf2ZMABn/5QCymX8ATDMZAA==",
-            testImage.ToString(FileFormats.Bmp)
+            testImage.ToBase64String(FileFormats.Bmp)
         );
     }
 }

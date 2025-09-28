@@ -1,5 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
-using ChromaFx.Filters.Resampling.Enums;
+using ChromaFx.Processing.Filters.Resampling.Enums;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Versioning;
@@ -11,8 +11,8 @@ public class Resize
     [Benchmark(Description = "ChromaFx Resize")]
     public void ResizeChromaFx()
     {
-        var testImage = new ChromaFx.Image(2000, 2000);
-        var filter = new ChromaFx.Filters.Resampling.Resize(400, 400, ResamplingFiltersAvailable.NearestNeighbor);
+        var testImage = new Core.Image(2000, 2000);
+        var filter = new Processing.Filters.Resampling.Resize(400, 400, ResamplingFiltersAvailable.NearestNeighbor);
         filter.Apply(testImage);
     }
 

@@ -17,10 +17,10 @@ public class Encoder : FormatTestBase
     [Fact]
     public void CanEncode()
     {
-        Assert.True(new ChromaFx.Formats.Png.Encoder().CanEncode("ASDF.png"));
-        Assert.False(new ChromaFx.Formats.Png.Encoder().CanEncode("ASDF.bmp"));
-        Assert.False(new ChromaFx.Formats.Png.Encoder().CanEncode("ASDF.jpg"));
-        Assert.False(new ChromaFx.Formats.Png.Encoder().CanEncode("bmp.gif"));
+        Assert.True(new IO.Formats.Png.Encoder().CanEncode("ASDF.png"));
+        Assert.False(new IO.Formats.Png.Encoder().CanEncode("ASDF.bmp"));
+        Assert.False(new IO.Formats.Png.Encoder().CanEncode("ASDF.jpg"));
+        Assert.False(new IO.Formats.Png.Encoder().CanEncode("bmp.gif"));
     }
 
     [Theory]
@@ -29,9 +29,9 @@ public class Encoder : FormatTestBase
     {
         using (var inputFile = File.OpenRead(InputDirectory + fileName))
         {
-            var decoder = new ChromaFx.Formats.Png.Decoder();
+            var decoder = new IO.Formats.Png.Decoder();
             var image = decoder.Decode(inputFile);
-            var encoder = new ChromaFx.Formats.Png.Encoder();
+            var encoder = new IO.Formats.Png.Encoder();
             using var outputFile = File.OpenWrite(OutputDirectory + fileName);
             encoder.Encode(new BinaryWriter(outputFile), image);
         }
