@@ -31,15 +31,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using ChromaFx.Core.IO.Converters.BaseClasses;
+using ChromaFx.IO.Converters.BaseClasses;
 
-namespace ChromaFx.Core.IO.Converters;
+namespace ChromaFx.IO.Converters;
 
 /// <summary>
-/// Little endian bit converter
+/// Big endian bit converter
 /// </summary>
 /// <seealso cref="EndianBitConverterBase" />
-public class LittleEndianBitConverter : EndianBitConverterBase
+public class BigEndianBitConverter : EndianBitConverterBase
 {
     /// <summary>
     /// Gets a value indicating whether this instance is little endian.
@@ -47,7 +47,7 @@ public class LittleEndianBitConverter : EndianBitConverterBase
     /// <value>
     /// <c>true</c> if this instance is little endian; otherwise, <c>false</c>.
     /// </value>
-    public override bool IsLittleEndian => true;
+    public override bool IsLittleEndian => false;
 
     /// <summary>
     /// Copies the bytes implementation.
@@ -58,9 +58,10 @@ public class LittleEndianBitConverter : EndianBitConverterBase
     /// <param name="index">The index.</param>
     protected override void CopyBytesImpl(long value, int bytes, byte[] buffer, int index)
     {
+        var endOffset = index + bytes - 1;
         for (var i = 0; i < bytes; i++)
         {
-            buffer[i + index] = unchecked((byte)(value & 0xff));
+            buffer[endOffset - i] = unchecked((byte)(value & 0xff));
             value >>= 8;
         }
     }
@@ -79,7 +80,7 @@ public class LittleEndianBitConverter : EndianBitConverterBase
         long ret = 0;
         for (var i = 0; i < bytesToConvert; i++)
         {
-            ret = unchecked((ret << 8) | value[startIndex + bytesToConvert - 1 - i]);
+            ret = unchecked((ret << 8) | value[startIndex + i]);
         }
 
         return ret;

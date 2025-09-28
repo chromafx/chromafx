@@ -16,7 +16,7 @@ limitations under the License.
 
 using System.Runtime.InteropServices;
 
-namespace ChromaFx.Core.IO.Converters.Structs;
+namespace ChromaFx.IO.Converters.Structs;
 
 /// <summary>
 /// Int/float union struct.

@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 
-
 /*
 Copyright 2025 Ho Tzin Mein
 
@@ -32,9 +31,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using ChromaFx.Core.IO.Converters.Structs;
+using ChromaFx.IO.Converters.Structs;
 
-namespace ChromaFx.Core.IO.Converters.BaseClasses;
+namespace ChromaFx.IO.Converters.BaseClasses;
 
 /// <summary>
 /// Endian bit converter base class

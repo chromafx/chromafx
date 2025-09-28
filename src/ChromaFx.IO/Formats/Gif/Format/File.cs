@@ -15,8 +15,7 @@ limitations under the License.
 */
 
 using ChromaFx.Core;
-using ChromaFx.Core.IO;
-using ChromaFx.Core.IO.Converters.BaseClasses;
+using ChromaFx.IO.Converters.BaseClasses;
 using ChromaFx.IO.Formats.BaseClasses;
 using ChromaFx.IO.Formats.Gif.Quantizers;
 using ChromaFx.IO.Formats.Gif.Quantizers.Interfaces;

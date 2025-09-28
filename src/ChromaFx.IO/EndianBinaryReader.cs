@@ -14,11 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using ChromaFx.Core.IO.Converters;
-using ChromaFx.Core.IO.Converters.BaseClasses;
+using ChromaFx.IO.Converters;
+using ChromaFx.IO.Converters.BaseClasses;
 using System.Text;
 
-namespace ChromaFx.Core.IO;
+namespace ChromaFx.IO;
 
 /// <summary>
 /// Endian binary reader
@@ -110,11 +110,9 @@ public class EndianBinaryReader : IDisposable
     /// </summary>
     public void Dispose()
     {
-        if (BaseStream != null)
-        {
-            BaseStream.Dispose();
-            BaseStream = null;
-        }
+        BaseStream?.Dispose();
+        BaseStream = null;
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>

@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using ChromaFx.Core.IO;
 using ChromaFx.IO.Formats.Bmp.Format.PixelFormats.BaseClasses;
 
 namespace ChromaFx.IO.Formats.Bmp.Format.PixelFormats;

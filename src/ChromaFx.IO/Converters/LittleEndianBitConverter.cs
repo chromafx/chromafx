@@ -14,15 +14,32 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using ChromaFx.Core.IO.Converters.BaseClasses;
 
-namespace ChromaFx.Core.IO.Converters;
+/*
+Copyright 2025 Ho Tzin Mein
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+using ChromaFx.IO.Converters.BaseClasses;
+
+namespace ChromaFx.IO.Converters;
 
 /// <summary>
-/// Big endian bit converter
+/// Little endian bit converter
 /// </summary>
 /// <seealso cref="EndianBitConverterBase" />
-public class BigEndianBitConverter : EndianBitConverterBase
+public class LittleEndianBitConverter : EndianBitConverterBase
 {
     /// <summary>
     /// Gets a value indicating whether this instance is little endian.
@@ -30,7 +47,7 @@ public class BigEndianBitConverter : EndianBitConverterBase
     /// <value>
     /// <c>true</c> if this instance is little endian; otherwise, <c>false</c>.
     /// </value>
-    public override bool IsLittleEndian => false;
+    public override bool IsLittleEndian => true;
 
     /// <summary>
     /// Copies the bytes implementation.
@@ -41,10 +58,9 @@ public class BigEndianBitConverter : EndianBitConverterBase
     /// <param name="index">The index.</param>
     protected override void CopyBytesImpl(long value, int bytes, byte[] buffer, int index)
     {
-        var endOffset = index + bytes - 1;
         for (var i = 0; i < bytes; i++)
         {
-            buffer[endOffset - i] = unchecked((byte)(value & 0xff));
+            buffer[i + index] = unchecked((byte)(value & 0xff));
             value >>= 8;
         }
     }
@@ -63,7 +79,7 @@ public class BigEndianBitConverter : EndianBitConverterBase
         long ret = 0;
         for (var i = 0; i < bytesToConvert; i++)
         {
-            ret = unchecked((ret << 8) | value[startIndex + i]);
+            ret = unchecked((ret << 8) | value[startIndex + bytesToConvert - 1 - i]);
         }
 
         return ret;
