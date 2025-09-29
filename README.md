@@ -1,4 +1,4 @@
-# ChromaFX
+﻿# ChromaFX
 
 [![Build Status](https://github.com/chromafx/chromafx/actions/workflows/dotnet.yml/badge.svg)](https://github.com/chromafx/chromafx/actions) 
 [![NuGet](https://img.shields.io/nuget/v/ChromaFx.svg)](https://www.nuget.org/packages/ChromaFx/) 
@@ -29,7 +29,7 @@ ChromaFX is distributed as multiple NuGet packages to suit different needs:
 - Use `ChromaFx.Core`, `ChromaFx.IO`, and `ChromaFx.Processing` for modular usage or advanced scenarios.
 - Use `ChromaFx.Legacy` if you need support for older APIs or migration from previous versions.
 
-Provides backward compatibility with the original Structure.Sketching API surface. Use only if migrating existing projects � for new development, prefer ChromaFx
+Provides backward compatibility with the original Structure.Sketching API surface. Use only if migrating existing projects — for new development, prefer ChromaFx
 
 ## Installation
 Install via NuGet package:
@@ -52,6 +52,53 @@ For legacy support:
 dotnet add package ChromaFx.Legacy
 ```
 
+## Getting Started
+### Classic API (Structure.Sketching style)
+
+```csharp
+using ChromaFx;
+using ChromaFx.IO;
+using ChromaFx.Processing;
+using ChromaFx.Processing.Transforms;
+
+class Program
+{
+    static void Main()
+    {
+        // Load an image from file
+        var image = Image.Load("input.png");
+
+        // Apply processing using the Apply() method
+        image = image.Apply(new Resize(200, 200))
+                     .Apply(new Rotate(90))
+                     .Apply(new Invert());
+
+        // Save the result
+        image.Save("output.png");
+    }
+}
+```
+
+### Modern API (preview)
+```csharp
+using ChromaFx;
+
+class Program
+{
+    static void Main()
+    {
+        var image = Image.Load("input.png")
+                         .Process(p => p
+                             .Resize(200, 200)
+                             .Rotate(90)
+                             .Invert()
+                         )
+                         .Save("output.png");
+    }
+}
+```
+
+
 ## Requirements
 - .NET 8 or later
 
@@ -62,7 +109,14 @@ Apache 2.0 - see [LICENSE](LICENSE)
 This project is a fork of [Structure.Sketching](https://github.com/JaCraig/Structure.Sketching),
 originally developed by JaCraig under the Apache License 2.0.
 
-Modifications and ongoing maintenance by Ho Tzin Mein (2023�2025).
+Modifications and ongoing maintenance by Ho Tzin Mein (2023–2025).
+
+## Roadmap
+- ✅ **Modularization** – Core, IO, Processing, and Legacy packages split out.  
+- 🔜 **API Modernization** – Introducing a cleaner, pipeline-friendly API (breaking changes).  
+- ⏭ **Extended Features** – Advanced algorithms such as pixel upscaling, new filters, and effects.
 
 ## Contributing
-Contributions are welcome! Please open an issue or submit a pull request.
+Contributions, bug reports, and suggestions are welcome!
+The roadmap may evolve as the project grows — feel free to open an issue or pull request
+if you'd like to help shape ChromaFX.
