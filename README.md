@@ -1,4 +1,4 @@
-﻿# ChromaFX
+﻿![ChromaFX — High-performance .NET image processing library](assets/banner.png)
 
 [![Build Status](https://github.com/chromafx/chromafx/actions/workflows/dotnet.yml/badge.svg)](https://github.com/chromafx/chromafx/actions) 
 [![NuGet](https://img.shields.io/nuget/v/ChromaFx.svg)](https://www.nuget.org/packages/ChromaFx/) 
