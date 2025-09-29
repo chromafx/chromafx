@@ -53,8 +53,7 @@ dotnet add package ChromaFx.Legacy
 ```
 
 ## Getting Started
-### Classic API (Structure.Sketching style)
-
+### Classic API (currently available)
 ```csharp
 using ChromaFx;
 using ChromaFx.IO;
@@ -79,7 +78,7 @@ class Program
 }
 ```
 
-### Modern API (preview)
+### Modern API ⚠️ (preview / in development)
 ```csharp
 using ChromaFx;
 
