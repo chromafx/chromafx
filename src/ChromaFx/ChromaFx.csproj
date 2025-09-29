@@ -4,7 +4,29 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>ChromaFx</Title>
+    <Authors>Ho Tzin Mein</Authors>
+    <Description>Modern, high-performance .NET image processing and drawing library. Supports PNG, JPEG, BMP, and GIF, with pipeline-friendly APIs. Ideal for new .NET 8+ projects.</Description>
+    <Copyright>Copyright $([System.DateTime]::Now.Year) Ho Tzin Mein</Copyright>
+    <PackageProjectUrl>https://github.com/chromafx/chromafx</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/chromafx/chromafx</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>image graphics bitmap png jpeg gif drawing effects imageprocessing dotnet csharp chromafx</PackageTags>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\assets\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ChromaFx.Core\ChromaFx.Core.csproj" />

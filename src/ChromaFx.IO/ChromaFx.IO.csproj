@@ -3,7 +3,29 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>ChromaFx.IO</Title>
+    <Authors>Ho Tzin Mein</Authors>
+    <Description>Image file input/output support for ChromaFx. Load, save, and convert images in PNG, JPEG, BMP, and GIF formats.</Description>
+    <Copyright>Copyright $([System.DateTime]::Now.Year) Ho Tzin Mein</Copyright>
+    <PackageProjectUrl>https://github.com/chromafx/chromafx</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/chromafx/chromafx</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>image graphics bitmap png jpeg gif drawing effects imageprocessing dotnet csharp chromafx</PackageTags>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\assets\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ChromaFx.Core\ChromaFx.Core.csproj" />
