@@ -29,6 +29,8 @@ ChromaFX is distributed as multiple NuGet packages to suit different needs:
 - Use `ChromaFx.Core`, `ChromaFx.IO`, and `ChromaFx.Processing` for modular usage or advanced scenarios.
 - Use `ChromaFx.Legacy` if you need support for older APIs or migration from previous versions.
 
+Provides backward compatibility with the original Structure.Sketching API surface. Use only if migrating existing projects — for new development, prefer ChromaFx
+
 ## Installation
 Install via NuGet package:
 
@@ -55,3 +57,12 @@ dotnet add package ChromaFx.Legacy
 
 ## License
 Apache 2.0 - see [LICENSE](LICENSE)
+
+## Attribution
+This project is a fork of [Structure.Sketching](https://github.com/JaCraig/Structure.Sketching),
+originally developed by JaCraig under the Apache License 2.0.
+
+Modifications and ongoing maintenance by Ho Tzin Mein (2023–2025).
+
+## Contributing
+Contributions are welcome! Please open an issue or submit a pull request.

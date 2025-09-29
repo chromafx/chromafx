@@ -1,18 +1,18 @@
 ﻿/*
-Copyright 2025 Ho Tzin Mein
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ * Copyright 2023 Ho Tzin Mein
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using ChromaFx.Core.ExtensionMethods;
 using ChromaFx.Processing.Filters.ColorMatrix.BaseClasses;
@@ -107,7 +107,6 @@ public class Temperature : MatrixBaseClass
     /// </summary>
     public struct Temperatures
     {
-#pragma warning disable CS1591
         public const double CandleLight = 1800;
         public const double Twilight = 2500;
         public const double Moonlight = 4000;
@@ -115,6 +114,5 @@ public class Temperature : MatrixBaseClass
         public const double CloudySky = 6500;
         public const double OutdoorShade = 7000;
         public const double ClearBlueSky = 10000;
-#pragma warning restore CS1591
     }
 }
