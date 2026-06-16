@@ -81,7 +81,7 @@ public class ColorTable : SectionBase
     public static ColorTable Read(Stream stream, int size)
     {
         var colorTable = new byte[size * 3];
-        stream.Read(colorTable, 0, colorTable.Length);
+        stream.ReadExactly(colorTable);
         return new ColorTable(colorTable);
     }
 

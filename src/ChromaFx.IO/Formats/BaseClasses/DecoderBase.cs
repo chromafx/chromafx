@@ -57,7 +57,14 @@ public abstract class DecoderBase<TFile> : IDecoder
             return false;
         var tempBuffer = new byte[HeaderSize];
         stream.Seek(0, SeekOrigin.Begin);
-        stream.Read(tempBuffer, 0, HeaderSize);
+        try
+        {
+            stream.ReadExactly(tempBuffer);
+        }
+        catch (EndOfStreamException)
+        {
+            return false;
+        }
         var value = CanDecode(tempBuffer);
         stream.Seek(0, SeekOrigin.Begin);
         return value;

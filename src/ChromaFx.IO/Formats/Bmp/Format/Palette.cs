@@ -60,7 +60,7 @@ public class Palette
         var numberOfColors = header.ColorsUsed == 0 && header.Bpp < 16 ? (int)Math.Pow(2, header.Bpp) : header.ColorsUsed;
         var data = new byte[numberOfColors * 4];
         if (numberOfColors > 0)
-            stream.Read(data, 0, numberOfColors * 4);
+            stream.ReadExactly(data);
         return new Palette(numberOfColors, data);
     }
 

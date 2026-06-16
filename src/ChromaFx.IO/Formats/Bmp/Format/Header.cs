@@ -265,10 +265,10 @@ public class Header
     public static Header Read(Stream stream)
     {
         var headerSize = new byte[4];
-        stream.Read(headerSize, 0, 4);
+        stream.ReadExactly(headerSize);
         var size = BitConverter.ToInt32(headerSize, 0);
         var data = new byte[size];
-        stream.Read(data, 4, size - 4);
+        stream.ReadExactly(data, 4, size - 4);
         data[0] = headerSize[0];
         data[1] = headerSize[1];
         data[2] = headerSize[2];

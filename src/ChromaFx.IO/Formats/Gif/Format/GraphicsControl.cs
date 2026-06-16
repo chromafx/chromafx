@@ -112,7 +112,7 @@ public class GraphicsControl : SectionBase
     public static GraphicsControl Read(Stream stream)
     {
         var tempBuffer = new byte[Size];
-        stream.Read(tempBuffer, 0, tempBuffer.Length);
+        stream.ReadExactly(tempBuffer);
         var packed = tempBuffer[1];
 
         return new GraphicsControl(BitConverter.ToInt16(tempBuffer, 2),

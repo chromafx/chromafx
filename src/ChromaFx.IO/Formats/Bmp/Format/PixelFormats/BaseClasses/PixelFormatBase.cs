@@ -68,7 +68,7 @@ public abstract class PixelFormatBase : IPixelFormat
                 if (size < header.ImageSize)
                     size = header.ImageSize;
                 var data = new byte[size];
-                stream.Read(data, 0, size);
+                stream.ReadExactly(data);
                 return data;
             }
             case Compression.Rle8:

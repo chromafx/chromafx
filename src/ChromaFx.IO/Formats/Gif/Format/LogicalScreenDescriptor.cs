@@ -122,7 +122,7 @@ public class LogicalScreenDescriptor(short width,
     public static LogicalScreenDescriptor Read(Stream stream)
     {
         var buffer = new byte[Size];
-        stream.Read(buffer, 0, buffer.Length);
+        stream.ReadExactly(buffer);
         var packed = buffer[4];
         return new LogicalScreenDescriptor(BitConverter.ToInt16(buffer, 0),
             BitConverter.ToInt16(buffer, 2),

@@ -34,6 +34,6 @@ public class Rgb4Bit : FormatBaseFixture
     {
         using var tempFile = System.IO.File.Open(FileName, FileMode.Open, FileAccess.Read);
         var data = Format.Read(new IO.Formats.Bmp.Format.Header(44, 40, 0, 880, 0, 0, 0, 0, Compression.Rgb), tempFile);
-        Assert.Equal(1760, data.Length);
+        Assert.Equal(960, data.Length);
     }
 }

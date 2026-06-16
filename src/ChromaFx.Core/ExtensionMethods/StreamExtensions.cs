@@ -31,7 +31,7 @@ public static class StreamExtensions
     public static byte[] ReadBytes(this Stream stream, int length)
     {
         var buffer = new byte[length];
-        stream.Read(buffer, 0, length);
+        stream.ReadExactly(buffer);
         return buffer;
     }
 }

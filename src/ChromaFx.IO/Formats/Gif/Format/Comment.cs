@@ -52,7 +52,7 @@ public class Comment(string data) : SectionBase
         while (size != 0)
         {
             var tempBuffer = new byte[size];
-            stream.Read(tempBuffer, 0, size);
+            stream.ReadExactly(tempBuffer);
             size = stream.ReadByte();
             builder.Append(BitConverter.ToString(tempBuffer));
         }

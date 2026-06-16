@@ -75,7 +75,7 @@ public class FileHeader(int fileSize, int offset)
     public static FileHeader Read(Stream stream)
     {
         var data = new byte[Size];
-        stream.Read(data, 0, Size);
+        stream.ReadExactly(data);
         return new FileHeader(data);
     }
 

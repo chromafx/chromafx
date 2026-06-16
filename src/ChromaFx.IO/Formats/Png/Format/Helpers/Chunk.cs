@@ -133,9 +133,7 @@ public class Chunk
     private static uint ReadCrc(Stream stream, byte[] data, byte[] type)
     {
         var tempBuffer = new byte[4];
-        var numberOfBytes = stream.Read(tempBuffer, 0, 4);
-        if (numberOfBytes != 4)
-            return 0;
+        stream.ReadExactly(tempBuffer);
         Array.Reverse(tempBuffer);
         var tempValue = BitConverter.ToUInt32(tempBuffer, 0);
         var crc = new Crc32();
@@ -156,7 +154,7 @@ public class Chunk
     private static byte[] ReadData(Stream stream, int length)
     {
         var returnValue = new byte[length];
-        stream.Read(returnValue, 0, length);
+        stream.ReadExactly(returnValue);
         return returnValue;
     }
 
@@ -168,9 +166,7 @@ public class Chunk
     private static int ReadLength(Stream stream)
     {
         var tempBuffer = new byte[4];
-        var numberOfBytes = stream.Read(tempBuffer, 0, 4);
-        if (numberOfBytes != 4)
-            return 0;
+        stream.ReadExactly(tempBuffer);
         Array.Reverse(tempBuffer);
         return BitConverter.ToInt32(tempBuffer, 0);
     }
@@ -185,10 +181,8 @@ public class Chunk
     /// </returns>
     private static string ReadType(Stream stream, byte[] typeBuffer)
     {
-        var numberOfBytes = stream.Read(typeBuffer, 0, 4);
-        return numberOfBytes != 4
-            ? string.Empty
-            : new string(
+        stream.ReadExactly(typeBuffer);
+        return new string(
                 [
                     (char)typeBuffer[0],
                     (char)typeBuffer[1],

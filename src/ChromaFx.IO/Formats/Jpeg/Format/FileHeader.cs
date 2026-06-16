@@ -42,7 +42,7 @@ public class FileHeader
     public static FileHeader Read(Stream stream)
     {
         var tempBuffer = new byte[2];
-        stream.Read(tempBuffer, 0, 2);
+        stream.ReadExactly(tempBuffer);
         return new FileHeader();
     }
 

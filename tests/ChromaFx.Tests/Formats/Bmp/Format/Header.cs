@@ -54,21 +54,13 @@ public class Header
     [Fact]
     public void Read()
     {
-        var data = new[]
+        var expected = new IO.Formats.Bmp.Format.Header(44, 40, 24, 1000, 0, 0, 0, 0, Compression.Rgb);
+        using var stream = new MemoryStream();
+        using (var writer = new BinaryWriter(stream, System.Text.Encoding.UTF8, leaveOpen: true))
         {
-            BitConverter.GetBytes(200),
-            BitConverter.GetBytes(44),
-            BitConverter.GetBytes(40),
-            BitConverter.GetBytes((short)1),
-            BitConverter.GetBytes((short)24),
-            BitConverter.GetBytes(0),
-            BitConverter.GetBytes(1000),
-            BitConverter.GetBytes(0),
-            BitConverter.GetBytes(0),
-            BitConverter.GetBytes(0),
-            BitConverter.GetBytes(0)
-        }.SelectMany(x => x).ToArray();
-        using var stream = new MemoryStream(data);
+            expected.Write(writer);
+        }
+        stream.Position = 0;
         var testFileHeader = ChromaFx.IO.Formats.Bmp.Format.Header.Read(stream);
         Assert.Equal(24, testFileHeader.Bpp);
         Assert.Equal(0, testFileHeader.ColorsImportant);

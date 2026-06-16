@@ -126,7 +126,7 @@ public class ImageDescriptor(short left,
     public static ImageDescriptor Read(Stream stream)
     {
         var tempBuffer = new byte[Size];
-        stream.Read(tempBuffer, 0, tempBuffer.Length);
+        stream.ReadExactly(tempBuffer);
         var packed = tempBuffer[8];
         return new ImageDescriptor(BitConverter.ToInt16(tempBuffer, 0),
             BitConverter.ToInt16(tempBuffer, 2),

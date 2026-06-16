@@ -29,7 +29,7 @@ public class Rgb4Bit : PixelFormatBase
     /// The bytes per pixel for this format.
     /// </summary>
     /// <value>The BPP.</value>
-    public override double Bpp => 1;
+    public override double Bpp => 0.5;
 
     /// <summary>
     /// Decodes the specified data.
