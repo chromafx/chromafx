@@ -106,7 +106,7 @@ public abstract class AffineBaseClass : IFilter
         {
             TransformationMatrix = GetMatrix(image, targetLocation);
             double tempWidth = Width < 0 ? image.Width : Width;
-            double tempHeight = Height < 0 ? image.Width : Height;
+            double tempHeight = Height < 0 ? image.Height : Height;
             var xScale = tempWidth / image.Width;
             var yScale = tempHeight / image.Height;
             YRadius = yScale < 1f ? Filter.FilterRadius / yScale : Filter.FilterRadius;

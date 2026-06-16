@@ -68,7 +68,7 @@ public abstract class ResamplingFilterBase : IResamplingFilter
     public void Precompute(int oldWidth, int oldHeight, int newWidth, int newHeight)
     {
         var destinationWidth = newWidth < 0 ? oldWidth : newWidth;
-        var destinationHeight = newHeight < 0 ? oldWidth : newHeight;
+        var destinationHeight = newHeight < 0 ? oldHeight : newHeight;
         XWeights = PrecomputeWeights(destinationWidth, oldWidth);
         YWeights = PrecomputeWeights(destinationHeight, oldHeight);
     }

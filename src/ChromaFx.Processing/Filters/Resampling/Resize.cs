@@ -86,7 +86,7 @@ public class Resize(int width, int height, ResamplingFiltersAvailable filter) : 
     {
         Filter.Precompute(image.Width, image.Height, Width, Height);
         double tempWidth = Width < 0 ? image.Width : Width;
-        double tempHeight = Height < 0 ? image.Width : Height;
+        double tempHeight = Height < 0 ? image.Height : Height;
         var xScale = tempWidth / image.Width;
         var yScale = tempHeight / image.Height;
 
