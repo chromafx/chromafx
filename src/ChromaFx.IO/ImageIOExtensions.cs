@@ -28,10 +28,10 @@ public static class ImageIOExtensions
     }
 
     public static bool Save(this Image image, string fileName)
-        => new Manager().Encode(fileName, image);
+        => FormatManager.Instance.Encode(fileName, image);
 
     public static bool Save(this Image image, Stream stream, FileFormats format)
-        => new Manager().Encode(stream, image, format);
+        => FormatManager.Instance.Encode(stream, image, format);
 
     public static string ToBase64String(this Image image, FileFormats desiredFormat)
     {
@@ -50,7 +50,7 @@ public static class ImageIOExtensions
 
     private static Image LoadFromStream(Stream stream)
     {
-        var image = new Manager().Decode(stream);
+        var image = FormatManager.Instance.Decode(stream);
         return image ?? throw new ImageException("Unable to decode image from stream.");
     }
 }

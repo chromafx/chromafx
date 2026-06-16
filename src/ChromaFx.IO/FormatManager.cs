@@ -14,22 +14,11 @@
  * limitations under the License.
  */
 
-using ChromaFx.Core;
 using ChromaFx.IO.Formats;
 
 namespace ChromaFx.IO;
 
-public static class AnimationIOExtensions
+internal static class FormatManager
 {
-    public static bool Save(this Animation animation, string fileName)
-        => FormatManager.Instance.Encode(fileName, animation);
-
-    public static Animation LoadAnimation(string fileName)
-    {
-        using var stream = File.Open(fileName, FileMode.Open, FileAccess.Read);
-        return FormatManager.Instance.DecodeAnimation(stream);
-    }
-
-    public static Animation LoadAnimation(Stream stream)
-        => FormatManager.Instance.DecodeAnimation(stream);
+    internal static Manager Instance { get; } = new();
 }
