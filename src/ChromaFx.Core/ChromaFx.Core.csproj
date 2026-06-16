@@ -1,9 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<!-- Build number from GitHub Actions -->
-		<BuildNumber Condition=" '$(GITHUB_RUN_NUMBER)' != '' ">$(GITHUB_RUN_NUMBER)</BuildNumber>
-		<BuildNumber Condition=" '$(BuildNumber)' == '' ">0</BuildNumber>
-
 		<Nullable>disable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -20,8 +16,6 @@
 		<Copyright>Copyright $([System.DateTime]::Now.Year) Ho Tzin Mein</Copyright>
 		<PackageTags>image graphics bitmap png jpeg gif drawing effects imageprocessing dotnet csharp chromafx</PackageTags>
 
-		<!-- Version for branch CI builds -->
-		<Version Condition=" '$(Version)' == '' ">1.0.0-beta.$(BuildNumber)</Version>
 		<PackageId>$(AssemblyName)</PackageId>
 		<Title>ChromaFx.Core</Title>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
