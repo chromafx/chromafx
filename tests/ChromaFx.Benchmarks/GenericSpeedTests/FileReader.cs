@@ -9,7 +9,7 @@ public class FileReader
     {
         using var testStream = File.Open("../../../../TestImage/BitmapFilter.bmp", FileMode.Open);
         var data = new byte[testStream.Length];
-        testStream.Read(data, 0, (int)testStream.Length);
+        testStream.ReadExactly(data);
     }
 
     [Benchmark(Description = "File.Read in loop, 1024")]

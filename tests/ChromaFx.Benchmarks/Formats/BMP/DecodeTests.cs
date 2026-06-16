@@ -16,7 +16,7 @@ public class DecodeTests
     {
         using var testStream = File.Open("../../../../TestImage/BitmapFilter.bmp", FileMode.Open);
         var data = new byte[testStream.Length];
-        testStream.Read(data, 0, (int)testStream.Length);
+        testStream.ReadExactly(data);
         using var memStream = new MemoryStream(data);
         new IO.Formats.Bmp.BmpFormat().Decode(memStream);
     }
