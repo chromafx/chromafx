@@ -1,6 +1,5 @@
 ﻿using ChromaFx.IO;
 using ChromaFx.IO.Formats;
-using ChromaFx.Processing;
 using ChromaFx.Tests.BaseClasses;
 using Xunit;
 
@@ -151,7 +150,7 @@ public class ImageTests : FilterTestBaseClass
             }
         );
         var s = Environment.NewLine;
-        Assert.Equal($"#{s}.{s}-{s}*{s}={s}", testImage.ToAsciiArt());
+        Assert.Equal($"={s}*{s}+{s}:{s}*{s}", testImage.ToAsciiArt());
     }
 
     [Fact]

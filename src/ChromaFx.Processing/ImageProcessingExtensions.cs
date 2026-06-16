@@ -16,38 +16,99 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.Processing.Filters.ColorMatrix;
+using ChromaFx.Core.Colors;
 using System.Text;
 
 namespace ChromaFx.Processing;
 
 public static class ImageProcessingExtensions
 {
-    public static string ToAsciiArt(this Image image)
+    private static readonly string[] DefaultCharacters =
+        ["#", "@", "%", "=", "+", "*", ":", "-", ".", " "];
+
+    /// <summary>
+    /// Renders the image as ASCII art using a fixed-width character ramp.
+    /// </summary>
+    /// <param name="image">The image to render.</param>
+    /// <param name="maxWidth">
+    /// Maximum output width in characters. When zero, the image width is used.
+    /// </param>
+    /// <returns>A multi-line ASCII representation of the image.</returns>
+    /// <remarks>
+    /// Pairs of source rows are averaged to approximate the ~2:1 height-to-width ratio of
+    /// typical terminal characters. Luminance follows ITU-R BT.601 weighting.
+    /// </remarks>
+    public static string ToAsciiArt(this Image image, int maxWidth = 0)
     {
-        var AsciiCharacters = new[] { "#", "#", "@", "%", "=", "+", "*", ":", "-", ".", " " };
-        var showLine = true;
-        var tempImage = new Greyscale601().Apply(image.Copy());
-        var builder = new StringBuilder();
-        for (var y = 0; y < tempImage.Height; ++y)
+        ArgumentNullException.ThrowIfNull(image);
+        if (image.Pixels is null || image.Width <= 0 || image.Height <= 0)
+            return string.Empty;
+
+        var sourceWidth = image.Width;
+        var stepX = 1;
+        var outputWidth = sourceWidth;
+        if (maxWidth > 0 && sourceWidth > maxWidth)
         {
-            for (var x = 0; x < tempImage.Width; ++x)
+            stepX = (int)Math.Ceiling((double)sourceWidth / maxWidth);
+            outputWidth = (sourceWidth + stepX - 1) / stepX;
+        }
+
+        const int verticalStep = 2;
+        var outputLines = (image.Height + verticalStep - 1) / verticalStep;
+        var builder = new StringBuilder(outputWidth * (outputLines + 1));
+        var lastCharacterIndex = DefaultCharacters.Length - 1;
+
+        for (var y = 0; y < image.Height; y += verticalStep)
+        {
+            for (var x = 0; x < sourceWidth; x += stepX)
             {
-                if (!showLine)
-                    continue;
-                var rValue = tempImage.Pixels[y * tempImage.Width + x].Red / 255f;
-                builder.Append(AsciiCharacters[(int)(rValue * AsciiCharacters.Length)]);
+                var luminance = GetAverageLuminance(image, x, y, stepX, verticalStep);
+                var characterIndex = (int)(luminance * lastCharacterIndex);
+                if (characterIndex > lastCharacterIndex)
+                    characterIndex = lastCharacterIndex;
+                else if (characterIndex < 0)
+                    characterIndex = 0;
+
+                builder.Append(DefaultCharacters[characterIndex]);
             }
-            if (showLine)
+
+            builder.AppendLine();
+        }
+
+        return builder.ToString();
+    }
+
+    private static float GetAverageLuminance(
+        Image image,
+        int x,
+        int y,
+        int stepX,
+        int verticalStep
+    )
+    {
+        var sum = 0f;
+        var count = 0;
+        var maxY = Math.Min(y + verticalStep, image.Height);
+        var maxX = Math.Min(x + stepX, image.Width);
+
+        for (var sy = y; sy < maxY; sy++)
+        {
+            var rowStart = sy * image.Width;
+            for (var sx = x; sx < maxX; sx++)
             {
-                builder.AppendLine();
-                showLine = false;
-            }
-            else
-            {
-                showLine = true;
+                sum += GetLuminance(image.Pixels[rowStart + sx]);
+                count++;
             }
         }
-        return builder.ToString();
+
+        return count == 0 ? 0f : sum / count;
+    }
+
+    private static float GetLuminance(Color pixel)
+    {
+        var red = pixel.Red / 255f;
+        var green = pixel.Green / 255f;
+        var blue = pixel.Blue / 255f;
+        return 0.299f * red + 0.587f * green + 0.114f * blue;
     }
 }
