@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
+using ChromaFx.Core;
 using ChromaFx.Core.Colors;
-using System.Numerics;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
-using ChromaFx.Core;
+using System.Numerics;
 
 namespace ChromaFx.Processing.Filters.Convolution.BaseClasses;
 
@@ -109,14 +109,15 @@ public abstract class ConvolutionBaseClass : IFilter
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        var tempPixels = new Color[image.Pixels.Length];
-        Array.Copy(image.Pixels, tempPixels, image.Pixels.Length);
-        var outputPixels = image.Pixels;
-        var width = image.Width;
-        var height = image.Height;
-        var matrix = Matrix;
-        Parallel.For(targetLocation.Bottom, targetLocation.Top, y =>
+        var tempPixels = FilterBufferPool.RentCopy(image.Pixels);
+        try
         {
+            var outputPixels = image.Pixels;
+            var width = image.Width;
+            var height = image.Height;
+            var matrix = Matrix;
+            Parallel.For(targetLocation.Bottom, targetLocation.Top, y =>
+            {
             for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
             {
                 var values = new Vector4(0, 0, 0, 0);
@@ -166,7 +167,13 @@ public abstract class ConvolutionBaseClass : IFilter
                     outputPixels[outputIndex].Blue = (byte)values.Z;
                 }
             }
-        });
+            });
+        }
+        finally
+        {
+            FilterBufferPool.Return(tempPixels);
+        }
+
         return image;
     }
 }

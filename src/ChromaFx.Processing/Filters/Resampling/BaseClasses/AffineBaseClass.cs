@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-using System.Numerics;
-using ChromaFx.Core.Colors;
-using ChromaFx.Processing.Filters.Resampling.Enums;
-using ChromaFx.Processing.Filters.Interfaces;
-using ChromaFx.Processing.Numerics;
-using ChromaFx.Processing.Filters.Resampling.ResamplingFilters.Interfaces;
 using ChromaFx.Core;
+using ChromaFx.Core.Colors;
+using ChromaFx.Processing.Filters.Interfaces;
+using ChromaFx.Processing.Filters.Resampling.Enums;
+using ChromaFx.Processing.Filters.Resampling.ResamplingFilters.Interfaces;
+using ChromaFx.Processing.Numerics;
+using System.Numerics;
 
 namespace ChromaFx.Processing.Filters.Resampling.BaseClasses;
 
@@ -101,92 +101,98 @@ public abstract class AffineBaseClass : IFilter
     {
         Filter.Precompute(image.Width, image.Height, Width, Height);
         targetLocation = targetLocation.Normalize(image);
-        var copy = new Color[image.Pixels.Length];
-        Array.Copy(image.Pixels, copy, copy.Length);
-        TransformationMatrix = GetMatrix(image, targetLocation);
-        double tempWidth = Width < 0 ? image.Width : Width;
-        double tempHeight = Height < 0 ? image.Width : Height;
-        var xScale = tempWidth / image.Width;
-        var yScale = tempHeight / image.Height;
-        YRadius = yScale < 1f ? Filter.FilterRadius / yScale : Filter.FilterRadius;
-        XRadius = xScale < 1f ? Filter.FilterRadius / xScale : Filter.FilterRadius;
+        var copy = FilterBufferPool.RentCopy(image.Pixels);
+        try
+        {
+            TransformationMatrix = GetMatrix(image, targetLocation);
+            double tempWidth = Width < 0 ? image.Width : Width;
+            double tempHeight = Height < 0 ? image.Width : Height;
+            var xScale = tempWidth / image.Width;
+            var yScale = tempHeight / image.Height;
+            YRadius = yScale < 1f ? Filter.FilterRadius / yScale : Filter.FilterRadius;
+            XRadius = xScale < 1f ? Filter.FilterRadius / xScale : Filter.FilterRadius;
 
-        Parallel.For(
-            targetLocation.Bottom,
-            targetLocation.Top,
-            y =>
-            {
-                for (int x = targetLocation.Left; x < targetLocation.Right; x++)
+            Parallel.For(
+                targetLocation.Bottom,
+                targetLocation.Top,
+                y =>
                 {
-                    var values = new Vector4(0, 0, 0, 0);
-                    float weight = 0;
+                    for (int x = targetLocation.Left; x < targetLocation.Right; x++)
+                    {
+                        var values = new Vector4(0, 0, 0, 0);
+                        float weight = 0;
 
-                    var rotated = Vector2.Transform(new Vector2(x, y), TransformationMatrix);
-                    var rotatedY = (int)rotated.Y;
-                    var rotatedX = (int)rotated.X;
-                    if (
-                        rotatedY >= image.Height
-                        || rotatedY < 0
-                        || rotatedX >= image.Width
-                        || rotatedX < 0
-                    )
-                    {
-                        image.Pixels[y * image.Width + x] = new Color(0, 0, 0, 255);
-                        continue;
-                    }
-                    var left = (int)(rotatedX - XRadius);
-                    var right = (int)(rotatedX + XRadius);
-                    var top = (int)(rotatedY - YRadius);
-                    var bottom = (int)(rotatedY + YRadius);
-                    if (top < 0)
-                        top = 0;
-                    if (bottom >= image.Height)
-                        bottom = image.Height - 1;
-                    if (left < 0)
-                        left = 0;
-                    if (right >= image.Width)
-                        right = image.Width - 1;
-                    for (int i = top, yCount = 0; i <= bottom; i++, yCount++)
-                    {
-                        for (int j = left, xCount = 0; j <= right; j++, xCount++)
+                        var rotated = Vector2.Transform(new Vector2(x, y), TransformationMatrix);
+                        var rotatedY = (int)rotated.Y;
+                        var rotatedX = (int)rotated.X;
+                        if (
+                            rotatedY >= image.Height
+                            || rotatedY < 0
+                            || rotatedX >= image.Width
+                            || rotatedX < 0
+                        )
                         {
-                            var tempYWeight = Filter.YWeights[rotatedY].Values[yCount];
-                            var tempXWeight = Filter.XWeights[rotatedX].Values[xCount];
-                            var tempWeight = tempYWeight * tempXWeight;
+                            image.Pixels[y * image.Width + x] = new Color(0, 0, 0, 255);
+                            continue;
+                        }
+                        var left = (int)(rotatedX - XRadius);
+                        var right = (int)(rotatedX + XRadius);
+                        var top = (int)(rotatedY - YRadius);
+                        var bottom = (int)(rotatedY + YRadius);
+                        if (top < 0)
+                            top = 0;
+                        if (bottom >= image.Height)
+                            bottom = image.Height - 1;
+                        if (left < 0)
+                            left = 0;
+                        if (right >= image.Width)
+                            right = image.Width - 1;
+                        for (int i = top, yCount = 0; i <= bottom; i++, yCount++)
+                        {
+                            for (int j = left, xCount = 0; j <= right; j++, xCount++)
+                            {
+                                var tempYWeight = Filter.YWeights[rotatedY].Values[yCount];
+                                var tempXWeight = Filter.XWeights[rotatedX].Values[xCount];
+                                var tempWeight = tempYWeight * tempXWeight;
 
-                            if (YRadius == 0 && XRadius == 0)
-                                tempWeight = 1;
+                                if (YRadius == 0 && XRadius == 0)
+                                    tempWeight = 1;
 
-                            if (tempWeight == 0)
-                                continue;
+                                if (tempWeight == 0)
+                                    continue;
 
-                            var pixel = copy[i * image.Width + j];
-                            values.X += pixel.Red * (float)tempWeight;
-                            values.Y += pixel.Green * (float)tempWeight;
-                            values.Z += pixel.Blue * (float)tempWeight;
-                            values.W += pixel.Alpha * (float)tempWeight;
-                            weight += (float)tempWeight;
+                                var pixel = copy[i * image.Width + j];
+                                values.X += pixel.Red * (float)tempWeight;
+                                values.Y += pixel.Green * (float)tempWeight;
+                                values.Z += pixel.Blue * (float)tempWeight;
+                                values.W += pixel.Alpha * (float)tempWeight;
+                                weight += (float)tempWeight;
+                            }
+                        }
+                        if (weight == 0)
+                            weight = 1;
+                        if (weight > 0)
+                        {
+                            values = Vector4.Clamp(
+                                values,
+                                Vector4.Zero,
+                                new Vector4(255, 255, 255, 255)
+                            );
+                            image.Pixels[y * image.Width + x] = new Color(
+                                (byte)values.X,
+                                (byte)values.Y,
+                                (byte)values.Z,
+                                (byte)values.W
+                            );
                         }
                     }
-                    if (weight == 0)
-                        weight = 1;
-                    if (weight > 0)
-                    {
-                        values = Vector4.Clamp(
-                            values,
-                            Vector4.Zero,
-                            new Vector4(255, 255, 255, 255)
-                        );
-                        image.Pixels[y * image.Width + x] = new Color(
-                            (byte)values.X,
-                            (byte)values.Y,
-                            (byte)values.Z,
-                            (byte)values.W
-                        );
-                    }
                 }
-            }
-        );
+            );
+        }
+        finally
+        {
+            FilterBufferPool.Return(copy);
+        }
 
         return image;
     }

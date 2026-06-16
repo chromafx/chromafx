@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-using System.Numerics;
 using ChromaFx.Core;
 using ChromaFx.Core.Colors;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
+using System.Numerics;
 
 namespace ChromaFx.Processing.Filters.Convolution.BaseClasses;
 
@@ -75,14 +75,15 @@ public abstract class Convolution2DBaseClass : IFilter
     {
         targetLocation = targetLocation.Normalize(image);
 
-        var tempPixels = new Color[image.Pixels.Length];
-        Array.Copy(image.Pixels, tempPixels, image.Pixels.Length);
-        var outputPixels = image.Pixels;
-        var width = image.Width;
-        var height = image.Height;
-        var xMatrix = XMatrix;
-        var yMatrix = YMatrix;
-        Parallel.For(
+        var tempPixels = FilterBufferPool.RentCopy(image.Pixels);
+        try
+        {
+            var outputPixels = image.Pixels;
+            var width = image.Width;
+            var height = image.Height;
+            var xMatrix = XMatrix;
+            var yMatrix = YMatrix;
+            Parallel.For(
             targetLocation.Bottom,
             targetLocation.Top,
             y =>
@@ -159,7 +160,13 @@ public abstract class Convolution2DBaseClass : IFilter
                     }
                 }
             }
-        );
+            );
+        }
+        finally
+        {
+            FilterBufferPool.Return(tempPixels);
+        }
+
         return image;
     }
 }
