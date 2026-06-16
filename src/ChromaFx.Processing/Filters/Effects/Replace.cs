@@ -64,7 +64,7 @@ public class Replace(Color sourceColor, Color targetColor, float epsilon) : IFil
         targetLocation = targetLocation.Normalize(image);
         var pixels = image.Pixels;
         var width = image.Width;
-        Parallel.For(targetLocation.Bottom, targetLocation.Top, y =>
+        FilterParallelism.ForRows(targetLocation, y =>
         {
             var rowStart = y * width;
             for (var x = targetLocation.Left; x < targetLocation.Right; ++x)

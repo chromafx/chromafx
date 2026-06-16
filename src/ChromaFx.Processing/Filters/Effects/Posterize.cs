@@ -62,7 +62,7 @@ public class Posterize : IFilter
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        Parallel.For(targetLocation.Bottom, targetLocation.Top, (y) =>
+        FilterParallelism.ForRows(targetLocation, y =>
         {
             var rowOffset = y * image.Width;
             for (var x = targetLocation.Left; x < targetLocation.Right; ++x)

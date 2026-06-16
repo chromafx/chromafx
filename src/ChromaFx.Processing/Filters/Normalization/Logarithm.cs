@@ -45,26 +45,22 @@ public class Logarithm : IFilter
             maxValue.Alpha
         );
 
-        Parallel.For(
-            targetLocation.Bottom,
-            targetLocation.Top,
-            y =>
+        FilterParallelism.ForRows(targetLocation, y =>
+        {
+            for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
             {
-                for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
-                {
-                    var pixelIndex = y * image.Width + x;
-                    image.Pixels[pixelIndex].Red = (byte)(
-                        maxValue.Red * Math.Log(1f + image.Pixels[pixelIndex].Red)
-                    );
-                    image.Pixels[pixelIndex].Green = (byte)(
-                        maxValue.Green * Math.Log(1f + image.Pixels[pixelIndex].Green)
-                    );
-                    image.Pixels[pixelIndex].Blue = (byte)(
-                        maxValue.Blue * Math.Log(1f + image.Pixels[pixelIndex].Blue)
-                    );
-                }
+                var pixelIndex = y * image.Width + x;
+                image.Pixels[pixelIndex].Red = (byte)(
+                    maxValue.Red * Math.Log(1f + image.Pixels[pixelIndex].Red)
+                );
+                image.Pixels[pixelIndex].Green = (byte)(
+                    maxValue.Green * Math.Log(1f + image.Pixels[pixelIndex].Green)
+                );
+                image.Pixels[pixelIndex].Blue = (byte)(
+                    maxValue.Blue * Math.Log(1f + image.Pixels[pixelIndex].Blue)
+                );
             }
-        );
+        });
 
         return image;
     }

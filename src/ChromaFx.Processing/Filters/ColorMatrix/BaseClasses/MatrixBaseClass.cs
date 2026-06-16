@@ -28,8 +28,6 @@ namespace ChromaFx.Processing.Filters.ColorMatrix.BaseClasses;
 /// </summary>
 public abstract class MatrixBaseClass : IFilter
 {
-    private const int ParallelPixelThreshold = 65536;
-
     /// <summary>
     /// Gets the matrix.
     /// </summary>
@@ -60,22 +58,10 @@ public abstract class MatrixBaseClass : IFilter
         int width = image.Width;
         Color[] pixels = image.Pixels;
         Matrix5X5 matrix = Matrix;
-        int pixelCount = (targetLocation.Top - targetLocation.Bottom)
-            * (targetLocation.Right - targetLocation.Left);
-
-        if (pixelCount < ParallelPixelThreshold)
-        {
-            for (int y = targetLocation.Bottom; y < targetLocation.Top; ++y)
-                ApplyRow(pixels, width, matrix, y, targetLocation.Left, targetLocation.Right);
-        }
-        else
-        {
-            Parallel.For(
-                targetLocation.Bottom,
-                targetLocation.Top,
-                y => ApplyRow(pixels, width, matrix, y, targetLocation.Left, targetLocation.Right)
-            );
-        }
+        FilterParallelism.ForRows(
+            targetLocation,
+            y => ApplyRow(pixels, width, matrix, y, targetLocation.Left, targetLocation.Right)
+        );
 
         return image;
     }

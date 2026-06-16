@@ -37,20 +37,16 @@ public class Invert : IFilter
     {
         targetLocation = targetLocation.Normalize(image);
 
-        Parallel.For(
-            targetLocation.Bottom,
-            targetLocation.Top,
-            y =>
+        FilterParallelism.ForRows(targetLocation, y =>
+        {
+            for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
             {
-                for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
-                {
-                    var index = y * image.Width + x;
-                    image.Pixels[index].Red = (byte)(255 - image.Pixels[index].Red);
-                    image.Pixels[index].Green = (byte)(255 - image.Pixels[index].Green);
-                    image.Pixels[index].Blue = (byte)(255 - image.Pixels[index].Blue);
-                }
+                var index = y * image.Width + x;
+                image.Pixels[index].Red = (byte)(255 - image.Pixels[index].Red);
+                image.Pixels[index].Green = (byte)(255 - image.Pixels[index].Green);
+                image.Pixels[index].Blue = (byte)(255 - image.Pixels[index].Blue);
             }
-        );
+        });
 
         return image;
     }

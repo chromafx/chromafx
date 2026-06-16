@@ -48,26 +48,22 @@ public class Solarize(float threshold) : IFilter
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        Parallel.For(
-            targetLocation.Bottom,
-            targetLocation.Top,
-            y =>
+        FilterParallelism.ForRows(targetLocation, y =>
+        {
+            for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
             {
-                for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+                var pixelIndex = y * image.Width + x;
+                if (Distance.Euclidean(image.Pixels[pixelIndex], Color.Black) < Threshold)
                 {
-                    var pixelIndex = y * image.Width + x;
-                    if (Distance.Euclidean(image.Pixels[pixelIndex], Color.Black) < Threshold)
-                    {
-                        image.Pixels[pixelIndex] = new Color(
-                            (byte)(255 - image.Pixels[pixelIndex].Red),
-                            (byte)(255 - image.Pixels[pixelIndex].Green),
-                            (byte)(255 - image.Pixels[pixelIndex].Blue),
-                            image.Pixels[pixelIndex].Alpha
-                        );
-                    }
+                    image.Pixels[pixelIndex] = new Color(
+                        (byte)(255 - image.Pixels[pixelIndex].Red),
+                        (byte)(255 - image.Pixels[pixelIndex].Green),
+                        (byte)(255 - image.Pixels[pixelIndex].Blue),
+                        image.Pixels[pixelIndex].Alpha
+                    );
                 }
             }
-        );
+        });
 
         return image;
     }

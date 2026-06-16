@@ -32,8 +32,6 @@ namespace ChromaFx.Processing.Filters.Smoothing;
 /// <param name="apertureRadius">The aperture radius.</param>
 public class Median(int apertureRadius) : IFilter
 {
-    private const int ParallelPixelThreshold = 65536;
-
     /// <summary>
     /// Gets or sets the aperture radius.
     /// </summary>
@@ -55,40 +53,18 @@ public class Median(int apertureRadius) : IFilter
         var apertureMax = ApertureRadius;
         var kernelSide = apertureMax - apertureMin;
         var maxSamples = kernelSide * kernelSide;
-        var pixelCount = (targetLocation.Top - targetLocation.Bottom)
-            * (targetLocation.Right - targetLocation.Left);
-
-        if (pixelCount < ParallelPixelThreshold)
-        {
-            for (var y = targetLocation.Bottom; y < targetLocation.Top; ++y)
-            {
-                ApplyRow(
-                    image,
-                    tempValues,
-                    targetLocation,
-                    y,
-                    apertureMin,
-                    apertureMax,
-                    maxSamples
-                );
-            }
-        }
-        else
-        {
-            Parallel.For(
-                targetLocation.Bottom,
-                targetLocation.Top,
-                y => ApplyRow(
-                    image,
-                    tempValues,
-                    targetLocation,
-                    y,
-                    apertureMin,
-                    apertureMax,
-                    maxSamples
-                )
-            );
-        }
+        FilterParallelism.ForRows(
+            targetLocation,
+            y => ApplyRow(
+                image,
+                tempValues,
+                targetLocation,
+                y,
+                apertureMin,
+                apertureMax,
+                maxSamples
+            )
+        );
 
         return image.ReCreate(image.Width, image.Height, tempValues);
     }
