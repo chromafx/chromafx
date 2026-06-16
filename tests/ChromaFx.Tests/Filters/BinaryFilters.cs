@@ -1,6 +1,4 @@
-﻿using ChromaFx.Core.Colors;
-using ChromaFx.Processing.Filters.Binary;
-using ChromaFx.Processing.Filters.Interfaces;
+﻿using ChromaFx.Processing.Filters.Binary;
 using ChromaFx.Tests.BaseClasses;
 using Xunit;
 

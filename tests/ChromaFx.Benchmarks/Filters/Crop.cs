@@ -1,8 +1,6 @@
 ﻿using System.Drawing;
 using System.Runtime.Versioning;
 using BenchmarkDotNet.Attributes;
-using ChromaFx.Core;
-using ChromaFx.Processing.Numerics;
 
 namespace ChromaFx.Benchmarks.Filters;
 

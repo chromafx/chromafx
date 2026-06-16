@@ -1,5 +1,4 @@
-﻿using ChromaFx.IO;
-using ChromaFx.Processing.Filters.Overlays;
+﻿using ChromaFx.Processing.Filters.Overlays;
 using ChromaFx.Processing.Filters.Resampling;
 using ChromaFx.Processing.Filters.Resampling.Enums;
 using ChromaFx.Tests.BaseClasses;

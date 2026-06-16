@@ -1,5 +1,4 @@
-﻿using ChromaFx.IO;
-using ChromaFx.Processing.Filters.Arithmetic;
+﻿using ChromaFx.Processing.Filters.Arithmetic;
 using ChromaFx.Tests.BaseClasses;
 using Xunit;
 

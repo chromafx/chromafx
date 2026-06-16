@@ -1,7 +1,5 @@
 ﻿using ChromaFx.Processing.Filters.ColorMatrix;
 using ChromaFx.Processing.Filters.ColorMatrix.ColorBlindness;
-using ChromaFx.Processing.Filters.Interfaces;
-using ChromaFx.Processing.Numerics;
 using ChromaFx.Tests.BaseClasses;
 using Xunit;
 

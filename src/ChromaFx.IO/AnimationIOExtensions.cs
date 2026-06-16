@@ -15,7 +15,6 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.IO.Formats;
 
 namespace ChromaFx.IO;
 

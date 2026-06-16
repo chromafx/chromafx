@@ -1,5 +1,4 @@
-﻿using ChromaFx.Processing;
-using ChromaFx.Processing.Filters.ColorMatrix;
+﻿using ChromaFx.Processing.Filters.ColorMatrix;
 using ChromaFx.Processing.Filters.Convolution;
 using ChromaFx.Processing.Filters.Convolution.Enums;
 using ChromaFx.Processing.Filters.Pipelines;

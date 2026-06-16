@@ -14,9 +14,3 @@
  * limitations under the License.
  */
 
-global using ChromaFx.Core;
-global using ChromaFx.IO;
-global using ChromaFx.Processing;
-global using ChromaFx.Processing.Filters.Effects;
-global using ChromaFx.Processing.Filters.Resampling;
-global using ChromaFx.Processing.Filters.Resampling.Enums;

@@ -1,5 +1,4 @@
 ﻿using ChromaFx.Processing.Filters.Convolution;
-using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Tests.BaseClasses;
 using Xunit;
 
