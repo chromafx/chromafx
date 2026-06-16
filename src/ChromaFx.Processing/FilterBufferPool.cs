@@ -15,12 +15,15 @@
  */
 
 using System.Buffers;
+using System.Numerics;
 using ChromaFx.Core.Colors;
 
 namespace ChromaFx.Processing;
 
 internal static class FilterBufferPool
 {
+    internal static Vector4[] RentVector4(int length) => ArrayPool<Vector4>.Shared.Rent(length);
+
     internal static Color[] RentCopy(Color[] source)
     {
         var buffer = ArrayPool<Color>.Shared.Rent(source.Length);
@@ -29,4 +32,6 @@ internal static class FilterBufferPool
     }
 
     internal static void Return(Color[] buffer) => ArrayPool<Color>.Shared.Return(buffer);
+
+    internal static void Return(Vector4[] buffer) => ArrayPool<Vector4>.Shared.Return(buffer);
 }

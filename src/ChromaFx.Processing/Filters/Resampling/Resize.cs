@@ -20,6 +20,7 @@ using ChromaFx.Core.Colors;
 using ChromaFx.Processing.Filters.Resampling.Enums;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
+using ChromaFx.Processing.Filters.Resampling.ResamplingFilters;
 using ChromaFx.Processing.Filters.Resampling.ResamplingFilters.Interfaces;
 using ChromaFx.Core;
 
@@ -84,12 +85,16 @@ public class Resize(int width, int height, ResamplingFiltersAvailable filter) : 
     private Color[] Sample(Image image)
     {
         Filter.Precompute(image.Width, image.Height, Width, Height);
-        var output = new Color[Width * Height];
-        var transformationMatrix = GetMatrix(image);
         double tempWidth = Width < 0 ? image.Width : Width;
         double tempHeight = Height < 0 ? image.Width : Height;
         var xScale = tempWidth / image.Width;
         var yScale = tempHeight / image.Height;
+
+        if (Filter.FilterRadius > 0 && xScale >= 1.0 && yScale >= 1.0 && CanUseSeparablePath())
+            return SampleSeparable(image);
+
+        var output = new Color[Width * Height];
+        var transformationMatrix = GetMatrix(image);
         var yRadius = yScale < 1f ? Filter.FilterRadius / yScale : Filter.FilterRadius;
         var xRadius = xScale < 1f ? Filter.FilterRadius / xScale : Filter.FilterRadius;
 
@@ -163,6 +168,104 @@ public class Resize(int width, int height, ResamplingFiltersAvailable filter) : 
                 }
             }
         );
+
+        return output;
+    }
+
+    private bool CanUseSeparablePath() =>
+        Filter is not (
+            RobidouxFilter
+            or RobidouxSharpFilter
+            or RobidouxSoftFilter
+            or BellFilter
+            or CubicBSplineFilter
+            or CubicConvolutionFilter
+            or MitchellFilter
+            or QuadraticBSplineFilter
+        );
+
+    private Color[] SampleSeparable(Image image)
+    {
+        var output = new Color[Width * Height];
+        var transformationMatrix = GetMatrix(image);
+        var intermediate = FilterBufferPool.RentVector4(image.Height * Width);
+
+        try
+        {
+            Parallel.For(0, image.Height, row =>
+            {
+                var sourceRow = row * image.Width;
+                for (var x = 0; x < Width; ++x)
+                {
+                    var values = new Vector4(0, 0, 0, 0);
+                    var rotatedX = (int)Vector2.Transform(new Vector2(x, 0), transformationMatrix).X;
+                    var xWeights = Filter.XWeights[rotatedX];
+
+                    for (var xCount = 0; xCount < xWeights.Values.Length; ++xCount)
+                    {
+                        var tempWeight = xWeights.Values[xCount];
+                        if (tempWeight == 0)
+                            continue;
+
+                        var pixel = image.Pixels[sourceRow + xWeights.Left + xCount];
+                        values.X += pixel.Red * (float)tempWeight;
+                        values.Y += pixel.Green * (float)tempWeight;
+                        values.Z += pixel.Blue * (float)tempWeight;
+                        values.W += pixel.Alpha * (float)tempWeight;
+                    }
+
+                    intermediate[row * Width + x] = values;
+                }
+            });
+
+            Parallel.For(0, Height, y =>
+            {
+                for (var x = 0; x < Width; ++x)
+                {
+                    var values = new Vector4(0, 0, 0, 0);
+                    float weight = 0;
+                    var rotatedY = (int)Vector2.Transform(new Vector2(0, y), transformationMatrix).Y;
+                    var yWeights = Filter.YWeights[rotatedY];
+
+                    for (var yCount = 0; yCount < yWeights.Values.Length; ++yCount)
+                    {
+                        var tempWeight = yWeights.Values[yCount];
+                        if (tempWeight == 0)
+                            continue;
+
+                        var pixel = intermediate[(yWeights.Left + yCount) * Width + x];
+                        values.X += pixel.X * (float)tempWeight;
+                        values.Y += pixel.Y * (float)tempWeight;
+                        values.Z += pixel.Z * (float)tempWeight;
+                        values.W += pixel.W * (float)tempWeight;
+                        weight += (float)tempWeight;
+                    }
+
+                    if (weight == 0)
+                        weight = 1;
+
+                    if (weight > 0)
+                    {
+                        values = Vector4.Clamp(
+                            values,
+                            Vector4.Zero,
+                            new Vector4(255, 255, 255, 255)
+                        );
+                        output[y * Width + x] = new Color
+                        {
+                            Red = (byte)values.X,
+                            Green = (byte)values.Y,
+                            Blue = (byte)values.Z,
+                            Alpha = (byte)values.W
+                        };
+                    }
+                }
+            });
+        }
+        finally
+        {
+            FilterBufferPool.Return(intermediate);
+        }
 
         return output;
     }

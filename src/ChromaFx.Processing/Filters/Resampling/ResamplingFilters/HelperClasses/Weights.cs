@@ -23,6 +23,11 @@ namespace ChromaFx.Processing.Filters.Resampling.ResamplingFilters.HelperClasses
 public class Weights
 {
     /// <summary>
+    /// Gets or sets the first source index for this weight kernel.
+    /// </summary>
+    public int Left { get; set; }
+
+    /// <summary>
     /// Gets or sets the sum.
     /// </summary>
     /// <value>The sum.</value>

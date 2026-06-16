@@ -89,6 +89,7 @@ public abstract class ResamplingFilterBase : IResamplingFilter
                 right = sourceSize - 1;
             result[x] = new Weights
             {
+                Left = left,
                 Values = new double[(right - left) + 1]
             };
             for (int y = left, count = 0; y <= right; ++y, ++count)
