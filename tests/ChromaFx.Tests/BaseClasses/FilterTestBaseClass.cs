@@ -1,12 +1,9 @@
 ﻿using ChromaFx.IO;
-using ChromaFx.Processing;
-using ChromaFx.Processing.Filters.Interfaces;
-using ChromaFx.Processing.Numerics;
 using Xunit;
 
 namespace ChromaFx.Tests.BaseClasses;
 
-//[Collection("FilterCollection")]
+[Collection("FilterCollection")]
 public abstract class FilterTestBaseClass : TestBaseClass
 {
     public static readonly List<string> Files =
