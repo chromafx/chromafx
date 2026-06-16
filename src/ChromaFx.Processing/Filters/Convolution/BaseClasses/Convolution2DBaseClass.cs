@@ -71,105 +71,91 @@ public abstract class Convolution2DBaseClass : IFilter
     /// <param name="image">The image.</param>
     /// <param name="targetLocation">The target location.</param>
     /// <returns>The image</returns>
-    public unsafe Image Apply(Image image, Rectangle targetLocation = default)
+    public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
 
         var tempPixels = new Color[image.Pixels.Length];
         Array.Copy(image.Pixels, tempPixels, image.Pixels.Length);
+        var outputPixels = image.Pixels;
+        var width = image.Width;
+        var height = image.Height;
+        var xMatrix = XMatrix;
+        var yMatrix = YMatrix;
         Parallel.For(
             targetLocation.Bottom,
             targetLocation.Top,
             y =>
             {
-                fixed (Color* pointer = &image.Pixels[y * image.Width + targetLocation.Left])
+                for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                 {
-                    var outputPointer = pointer;
-                    for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+                    var xValue = new Vector4(0, 0, 0, 0);
+                    var yValue = new Vector4(0, 0, 0, 0);
+                    float weightX = 0;
+                    float weightY = 0;
+                    var xCurrent = -Width >> 1;
+                    var yCurrent = -Height >> 1;
+                    var matrixOffset = 0;
+                    for (var matrixIndex = 0; matrixIndex < xMatrix.Length; ++matrixIndex)
                     {
-                        var xValue = new Vector4(0, 0, 0, 0);
-                        var yValue = new Vector4(0, 0, 0, 0);
-                        float weightX = 0;
-                        float weightY = 0;
-                        var xCurrent = -Width >> 1;
-                        var yCurrent = -Height >> 1;
-                        fixed (float* xMatrixPointer = &XMatrix[0])
+                        if (matrixIndex % Width == 0 && matrixIndex != 0)
                         {
-                            fixed (float* yMatrixPointer = &YMatrix[0])
+                            ++yCurrent;
+                            xCurrent = 0;
+                        }
+                        if (
+                            xCurrent + x < width
+                            && xCurrent + x >= 0
+                            && yCurrent + y < height
+                            && yCurrent + y >= 0
+                        )
+                        {
+                            var xMatrixValue = xMatrix[matrixOffset];
+                            var yMatrixValue = yMatrix[matrixOffset];
+                            if (xMatrixValue != 0 || yMatrixValue != 0)
                             {
-                                var xMatrixValue = xMatrixPointer;
-                                var yMatrixValue = yMatrixPointer;
-                                for (
-                                    var matrixIndex = 0;
-                                    matrixIndex < XMatrix.Length;
-                                    ++matrixIndex
-                                )
-                                {
-                                    if (matrixIndex % Width == 0 && matrixIndex != 0)
-                                    {
-                                        ++yCurrent;
-                                        xCurrent = 0;
-                                    }
-                                    if (
-                                        xCurrent + x < image.Width
-                                        && xCurrent + x >= 0
-                                        && yCurrent + y < image.Height
-                                        && yCurrent + y >= 0
-                                    )
-                                    {
-                                        if (*xMatrixValue != 0 || *yMatrixValue != 0)
-                                        {
-                                            var start = (yCurrent + y) * image.Width + x + xCurrent;
-                                            var tempPixel = tempPixels[start];
-                                            xValue += new Vector4(
-                                                *xMatrixValue * tempPixel.Red,
-                                                *xMatrixValue * tempPixel.Green,
-                                                *xMatrixValue * tempPixel.Blue,
-                                                *xMatrixValue * tempPixel.Alpha
-                                            );
-                                            yValue += new Vector4(
-                                                *yMatrixValue * tempPixel.Red,
-                                                *yMatrixValue * tempPixel.Green,
-                                                *yMatrixValue * tempPixel.Blue,
-                                                *yMatrixValue * tempPixel.Alpha
-                                            );
-                                            weightX += *xMatrixValue;
-                                            weightY += *yMatrixValue;
-                                        }
-                                        ++xMatrixValue;
-                                        ++yMatrixValue;
-                                    }
-                                    ++xCurrent;
-                                }
+                                var start = (yCurrent + y) * width + x + xCurrent;
+                                var tempPixel = tempPixels[start];
+                                xValue += new Vector4(
+                                    xMatrixValue * tempPixel.Red,
+                                    xMatrixValue * tempPixel.Green,
+                                    xMatrixValue * tempPixel.Blue,
+                                    xMatrixValue * tempPixel.Alpha
+                                );
+                                yValue += new Vector4(
+                                    yMatrixValue * tempPixel.Red,
+                                    yMatrixValue * tempPixel.Green,
+                                    yMatrixValue * tempPixel.Blue,
+                                    yMatrixValue * tempPixel.Alpha
+                                );
+                                weightX += xMatrixValue;
+                                weightY += yMatrixValue;
                             }
+                            ++matrixOffset;
                         }
-                        if (weightX == 0)
-                            weightX = 1;
-                        if (weightY == 0)
-                            weightY = 1;
-                        if (weightX > 0 && weightY > 0)
+                        ++xCurrent;
+                    }
+                    if (weightX == 0)
+                        weightX = 1;
+                    if (weightY == 0)
+                        weightY = 1;
+                    if (weightX > 0 && weightY > 0)
+                    {
+                        if (Absolute)
                         {
-                            if (Absolute)
-                            {
-                                yValue = Vector4.Abs(yValue);
-                                xValue = Vector4.Abs(xValue);
-                            }
-                            xValue /= weightX;
-                            yValue /= weightY;
-                            var tempResult = Vector4.SquareRoot(xValue * xValue + yValue * yValue);
-                            tempResult =
-                                Vector4.Clamp(
-                                    tempResult,
-                                    Vector4.Zero,
-                                    new Vector4(255, 255, 255, 255)
-                                ) / 255f;
-                            *outputPointer = tempResult;
-                            ++outputPointer;
+                            yValue = Vector4.Abs(yValue);
+                            xValue = Vector4.Abs(xValue);
                         }
-                        else
-                        {
-                            ++outputPointer;
-                        }
+                        xValue /= weightX;
+                        yValue /= weightY;
+                        var tempResult = Vector4.SquareRoot(xValue * xValue + yValue * yValue);
+                        tempResult =
+                            Vector4.Clamp(
+                                tempResult,
+                                Vector4.Zero,
+                                new Vector4(255, 255, 255, 255)
+                            ) / 255f;
+                        outputPixels[y * width + x] = tempResult;
                     }
                 }
             }

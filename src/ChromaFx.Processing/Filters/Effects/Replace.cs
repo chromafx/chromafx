@@ -59,22 +59,19 @@ public class Replace(Color sourceColor, Color targetColor, float epsilon) : IFil
     /// <param name="image">The image.</param>
     /// <param name="targetLocation">The target location.</param>
     /// <returns>The image</returns>
-    public unsafe Image Apply(Image image, Rectangle targetLocation = default)
+    public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
+        var pixels = image.Pixels;
+        var width = image.Width;
         Parallel.For(targetLocation.Bottom, targetLocation.Top, y =>
         {
-            fixed (Color* pointer = &image.Pixels[y * image.Width + targetLocation.Left])
+            var rowStart = y * width;
+            for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
             {
-                var outputPointer = pointer;
-                for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
-                {
-                    if (Distance.Euclidean(*outputPointer, SourceColor) < Epsilon)
-                    {
-                        *outputPointer = TargetColor;
-                        ++outputPointer;
-                    }
-                }
+                ref var pixel = ref pixels[rowStart + x];
+                if (Distance.Euclidean(pixel, SourceColor) < Epsilon)
+                    pixel = TargetColor;
             }
         });
         return image;
