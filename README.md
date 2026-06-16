@@ -53,32 +53,6 @@ dotnet add package ChromaFx.Legacy
 ```
 
 ## Getting Started
-### Classic API (currently available)
-```csharp
-using ChromaFx;
-using ChromaFx.IO;
-using ChromaFx.Processing;
-using ChromaFx.Processing.Transforms;
-
-class Program
-{
-    static void Main()
-    {
-        // Load an image from file
-        var image = Image.Load("input.png");
-
-        // Apply processing using the Apply() method
-        image = image.Apply(new Resize(200, 200))
-                     .Apply(new Rotate(90))
-                     .Apply(new Invert());
-
-        // Save the result
-        image.Save("output.png");
-    }
-}
-```
-
-### Modern API ⚠️ (preview / in development)
 ```csharp
 using ChromaFx;
 
@@ -86,16 +60,29 @@ class Program
 {
     static void Main()
     {
-        var image = Image.Load("input.png")
-                         .Process(p => p
-                             .Resize(200, 200)
-                             .Rotate(90)
-                             .Invert()
-                         )
-                         .Save("output.png");
+        // Load, transform, and save
+        Image.Load("input.png")
+            .Apply(new Resize(200, 200, ResamplingFiltersAvailable.Bilinear))
+            .Apply(new Rotate(90))
+            .Apply(new Invert())
+            .Save("output.png");
+
+        // Or use the fluent pipeline API
+        Image.Load("input.png")
+            .Process(p => p
+                .Resize(200, 200)
+                .Rotate(90)
+                .Invert()
+            )
+            .Save("output.png");
     }
 }
 ```
+
+### API notes
+- `Image.Load(path)` and `Image.Load(stream)` require `ChromaFx.IO` (included in the main `ChromaFx` package).
+- Filters live under `ChromaFx.Processing.Filters.*`; common types are re-exported via `global using` when you reference the meta-package.
+- `Apply(IFilter)` mutates the image in place and returns it for chaining. Use `Copy()` when you need to preserve the original.
 
 
 ## Requirements
@@ -112,7 +99,7 @@ Modifications and ongoing maintenance by Ho Tzin Mein (2023–2025).
 
 ## Roadmap
 - ✅ **Modularization** – Core, IO, Processing, and Legacy packages split out.  
-- 🔜 **API Modernization** – Introducing a cleaner, pipeline-friendly API (breaking changes).  
+- 🔜 **API Modernization** – Unified load/apply/process surface on `Image`.  
 - ⏭ **Extended Features** – Advanced algorithms such as pixel upscaling, new filters, and effects.
 
 ## Contributing

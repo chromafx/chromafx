@@ -15,12 +15,18 @@
  */
 
 using ChromaFx.Core;
+using ChromaFx.Core.Exceptions;
 using ChromaFx.IO.Formats;
 
 namespace ChromaFx.IO;
 
 public static class ImageIOExtensions
 {
+    static ImageIOExtensions()
+    {
+        Image.RegisterLoaders(LoadFromPath, LoadFromStream);
+    }
+
     public static bool Save(this Image image, string fileName)
         => new Manager().Encode(fileName, image);
 
@@ -36,12 +42,15 @@ public static class ImageIOExtensions
         return Convert.ToBase64String(tempArray, 0, tempArray.Length);
     }
 
-    public static Image LoadImage(this string fileName)
+    private static Image LoadFromPath(string fileName)
     {
         using var stream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-        return new Manager().Decode(stream);
+        return LoadFromStream(stream);
     }
 
-    public static Image LoadImage(this Stream stream)
-        => new Manager().Decode(stream);
+    private static Image LoadFromStream(Stream stream)
+    {
+        var image = new Manager().Decode(stream);
+        return image ?? throw new ImageException("Unable to decode image from stream.");
+    }
 }

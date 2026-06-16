@@ -28,7 +28,7 @@ public abstract class FilterTestBaseClass : TestBaseClass
         {
             var outputFileName =
                 Path.GetFileNameWithoutExtension(file) + "-" + name + Path.GetExtension(file);
-            file.LoadImage().ApplyFilter(filter, target).Save(OutputDirectory + outputFileName);
+            Image.Load(file).Apply(filter, target).Save(OutputDirectory + outputFileName);
         }
 
         foreach (

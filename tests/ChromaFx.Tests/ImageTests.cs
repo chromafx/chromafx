@@ -38,7 +38,7 @@ public class ImageTests : FilterTestBaseClass
         {
             var outputFileName =
                 Path.GetFileNameWithoutExtension(file) + "-" + name + Path.GetExtension(file);
-            var testImage = file.LoadImage();
+            var testImage = Image.Load(file);
             var resultImage = operation(testImage, value);
             resultImage.Save(OutputDirectory + outputFileName);
         }
@@ -68,7 +68,7 @@ public class ImageTests : FilterTestBaseClass
         {
             var outputFileName =
                 Path.GetFileNameWithoutExtension(file) + "-" + name + Path.GetExtension(file);
-            var testImage = file.LoadImage();
+            var testImage = Image.Load(file);
             var resultImage = operation(testImage);
             resultImage.Save(OutputDirectory + outputFileName);
         }
