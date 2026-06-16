@@ -32,6 +32,7 @@ namespace ChromaFx.Processing.Filters.Smoothing;
 /// <param name="apertureRadius">The aperture radius.</param>
 public class Median(int apertureRadius) : IFilter
 {
+    private const int ParallelPixelThreshold = 65536;
 
     /// <summary>
     /// Gets or sets the aperture radius.
@@ -52,48 +53,95 @@ public class Median(int apertureRadius) : IFilter
         Array.Copy(image.Pixels, tempValues, tempValues.Length);
         var apertureMin = -ApertureRadius;
         var apertureMax = ApertureRadius;
-        Parallel.For(
-            targetLocation.Bottom,
-            targetLocation.Top,
-            y =>
+        var kernelSide = apertureMax - apertureMin;
+        var maxSamples = kernelSide * kernelSide;
+        var pixelCount = (targetLocation.Top - targetLocation.Bottom)
+            * (targetLocation.Right - targetLocation.Left);
+
+        if (pixelCount < ParallelPixelThreshold)
+        {
+            for (var y = targetLocation.Bottom; y < targetLocation.Top; ++y)
             {
-                for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
-                {
-                    var rValues = new List<byte>();
-                    var gValues = new List<byte>();
-                    var bValues = new List<byte>();
-
-                    for (var x2 = apertureMin; x2 < apertureMax; ++x2)
-                    {
-                        var tempX = x + x2;
-                        if (tempX < targetLocation.Left || tempX >= targetLocation.Right)
-                            continue;
-
-                        for (var y2 = apertureMin; y2 < apertureMax; ++y2)
-                        {
-                            var tempY = y + y2;
-                            if (tempY < targetLocation.Bottom || tempY >= targetLocation.Top)
-                                continue;
-
-                            var index = tempY * image.Width + tempX;
-                            rValues.Add(image.Pixels[index].Red);
-                            gValues.Add(image.Pixels[index].Green);
-                            bValues.Add(image.Pixels[index].Blue);
-                        }
-                    }
-
-                    rValues.Sort();
-                    gValues.Sort();
-                    bValues.Sort();
-
-                    tempValues[y * image.Width + x].Red = rValues[rValues.Count / 2];
-                    tempValues[y * image.Width + x].Green = gValues[gValues.Count / 2];
-                    tempValues[y * image.Width + x].Blue = bValues[bValues.Count / 2];
-                    tempValues[y * image.Width + x].Alpha = image.Pixels[y * image.Width + x].Alpha;
-                }
+                ApplyRow(
+                    image,
+                    tempValues,
+                    targetLocation,
+                    y,
+                    apertureMin,
+                    apertureMax,
+                    maxSamples
+                );
             }
-        );
+        }
+        else
+        {
+            Parallel.For(
+                targetLocation.Bottom,
+                targetLocation.Top,
+                y => ApplyRow(
+                    image,
+                    tempValues,
+                    targetLocation,
+                    y,
+                    apertureMin,
+                    apertureMax,
+                    maxSamples
+                )
+            );
+        }
 
         return image.ReCreate(image.Width, image.Height, tempValues);
+    }
+
+    private static void ApplyRow(
+        Image image,
+        Color[] tempValues,
+        Rectangle targetLocation,
+        int y,
+        int apertureMin,
+        int apertureMax,
+        int maxSamples
+    )
+    {
+        Span<byte> rBuffer = stackalloc byte[maxSamples];
+        Span<byte> gBuffer = stackalloc byte[maxSamples];
+        Span<byte> bBuffer = stackalloc byte[maxSamples];
+
+        for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+        {
+            var count = 0;
+            for (var x2 = apertureMin; x2 < apertureMax; ++x2)
+            {
+                var tempX = x + x2;
+                if (tempX < targetLocation.Left || tempX >= targetLocation.Right)
+                    continue;
+
+                for (var y2 = apertureMin; y2 < apertureMax; ++y2)
+                {
+                    var tempY = y + y2;
+                    if (tempY < targetLocation.Bottom || tempY >= targetLocation.Top)
+                        continue;
+
+                    var pixel = image.Pixels[tempY * image.Width + tempX];
+                    rBuffer[count] = pixel.Red;
+                    gBuffer[count] = pixel.Green;
+                    bBuffer[count] = pixel.Blue;
+                    ++count;
+                }
+            }
+
+            var rValues = rBuffer[..count];
+            var gValues = gBuffer[..count];
+            var bValues = bBuffer[..count];
+            rValues.Sort();
+            gValues.Sort();
+            bValues.Sort();
+
+            var index = y * image.Width + x;
+            tempValues[index].Red = rValues[count / 2];
+            tempValues[index].Green = gValues[count / 2];
+            tempValues[index].Blue = bValues[count / 2];
+            tempValues[index].Alpha = image.Pixels[index].Alpha;
+        }
     }
 }
