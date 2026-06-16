@@ -4,7 +4,6 @@
 		<BuildNumber Condition=" '$(GITHUB_RUN_NUMBER)' != '' ">$(GITHUB_RUN_NUMBER)</BuildNumber>
 		<BuildNumber Condition=" '$(BuildNumber)' == '' ">0</BuildNumber>
 
-		<TargetFramework>net8.0</TargetFramework>
 		<Nullable>disable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>

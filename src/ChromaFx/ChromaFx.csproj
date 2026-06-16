@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageIcon>icon.png</PackageIcon>
@@ -9,7 +8,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>ChromaFx</Title>
     <Authors>Ho Tzin Mein</Authors>
-    <Description>Modern, high-performance .NET image processing and drawing library. Supports PNG, JPEG, BMP, and GIF, with pipeline-friendly APIs. Ideal for new .NET 8+ projects.</Description>
+    <Description>Modern, high-performance .NET image processing and drawing library. Supports PNG, JPEG, BMP, and GIF, with pipeline-friendly APIs. Targets .NET 8 and .NET 10.</Description>
     <Copyright>Copyright $([System.DateTime]::Now.Year) Ho Tzin Mein</Copyright>
     <PackageProjectUrl>https://github.com/chromafx/chromafx</PackageProjectUrl>
     <RepositoryUrl>https://github.com/chromafx/chromafx</RepositoryUrl>
