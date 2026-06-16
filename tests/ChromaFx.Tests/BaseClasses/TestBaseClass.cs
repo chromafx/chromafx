@@ -3,7 +3,7 @@
 public abstract class TestBaseClass
 {
     private const int BmpHeaderSize = 54;
-    private const int MaxRotatePixelDifferences = 500;
+    private const int MaxAffineTransformPixelDifferences = 500;
 
     protected TestBaseClass()
     {
@@ -22,11 +22,15 @@ public abstract class TestBaseClass
             return true;
 
         var fileName = Path.GetFileName(expectedFilePath);
-        if (fileName.Contains("Rotate", StringComparison.OrdinalIgnoreCase))
-            return CompareBitmapPixels(expected, actual, MaxRotatePixelDifferences);
+        if (UsesAffineTransformTolerance(fileName))
+            return CompareBitmapPixels(expected, actual, MaxAffineTransformPixelDifferences);
 
         return false;
     }
+
+    private static bool UsesAffineTransformTolerance(string fileName) =>
+        fileName.Contains("Rotate", StringComparison.OrdinalIgnoreCase)
+        || fileName.Contains("Skew", StringComparison.OrdinalIgnoreCase);
 
     private static bool CompareBitmapPixels(
         byte[] expected,
