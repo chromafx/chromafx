@@ -13,7 +13,7 @@ public class Rgb24Bit : FormatBaseFixture
     [Fact]
     public void Decode()
     {
-        using var tempFile = System.IO.File.Open(FileName, FileMode.Open, FileAccess.Read);
+        using var tempFile = System.IO.File.Open(FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
         var data = Format.Read(new IO.Formats.Bmp.Format.Header(44, 40, 0, 5280, 0, 0, 0, 0, Compression.Rgb), tempFile);
         data = Format.Decode(new IO.Formats.Bmp.Format.Header(44, 40, 0, 5280, 0, 0, 0, 0, Compression.Rgb), data, null);
         Assert.Equal(7040, data.Length);
@@ -22,7 +22,7 @@ public class Rgb24Bit : FormatBaseFixture
     [Fact]
     public void Encode()
     {
-        using var tempFile = System.IO.File.Open(FileName, FileMode.Open, FileAccess.Read);
+        using var tempFile = System.IO.File.Open(FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
         var data = Format.Read(new IO.Formats.Bmp.Format.Header(44, 40, 0, 5280, 0, 0, 0, 0, Compression.Rgb), tempFile);
         data = Format.Decode(new IO.Formats.Bmp.Format.Header(44, 40, 0, 5280, 0, 0, 0, 0, Compression.Rgb), data, null);
         data = Format.Encode(new IO.Formats.Bmp.Format.Header(44, 40, 0, 5280, 0, 0, 0, 0, Compression.Rgb), data, null);
@@ -32,7 +32,7 @@ public class Rgb24Bit : FormatBaseFixture
     [Fact]
     public void Read()
     {
-        using var tempFile = System.IO.File.Open(FileName, FileMode.Open, FileAccess.Read);
+        using var tempFile = System.IO.File.Open(FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
         var data = Format.Read(new IO.Formats.Bmp.Format.Header(44, 40, 0, 5280, 0, 0, 0, 0, Compression.Rgb), tempFile);
         Assert.Equal(5280, data.Length);
     }

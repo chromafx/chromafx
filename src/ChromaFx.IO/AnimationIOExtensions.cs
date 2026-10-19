@@ -25,7 +25,7 @@ public static class AnimationIOExtensions
 
     public static Animation LoadAnimation(string fileName)
     {
-        using var stream = File.Open(fileName, FileMode.Open, FileAccess.Read);
+        using var stream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
         return FormatManager.Instance.DecodeAnimation(stream);
     }
 

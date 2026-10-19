@@ -15,7 +15,7 @@ public class Rgb8Bit : FormatBaseFixture
     {
         var paletteData = new byte[1024];
         var tempPalette = new IO.Formats.Bmp.Format.Palette(256, paletteData);
-        using var tempFile = System.IO.File.Open(FileName, FileMode.Open, FileAccess.Read);
+        using var tempFile = System.IO.File.Open(FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
         var data = Format.Read(new IO.Formats.Bmp.Format.Header(44, 40, 0, 1760, 0, 0, 0, 0, Compression.Rgb), tempFile);
         data = Format.Decode(new IO.Formats.Bmp.Format.Header(44, 40, 0, 1760, 0, 0, 0, 0, Compression.Rgb), data, tempPalette);
         Assert.Equal(7040, data.Length);
@@ -26,7 +26,7 @@ public class Rgb8Bit : FormatBaseFixture
     {
         var paletteData = new byte[1024];
         var tempPalette = new IO.Formats.Bmp.Format.Palette(256, paletteData);
-        using var tempFile = System.IO.File.Open(FileName, FileMode.Open, FileAccess.Read);
+        using var tempFile = System.IO.File.Open(FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
         var data = Format.Read(new IO.Formats.Bmp.Format.Header(44, 40, 0, 1760, 0, 0, 0, 0, Compression.Rgb), tempFile);
         data = Format.Decode(new IO.Formats.Bmp.Format.Header(44, 40, 0, 1760, 0, 0, 0, 0, Compression.Rgb), data, tempPalette);
         data = Format.Encode(new IO.Formats.Bmp.Format.Header(44, 40, 0, 1760, 0, 0, 0, 0, Compression.Rgb), data, tempPalette);
@@ -36,7 +36,7 @@ public class Rgb8Bit : FormatBaseFixture
     [Fact]
     public void Read()
     {
-        using var tempFile = System.IO.File.Open(FileName, FileMode.Open, FileAccess.Read);
+        using var tempFile = System.IO.File.Open(FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
         var data = Format.Read(new IO.Formats.Bmp.Format.Header(44, 40, 0, 1760, 0, 0, 0, 0, Compression.Rgb), tempFile);
         Assert.Equal(1760, data.Length);
     }

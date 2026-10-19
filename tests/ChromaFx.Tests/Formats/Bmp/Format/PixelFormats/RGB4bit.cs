@@ -13,7 +13,7 @@ public class Rgb4Bit : FormatBaseFixture
     [Fact]
     public void Decode()
     {
-        using var tempFile = System.IO.File.Open(FileName, FileMode.Open, FileAccess.Read);
+        using var tempFile = System.IO.File.Open(FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
         var data = Format.Read(new IO.Formats.Bmp.Format.Header(44, 40, 0, 880, 0, 0, 0, 0, Compression.Rgb), tempFile);
         data = Format.Decode(new IO.Formats.Bmp.Format.Header(44, 40, 0, 880, 0, 0, 0, 0, Compression.Rgb), data, new IO.Formats.Bmp.Format.Palette(16, new byte[64]));
         Assert.Equal(7040, data.Length);
@@ -22,7 +22,7 @@ public class Rgb4Bit : FormatBaseFixture
     [Fact]
     public void Encode()
     {
-        using var tempFile = System.IO.File.Open(FileName, FileMode.Open, FileAccess.Read);
+        using var tempFile = System.IO.File.Open(FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
         var data = Format.Read(new IO.Formats.Bmp.Format.Header(44, 40, 0, 880, 0, 0, 0, 0, Compression.Rgb), tempFile);
         data = Format.Decode(new IO.Formats.Bmp.Format.Header(44, 40, 0, 880, 0, 0, 0, 0, Compression.Rgb), data, new IO.Formats.Bmp.Format.Palette(16, new byte[64]));
         data = Format.Encode(new IO.Formats.Bmp.Format.Header(44, 40, 0, 880, 0, 0, 0, 0, Compression.Rgb), data, new IO.Formats.Bmp.Format.Palette(16, new byte[64]));
@@ -32,7 +32,7 @@ public class Rgb4Bit : FormatBaseFixture
     [Fact]
     public void Read()
     {
-        using var tempFile = System.IO.File.Open(FileName, FileMode.Open, FileAccess.Read);
+        using var tempFile = System.IO.File.Open(FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
         var data = Format.Read(new IO.Formats.Bmp.Format.Header(44, 40, 0, 880, 0, 0, 0, 0, Compression.Rgb), tempFile);
         Assert.Equal(960, data.Length);
     }
