@@ -1,0 +1,27 @@
+---
+description: ChromaFx project layout, TFMs, build/test commands, agent constraints
+alwaysApply: true
+---
+
+# ChromaFx project
+
+- Packages: `ChromaFx.Core` → `ChromaFx.IO` / `ChromaFx.Processing` → facade `ChromaFx`.
+- TFMs: `net8.0;net10.0` via `Directory.Build.props`. Local machines may only have net10 runtime — use `-f net10.0`.
+- Version: shared `1.0.0-beta.$(BuildNumber)` in `Directory.Build.props` (keeps NuGet pack free of NU5104).
+- License headers: keep existing Apache headers on modified files; do not rewrite copyright years unnecessarily.
+
+## Agent constraints
+
+- Minimal, task-scoped diffs. No unrelated cleanup.
+- Commit only when the user asks; logical commit groups.
+- Never commit `TestOutput/`, `BenchmarkDotNet.Artifacts/`, or secrets.
+- Prefer fixing root causes over suppressing analyzer warnings.
+
+## Quick verify
+
+```bash
+dotnet build -c Release -f net10.0
+dotnet test -c Release -f net10.0 --verbosity minimal
+```
+
+See `AGENTS.md` for fuller guidance.

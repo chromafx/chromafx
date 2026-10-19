@@ -1,0 +1,34 @@
+---
+description: Golden-file tests, FilterCollection, tolerance, regenerating ExpectedResults
+globs: tests/ChromaFx.Tests/**/*
+alwaysApply: false
+---
+
+# ChromaFx tests
+
+## Patterns
+
+- Filter goldens: `[Theory]` + `TheoryData` → `FilterTestBaseClass.CheckCorrect(name, filter, target)`.
+- Output name: `{InputBase}-{name}.bmp` under `TestOutput/Filters/` vs `ExpectedResults/Filters/`.
+- Filters run **serially** (`[Collection("FilterCollection")]`) — shared buffers / output paths.
+- Default input: `./TestImages/BitmapFilter.bmp` only (other inputs commented in `FilterTestBaseClass.Files`).
+
+## Comparison
+
+- Default: exact byte equality of BMP files.
+- Rotate/Skew filenames: up to **500** differing RGB pixels after 54-byte header (`TestBaseClass`).
+- PNG format tests: decode both sides and compare pixels — do not require identical encoded bytes.
+- Failure message is usually just the filename — check `TestOutput/` vs `ExpectedResults/` yourself.
+
+## Regenerating goldens
+
+1. Confirm the code change is intentional (not FP noise).
+2. Re-run the failing test; copy `TestOutput/...` → matching `ExpectedResults/...`.
+3. Prefer regenerating on the same OS as CI (**Ubuntu**) when possible; macOS goldens can diverge for resampling/affine.
+4. Do not gitignore ExpectedResults; do ignore/leave untracked `TestOutput/`.
+
+## Adding a filter test
+
+1. Add a `TheoryData` row in the right `Filters/*.cs` class.
+2. Run once to produce output, then promote to `ExpectedResults/Filters/`.
+3. Use `-Partial` + `Rectangle` when peers do; keep naming consistent.

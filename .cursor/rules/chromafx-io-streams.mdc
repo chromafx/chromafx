@@ -1,0 +1,27 @@
+---
+description: Stream.Read vs ReadExactly (CA2022) for format IO
+globs: src/ChromaFx.IO/**/*.cs,src/ChromaFx.Core/ExtensionMethods/StreamExtensions.cs
+alwaysApply: false
+---
+
+# Stream reads (CA2022)
+
+On net10, analyzer CA2022 flags fixed-size `Stream.Read` that may return fewer bytes than requested.
+
+## Prefer
+
+```csharp
+stream.ReadExactly(buffer);
+stream.ReadExactly(buffer, offset, count);
+```
+
+## Exceptions
+
+- **Intentional partial reads** in drain loops remain `Read` + check return count (e.g. RLE BMP loop in `PixelFormatBase`).
+- **`CanDecode` probes**: catch `EndOfStreamException` and return `false` for short streams — do not assume the stream is long enough for `HeaderSize`.
+- Chunked benchmark loops that measure partial-read throughput may keep `Read`.
+
+## Pitfalls already hit
+
+- Do not `ReadExactly` more bytes than remain (wrong `Bpp` / size math) — e.g. 4-bit BMP is `Bpp => 0.5`.
+- Tests that previously relied on silent partial fills must use valid stream lengths or roundtrip Write/Read.

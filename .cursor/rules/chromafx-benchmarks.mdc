@@ -1,0 +1,33 @@
+---
+description: BenchmarkDotNet paths, System.Drawing baselines, Config/diagnosers
+globs: tests/ChromaFx.Benchmarks/**/*
+alwaysApply: false
+---
+
+# ChromaFx benchmarks
+
+## Running
+
+```bash
+dotnet run -c Release -f net10.0 --project tests/ChromaFx.Benchmarks -- --list flat
+dotnet run -c Release -f net10.0 --project tests/ChromaFx.Benchmarks -- --filter '*Crop*'
+```
+
+Not run in CI. Artifacts go under `BenchmarkDotNet.Artifacts/` (gitignored).
+
+## Paths
+
+- Prefer `TestImage/...` relative to the **output directory** (csproj copies assets with `CopyToOutputDirectory`).
+- Or `Path.Combine(AppContext.BaseDirectory, "TestImage", "file.bmp")`.
+- Avoid `../../../../TestImage/...` — breaks when CWD is `bin/...`.
+
+## Platform
+
+- `System.Drawing` Crop/Resize baselines are Windows-only at runtime; on macOS/Linux they fail or show NA.
+- `[SupportedOSPlatform("windows")]` does **not** skip BenchmarkDotNet execution — gate with OS filters or make ChromaFx the baseline on non-Windows.
+- Windows/VS diagnoser packages may no-op on macOS/Linux.
+
+## Config
+
+- `Config.cs` defines `MemoryDiagnoser` but is unused unless wired via `[Config(typeof(Config))]` or `Program.cs`.
+- Prefer `[GlobalSetup]` for large images; avoid allocating 8000×8000 buffers every iteration.
