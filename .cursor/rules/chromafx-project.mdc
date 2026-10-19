@@ -6,7 +6,7 @@ alwaysApply: true
 # ChromaFx project
 
 - Packages: `ChromaFx.Core` → `ChromaFx.IO` / `ChromaFx.Processing` → facade `ChromaFx`.
-- TFMs: `net8.0;net10.0` via `Directory.Build.props`. Local machines may only have net10 runtime — use `-f net10.0`.
+- TFM: `net10.0` via `Directory.Build.props`.
 - Version: shared `1.0.0-beta.$(BuildNumber)` in `Directory.Build.props` (keeps NuGet pack free of NU5104).
 - License headers: keep existing Apache headers on modified files; do not rewrite copyright years unnecessarily.
 
@@ -20,8 +20,8 @@ alwaysApply: true
 ## Quick verify
 
 ```bash
-dotnet build -c Release -f net10.0
-dotnet test -c Release -f net10.0 --verbosity minimal
+dotnet build -c Release
+dotnet test -c Release --verbosity minimal
 ```
 
 See `AGENTS.md` for fuller guidance.

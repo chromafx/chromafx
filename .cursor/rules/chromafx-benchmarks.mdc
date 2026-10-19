@@ -9,8 +9,8 @@ alwaysApply: false
 ## Running
 
 ```bash
-dotnet run -c Release -f net10.0 --project tests/ChromaFx.Benchmarks -- --list flat
-dotnet run -c Release -f net10.0 --project tests/ChromaFx.Benchmarks -- --filter '*Crop*'
+dotnet run -c Release --project tests/ChromaFx.Benchmarks -- --list flat
+dotnet run -c Release --project tests/ChromaFx.Benchmarks -- --filter '*Crop*'
 ```
 
 Not run in CI. Artifacts go under `BenchmarkDotNet.Artifacts/` (gitignored).

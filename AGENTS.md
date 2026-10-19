@@ -1,6 +1,6 @@
 # Agent guide — ChromaFx
 
-Pure C# image processing library (PNG, JPEG, GIF, BMP). Multi-targets **net8.0** and **net10.0**.
+Pure C# image processing library (PNG, JPEG, GIF, BMP). Targets **net10.0**.
 
 ## Layout
 
@@ -18,19 +18,18 @@ Shared TFMs/version: `Directory.Build.props`. SDK pin: `global.json`.
 ## Commands
 
 ```bash
-# Prefer net10.0 locally if only SDK 10 is installed
-dotnet build -c Release -f net10.0
-dotnet test -c Release -f net10.0 --verbosity minimal
+dotnet build -c Release
+dotnet test -c Release --verbosity minimal
 
 # Filter one golden test (Microsoft Testing Platform / xunit.v3)
-dotnet test -c Release -f net10.0 --filter-class ResamplingFilters
+dotnet test -c Release --filter-class ResamplingFilters
 
 # Benchmarks (run from repo root; use output-relative TestImage paths)
-dotnet run -c Release -f net10.0 --project tests/ChromaFx.Benchmarks -- --filter '*'
-dotnet run -c Release -f net10.0 --project tests/ChromaFx.Benchmarks -- --list flat
+dotnet run -c Release --project tests/ChromaFx.Benchmarks -- --filter '*'
+dotnet run -c Release --project tests/ChromaFx.Benchmarks -- --list flat
 ```
 
-Tests use **Microsoft Testing Platform** (`global.json` `test.runner` + xunit.v3). CI (`.github/workflows/dotnet.yml`): Ubuntu, both SDKs, `dotnet test` for all TFMs. Benchmarks are **not** in CI.
+Tests use **Microsoft Testing Platform** (`global.json` `test.runner` + xunit.v3). CI (`.github/workflows/dotnet.yml`): Ubuntu, .NET 10 SDK, `dotnet test`. Benchmarks are **not** in CI.
 
 ## Conventions agents must follow
 
