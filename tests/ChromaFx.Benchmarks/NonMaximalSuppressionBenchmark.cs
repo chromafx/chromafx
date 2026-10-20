@@ -3,11 +3,9 @@ using ChromaFx.Core;
 using ChromaFx.Core.Colors;
 using ChromaFx.Processing.Filters.Binary;
 using ChromaFx.Processing.Numerics;
-using Microsoft.VSDiagnostics;
 
 namespace ChromaFx.Benchmarks
 {
-    [CPUUsageDiagnoser]
     public class NonMaximalSuppressionBenchmark
     {
         private const int Width = 512;

@@ -12,6 +12,10 @@ public class Rgb24Test
     [Benchmark(Baseline = true, Description = "Without pointers")]
     public void Current()
     {
-        new Rgb24Bit().Decode(new Header(Count, Count, 0, Count * Count * 3, 0, 0, 0, 0, Compression.Rgb), new byte[Count * Count * 3], new Palette(0, []));
+        new Rgb24Bit().Decode(
+            new Header(Count, Count, 0, Count * Count * 3, 0, 0, 0, 0, Compression.Rgb),
+            new byte[Count * Count * 3],
+            new Palette(0, [])
+        );
     }
 }

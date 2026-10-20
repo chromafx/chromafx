@@ -1,6 +1,6 @@
-﻿using ChromaFx.Core.ExtensionMethods;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.InteropServices;
+using ChromaFx.Core.ExtensionMethods;
 
 namespace ChromaFx.Benchmarks.GenericSpeedTests.TestClasses;
 
@@ -514,7 +514,7 @@ public struct ColorStruct : IEquatable<ColorStruct>
     /// <returns>
     /// <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public readonly override bool Equals(object obj)
+    public override readonly bool Equals(object obj)
     {
         return obj is ColorStruct @struct && Equals(@struct);
     }
@@ -526,7 +526,7 @@ public struct ColorStruct : IEquatable<ColorStruct>
     /// A hash code for this instance, suitable for use in hashing algorithms and data structures
     /// like a hash table.
     /// </returns>
-    public readonly override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         var hash = Red.GetHashCode();
         hash = ComputeHash(hash, Green);
@@ -554,7 +554,7 @@ public struct ColorStruct : IEquatable<ColorStruct>
     /// Returns a <see cref="string"/> that represents this instance.
     /// </summary>
     /// <returns>A <see cref="string"/> that represents this instance.</returns>
-    public readonly override string ToString() => $"({Red},{Green},{Blue},{Alpha})";
+    public override readonly string ToString() => $"({Red},{Green},{Blue},{Alpha})";
 
     /// <summary>
     /// Computes the hash.

@@ -1,8 +1,8 @@
-﻿using BenchmarkDotNet.Attributes;
-using ChromaFx.Processing.Filters.Resampling.Enums;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Versioning;
+using BenchmarkDotNet.Attributes;
+using ChromaFx.Processing.Filters.Resampling.Enums;
 
 namespace ChromaFx.Benchmarks.Filters;
 
@@ -12,11 +12,16 @@ public class Resize
     public void ResizeChromaFx()
     {
         var testImage = new Core.Image(2000, 2000);
-        var filter = new Processing.Filters.Resampling.Resize(400, 400, ResamplingFiltersAvailable.NearestNeighbor);
+        var filter = new Processing.Filters.Resampling.Resize(
+            400,
+            400,
+            ResamplingFiltersAvailable.NearestNeighbor
+        );
         filter.Apply(testImage);
     }
 
     [SupportedOSPlatform("windows")]
+    [OperatingSystemsFilter(true, OS.Windows)]
     [Benchmark(Baseline = true, Description = "System.Drawing Resize")]
     public void ResizeSystemDrawing()
     {

@@ -1,20 +1,19 @@
 using BenchmarkDotNet.Attributes;
 using ChromaFx.Core;
-using Microsoft.VSDiagnostics;
 
 namespace ChromaFx.Benchmarks;
 
-[CPUUsageDiagnoser]
 public class PngFileEncodingDecodingBenchmarks
 {
-    private byte[] _pngData;
-    private Image _image;
+    private byte[] _pngData = [];
+    private Image _image = null!;
 
     [GlobalSetup]
     public void Setup()
     {
-        // Prepare a small PNG file in memory for decoding
-        _pngData = File.ReadAllBytes("TestImage/splash.png");
+        _pngData = File.ReadAllBytes(
+            Path.Combine(AppContext.BaseDirectory, "TestImage", "splash.png")
+        );
         var file = new IO.Formats.Png.Format.File();
         using var decodeStream = new MemoryStream(_pngData);
         file.Decode(decodeStream);
@@ -22,11 +21,12 @@ public class PngFileEncodingDecodingBenchmarks
     }
 
     [Benchmark(Description = "ChromaFx PNG Decode")]
-    public void DecodeChromaFx()
+    public Image DecodeChromaFx()
     {
-        var stream = new MemoryStream(_pngData);
+        using var stream = new MemoryStream(_pngData);
         var file = new IO.Formats.Png.Format.File();
         file.Decode(stream);
+        return file.GetImage();
     }
 
     [Benchmark(Description = "ChromaFx PNG Encode")]

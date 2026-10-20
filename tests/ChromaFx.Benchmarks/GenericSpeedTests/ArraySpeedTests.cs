@@ -1,6 +1,6 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿using System.Numerics;
+using BenchmarkDotNet.Attributes;
 using ChromaFx.Benchmarks.GenericSpeedTests.TestClasses;
-using System.Numerics;
 
 namespace ChromaFx.Benchmarks.GenericSpeedTests;
 
@@ -55,10 +55,12 @@ public class ArraySpeedTests
         var testArray = new uint[10000];
         for (var x = 0; x < testArray.Length; ++x)
         {
-            testArray[x] = (uint)((byte)((testArray[x] & 0x00FF0000) * 3) << 16
-                                  | ((byte)((testArray[x] & 0x0000FF00) * 3) << 8)
-                                  | (byte)((testArray[x] & 0x000000FF) * 3)
-                                  | ((byte)((testArray[x] & 0xFF000000) * 3) << 24));
+            testArray[x] = (uint)(
+                (byte)((testArray[x] & 0x00FF0000) * 3) << 16
+                | ((byte)((testArray[x] & 0x0000FF00) * 3) << 8)
+                | (byte)((testArray[x] & 0x000000FF) * 3)
+                | ((byte)((testArray[x] & 0xFF000000) * 3) << 24)
+            );
         }
     }
 

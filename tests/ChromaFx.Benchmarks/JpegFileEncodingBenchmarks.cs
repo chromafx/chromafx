@@ -1,13 +1,12 @@
 using BenchmarkDotNet.Attributes;
 using ChromaFx.Core;
-using Microsoft.VSDiagnostics;
 
 namespace ChromaFx.Benchmarks
 {
-    [CPUUsageDiagnoser]
     public class JpegFileEncodingBenchmarks
     {
         private Image _image;
+
         [GlobalSetup]
         public void Setup()
         {

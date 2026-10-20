@@ -4,16 +4,13 @@ using BenchmarkDotNet.Diagnosers;
 namespace ChromaFx.Benchmarks;
 
 /// <summary>
-/// Benchmark config
+/// Cross-platform benchmark config (memory diagnoser; no Windows-only ETW).
 /// </summary>
-/// <seealso cref="ManualConfig"/>
 public class Config : ManualConfig
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Config"/> class.
-    /// </summary>
     public Config()
     {
-        AddDiagnoser(new MemoryDiagnoser(new MemoryDiagnoserConfig()));
+        Add(DefaultConfig.Instance);
+        AddDiagnoser(MemoryDiagnoser.Default);
     }
 }

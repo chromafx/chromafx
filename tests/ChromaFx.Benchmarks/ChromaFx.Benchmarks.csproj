@@ -18,8 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.15.8" />
-    <PackageReference Include="Microsoft.VisualStudio.DiagnosticsHub.BenchmarkDotNetDiagnosers" Version="18.7.37220.1" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
+    <!-- GDI+ baselines compile everywhere; methods are OS-filtered to Windows at runtime. -->
     <PackageReference Include="System.Drawing.Common" Version="10.0.13" />
   </ItemGroup>
 

@@ -1,0 +1,15 @@
+<Project>
+  <!-- Injected into projects that PackageReference ChromaFx so everyday types resolve without extra usings. -->
+  <ItemGroup>
+    <Using Include="ChromaFx.Core" />
+    <Using Include="ChromaFx.Core.Colors" />
+    <Using Include="ChromaFx.Core.Exceptions" />
+    <Using Include="ChromaFx.IO" />
+    <Using Include="ChromaFx.IO.Encoders" />
+    <Using Include="ChromaFx.IO.Formats" />
+    <Using Include="ChromaFx.Processing" />
+    <Using Include="ChromaFx.Processing.Filters.Interfaces" />
+    <Using Include="ChromaFx.Processing.Filters.Resampling.Enums" />
+    <Using Include="ChromaFx.Processing.Numerics" />
+  </ItemGroup>
+</Project>

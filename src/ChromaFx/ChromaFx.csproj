@@ -1,11 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>ChromaFx</Title>
     <Authors>Ho Tzin Mein</Authors>
     <Description>Modern, high-performance .NET image processing and drawing library. Supports PNG, JPEG, BMP, and GIF, with pipeline-friendly APIs. Targets .NET 10.</Description>
@@ -25,6 +23,7 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+    <None Include="buildTransitive\ChromaFx.props" Pack="true" PackagePath="buildTransitive\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,5 +31,4 @@
     <ProjectReference Include="..\ChromaFx.IO\ChromaFx.IO.csproj" />
     <ProjectReference Include="..\ChromaFx.Processing\ChromaFx.Processing.csproj" />
   </ItemGroup>
-
 </Project>

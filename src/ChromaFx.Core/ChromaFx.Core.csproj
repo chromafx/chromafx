@@ -1,32 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<Nullable>disable</Nullable>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  <PropertyGroup>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
-		<Authors>Ho Tzin Mein</Authors>
-		<Company />
-		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-		<PackageProjectUrl>https://github.com/chromafx/chromafx</PackageProjectUrl>
-		<PackageIcon>icon.png</PackageIcon>
-		<Description>Core types, abstractions, and utilities for ChromaFx. Provides the foundational building blocks for image processing and drawing pipelines.</Description>
-		<PackageReleaseNotes>Modern API with pipeline-friendly design. Classes may change until 1.0 stable.</PackageReleaseNotes>
-		<Copyright>Copyright $([System.DateTime]::Now.Year) Ho Tzin Mein</Copyright>
-		<PackageTags>image graphics bitmap png jpeg gif drawing effects imageprocessing dotnet csharp chromafx</PackageTags>
+    <Authors>Ho Tzin Mein</Authors>
+    <Company />
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/chromafx/chromafx</PackageProjectUrl>
+    <PackageIcon>icon.png</PackageIcon>
+    <Description>Core types, abstractions, and utilities for ChromaFx. Provides the foundational building blocks for image processing and drawing pipelines.</Description>
+    <PackageReleaseNotes>Modern API with pipeline-friendly design. Classes may change until 1.0 stable.</PackageReleaseNotes>
+    <Copyright>Copyright $([System.DateTime]::Now.Year) Ho Tzin Mein</Copyright>
+    <PackageTags>image graphics bitmap png jpeg gif drawing effects imageprocessing dotnet csharp chromafx</PackageTags>
 
-		<PackageId>$(AssemblyName)</PackageId>
-		<Title>ChromaFx.Core</Title>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<RepositoryUrl>https://github.com/chromafx/chromafx</RepositoryUrl>
-		<RepositoryType>git</RepositoryType>
-	</PropertyGroup>
-	<ItemGroup>
-		<None Include="../../assets/icon.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
+    <PackageId>$(AssemblyName)</PackageId>
+    <Title>ChromaFx.Core</Title>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/chromafx/chromafx</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="../../assets/icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
     <None Include="../../README.md">
       <Pack>True</Pack>
       <PackagePath></PackagePath>

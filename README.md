@@ -2,20 +2,17 @@
 
 [![Build Status](https://github.com/chromafx/chromafx/actions/workflows/dotnet.yml/badge.svg)](https://github.com/chromafx/chromafx/actions) 
 [![NuGet](https://img.shields.io/nuget/v/ChromaFx.svg)](https://www.nuget.org/packages/ChromaFx/) 
-[![NuGet](https://img.shields.io/nuget/v/ChromaFx.Legacy.svg)](https://www.nuget.org/packages/ChromaFx.Legacy/) 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 Modern, high-performance .NET image processing and drawing library.  
 
 **Key points:**
-- Pure C#, zero dependency implementation
-- Image encoding/decoding (PNG, JPEG, GIF, BMP)
-- Drawing primitives and effects
-- Pipeline-friendly API for efficient image processing
+- Pure C#, zero dependency core (BMP, PNG, JPEG, GIF)
+- Explicit `Mutate` / `Clone` processing API
+- Typed encoders (`JpegEncoder`, `PngEncoder`, …) and a public `ImageFormats` registry for extensions
+- Pipeline-friendly fluent context for common filters
 
 ## Packages
-
-ChromaFX is distributed as multiple NuGet packages to suit different needs:
 
 | Package                | Description                                                                 | NuGet Link                                               |
 |------------------------|-----------------------------------------------------------------------------|----------------------------------------------------------|
@@ -23,67 +20,60 @@ ChromaFX is distributed as multiple NuGet packages to suit different needs:
 | `ChromaFx.Core`        | Core types and abstractions for ChromaFX.                                   | [ChromaFx.Core](https://www.nuget.org/packages/ChromaFx.Core/) |
 | `ChromaFx.IO`          | Image file IO, encoding/decoding support.                                   | [ChromaFx.IO](https://www.nuget.org/packages/ChromaFx.IO/) |
 | `ChromaFx.Processing`  | Image processing algorithms and effects.                                    | [ChromaFx.Processing](https://www.nuget.org/packages/ChromaFx.Processing/) |
-| `ChromaFx.Legacy`      | Compatibility package for legacy .NET projects and APIs.                    | [ChromaFx.Legacy](https://www.nuget.org/packages/ChromaFx.Legacy/) |
 
 - Use `ChromaFx` for new projects targeting .NET 10.
-- Use `ChromaFx.Core`, `ChromaFx.IO`, and `ChromaFx.Processing` for modular usage or advanced scenarios.
-- Use `ChromaFx.Legacy` if you need support for older APIs or migration from previous versions.
-
-Provides backward compatibility with the original Structure.Sketching API surface. Use only if migrating existing projects — for new development, prefer ChromaFx
+- Use `ChromaFx.Core`, `ChromaFx.IO`, and `ChromaFx.Processing` for modular usage.
 
 ## Installation
-Install via NuGet package:
 
 ```bash
 dotnet add package ChromaFx
 ```
 
-For modular usage:
-
-```bash
-dotnet add package ChromaFx.Core
-dotnet add package ChromaFx.IO
-dotnet add package ChromaFx.Processing
-```
-
-For legacy support:
-
-```bash
-dotnet add package ChromaFx.Legacy
-```
-
 ## Getting Started
+
 ```csharp
-using ChromaFx;
+// With PackageReference to ChromaFx, common namespaces are injected.
+var thumb = Image.Load("input.png")
+    .Clone(ctx => ctx
+        .Resize(200, 200)
+        .Rotate(90)
+        .Invert());
 
-class Program
-{
-    static void Main()
-    {
-        // Load, transform, and save
-        Image.Load("input.png")
-            .Apply(new Resize(200, 200, ResamplingFiltersAvailable.Bilinear))
-            .Apply(new Rotate(90))
-            .Apply(new Invert())
-            .Save("output.png");
+thumb.Save("output.jpg", new JpegEncoder { Quality = 85 });
 
-        // Or use the fluent pipeline API
-        Image.Load("input.png")
-            .Process(p => p
-                .Resize(200, 200)
-                .Rotate(90)
-                .Invert()
-            )
-            .Save("output.png");
-    }
-}
+Image.Load("input.png")
+    .Mutate(ctx => ctx.Resize(800, 600).Brightness(0.1f))
+    .Save("output.png");
+
+// ImageFormats.Register(new WebPFormat());
 ```
 
 ### API notes
-- `Image.Load(path)` and `Image.Load(stream)` require `ChromaFx.IO` (included in the main `ChromaFx` package).
-- Filters live under `ChromaFx.Processing.Filters.*`; common types are re-exported via `global using` when you reference the meta-package.
-- `Apply(IFilter)` mutates the image in place and returns it for chaining. Use `Copy()` when you need to preserve the original.
 
+- Prefer the `ChromaFx` meta-package (`ChromaFx.Core` + `.IO` + `.Processing`).
+- `Image.Load` / `Save` / `ImageFormats` live in **IO**; Mutate/Clone in **Processing**.
+- Typed encoders: `ChromaFx.IO.Encoders` (`JpegEncoder`, `PngEncoder`, …).
+- Plugins: `IImageFormat` / `FormatBase` in `ChromaFx.IO.Formats` (wire types are internal).
+- Path `Save` uses the registered format matching the extension.
+- Meta-package injects common usings via `buildTransitive/ChromaFx.props`.
+- Pack with `dotnet pack` (not on every local build).
+
+### Migration (breaking)
+
+These older APIs are **removed** (not obsolete):
+
+| Removed | Use instead |
+|---------|-------------|
+| `img.Apply(...)` / `img.Apply<T>()` | `img.Mutate(c => c.Invert())` / `c.Apply(filter)` |
+| `img.Process(...)` / `ImagePipeline` | `img.Mutate` / `Clone` |
+| `ImageOperatorExtensions` (`BrightnessUp`, …) | `Clone`/`Mutate` + context ops |
+| `img.Copy()` | `img.Clone()` |
+| `img.Save(path)` → `bool` | `void` (throws) |
+| `LoadAnimation(path)` | `Animation.Load(path)` |
+| `FormatManager` / `Manager` | `ImageFormats.Register` |
+| `IFormat` | `IImageFormat` |
+| Public format wire types | internal (Tests keep access via `InternalsVisibleTo`) |
 
 ## Requirements
 - .NET 10 SDK
@@ -95,14 +85,13 @@ Apache 2.0 - see [LICENSE](LICENSE)
 This project is a fork of [Structure.Sketching](https://github.com/JaCraig/Structure.Sketching),
 originally developed by JaCraig under the Apache License 2.0.
 
-Modifications and ongoing maintenance by Ho Tzin Mein (2023–2025).
+Modifications and ongoing maintenance by Ho Tzin Mein (2023–2026).
 
 ## Roadmap
-- ✅ **Modularization** – Core, IO, Processing, and Legacy packages split out.  
-- 🔜 **API Modernization** – Unified load/apply/process surface on `Image`.  
-- ⏭ **Extended Features** – Advanced algorithms such as pixel upscaling, new filters, and effects.
+- ✅ **Modularization** – Core, IO, Processing packages split out.
+- ✅ **API modernization** – `Mutate`/`Clone`, typed encoders, `ImageFormats` registry.
+- ⏭ **Extended formats** – optional native extension package (WebP/AVIF/…).
+- ⏭ **Extended features** – pixel upscaling, more drawing/effects.
 
 ## Contributing
 Contributions, bug reports, and suggestions are welcome!
-The roadmap may evolve as the project grows — feel free to open an issue or pull request
-if you'd like to help shape ChromaFX.

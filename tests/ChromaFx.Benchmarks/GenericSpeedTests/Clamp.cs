@@ -8,7 +8,11 @@ public class Clamp
     public byte ClampAllTernary()
     {
         double value = 256;
-        return (byte)(value < 0 ? 0 : value > 255 ? 255 : value);
+        return (byte)(
+            value < 0 ? 0
+            : value > 255 ? 255
+            : value
+        );
     }
 
     [Benchmark(Baseline = true, Description = "Maths Clamp")]
