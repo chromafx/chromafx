@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
+using ChromaFx.Core;
 using ChromaFx.Core.Colors;
+using ChromaFx.Processing.Filters.ColorMatrix;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
-using ChromaFx.Core;
-using ChromaFx.Processing.Filters.ColorMatrix;
 
 namespace ChromaFx.Processing.Filters.Overlays;
 
@@ -38,7 +38,7 @@ public class Blend : IFilter
     public Blend(Image image, float alpha, Rectangle sourceLocation = default)
     {
         Alpha = alpha;
-        image = image.Copy();
+        image = image.Clone();
         new Alpha(alpha).Apply(image);
         Image = image;
         SourceLocation = sourceLocation;

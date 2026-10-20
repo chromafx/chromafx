@@ -34,7 +34,6 @@ namespace ChromaFx.Processing.Filters.Pipelines;
 /// <param name="yDirection">The y direction.</param>
 public class NormalMap(XDirection xDirection, YDirection yDirection) : IFilter
 {
-
     /// <summary>
     /// Gets or sets the x direction.
     /// </summary>
@@ -58,10 +57,10 @@ public class NormalMap(XDirection xDirection, YDirection yDirection) : IFilter
         targetLocation = targetLocation.Normalize(image);
         var tempImageX = new BumpMap(
             XDirection == XDirection.LeftToRight ? Direction.LeftToRight : Direction.RightToLeft
-        ).Apply(image.Copy(), targetLocation);
+        ).Apply(image.Clone(), targetLocation);
         var tempImageY = new BumpMap(
             YDirection == YDirection.TopToBottom ? Direction.TopToBottom : Direction.BottomToTop
-        ).Apply(image.Copy(), targetLocation);
+        ).Apply(image.Clone(), targetLocation);
         Parallel.For(
             targetLocation.Bottom,
             targetLocation.Top,

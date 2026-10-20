@@ -1,5 +1,4 @@
-﻿using ChromaFx.IO;
-using Xunit;
+﻿using Xunit;
 
 namespace ChromaFx.Tests.BaseClasses;
 
@@ -7,31 +6,29 @@ namespace ChromaFx.Tests.BaseClasses;
 public abstract class FilterTestBaseClass : TestBaseClass
 {
     public static readonly List<string> Files =
-        [
-            "./TestImages/BitmapFilter.bmp"
-            //"./TestImages/Formats/Bmp/Car.bmp",
-            //"./TestImages/Formats/Png/splash.png",
-            //"./TestImages/Formats/Png/indexed.png",
-            //"./TestImages/Formats/Png/blur.png",
-        ];
+    [
+        "./TestImages/BitmapFilter.bmp",
+        //"./TestImages/Formats/Bmp/Car.bmp",
+        //"./TestImages/Formats/Png/splash.png",
+        //"./TestImages/Formats/Png/indexed.png",
+        //"./TestImages/Formats/Png/blur.png",
+    ];
 
-    protected void CheckCorrect(
-        string name,
-        IFilter filter,
-        Rectangle target
-    )
+    protected void CheckCorrect(string name, IFilter filter, Rectangle target)
     {
         foreach (var file in Files)
         {
             var outputFileName =
                 Path.GetFileNameWithoutExtension(file) + "-" + name + Path.GetExtension(file);
-            Image.Load(file).Apply(filter, target).Save(OutputDirectory + outputFileName);
+            Image
+                .Load(file)
+                .Mutate(ctx => ctx.Apply(filter, target))
+                .Save(OutputDirectory + outputFileName);
         }
 
         foreach (
-            var outputFileName in Files.Select(
-                file =>
-                    Path.GetFileNameWithoutExtension(file) + "-" + name + Path.GetExtension(file)
+            var outputFileName in Files.Select(file =>
+                Path.GetFileNameWithoutExtension(file) + "-" + name + Path.GetExtension(file)
             )
         )
         {

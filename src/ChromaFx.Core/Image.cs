@@ -132,15 +132,4 @@ public partial class Image
         Pixels = new Color[width * height];
         return this;
     }
-
-    /// <summary>
-    /// Makes a copy of this image.
-    /// </summary>
-    /// <returns>A copy of this image.</returns>
-    public Image Copy()
-    {
-        var data = new Color[Width * Height];
-        Pixels.AsSpan().CopyTo(data);
-        return new Image(Width, Height, data);
-    }
 }

@@ -1,5 +1,5 @@
-/*
- * Copyright 2025 Ho Tzin Mein
+﻿/*
+ * Copyright 2025–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,43 +15,39 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
 
 namespace ChromaFx.Processing;
 
 /// <summary>
-/// Extension methods for applying filters and pipelines to images.
+/// Extension methods for mutating and cloning images.
 /// </summary>
 public static class ImageExtensions
 {
     /// <summary>
-    /// Applies a filter to the image and returns the same instance for chaining.
+    /// Mutates the image in place using the processing context.
     /// </summary>
-    public static Image Apply(this Image image, IFilter filter, Rectangle targetLocation = default)
+    public static Image Mutate(
+        this Image image,
+        Action<IImageProcessingContext> operation,
+        Rectangle targetLocation = default
+    )
     {
-        filter.Apply(image, targetLocation);
+        ArgumentNullException.ThrowIfNull(image);
+        ArgumentNullException.ThrowIfNull(operation);
+        var context = new ImageProcessingContext(image, targetLocation);
+        operation(context);
         return image;
     }
 
     /// <summary>
-    /// Applies a filter type to the image and returns the same instance for chaining.
+    /// Creates a deep copy of the image and optionally mutates the copy.
     /// </summary>
-    public static Image Apply<TFilter>(this Image image, Rectangle targetLocation = default)
-        where TFilter : IFilter, new() =>
-        image.Apply(new TFilter(), targetLocation);
-
-    /// <summary>
-    /// Configures and runs a processing pipeline on the image.
-    /// </summary>
-    public static Image Process(
-        this Image image,
-        Action<ImagePipeline> configure,
-        Rectangle targetLocation = default
-    )
+    public static Image Clone(this Image image, Action<IImageProcessingContext> operation)
     {
-        var pipeline = new ImagePipeline(image);
-        configure(pipeline);
-        return pipeline.Execute(targetLocation);
+        ArgumentNullException.ThrowIfNull(image);
+        ArgumentNullException.ThrowIfNull(operation);
+        var copy = image.Clone();
+        return copy.Mutate(operation);
     }
 }

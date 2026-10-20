@@ -1,6 +1,4 @@
-﻿using ChromaFx.IO;
-using ChromaFx.IO.Formats;
-using ChromaFx.Tests.BaseClasses;
+﻿using ChromaFx.Tests.BaseClasses;
 using Xunit;
 
 namespace ChromaFx.Tests;
@@ -13,11 +11,16 @@ public class ImageTests : FilterTestBaseClass
 
     public static string SecondImage => "./TestImages/Formats/Bmp/Car.bmp";
 
-    public static readonly TheoryData<string, Func<Image, int, Image>, int> ShiftOperations =
-        new() { { "BrightnessUp", (x, y) => x.BrightnessUp(y), 128 }, { "BrightnessDown", (x, y) => x.BrightnessDown(y), 128 } };
+    public static readonly TheoryData<string, Func<Image, int, Image>, int> ShiftOperations = new()
+    {
+        { "BrightnessUp", (x, y) => x.Clone(c => c.Brightness(Math.Abs(y) / 255f)), 128 },
+        { "BrightnessDown", (x, y) => x.Clone(c => c.Brightness(-Math.Abs(y) / 255f)), 128 },
+    };
 
-    public static readonly TheoryData<string, Func<Image, Image>> UnaryOperations =
-        new() { { "Invert", x => x.Invert() } };
+    public static readonly TheoryData<string, Func<Image, Image>> UnaryOperations = new()
+    {
+        { "Invert", x => x.Clone(c => c.Invert()) },
+    };
 
     [Fact]
     public void BadDataConstructor()
@@ -43,9 +46,8 @@ public class ImageTests : FilterTestBaseClass
         }
 
         foreach (
-            var outputFileName in Files.Select(
-                file =>
-                    Path.GetFileNameWithoutExtension(file) + "-" + name + Path.GetExtension(file)
+            var outputFileName in Files.Select(file =>
+                Path.GetFileNameWithoutExtension(file) + "-" + name + Path.GetExtension(file)
             )
         )
         {
@@ -73,9 +75,8 @@ public class ImageTests : FilterTestBaseClass
         }
 
         foreach (
-            var outputFileName in Files.Select(
-                file =>
-                    Path.GetFileNameWithoutExtension(file) + "-" + name + Path.GetExtension(file)
+            var outputFileName in Files.Select(file =>
+                Path.GetFileNameWithoutExtension(file) + "-" + name + Path.GetExtension(file)
             )
         )
         {
@@ -146,7 +147,7 @@ public class ImageTests : FilterTestBaseClass
                 178,
                 204,
                 229,
-                255
+                255,
             }
         );
         var s = Environment.NewLine;
@@ -200,7 +201,7 @@ public class ImageTests : FilterTestBaseClass
                 178,
                 204,
                 229,
-                255
+                255,
             }
         );
         Assert.Equal(
