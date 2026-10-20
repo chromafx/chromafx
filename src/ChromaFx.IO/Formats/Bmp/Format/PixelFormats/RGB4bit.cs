@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,13 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.Bmp.Format.PixelFormats.BaseClasses;
-
 namespace ChromaFx.IO.Formats.Bmp.Format.PixelFormats;
 
 /// <summary>
 /// 4 bit RGB
 /// </summary>
 /// <seealso cref="PixelFormatBase"/>
-public class Rgb4Bit : PixelFormatBase
+internal class Rgb4Bit : PixelFormatBase
 {
     /// <summary>
     /// The bytes per pixel for this format.
@@ -44,30 +42,34 @@ public class Rgb4Bit : PixelFormatBase
         var height = header.Height;
         var alignment = (4 - width / 2 % 4) % 4;
         var returnValue = new byte[width * height * 4];
-        Parallel.For(0, height, y =>
-        {
-            var sourceY = y * (width / 2 + alignment);
-            var destinationY = height - y - 1;
-            var sourceOffset = sourceY;
-            var destinationOffset = destinationY * width * 4;
-            for (var x = 0; x < width / 2; ++x)
+        Parallel.For(
+            0,
+            height,
+            y =>
             {
-                var colorIndex = (data[sourceOffset] >> 4) * 4;
-                returnValue[destinationOffset] = palette.Data[colorIndex + 2];
-                returnValue[destinationOffset + 1] = palette.Data[colorIndex + 1];
-                returnValue[destinationOffset + 2] = palette.Data[colorIndex];
-                returnValue[destinationOffset + 3] = palette.Data[colorIndex + 3];
-                destinationOffset += 4;
+                var sourceY = y * (width / 2 + alignment);
+                var destinationY = height - y - 1;
+                var sourceOffset = sourceY;
+                var destinationOffset = destinationY * width * 4;
+                for (var x = 0; x < width / 2; ++x)
+                {
+                    var colorIndex = (data[sourceOffset] >> 4) * 4;
+                    returnValue[destinationOffset] = palette.Data[colorIndex + 2];
+                    returnValue[destinationOffset + 1] = palette.Data[colorIndex + 1];
+                    returnValue[destinationOffset + 2] = palette.Data[colorIndex];
+                    returnValue[destinationOffset + 3] = palette.Data[colorIndex + 3];
+                    destinationOffset += 4;
 
-                colorIndex = (data[sourceOffset] & 15) * 4;
-                returnValue[destinationOffset] = palette.Data[colorIndex + 2];
-                returnValue[destinationOffset + 1] = palette.Data[colorIndex + 1];
-                returnValue[destinationOffset + 2] = palette.Data[colorIndex];
-                returnValue[destinationOffset + 3] = palette.Data[colorIndex + 3];
-                destinationOffset += 4;
-                ++sourceOffset;
+                    colorIndex = (data[sourceOffset] & 15) * 4;
+                    returnValue[destinationOffset] = palette.Data[colorIndex + 2];
+                    returnValue[destinationOffset + 1] = palette.Data[colorIndex + 1];
+                    returnValue[destinationOffset + 2] = palette.Data[colorIndex];
+                    returnValue[destinationOffset + 3] = palette.Data[colorIndex + 3];
+                    destinationOffset += 4;
+                    ++sourceOffset;
+                }
             }
-        });
+        );
         return returnValue;
     }
 

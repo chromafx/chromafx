@@ -24,9 +24,8 @@ namespace ChromaFx.IO.Formats.Jpeg.Format.Segments;
 /// Initializes a new instance of the <see cref="SegmentTypes"/> class.
 /// </remarks>
 /// <param name="value">The value.</param>
-public class SegmentTypes(byte value)
+internal class SegmentTypes(byte value)
 {
-
     /// <summary>
     /// Gets or sets the value.
     /// </summary>
@@ -119,7 +118,8 @@ public class SegmentTypes(byte value)
     /// </returns>
     public static implicit operator byte(SegmentTypes value)
     {
-        if (value == null) return 0;
+        if (value == null)
+            return 0;
         return value.Value;
     }
 

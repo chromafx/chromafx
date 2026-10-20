@@ -15,15 +15,13 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.Gif.Format.BaseClasses;
-
 namespace ChromaFx.IO.Formats.Gif.Format;
 
 /// <summary>
 /// File header
 /// </summary>
 /// <seealso cref="SectionBase" />
-public class FileHeader : SectionBase
+internal class FileHeader : SectionBase
 {
     /// <summary>
     /// Gets the header.

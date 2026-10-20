@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.Gif.Format.BaseClasses;
-
 namespace ChromaFx.IO.Formats.Gif.Format;
 
 /// <summary>
@@ -28,9 +26,8 @@ namespace ChromaFx.IO.Formats.Gif.Format;
 /// </remarks>
 /// <param name="repeatCount">The repeat count.</param>
 /// <param name="frameCount">The frame count.</param>
-public class ApplicationExtension(ushort repeatCount, int frameCount) : SectionBase
+internal class ApplicationExtension(ushort repeatCount, int frameCount) : SectionBase
 {
-
     /// <summary>
     /// Gets or sets the frame count.
     /// </summary>
@@ -79,7 +76,7 @@ public class ApplicationExtension(ushort repeatCount, int frameCount) : SectionB
             [
                 SectionTypes.ExtensionIntroducer,
                 SectionTypes.ApplicationExtensionLabel,
-                (byte)Size
+                (byte)Size,
             ];
 
             writer.Write(ext);

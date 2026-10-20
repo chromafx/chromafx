@@ -15,9 +15,6 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.Jpeg.Format.HelperClasses;
-using ChromaFx.IO.Formats.Jpeg.Format.Segments.BaseClasses;
-
 namespace ChromaFx.IO.Formats.Jpeg.Format.Segments;
 
 /// <summary>
@@ -28,9 +25,8 @@ namespace ChromaFx.IO.Formats.Jpeg.Format.Segments;
 /// Initializes a new instance of the <see cref="Application0"/> class.
 /// </remarks>
 /// <param name="bytes">The bytes.</param>
-public class Application0(ByteBuffer bytes) : SegmentBase(SegmentTypes.Application0, bytes)
+internal class Application0(ByteBuffer bytes) : SegmentBase(SegmentTypes.Application0, bytes)
 {
-
     /// <summary>
     /// Gets or sets a value indicating whether this instance is jfif.
     /// </summary>
@@ -56,7 +52,12 @@ public class Application0(ByteBuffer bytes) : SegmentBase(SegmentTypes.Applicati
         Bytes.ReadFull(TempData, 0, 5);
         n -= 5;
 
-        IsJfif = TempData[0] == 'J' && TempData[1] == 'F' && TempData[2] == 'I' && TempData[3] == 'F' && TempData[4] == '\x00';
+        IsJfif =
+            TempData[0] == 'J'
+            && TempData[1] == 'F'
+            && TempData[2] == 'I'
+            && TempData[3] == 'F'
+            && TempData[4] == '\x00';
         if (n > 0)
             Bytes.Ignore(n);
     }

@@ -28,9 +28,8 @@ namespace ChromaFx.IO.Formats.Png.Format;
 /// </remarks>
 /// <param name="data">The data.</param>
 /// <param name="type">The type.</param>
-public class Palette(byte[] data, PaletteType type)
+internal class Palette(byte[] data, PaletteType type)
 {
-
     /// <summary>
     /// Gets or sets the data.
     /// </summary>
@@ -56,6 +55,9 @@ public class Palette(byte[] data, PaletteType type)
     /// </returns>
     public static implicit operator Palette(Chunk chunk)
     {
-        return new Palette(chunk.Data, chunk.Type == ChunkTypes.Palette ? PaletteType.Color : PaletteType.Alpha);
+        return new Palette(
+            chunk.Data,
+            chunk.Type == ChunkTypes.Palette ? PaletteType.Color : PaletteType.Alpha
+        );
     }
 }

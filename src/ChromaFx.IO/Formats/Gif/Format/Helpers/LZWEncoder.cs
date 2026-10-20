@@ -25,7 +25,7 @@ namespace ChromaFx.IO.Formats.Gif.Format.Helpers;
 /// </remarks>
 /// <param name="indexedPixels">The indexed pixels.</param>
 /// <param name="colorDepth">The color depth.</param>
-public class LzwEncoder(byte[] indexedPixels, int colorDepth)
+internal class LzwEncoder(byte[] indexedPixels, int colorDepth)
 {
     private const int Bits = 12;
     private const int Eof = -1;
@@ -39,8 +39,23 @@ public class LzwEncoder(byte[] indexedPixels, int colorDepth)
 
     private readonly int[] _masks =
     [
-        0x0000, 0x0001, 0x0003, 0x0007, 0x000F, 0x001F, 0x003F, 0x007F, 0x00FF,
-        0x01FF, 0x03FF, 0x07FF, 0x0FFF, 0x1FFF, 0x3FFF, 0x7FFF, 0xFFFF
+        0x0000,
+        0x0001,
+        0x0003,
+        0x0007,
+        0x000F,
+        0x001F,
+        0x003F,
+        0x007F,
+        0x00FF,
+        0x01FF,
+        0x03FF,
+        0x07FF,
+        0x0FFF,
+        0x1FFF,
+        0x3FFF,
+        0x7FFF,
+        0xFFFF,
     ];
 
     private readonly byte[] _pixelArray = indexedPixels;
@@ -165,7 +180,10 @@ public class LzwEncoder(byte[] indexedPixels, int colorDepth)
         while ((c = NextPixel()) != Eof)
         {
             fcode = (c << _maxbits) + ent;
-            var i = (c << hshift) ^ ent /* = 0 */;
+            var i =
+                (c << hshift)
+                ^ ent /* = 0 */
+            ;
 
             if (_hashTable[i] == fcode)
             {
@@ -191,8 +209,7 @@ public class LzwEncoder(byte[] indexedPixels, int colorDepth)
                         ent = _codeTable[i];
                         break;
                     }
-                }
-                while (_hashTable[i] >= 0);
+                } while (_hashTable[i] >= 0);
 
                 if (_hashTable[i] == fcode)
                 {
@@ -207,7 +224,8 @@ public class LzwEncoder(byte[] indexedPixels, int colorDepth)
                 _codeTable[i] = _freeEntry++; // code -> hashtable
                 _hashTable[i] = fcode;
             }
-            else ClearBlock(stream);
+            else
+                ClearBlock(stream);
         }
 
         // Put out the final code.
@@ -253,8 +271,10 @@ public class LzwEncoder(byte[] indexedPixels, int colorDepth)
     {
         _currentAccumulator &= _masks[_currentBits];
 
-        if (_currentBits > 0) _currentAccumulator |= code << _currentBits;
-        else _currentAccumulator = code;
+        if (_currentBits > 0)
+            _currentAccumulator |= code << _currentBits;
+        else
+            _currentAccumulator = code;
 
         _currentBits += _bitCount;
 
@@ -277,9 +297,7 @@ public class LzwEncoder(byte[] indexedPixels, int colorDepth)
             else
             {
                 ++_bitCount;
-                _maxcode = _bitCount == _maxbits
-                    ? _maxmaxcode
-                    : GetMaxcode(_bitCount);
+                _maxcode = _bitCount == _maxbits ? _maxmaxcode : GetMaxcode(_bitCount);
             }
         }
 

@@ -21,7 +21,7 @@ namespace ChromaFx.IO.Formats.Gif.Format.Helpers;
 /// Packed field
 /// </summary>
 /// <seealso cref="IEquatable{PackedField}" />
-public readonly struct PackedField : IEquatable<PackedField>
+internal readonly struct PackedField : IEquatable<PackedField>
 {
     /// <summary>
     /// Gets the byte which represents the data items held in this instance.
@@ -117,7 +117,8 @@ public readonly struct PackedField : IEquatable<PackedField>
     /// </returns>
     public bool GetBit(int index)
     {
-        if (index is >= 0 and <= 7) return Bits[index];
+        if (index is >= 0 and <= 7)
+            return Bits[index];
         var message = $"Index must be between 0 and 7. Supplied index: {index}";
         throw new ArgumentOutOfRangeException(nameof(index), message);
     }
@@ -140,8 +141,9 @@ public readonly struct PackedField : IEquatable<PackedField>
 
         if (length < 1 || startIndex + length > 8)
         {
-            var message = "Length must be greater than zero and the sum of length and start index must be less than 8. "
-                          + $"Supplied length: {length}. Supplied start index: {startIndex}";
+            var message =
+                "Length must be greater than zero and the sum of length and start index must be less than 8. "
+                + $"Supplied length: {length}. Supplied start index: {startIndex}";
 
             throw new ArgumentOutOfRangeException(nameof(length), message);
         }
@@ -177,9 +179,7 @@ public readonly struct PackedField : IEquatable<PackedField>
     {
         if (index is < 0 or > 7)
         {
-            var message
-                = "Index must be between 0 and 7. Supplied index: "
-                  + index;
+            var message = "Index must be between 0 and 7. Supplied index: " + index;
             throw new ArgumentOutOfRangeException(nameof(index), message);
         }
         Bits[index] = valueToSet;
@@ -202,8 +202,9 @@ public readonly struct PackedField : IEquatable<PackedField>
 
         if (length < 1 || startIndex + length > 8)
         {
-            var message = "Length must be greater than zero and the sum of length and start index must be less than 8. "
-                          + $"Supplied length: {length}. Supplied start index: {startIndex}";
+            var message =
+                "Length must be greater than zero and the sum of length and start index must be less than 8. "
+                + $"Supplied length: {length}. Supplied start index: {startIndex}";
             throw new ArgumentOutOfRangeException(nameof(length), message);
         }
 

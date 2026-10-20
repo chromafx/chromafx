@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.IO.Formats.Gif.Format.BaseClasses;
 using ChromaFx.IO.Formats.Gif.Format.Helpers;
 
 namespace ChromaFx.IO.Formats.Gif.Format;
@@ -34,14 +33,15 @@ namespace ChromaFx.IO.Formats.Gif.Format;
 /// <param name="pixelAspectRatio">The pixel aspect ratio.</param>
 /// <param name="globalColorTablePresent">if set to <c>true</c> [global color table present].</param>
 /// <param name="globalColorTableSize">Size of the global color table.</param>
-public class LogicalScreenDescriptor(short width,
+internal class LogicalScreenDescriptor(
+    short width,
     short height,
     byte backgroundColorIndex,
     byte pixelAspectRatio,
     bool globalColorTablePresent,
-    int globalColorTableSize) : SectionBase
+    int globalColorTableSize
+) : SectionBase
 {
-
     /// <summary>
     /// Initializes a new instance of the <see cref="LogicalScreenDescriptor"/> class.
     /// </summary>
@@ -49,14 +49,14 @@ public class LogicalScreenDescriptor(short width,
     /// <param name="transparencyIndex">Index of the transparency.</param>
     /// <param name="bitDepth">The bit depth.</param>
     public LogicalScreenDescriptor(Image image, int transparencyIndex, int bitDepth)
-        : this((short)image.Width,
+        : this(
+            (short)image.Width,
             (short)image.Height,
             (byte)(transparencyIndex > -1 ? transparencyIndex : 255),
             0,
             false,
-            bitDepth - 1)
-    {
-    }
+            bitDepth - 1
+        ) { }
 
     /// <summary>
     /// Gets the index of the background color.
@@ -124,12 +124,14 @@ public class LogicalScreenDescriptor(short width,
         var buffer = new byte[Size];
         stream.ReadExactly(buffer);
         var packed = buffer[4];
-        return new LogicalScreenDescriptor(BitConverter.ToInt16(buffer, 0),
+        return new LogicalScreenDescriptor(
+            BitConverter.ToInt16(buffer, 0),
             BitConverter.ToInt16(buffer, 2),
             buffer[5],
             buffer[6],
             (packed & 0x80) >> 7 == 1,
-            2 << (packed & 0x07));
+            2 << (packed & 0x07)
+        );
     }
 
     /// <summary>
@@ -148,11 +150,7 @@ public class LogicalScreenDescriptor(short width,
         field.SetBit(4, false);
         field.SetBits(5, 3, GlobalColorTableSize);
 
-        byte[] arr = [
-            field.Byte,
-            BackgroundColorIndex,
-            PixelAspectRatio
-        ];
+        byte[] arr = [field.Byte, BackgroundColorIndex, PixelAspectRatio];
         writer.Write(arr);
         return true;
     }

@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-using ChromaFx.Core.Exceptions;
 using System.Text;
+using ChromaFx.Core.Exceptions;
 
 namespace ChromaFx.IO.Formats.Png.Format.Helpers;
 
 /// <summary>
 /// An individual chunk of data
 /// </summary>
-public class Chunk
+internal class Chunk
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="Chunk"/> class.
@@ -110,14 +110,12 @@ public class Chunk
     public void Write(BinaryWriter stream)
     {
         stream.Write(GetValueAsArray(Length));
-        stream.Write(
-            [
-                (byte)((string)Type)[0],
-                (byte)((string)Type)[1],
-                (byte)((string)Type)[2],
-                (byte)((string)Type)[3]
-            ]
-        );
+        stream.Write([
+            (byte)((string)Type)[0],
+            (byte)((string)Type)[1],
+            (byte)((string)Type)[2],
+            (byte)((string)Type)[3],
+        ]);
         stream.Write(Data);
         stream.Write(GetValueAsArray(Crc));
     }
@@ -182,14 +180,12 @@ public class Chunk
     private static string ReadType(Stream stream, byte[] typeBuffer)
     {
         stream.ReadExactly(typeBuffer);
-        return new string(
-                [
-                    (char)typeBuffer[0],
-                    (char)typeBuffer[1],
-                    (char)typeBuffer[2],
-                    (char)typeBuffer[3]
-                ]
-            );
+        return new string([
+            (char)typeBuffer[0],
+            (char)typeBuffer[1],
+            (char)typeBuffer[2],
+            (char)typeBuffer[3],
+        ]);
     }
 
     private uint CalculateCrc()

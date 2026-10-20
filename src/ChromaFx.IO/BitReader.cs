@@ -24,17 +24,14 @@ namespace ChromaFx.IO;
 /// Initializes a new instance of the <see cref="BitReader"/> class.
 /// </remarks>
 /// <param name="stream">The stream.</param>
-public class BitReader(Stream stream) : IDisposable
+internal class BitReader(Stream stream) : IDisposable
 {
-
     /// <summary>
     /// Initializes a new instance of the <see cref="BitReader"/> class.
     /// </summary>
     /// <param name="byteArray">The byte array.</param>
     public BitReader(byte[] byteArray)
-        : this(new MemoryStream(byteArray))
-    {
-    }
+        : this(new MemoryStream(byteArray)) { }
 
     /// <summary>
     /// Gets the current bit.

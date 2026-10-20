@@ -16,8 +16,6 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.IO.Formats.BaseClasses;
-using ChromaFx.IO.Formats.Interfaces;
 
 namespace ChromaFx.IO.Formats.Bmp.Format;
 
@@ -25,7 +23,7 @@ namespace ChromaFx.IO.Formats.Bmp.Format;
 /// BMP file
 /// </summary>
 /// <seealso cref="IFile"/>
-public class File : FileBase
+internal class File : FileBase
 {
     /// <summary>
     /// Gets or sets the body.

@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ namespace ChromaFx.IO.Formats.Bmp.Format;
 /// <summary>
 /// BMP Header
 /// </summary>
-public class Header
+internal class Header
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="Header"/> class.
@@ -42,9 +42,7 @@ public class Header
             BitConverter.ToInt32(data, 16) == 3 ? BitConverter.ToInt32(data, 44) : 0,
             BitConverter.ToInt32(data, 16) == 3 ? BitConverter.ToInt32(data, 48) : 0,
             BitConverter.ToInt32(data, 16) == 3 ? BitConverter.ToInt32(data, 52) : 0
-        )
-    {
-    }
+        ) { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Header" /> class.
@@ -63,9 +61,22 @@ public class Header
     /// <param name="greenMask">The green mask.</param>
     /// <param name="blueMask">The blue mask.</param>
     /// <param name="alphaMask">The alpha mask.</param>
-    public Header(int width, int height, short bpp, int imageSize, int xppm, int yppm, int colorsUsed,
-        int colorsImportant, Compression compression, int size = 40,
-        int redMask = 0, int greenMask = 0, int blueMask = 0, int alphaMask = 0)
+    public Header(
+        int width,
+        int height,
+        short bpp,
+        int imageSize,
+        int xppm,
+        int yppm,
+        int colorsUsed,
+        int colorsImportant,
+        Compression compression,
+        int size = 40,
+        int redMask = 0,
+        int greenMask = 0,
+        int blueMask = 0,
+        int alphaMask = 0
+    )
     {
         AlphaMask = alphaMask;
         BlueMask = blueMask;

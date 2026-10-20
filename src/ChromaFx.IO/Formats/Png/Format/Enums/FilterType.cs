@@ -20,7 +20,7 @@ namespace ChromaFx.IO.Formats.Png.Format.Enums;
 /// <summary>
 /// Scan line filter type
 /// </summary>
-public enum FilterType : byte
+internal enum FilterType : byte
 {
     /// <summary>
     /// As is, no filter
@@ -45,5 +45,5 @@ public enum FilterType : byte
     /// <summary>
     /// Up, Left, or Upper Left. Whichever is closest to p = A + B - C.
     /// </summary>
-    Paeth = 4
+    Paeth = 4,
 }

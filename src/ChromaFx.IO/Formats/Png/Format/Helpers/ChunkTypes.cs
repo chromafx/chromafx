@@ -24,9 +24,8 @@ namespace ChromaFx.IO.Formats.Png.Format.Helpers;
 /// Initializes a new instance of the <see cref="ChunkTypes"/> class.
 /// </remarks>
 /// <param name="value">The value.</param>
-public class ChunkTypes(string value)
+internal class ChunkTypes(string value)
 {
-
     /// <summary>
     /// Gets or sets the value.
     /// </summary>

@@ -15,15 +15,13 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.Bmp.Format.PixelFormats.BaseClasses;
-
 namespace ChromaFx.IO.Formats.Bmp.Format.PixelFormats;
 
 /// <summary>
 /// RGB 1bit pixel format
 /// </summary>
 /// <seealso cref="Interfaces.IPixelFormat"/>
-public class Rgb1Bit : PixelFormatBase
+internal class Rgb1Bit : PixelFormatBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="Rgb1Bit"/> class.

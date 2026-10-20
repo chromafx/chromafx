@@ -19,7 +19,6 @@ using ChromaFx.Core;
 using ChromaFx.Core.Colors;
 using ChromaFx.Core.Colors.ColorSpaces;
 using ChromaFx.Core.ExtensionMethods;
-using ChromaFx.IO.Formats.Gif.Quantizers.BaseClasses;
 
 namespace ChromaFx.IO.Formats.Gif.Quantizers.Octree;
 
@@ -27,7 +26,7 @@ namespace ChromaFx.IO.Formats.Gif.Quantizers.Octree;
 /// Octree quantizer class
 /// </summary>
 /// <seealso cref="QuantizerBase"/>
-public class OctreeQuantizer : QuantizerBase
+internal class OctreeQuantizer : QuantizerBase
 {
     /// <summary>
     /// Maximum allowed color depth

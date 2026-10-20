@@ -15,15 +15,13 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.BaseClasses;
-
 namespace ChromaFx.IO.Formats.Gif;
 
 /// <summary>
 /// Gif decoder
 /// </summary>
 /// <seealso cref="DecoderBase{File}" />
-public class Decoder : DecoderBase<Format.File>
+internal class Decoder : DecoderBase<Format.File>
 {
     /// <summary>
     /// Gets the size of the header.
@@ -53,10 +51,10 @@ public class Decoder : DecoderBase<Format.File>
         if (header == null || header.Length < 6)
             return false;
         return header[0] == 0x47
-               && header[1] == 0x49
-               && header[2] == 0x46
-               && header[3] == 0x38
-               && (header[4] == 0x39 || header[4] == 0x37)
-               && header[5] == 0x61;
+            && header[1] == 0x49
+            && header[2] == 0x46
+            && header[3] == 0x38
+            && (header[4] == 0x39 || header[4] == 0x37)
+            && header[5] == 0x61;
     }
 }

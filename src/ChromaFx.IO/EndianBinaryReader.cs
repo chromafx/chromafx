@@ -15,9 +15,8 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Converters;
-using ChromaFx.IO.Converters.BaseClasses;
 using System.Text;
+using ChromaFx.IO.Converters;
 
 namespace ChromaFx.IO;
 
@@ -25,7 +24,7 @@ namespace ChromaFx.IO;
 /// Endian binary reader
 /// </summary>
 /// <seealso cref="IDisposable" />
-public class EndianBinaryReader : IDisposable
+internal class EndianBinaryReader : IDisposable
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="EndianBinaryReader"/> class.
@@ -33,9 +32,7 @@ public class EndianBinaryReader : IDisposable
     /// <param name="bitConverter">The bit converter.</param>
     /// <param name="stream">The stream.</param>
     public EndianBinaryReader(EndianBitConverterBase bitConverter, Stream stream)
-        : this(bitConverter, stream, Encoding.UTF8)
-    {
-    }
+        : this(bitConverter, stream, Encoding.UTF8) { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="EndianBinaryReader"/> class.
@@ -499,12 +496,13 @@ public class EndianBinaryReader : IDisposable
             var read = BaseStream.Read(data, index, size - index);
             if (read == 0)
             {
-                throw new EndOfStreamException
-                (
+                throw new EndOfStreamException(
                     string.Format(
                         "End of stream reached with {0} byte{1} left to read.",
                         size - index,
-                        size - index == 1 ? "s" : string.Empty));
+                        size - index == 1 ? "s" : string.Empty
+                    )
+                );
             }
 
             index += read;

@@ -24,7 +24,7 @@ namespace ChromaFx.IO.Formats.Gif.Quantizers;
 /// <summary>
 /// A quantized image
 /// </summary>
-public class QuantizedImage
+internal class QuantizedImage
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="QuantizedImage"/> class.

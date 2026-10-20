@@ -16,7 +16,6 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.IO.Formats.Gif.Format.BaseClasses;
 using ChromaFx.IO.Formats.Gif.Format.Enums;
 using ChromaFx.IO.Formats.Gif.Quantizers;
 
@@ -34,9 +33,14 @@ namespace ChromaFx.IO.Formats.Gif.Format;
 /// <param name="localColorTable">The local color table.</param>
 /// <param name="indices">The indices.</param>
 /// <param name="data">The data.</param>
-public class Frame(GraphicsControl graphicsControl, ImageDescriptor descriptor, ColorTable localColorTable, FrameIndices indices, byte[] data) : SectionBase
+internal class Frame(
+    GraphicsControl graphicsControl,
+    ImageDescriptor descriptor,
+    ColorTable localColorTable,
+    FrameIndices indices,
+    byte[] data
+) : SectionBase
 {
-
     /// <summary>
     /// Initializes a new instance of the <see cref="Frame"/> class.
     /// </summary>
@@ -45,13 +49,13 @@ public class Frame(GraphicsControl graphicsControl, ImageDescriptor descriptor, 
     /// <param name="bitDepth">The bit depth.</param>
     /// <param name="delay">The delay.</param>
     public Frame(Image image, QuantizedImage quantizedImage, int bitDepth, short delay)
-        : this(new GraphicsControl(image, quantizedImage, delay),
+        : this(
+            new GraphicsControl(image, quantizedImage, delay),
             new ImageDescriptor(image, bitDepth),
             new ColorTable(quantizedImage, bitDepth),
             new FrameIndices(quantizedImage, bitDepth),
-            null)
-    {
-    }
+            null
+        ) { }
 
     /// <summary>
     /// Gets or sets the data.
@@ -104,15 +108,28 @@ public class Frame(GraphicsControl graphicsControl, ImageDescriptor descriptor, 
     /// <returns>
     /// The resulting frame.
     /// </returns>
-    public static Frame Read(Stream stream, ColorTable globalColorTable, GraphicsControl graphicsControl, LogicalScreenDescriptor screenDescriptor, List<Frame> frames)
+    public static Frame Read(
+        Stream stream,
+        ColorTable globalColorTable,
+        GraphicsControl graphicsControl,
+        LogicalScreenDescriptor screenDescriptor,
+        List<Frame> frames
+    )
     {
         var tempDescriptor = ImageDescriptor.Read(stream);
-        var localColorTable = tempDescriptor.LocalColorTableExists ?
-            ColorTable.Read(stream, tempDescriptor.LocalColorTableSize) :
-            globalColorTable;
+        var localColorTable = tempDescriptor.LocalColorTableExists
+            ? ColorTable.Read(stream, tempDescriptor.LocalColorTableSize)
+            : globalColorTable;
         var tempIndices = FrameIndices.Read(stream, tempDescriptor);
 
-        var data = ReadFrameColors(tempIndices, localColorTable, graphicsControl, tempDescriptor, screenDescriptor, frames);
+        var data = ReadFrameColors(
+            tempIndices,
+            localColorTable,
+            graphicsControl,
+            tempDescriptor,
+            screenDescriptor,
+            frames
+        );
 
         Skip(stream, 0);
 
@@ -135,14 +152,23 @@ public class Frame(GraphicsControl graphicsControl, ImageDescriptor descriptor, 
         return true;
     }
 
-    private static byte[] ReadFrameColors(FrameIndices indices, ColorTable colorTable, GraphicsControl graphicsControl, ImageDescriptor descriptor, LogicalScreenDescriptor screenDescriptor, List<Frame> frames)
+    private static byte[] ReadFrameColors(
+        FrameIndices indices,
+        ColorTable colorTable,
+        GraphicsControl graphicsControl,
+        ImageDescriptor descriptor,
+        LogicalScreenDescriptor screenDescriptor,
+        List<Frame> frames
+    )
     {
         int imageWidth = screenDescriptor.Width;
         int imageHeight = screenDescriptor.Height;
         byte[] currentFrame;
-        if (frames.Count > 0 &&
-            graphicsControl != null &&
-            graphicsControl.DisposalMethod == DisposalMethod.RestoreToPrevious)
+        if (
+            frames.Count > 0
+            && graphicsControl != null
+            && graphicsControl.DisposalMethod == DisposalMethod.RestoreToPrevious
+        )
         {
             currentFrame = new byte[imageWidth * imageHeight * 4];
             Array.Copy(frames[^1].Data, currentFrame, currentFrame.Length);
@@ -154,7 +180,8 @@ public class Frame(GraphicsControl graphicsControl, ImageDescriptor descriptor, 
             currentFrame = new byte[imageWidth * imageHeight * 4];
         }
 
-        int offset, i = 0;
+        int offset,
+            i = 0;
         var interlacePass = 0;
         var interlaceIncrement = 8;
         var interlaceY = 0;
@@ -199,9 +226,11 @@ public class Frame(GraphicsControl graphicsControl, ImageDescriptor descriptor, 
                 offset = (writeY * imageWidth + x) * 4;
                 int index = indices.Indices[i];
 
-                if (graphicsControl == null ||
-                    graphicsControl.TransparencyFlag == false ||
-                    graphicsControl.TransparencyIndex != index)
+                if (
+                    graphicsControl == null
+                    || graphicsControl.TransparencyFlag == false
+                    || graphicsControl.TransparencyIndex != index
+                )
                 {
                     var indexOffset = index * 3;
                     currentFrame[offset + 0] = colorTable.Data[indexOffset];

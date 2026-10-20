@@ -23,7 +23,7 @@ namespace ChromaFx.IO.Converters.Structs;
 /// Int/float union struct.
 /// </summary>
 [StructLayout(LayoutKind.Explicit)]
-public readonly struct IntFloatUnion
+internal readonly struct IntFloatUnion
 {
     /// <summary>
     /// The integer value

@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,20 @@
  * limitations under the License.
  */
 
+using System.IO.Compression;
 using ChromaFx.Core;
 using ChromaFx.Core.Colors;
+using ChromaFx.Core.Simd;
 using ChromaFx.IO.Formats.Png.Format.ColorFormats;
-using ChromaFx.IO.Formats.Png.Format.ColorFormats.Interfaces;
 using ChromaFx.IO.Formats.Png.Format.Enums;
-using ChromaFx.IO.Formats.Png.Format.Filters;
-using ChromaFx.IO.Formats.Png.Format.Filters.Interfaces;
 using ChromaFx.IO.Formats.Png.Format.Helpers;
-using System.IO.Compression;
-using System.Numerics;
 
 namespace ChromaFx.IO.Formats.Png.Format;
 
 /// <summary>
 /// PNG image data
 /// </summary>
-public class Data
+internal class Data
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="Data"/> class.
@@ -49,35 +46,11 @@ public class Data
         ImageData = imageData;
         ColorTypes = new Dictionary<ColorType, ColorTypeInformation>
         {
-            [ColorType.Greyscale] = new(
-                1,
-                [1, 2, 4, 8],
-                (_, _) => new GreyscaleNoAlphaReader()
-            ),
+            [ColorType.Greyscale] = new(1, [1, 2, 4, 8], (_, _) => new GreyscaleNoAlphaReader()),
             [ColorType.TrueColor] = new(3, [8], (_, _) => new TrueColorNoAlphaReader()),
-            [ColorType.Palette] = new(
-                1,
-                [1, 2, 4, 8],
-                (x, y) => new PaletteReader(x, y)
-            ),
-            [ColorType.GreyscaleWithAlpha] = new(
-                2,
-                [8],
-                (_, _) => new GreyscaleAlphaReader()
-            ),
-            [ColorType.TrueColorWithAlpha] = new(
-                4,
-                [8],
-                (_, _) => new TrueColorAlphaReader()
-            )
-        };
-        Filters = new Dictionary<FilterType, IScanFilter>
-        {
-            [FilterType.Average] = new AverageFilter(),
-            [FilterType.None] = new NoFilter(),
-            [FilterType.Paeth] = new PaethFilter(),
-            [FilterType.Sub] = new SubFilter(),
-            [FilterType.Up] = new UpFilter()
+            [ColorType.Palette] = new(1, [1, 2, 4, 8], (x, y) => new PaletteReader(x, y)),
+            [ColorType.GreyscaleWithAlpha] = new(2, [8], (_, _) => new GreyscaleAlphaReader()),
+            [ColorType.TrueColorWithAlpha] = new(4, [8], (_, _) => new TrueColorAlphaReader()),
         };
     }
 
@@ -92,12 +65,6 @@ public class Data
     /// </summary>
     /// <value>The color types.</value>
     private Dictionary<ColorType, ColorTypeInformation> ColorTypes { get; }
-
-    /// <summary>
-    /// Gets or sets the filters.
-    /// </summary>
-    /// <value>The filters.</value>
-    private Dictionary<FilterType, IScanFilter> Filters { get; set; }
 
     /// <summary>
     /// Performs an implicit conversion from <see cref="Data"/> to <see cref="Chunk"/>.
@@ -173,8 +140,7 @@ public class Data
         Header header
     )
     {
-        var scanLineLength =
-            header.Width * header.BitDepth * colorTypeInformation.ScanlineFactor;
+        var scanLineLength = header.Width * header.BitDepth * colorTypeInformation.ScanlineFactor;
 
         var amount = scanLineLength % 8;
         if (amount != 0)
@@ -196,29 +162,7 @@ public class Data
         Header header
     )
     {
-        return header.BitDepth >= 8
-            ? colorTypeInformation.ScanlineFactor * header.BitDepth / 8
-            : 1;
-    }
-
-    /// <summary>
-    /// Paethes the predicator.
-    /// </summary>
-    /// <param name="left">The left.</param>
-    /// <param name="above">The above.</param>
-    /// <param name="upperLeft">The upper left.</param>
-    /// <returns>The predicted paeth...</returns>
-    private static byte PaethPredicator(byte left, byte above, byte upperLeft)
-    {
-        var p = left + above - upperLeft;
-        var pa = Math.Abs(p - left);
-        var pb = Math.Abs(p - above);
-        var pc = Math.Abs(p - upperLeft);
-        if (pa <= pb && pa <= pc)
-        {
-            return left;
-        }
-        return pb <= pc ? above : upperLeft;
+        return header.BitDepth >= 8 ? colorTypeInformation.ScanlineFactor * header.BitDepth / 8 : 1;
     }
 
     internal static byte[] ToScanlines(Image image)
@@ -231,6 +175,7 @@ public class Data
             var prevRow = new byte[image.Width * 4];
             var curRow = new byte[image.Width * 4];
             var filteredRow = new byte[rowLength];
+            var bestRow = new byte[rowLength];
 
             for (int y = 0; y < image.Height; y++)
             {
@@ -246,7 +191,6 @@ public class Data
                 }
 
                 // Try all filters (0–4), keep the one with lowest "cost"
-                int bestFilter = 0;
                 int bestScore = int.MaxValue;
 
                 for (int filter = 0; filter <= 4; filter++)
@@ -256,13 +200,11 @@ public class Data
                     if (score < bestScore)
                     {
                         bestScore = score;
-                        bestFilter = filter;
+                        Buffer.BlockCopy(filteredRow, 0, bestRow, 0, rowLength);
                     }
                 }
 
-                // Write best row
-                ApplyFilter(bestFilter, curRow, prevRow, filteredRow);
-                compressor.Write(filteredRow, 0, filteredRow.Length);
+                compressor.Write(bestRow, 0, bestRow.Length);
 
                 // Swap rows
                 (curRow, prevRow) = (prevRow, curRow);
@@ -297,60 +239,22 @@ public class Data
 
     private static void ApplySub(byte[] cur, Span<byte> dst)
     {
-        int bpp = 4; // RGBA
-        for (int i = 0; i < cur.Length; i++)
-        {
-            byte left = i >= bpp ? cur[i - bpp] : (byte)0;
-            dst[i] = (byte)(cur[i] - left);
-        }
+        ByteSimd.SubPredictSubtract(cur, dst, bytesPerPixel: 4);
     }
 
     private static void ApplyUp(byte[] cur, byte[] prev, Span<byte> dst)
     {
-        // Vectorized Up filter: cur - prev
-        int i = 0;
-        int simdLength = Vector<byte>.Count;
-
-        for (; i <= cur.Length - simdLength; i += simdLength)
-        {
-            var vCur = new Vector<byte>(cur, i);
-            var vPrev = new Vector<byte>(prev, i);
-            var vRes = vCur - vPrev;
-            vRes.CopyTo(dst.Slice(i));
-        }
-
-        for (; i < cur.Length; i++)
-            dst[i] = (byte)(cur[i] - prev[i]);
+        ByteSimd.SubtractWrapping(cur, prev.AsSpan(0, cur.Length), dst);
     }
 
     private static void ApplyAverage(byte[] cur, byte[] prev, Span<byte> dst)
     {
-        int bpp = 4;
-        for (int i = 0; i < cur.Length; i++)
-        {
-            byte left = i >= bpp ? cur[i - bpp] : (byte)0;
-            byte up = prev[i];
-            dst[i] = (byte)(cur[i] - ((left + up) >> 1));
-        }
+        ByteSimd.AveragePredictSubtract(cur, prev, dst, bytesPerPixel: 4);
     }
 
     private static void ApplyPaeth(byte[] cur, byte[] prev, Span<byte> dst)
     {
-        int bpp = 4;
-        for (int i = 0; i < cur.Length; i++)
-        {
-            byte a = i >= bpp ? cur[i - bpp] : (byte)0; // left
-            byte b = prev[i];                           // up
-            byte c = i >= bpp ? prev[i - bpp] : (byte)0; // up-left
-
-            int p = a + b - c;
-            int pa = Math.Abs(p - a);
-            int pb = Math.Abs(p - b);
-            int pc = Math.Abs(p - c);
-
-            byte predictor = (pa <= pb && pa <= pc) ? a : (pb <= pc ? b : c);
-            dst[i] = (byte)(cur[i] - predictor);
-        }
+        ByteSimd.PaethPredictSubtract(cur, prev, dst, bytesPerPixel: 4);
     }
 
     private static int Score(byte[] row)
@@ -385,59 +289,34 @@ public class Data
 
         var lastScanLine = new byte[scanLineLength];
         var currentScanLine = new byte[scanLineLength];
+        var rowBuffer = new byte[1 + scanLineLength];
 
-        int filter = 0,
-            column = -1,
-            row = 0;
+        using var zlib = new ZLibStream(dataStream, CompressionMode.Decompress);
 
-        using var decompressedStream = new ZLibStream(dataStream, CompressionMode.Decompress);
-        using var stream = new MemoryStream();
-        decompressedStream.CopyTo(stream);
-        stream.Flush();
-        var decompressedArray = stream.ToArray();
-        foreach (var by in decompressedArray)
+        for (int row = 0; row < header.Height; row++)
         {
-            if (column == -1)
+            zlib.ReadExactly(rowBuffer);
+            int filter = rowBuffer[0];
+            rowBuffer.AsSpan(1).CopyTo(currentScanLine);
+
+            switch (filter)
             {
-                filter = by;
-                ++column;
+                case 1:
+                    ByteSimd.SubPredictAddInPlace(currentScanLine, scanLineStep);
+                    break;
+                case 2:
+                    ByteSimd.AddWrapping(currentScanLine, lastScanLine, currentScanLine);
+                    break;
+                case 3:
+                    ByteSimd.AveragePredictAddInPlace(currentScanLine, lastScanLine, scanLineStep);
+                    break;
+                case 4:
+                    ByteSimd.PaethPredictAddInPlace(currentScanLine, lastScanLine, scanLineStep);
+                    break;
             }
-            else
-            {
-                currentScanLine[column] = by;
-                byte a;
-                byte c;
-                if (column >= scanLineStep)
-                {
-                    a = currentScanLine[column - scanLineStep];
-                    c = lastScanLine[column - scanLineStep];
-                }
-                else
-                {
-                    a = 0;
-                    c = 0;
-                }
 
-                var b = lastScanLine[column];
-                currentScanLine[column] = filter switch
-                {
-                    1 => (byte)(currentScanLine[column] + a),
-                    2 => (byte)(currentScanLine[column] + b),
-                    3 => (byte)(currentScanLine[column] + (byte)((a + b) / 2)),
-                    4 => (byte)(currentScanLine[column] + PaethPredicator(a, b, c)),
-                    _ => currentScanLine[column]
-                };
-
-                ++column;
-
-                if (column == scanLineLength)
-                {
-                    colorReader.ReadScanline(currentScanLine, pixels, header, row);
-                    ++row;
-                    column = -1;
-                    (lastScanLine, currentScanLine) = (currentScanLine, lastScanLine);
-                }
-            }
+            colorReader.ReadScanline(currentScanLine, pixels, header, row);
+            (lastScanLine, currentScanLine) = (currentScanLine, lastScanLine);
         }
     }
 }

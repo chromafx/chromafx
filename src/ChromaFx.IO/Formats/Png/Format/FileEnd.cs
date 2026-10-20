@@ -22,7 +22,7 @@ namespace ChromaFx.IO.Formats.Png.Format;
 /// <summary>
 /// The end of file indicator
 /// </summary>
-public class FileEnd
+internal class FileEnd
 {
     /// <summary>
     /// Performs an implicit conversion from <see cref="FileEnd"/> to <see cref="Chunk"/>.

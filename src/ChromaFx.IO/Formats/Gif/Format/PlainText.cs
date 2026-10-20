@@ -15,15 +15,13 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.Gif.Format.BaseClasses;
-
 namespace ChromaFx.IO.Formats.Gif.Format;
 
 /// <summary>
 /// Plain text
 /// </summary>
 /// <seealso cref="SectionBase" />
-public class PlainText : SectionBase
+internal class PlainText : SectionBase
 {
     /// <summary>
     /// Gets the size.

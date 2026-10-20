@@ -15,15 +15,13 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.BaseClasses;
-
 namespace ChromaFx.IO.Formats.Jpeg;
 
 /// <summary>
 /// JPEG Encoder
 /// </summary>
 /// <seealso cref="EncoderBase{File}" />
-public class Encoder : EncoderBase<Format.File>
+internal class Encoder : EncoderBase<Format.File>
 {
     /// <summary>
     /// Gets the file extensions.
@@ -31,5 +29,6 @@ public class Encoder : EncoderBase<Format.File>
     /// <value>
     /// The file extensions.
     /// </value>
-    protected override string[] FileExtensions => [".JPEG", ".JPG", ".JPE", ".JIF", ".JFIF", ".JFI"];
+    protected override string[] FileExtensions =>
+        [".JPEG", ".JPG", ".JPE", ".JIF", ".JFIF", ".JFI"];
 }

@@ -24,9 +24,8 @@ namespace ChromaFx.IO.Formats.Gif.Format;
 /// Initializes a new instance of the <see cref="SectionTypes"/> class.
 /// </remarks>
 /// <param name="value">The value.</param>
-public class SectionTypes(byte value)
+internal class SectionTypes(byte value)
 {
-
     /// <summary>
     /// Gets or sets the value.
     /// </summary>

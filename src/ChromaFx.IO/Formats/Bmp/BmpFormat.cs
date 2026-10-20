@@ -15,9 +15,6 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.BaseClasses;
-using ChromaFx.IO.Formats.Interfaces;
-
 namespace ChromaFx.IO.Formats.Bmp;
 
 /// <summary>
@@ -38,11 +35,11 @@ public class BmpFormat : FormatBase
     /// Gets the decoder.
     /// </summary>
     /// <value>The decoder.</value>
-    protected override IDecoder Decoder => new Decoder();
+    private protected override IDecoder Decoder => new Decoder();
 
     /// <summary>
     /// Gets the encoder.
     /// </summary>
     /// <value>The encoder.</value>
-    protected override IEncoder Encoder => new Encoder();
+    private protected override IEncoder Encoder => new Encoder();
 }

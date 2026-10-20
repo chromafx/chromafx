@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.IO.Formats.Gif.Format.BaseClasses;
 using ChromaFx.IO.Formats.Gif.Format.Enums;
 using ChromaFx.IO.Formats.Gif.Format.Helpers;
 using ChromaFx.IO.Formats.Gif.Quantizers;
@@ -27,7 +26,7 @@ namespace ChromaFx.IO.Formats.Gif.Format;
 /// Graphics control info holder
 /// </summary>
 /// <seealso cref="SectionBase" />
-public class GraphicsControl : SectionBase
+internal class GraphicsControl : SectionBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="GraphicsControl"/> class.
@@ -36,7 +35,12 @@ public class GraphicsControl : SectionBase
     /// <param name="transparencyIndex">Index of the transparency.</param>
     /// <param name="transparencyFlag">if set to <c>true</c> [transparency flag].</param>
     /// <param name="disposalMethod">The disposal method.</param>
-    public GraphicsControl(short delay, byte transparencyIndex, bool transparencyFlag, DisposalMethod disposalMethod)
+    public GraphicsControl(
+        short delay,
+        byte transparencyIndex,
+        bool transparencyFlag,
+        DisposalMethod disposalMethod
+    )
     {
         Delay = delay;
         TransparencyIndex = transparencyIndex;
@@ -115,10 +119,12 @@ public class GraphicsControl : SectionBase
         stream.ReadExactly(tempBuffer);
         var packed = tempBuffer[1];
 
-        return new GraphicsControl(BitConverter.ToInt16(tempBuffer, 2),
+        return new GraphicsControl(
+            BitConverter.ToInt16(tempBuffer, 2),
             tempBuffer[4],
             (packed & 0x01) == 1,
-            (DisposalMethod)((packed & 0x1C) >> 2));
+            (DisposalMethod)((packed & 0x1C) >> 2)
+        );
     }
 
     /// <summary>
@@ -130,11 +136,7 @@ public class GraphicsControl : SectionBase
     /// </returns>
     public override bool Write(EndianBinaryWriter writer)
     {
-        byte[] intro = [
-            SectionTypes.ExtensionIntroducer,
-            SectionTypes.GraphicControlLabel,
-            4
-        ];
+        byte[] intro = [SectionTypes.ExtensionIntroducer, SectionTypes.GraphicControlLabel, 4];
 
         writer.Write(intro);
 

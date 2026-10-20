@@ -15,9 +15,6 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.Jpeg.Format.HelperClasses;
-using ChromaFx.IO.Formats.Jpeg.Format.Segments.BaseClasses;
-
 namespace ChromaFx.IO.Formats.Jpeg.Format.Segments;
 
 /// <summary>
@@ -28,9 +25,8 @@ namespace ChromaFx.IO.Formats.Jpeg.Format.Segments;
 /// Initializes a new instance of the <see cref="Application14"/> class.
 /// </remarks>
 /// <param name="bytes">The bytes.</param>
-public class Application14(ByteBuffer bytes) : SegmentBase(SegmentTypes.Application0, bytes)
+internal class Application14(ByteBuffer bytes) : SegmentBase(SegmentTypes.Application0, bytes)
 {
-
     /// <summary>
     /// Gets or sets the adobe transform.
     /// </summary>
@@ -64,7 +60,13 @@ public class Application14(ByteBuffer bytes) : SegmentBase(SegmentTypes.Applicat
         Bytes.ReadFull(TempData, 0, 12);
         n -= 12;
 
-        if (TempData[0] == 'A' && TempData[1] == 'd' && TempData[2] == 'o' && TempData[3] == 'b' && TempData[4] == 'e')
+        if (
+            TempData[0] == 'A'
+            && TempData[1] == 'd'
+            && TempData[2] == 'o'
+            && TempData[3] == 'b'
+            && TempData[4] == 'e'
+        )
         {
             IsAdobeTransformValid = true;
             AdobeTransform = TempData[11];

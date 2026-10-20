@@ -28,24 +28,20 @@ namespace ChromaFx.Core;
 /// </remarks>
 /// <param name="images">The images.</param>
 /// <param name="delay">The delay.</param>
-public class Animation(IEnumerable<Image> images, short delay) : IList<Image>
+public partial class Animation(IEnumerable<Image> images, short delay) : IList<Image>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="Animation"/> class.
     /// </summary>
     public Animation()
-        : this(new List<Image>(), 0)
-    {
-    }
+        : this(new List<Image>(), 0) { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Animation"/> class.
     /// </summary>
     /// <param name="animation">The animation.</param>
     public Animation(Animation animation)
-        : this(animation, animation.Delay)
-    {
-    }
+        : this(animation, animation.Delay) { }
 
     /// <summary>
     /// Gets the number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.
@@ -92,7 +88,6 @@ public class Animation(IEnumerable<Image> images, short delay) : IList<Image>
     public Image this[int index]
     {
         get => ((IList<Image>)Frames)[index];
-
         set => ((IList<Image>)Frames)[index] = value;
     }
 

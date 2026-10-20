@@ -23,7 +23,7 @@ namespace ChromaFx.IO.Formats.Gif.Quantizers.Octree;
 /// <summary>
 /// Node class
 /// </summary>
-public class Node
+internal class Node
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="Node"/> class.
@@ -200,7 +200,8 @@ public class Node
     {
         var index = _paletteIndex;
 
-        if (_leaf) return index;
+        if (_leaf)
+            return index;
         var shift = 7 - level;
         var pixelIndex =
             ((pixel.Red & Mask[level]) >> (shift - 2))
@@ -245,7 +246,8 @@ public class Node
         // Loop through all children and add their information to this node
         for (var index = 0; index < 8; index++)
         {
-            if (_children[index] == null) continue;
+            if (_children[index] == null)
+                continue;
             _red += _children[index]._red;
             _green += _children[index]._green;
             _blue += _children[index]._blue;

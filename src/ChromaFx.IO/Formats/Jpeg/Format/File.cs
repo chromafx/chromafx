@@ -17,10 +17,7 @@
 
 using ChromaFx.Core;
 using ChromaFx.Core.Exceptions;
-using ChromaFx.IO.Formats.BaseClasses;
-using ChromaFx.IO.Formats.Jpeg.Format.HelperClasses;
 using ChromaFx.IO.Formats.Jpeg.Format.Segments;
-using ChromaFx.IO.Formats.Jpeg.Format.Segments.BaseClasses;
 
 namespace ChromaFx.IO.Formats.Jpeg.Format;
 
@@ -28,7 +25,7 @@ namespace ChromaFx.IO.Formats.Jpeg.Format;
 /// JPEG file class
 /// </summary>
 /// <seealso cref="FileBase" />
-public class File : FileBase
+internal class File : FileBase
 {
     /// <summary>
     /// Gets the header.
@@ -77,10 +74,20 @@ public class File : FileBase
     /// <returns>
     /// True if it writes successfully, false otherwise.
     /// </returns>
-    public override bool Write(BinaryWriter stream, Image image)
+    public override bool Write(BinaryWriter stream, Image image) =>
+        Write(stream, image, quality: 90);
+
+    /// <summary>
+    /// Writes the image as JPEG with the specified quality.
+    /// </summary>
+    /// <param name="stream">The writer.</param>
+    /// <param name="image">The image.</param>
+    /// <param name="quality">JPEG quality (1–100).</param>
+    /// <returns>True if successful.</returns>
+    public bool Write(BinaryWriter stream, Image image, int quality)
     {
         new StartOfImage().Write(stream);
-        var quantizationTableSegment = new DefineQuantizationTable(90);
+        var quantizationTableSegment = new DefineQuantizationTable(Math.Clamp(quality, 1, 100));
         quantizationTableSegment.Write(stream);
         new StartOfFrame(image).Write(stream);
         var huffmanTableSegment = new DefineHuffmanTable(null);
@@ -129,9 +136,7 @@ public class File : FileBase
     /// Loads the image.
     /// </summary>
     /// <param name="image">The image.</param>
-    private static void LoadImage(Image image)
-    {
-    }
+    private static void LoadImage(Image image) { }
 
     private Image ReadSegments(Stream stream)
     {

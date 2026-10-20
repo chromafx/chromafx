@@ -15,9 +15,6 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.Jpeg.Format.HelperClasses;
-using ChromaFx.IO.Formats.Jpeg.Format.Segments.BaseClasses;
-
 namespace ChromaFx.IO.Formats.Jpeg.Format.Segments;
 
 /// <summary>
@@ -28,9 +25,9 @@ namespace ChromaFx.IO.Formats.Jpeg.Format.Segments;
 /// Initializes a new instance of the <see cref="DefineRestartInterval"/> class.
 /// </remarks>
 /// <param name="bytes">The bytes.</param>
-public class DefineRestartInterval(ByteBuffer bytes) : SegmentBase(SegmentTypes.DefineRestartInterval, bytes)
+internal class DefineRestartInterval(ByteBuffer bytes)
+    : SegmentBase(SegmentTypes.DefineRestartInterval, bytes)
 {
-
     /// <summary>
     /// Gets or sets the restart interval.
     /// </summary>

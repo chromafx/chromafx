@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.Png.Format.Helpers;
 using System.Text;
+using ChromaFx.IO.Formats.Png.Format.Helpers;
 
 namespace ChromaFx.IO.Formats.Png.Format;
 
@@ -28,9 +28,8 @@ namespace ChromaFx.IO.Formats.Png.Format;
 /// </remarks>
 /// <param name="key">The key.</param>
 /// <param name="value">The value.</param>
-public class Property(string key, string value)
+internal class Property(string key, string value)
 {
-
     /// <summary>
     /// Gets or sets the key.
     /// </summary>
@@ -63,7 +62,9 @@ public class Property(string key, string value)
                 break;
         }
 
-        return new Property(Encoding.UTF8.GetString(chunk.Data, 0, count),
-            Encoding.UTF8.GetString(chunk.Data, count + 1, chunk.Data.Length - count - 1));
+        return new Property(
+            Encoding.UTF8.GetString(chunk.Data, 0, count),
+            Encoding.UTF8.GetString(chunk.Data, count + 1, chunk.Data.Length - count - 1)
+        );
     }
 }

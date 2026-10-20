@@ -40,5 +40,5 @@ public enum FileFormats
     /// <summary>
     /// GIF file format
     /// </summary>
-    Gif = 3
+    Gif = 3,
 }

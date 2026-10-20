@@ -18,15 +18,13 @@
 using ChromaFx.Core;
 using ChromaFx.Core.Exceptions;
 using ChromaFx.IO.Formats.Jpeg.Format.Enums;
-using ChromaFx.IO.Formats.Jpeg.Format.HelperClasses;
-using ChromaFx.IO.Formats.Jpeg.Format.Segments.BaseClasses;
 
 namespace ChromaFx.IO.Formats.Jpeg.Format.Segments;
 
 /// <summary>
 /// Start of frame segment holder
 /// </summary>
-public class StartOfFrame : SegmentBase
+internal class StartOfFrame : SegmentBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="StartOfFrame" /> class.
@@ -205,13 +203,19 @@ public class StartOfFrame : SegmentBase
                         }
                         case 1:
                         {
-                            if (Components[0].HorizontalSamplingFactor % h != 0 || Components[0].VerticalSamplingFactor % v != 0)
+                            if (
+                                Components[0].HorizontalSamplingFactor % h != 0
+                                || Components[0].VerticalSamplingFactor % v != 0
+                            )
                                 throw new ImageException("unsupported subsampling ratio");
                             break;
                         }
                         case 2:
                         {
-                            if (Components[1].HorizontalSamplingFactor != h || Components[1].VerticalSamplingFactor != v)
+                            if (
+                                Components[1].HorizontalSamplingFactor != h
+                                || Components[1].VerticalSamplingFactor != v
+                            )
                                 throw new ImageException("unsupported subsampling ratio");
                             break;
                         }
@@ -233,7 +237,10 @@ public class StartOfFrame : SegmentBase
                             break;
 
                         case 3:
-                            if (Components[0].HorizontalSamplingFactor != h || Components[0].VerticalSamplingFactor != v)
+                            if (
+                                Components[0].HorizontalSamplingFactor != h
+                                || Components[0].VerticalSamplingFactor != v
+                            )
                                 throw new ImageException("unsupported subsampling ratio");
                             break;
                     }

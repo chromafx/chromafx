@@ -15,16 +15,13 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.Bmp.Format.PixelFormats.BaseClasses;
-using ChromaFx.IO.Formats.Bmp.Format.PixelFormats.Interfaces;
-
 namespace ChromaFx.IO.Formats.Bmp.Format.PixelFormats;
 
 /// <summary>
 /// RGB 8bit pixel format
 /// </summary>
 /// <seealso cref="IPixelFormat"/>
-public class Rgb8Bit : PixelFormatBase
+internal class Rgb8Bit : PixelFormatBase
 {
     /// <summary>
     /// The bytes per pixel
@@ -45,23 +42,27 @@ public class Rgb8Bit : PixelFormatBase
         var height = header.Height;
         var alignment = (4 - width % 4) % 4;
         var returnValue = new byte[width * height * 4];
-        Parallel.For(0, height, y =>
-        {
-            var sourceY = y * (width + alignment);
-            var destinationY = height - y - 1;
-            var sourceOffset = sourceY;
-            var destinationOffset = destinationY * width * 4;
-            for (var x = 0; x < width; ++x)
+        Parallel.For(
+            0,
+            height,
+            y =>
             {
-                var colorIndex = data[sourceOffset] * 4;
-                returnValue[destinationOffset] = palette.Data[colorIndex + 2];
-                returnValue[destinationOffset + 1] = palette.Data[colorIndex + 1];
-                returnValue[destinationOffset + 2] = palette.Data[colorIndex];
-                returnValue[destinationOffset + 3] = palette.Data[colorIndex + 3];
-                destinationOffset += 4;
-                ++sourceOffset;
+                var sourceY = y * (width + alignment);
+                var destinationY = height - y - 1;
+                var sourceOffset = sourceY;
+                var destinationOffset = destinationY * width * 4;
+                for (var x = 0; x < width; ++x)
+                {
+                    var colorIndex = data[sourceOffset] * 4;
+                    returnValue[destinationOffset] = palette.Data[colorIndex + 2];
+                    returnValue[destinationOffset + 1] = palette.Data[colorIndex + 1];
+                    returnValue[destinationOffset + 2] = palette.Data[colorIndex];
+                    returnValue[destinationOffset + 3] = palette.Data[colorIndex + 3];
+                    destinationOffset += 4;
+                    ++sourceOffset;
+                }
             }
-        });
+        );
         return returnValue;
     }
 

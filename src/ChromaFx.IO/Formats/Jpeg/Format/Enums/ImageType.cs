@@ -3,7 +3,7 @@
 /// <summary>
 /// Image type enum
 /// </summary>
-public enum ImageType
+internal enum ImageType
 {
     /// <summary>
     /// The image is grey scale
@@ -18,5 +18,5 @@ public enum ImageType
     /// <summary>
     /// The image is CMYK or YCbCrK
     /// </summary>
-    Cmyk = 4
+    Cmyk = 4,
 }

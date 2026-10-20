@@ -15,41 +15,32 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.Jpeg.Format.HelperClasses;
-using ChromaFx.IO.Formats.Jpeg.Format.Segments.BaseClasses;
-
 namespace ChromaFx.IO.Formats.Jpeg.Format.Segments;
 
 /// <summary>
 /// Start of image
 /// </summary>
 /// <seealso cref="SegmentBase" />
-public class StartOfImage : SegmentBase
+internal class StartOfImage : SegmentBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="StartOfImage"/> class.
     /// </summary>
     /// <param name="buffer">The buffer.</param>
     public StartOfImage(ByteBuffer buffer)
-        : base(SegmentTypes.StartOfImage, buffer)
-    {
-    }
+        : base(SegmentTypes.StartOfImage, buffer) { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="StartOfImage"/> class.
     /// </summary>
     public StartOfImage()
-        : base(SegmentTypes.StartOfImage, null)
-    {
-    }
+        : base(SegmentTypes.StartOfImage, null) { }
 
     /// <summary>
     /// Setups the specified segments.
     /// </summary>
     /// <param name="segments">The segments.</param>
-    public override void Setup(IEnumerable<SegmentBase> segments)
-    {
-    }
+    public override void Setup(IEnumerable<SegmentBase> segments) { }
 
     /// <summary>
     /// Writes the information to the specified writer.

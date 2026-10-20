@@ -20,7 +20,7 @@ namespace ChromaFx.IO.Formats.Png.Format;
 /// <summary>
 /// PNG file header
 /// </summary>
-public class FileHeader
+internal class FileHeader
 {
     /// <summary>
     /// Gets the header.

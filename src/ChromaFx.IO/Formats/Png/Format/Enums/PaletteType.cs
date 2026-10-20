@@ -20,7 +20,7 @@ namespace ChromaFx.IO.Formats.Png.Format.Enums;
 /// <summary>
 /// Palette type
 /// </summary>
-public enum PaletteType
+internal enum PaletteType
 {
     /// <summary>
     /// The color palette
@@ -30,5 +30,5 @@ public enum PaletteType
     /// <summary>
     /// The alpha palette
     /// </summary>
-    Alpha
+    Alpha,
 }

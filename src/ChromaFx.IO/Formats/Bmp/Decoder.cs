@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.BaseClasses;
 using File = ChromaFx.IO.Formats.Bmp.Format.File;
 
 namespace ChromaFx.IO.Formats.Bmp;
@@ -24,7 +23,7 @@ namespace ChromaFx.IO.Formats.Bmp;
 /// BMP decoder
 /// </summary>
 /// <seealso cref="DecoderBase{File}" />
-public class Decoder : DecoderBase<File>
+internal class Decoder : DecoderBase<File>
 {
     /// <summary>
     /// Gets the size of the header.

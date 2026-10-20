@@ -20,7 +20,7 @@ namespace ChromaFx.IO.Formats.Gif.Format.Enums;
 /// <summary>
 /// Disposal method used when GIF hits the end of the animation.
 /// </summary>
-public enum DisposalMethod
+internal enum DisposalMethod
 {
     /// <summary>
     /// The undefined method... Do nothing.
@@ -40,5 +40,5 @@ public enum DisposalMethod
     /// <summary>
     /// Restore to previous.
     /// </summary>
-    RestoreToPrevious = 3
+    RestoreToPrevious = 3,
 }

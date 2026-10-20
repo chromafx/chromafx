@@ -24,16 +24,14 @@ namespace ChromaFx.IO.Formats.Png.Format;
 /// <summary>
 /// PNG Header information
 /// </summary>
-public class Header
+internal class Header
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="Header"/> class.
     /// </summary>
     /// <param name="image">The image.</param>
     public Header(Image image)
-        : this(image.Width, image.Height, 8, 6, 0, 0, 0)
-    {
-    }
+        : this(image.Width, image.Height, 8, 6, 0, 0, 0) { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Header"/> class.
@@ -45,7 +43,15 @@ public class Header
     /// <param name="compressionMethod">The compression method.</param>
     /// <param name="filterMethod">The filter method.</param>
     /// <param name="interlaceMethod">The interlace method.</param>
-    public Header(int width, int height, byte bitDepth, byte colorType, byte compressionMethod, byte filterMethod, byte interlaceMethod)
+    public Header(
+        int width,
+        int height,
+        byte bitDepth,
+        byte colorType,
+        byte compressionMethod,
+        byte filterMethod,
+        byte interlaceMethod
+    )
     {
         Width = width;
         Height = height;
@@ -136,13 +142,15 @@ public class Header
     {
         Array.Reverse(chunk.Data, 0, 4);
         Array.Reverse(chunk.Data, 4, 4);
-        return new Header(BitConverter.ToInt32(chunk.Data, 0),
+        return new Header(
+            BitConverter.ToInt32(chunk.Data, 0),
             BitConverter.ToInt32(chunk.Data, 4),
             chunk.Data[8],
             chunk.Data[9],
             chunk.Data[10],
             chunk.Data[11],
-            chunk.Data[12]);
+            chunk.Data[12]
+        );
     }
 
     /// <summary>

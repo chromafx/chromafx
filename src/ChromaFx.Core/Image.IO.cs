@@ -1,5 +1,5 @@
-/*
- * Copyright 2025 Ho Tzin Mein
+﻿/*
+ * Copyright 2025–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,10 @@ public partial class Image
     /// <summary>
     /// Registers image loaders. Called automatically when ChromaFx.IO is referenced.
     /// </summary>
-    public static void RegisterLoaders(Func<string, Image> fromPath, Func<Stream, Image> fromStream)
+    internal static void RegisterLoaders(
+        Func<string, Image> fromPath,
+        Func<Stream, Image> fromStream
+    )
     {
         _loadFromPath = fromPath;
         _loadFromStream = fromStream;
@@ -70,7 +73,8 @@ public partial class Image
         if (_loadFromPath != null)
             return;
 
-        var ioAssembly = AppDomain.CurrentDomain.GetAssemblies()
+        var ioAssembly = AppDomain
+            .CurrentDomain.GetAssemblies()
             .FirstOrDefault(assembly => assembly.GetName().Name == "ChromaFx.IO");
 
         try
@@ -86,13 +90,11 @@ public partial class Image
             return;
         }
 
-        var extensionsType = ioAssembly.GetType("ChromaFx.IO.ImageIOExtensions");
-        if (extensionsType != null)
-            RuntimeHelpers.RunClassConstructor(extensionsType.TypeHandle);
+        var bootstrap = ioAssembly.GetType("ChromaFx.IO.ImageFormatsBootstrap");
+        if (bootstrap != null)
+            RuntimeHelpers.RunModuleConstructor(bootstrap.Module.ModuleHandle);
     }
 
     private static InvalidOperationException CreateLoaderNotRegisteredException() =>
-        new(
-            "Image loading is not available. Reference the ChromaFx or ChromaFx.IO package."
-        );
+        new("Image loading is not available. Reference the ChromaFx or ChromaFx.IO package.");
 }

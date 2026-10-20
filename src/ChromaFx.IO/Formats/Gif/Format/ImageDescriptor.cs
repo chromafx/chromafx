@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.IO.Formats.Gif.Format.BaseClasses;
 using ChromaFx.IO.Formats.Gif.Format.Helpers;
 
 namespace ChromaFx.IO.Formats.Gif.Format;
@@ -35,24 +34,23 @@ namespace ChromaFx.IO.Formats.Gif.Format;
 /// <param name="localColorTableExists">if set to <c>true</c> [local color table exists].</param>
 /// <param name="localColorTableSize">Size of the local color table.</param>
 /// <param name="interlace">if set to <c>true</c> [interlace].</param>
-public class ImageDescriptor(short left,
+internal class ImageDescriptor(
+    short left,
     short top,
     short width,
     short height,
     bool localColorTableExists,
     int localColorTableSize,
-    bool interlace) : SectionBase
+    bool interlace
+) : SectionBase
 {
-
     /// <summary>
     /// Initializes a new instance of the <see cref="ImageDescriptor"/> class.
     /// </summary>
     /// <param name="image">The image.</param>
     /// <param name="bitDepth">The bit depth.</param>
     public ImageDescriptor(Image image, int bitDepth)
-        : this(0, 0, (short)image.Width, (short)image.Height, true, bitDepth - 1, false)
-    {
-    }
+        : this(0, 0, (short)image.Width, (short)image.Height, true, bitDepth - 1, false) { }
 
     /// <summary>
     /// Gets the height.
@@ -128,13 +126,15 @@ public class ImageDescriptor(short left,
         var tempBuffer = new byte[Size];
         stream.ReadExactly(tempBuffer);
         var packed = tempBuffer[8];
-        return new ImageDescriptor(BitConverter.ToInt16(tempBuffer, 0),
+        return new ImageDescriptor(
+            BitConverter.ToInt16(tempBuffer, 0),
             BitConverter.ToInt16(tempBuffer, 2),
             BitConverter.ToInt16(tempBuffer, 4),
             BitConverter.ToInt16(tempBuffer, 6),
             (packed & 0x80) >> 7 == 1,
             2 << (packed & 0x07),
-            (packed & 0x40) >> 6 == 1);
+            (packed & 0x40) >> 6 == 1
+        );
     }
 
     /// <summary>

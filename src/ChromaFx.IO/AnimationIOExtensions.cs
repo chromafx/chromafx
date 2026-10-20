@@ -1,5 +1,5 @@
-/*
- * Copyright 2025 Ho Tzin Mein
+﻿/*
+ * Copyright 2025–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,18 @@ using ChromaFx.Core;
 
 namespace ChromaFx.IO;
 
+/// <summary>
+/// Animation save extensions. Prefer <see cref="Animation.Load"/>.
+/// </summary>
 public static class AnimationIOExtensions
 {
-    public static bool Save(this Animation animation, string fileName)
-        => FormatManager.Instance.Encode(fileName, animation);
-
-    public static Animation LoadAnimation(string fileName)
+    /// <summary>
+    /// Saves the animation to a file path.
+    /// </summary>
+    public static void Save(this Animation animation, string fileName)
     {
-        using var stream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-        return FormatManager.Instance.DecodeAnimation(stream);
+        ArgumentNullException.ThrowIfNull(animation);
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
+        ImageFormats.Encode(fileName, animation);
     }
-
-    public static Animation LoadAnimation(Stream stream)
-        => FormatManager.Instance.DecodeAnimation(stream);
 }

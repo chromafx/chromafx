@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.BaseClasses;
 using File = ChromaFx.IO.Formats.Bmp.Format.File;
 
 namespace ChromaFx.IO.Formats.Bmp;
@@ -24,7 +23,7 @@ namespace ChromaFx.IO.Formats.Bmp;
 /// BMP encoder
 /// </summary>
 /// <seealso cref="EncoderBase{File}" />
-public class Encoder : EncoderBase<File>
+internal class Encoder : EncoderBase<File>
 {
     /// <summary>
     /// Gets the file extensions.

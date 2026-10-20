@@ -15,15 +15,13 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.BaseClasses;
-
 namespace ChromaFx.IO.Formats.Png;
 
 /// <summary>
 /// PNG Encoder
 /// </summary>
 /// <seealso cref="EncoderBase{File}" />
-public class Encoder : EncoderBase<Format.File>
+internal class Encoder : EncoderBase<Format.File>
 {
     /// <summary>
     /// Gets the file extensions.

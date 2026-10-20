@@ -17,7 +17,7 @@ public class JpegFormat : FormatTestBase
         "Floorplan.jpeg",
         "gamma_dalai_lama_gray.jpg",
         "rgb.jpg",
-        "maltese_puppy-wide.jpg"
+        "maltese_puppy-wide.jpg",
     ];
 
     [Theory]

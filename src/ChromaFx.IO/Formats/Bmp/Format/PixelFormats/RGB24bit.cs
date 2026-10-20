@@ -15,16 +15,13 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.Bmp.Format.PixelFormats.BaseClasses;
-using ChromaFx.IO.Formats.Bmp.Format.PixelFormats.Interfaces;
-
 namespace ChromaFx.IO.Formats.Bmp.Format.PixelFormats;
 
 /// <summary>
 /// RGB 24bit pixel format
 /// </summary>
 /// <seealso cref="IPixelFormat"/>
-public class Rgb24Bit : PixelFormatBase
+internal class Rgb24Bit : PixelFormatBase
 {
     /// <summary>
     /// The bytes per pixel

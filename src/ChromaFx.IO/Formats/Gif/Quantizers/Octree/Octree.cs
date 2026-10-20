@@ -22,7 +22,7 @@ namespace ChromaFx.IO.Formats.Gif.Quantizers.Octree;
 /// <summary>
 /// Octree
 /// </summary>
-public class Octree
+internal class Octree
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="Octree"/> class.

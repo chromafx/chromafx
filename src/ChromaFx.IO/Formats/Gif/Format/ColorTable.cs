@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.Gif.Format.BaseClasses;
 using ChromaFx.IO.Formats.Gif.Quantizers;
 
 namespace ChromaFx.IO.Formats.Gif.Format;
@@ -24,7 +23,7 @@ namespace ChromaFx.IO.Formats.Gif.Format;
 /// Global color table
 /// </summary>
 /// <seealso cref="SectionBase" />
-public class ColorTable : SectionBase
+internal class ColorTable : SectionBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="ColorTable"/> class.
@@ -40,7 +39,9 @@ public class ColorTable : SectionBase
         var colorTableLength = (int)Math.Pow(2, bitDepth) * 3;
         var colorTable = new byte[colorTableLength];
 
-        Parallel.For(0, pixelCount,
+        Parallel.For(
+            0,
+            pixelCount,
             i =>
             {
                 var offset = i * 3;
@@ -49,7 +50,8 @@ public class ColorTable : SectionBase
                 colorTable[offset] = color.Red;
                 colorTable[offset + 1] = color.Green;
                 colorTable[offset + 2] = color.Blue;
-            });
+            }
+        );
         Data = colorTable;
     }
 

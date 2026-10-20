@@ -16,10 +16,8 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.IO.Converters.BaseClasses;
-using ChromaFx.IO.Formats.BaseClasses;
+using ChromaFx.IO.Converters;
 using ChromaFx.IO.Formats.Gif.Quantizers;
-using ChromaFx.IO.Formats.Gif.Quantizers.Interfaces;
 using ChromaFx.IO.Formats.Gif.Quantizers.Octree;
 
 namespace ChromaFx.IO.Formats.Gif.Format;
@@ -28,7 +26,7 @@ namespace ChromaFx.IO.Formats.Gif.Format;
 /// Gif file class
 /// </summary>
 /// <seealso cref="FileBase"/>
-public class File : FileBase
+internal class File : FileBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="File"/> class.
@@ -118,7 +116,15 @@ public class File : FileBase
         {
             if (flag == SectionTypes.ImageLabel)
             {
-                Frames.Add(Frame.Read(stream, ColorTable, GraphicsControlExtension, ScreenDescriptor, Frames));
+                Frames.Add(
+                    Frame.Read(
+                        stream,
+                        ColorTable,
+                        GraphicsControlExtension,
+                        ScreenDescriptor,
+                        Frames
+                    )
+                );
             }
             else if (flag == SectionTypes.ExtensionIntroducer)
             {
@@ -184,8 +190,14 @@ public class File : FileBase
     /// <returns>The animation version of the file</returns>
     protected override Animation ToAnimation()
     {
-        var delay = (GraphicsControlExtension ?? new GraphicsControl(0, 0, false, Enums.DisposalMethod.Undefined)).Delay;
-        return new Animation(Frames.Select(x => new Image(ScreenDescriptor.Width, ScreenDescriptor.Height, x.Data)), delay);
+        var delay = (
+            GraphicsControlExtension
+            ?? new GraphicsControl(0, 0, false, Enums.DisposalMethod.Undefined)
+        ).Delay;
+        return new Animation(
+            Frames.Select(x => new Image(ScreenDescriptor.Width, ScreenDescriptor.Height, x.Data)),
+            delay
+        );
     }
 
     /// <summary>
@@ -230,13 +242,20 @@ public class File : FileBase
     private void LoadImage(Image image, QuantizedImage quantizedImage)
     {
         Header = new FileHeader();
-        ScreenDescriptor = new LogicalScreenDescriptor(image, quantizedImage.TransparentIndex, BitDepth);
+        ScreenDescriptor = new LogicalScreenDescriptor(
+            image,
+            quantizedImage.TransparentIndex,
+            BitDepth
+        );
         Frames.Add(new Frame(image, quantizedImage, BitDepth, 150));
     }
 
     private void WriteToFile(BinaryWriter writer)
     {
-        using var writer2 = new EndianBinaryWriter(EndianBitConverterBase.LittleEndian, writer.BaseStream);
+        using var writer2 = new EndianBinaryWriter(
+            EndianBitConverterBase.LittleEndian,
+            writer.BaseStream
+        );
         Header.Write(writer2);
         ScreenDescriptor.Write(writer2);
         Frames[0].Write(writer2);

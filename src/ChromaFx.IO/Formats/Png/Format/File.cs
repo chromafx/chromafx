@@ -16,7 +16,6 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.IO.Formats.BaseClasses;
 using ChromaFx.IO.Formats.Png.Format.Helpers;
 
 namespace ChromaFx.IO.Formats.Png.Format;
@@ -25,21 +24,22 @@ namespace ChromaFx.IO.Formats.Png.Format;
 /// PNG File
 /// </summary>
 /// <seealso cref="FileBase" />
-public class File : FileBase
+internal class File : FileBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="File" /> class.
     /// </summary>
-    public File() => ChunkActions = new Dictionary<ChunkTypes, Action<Chunk>>
-    {
-        [ChunkTypes.Header] = ReadHeader,
-        [ChunkTypes.Physical] = _ => { },
-        [ChunkTypes.Palette] = ReadPalette,
-        [ChunkTypes.TransparencyInfo] = ReadAlphaPalette,
-        [ChunkTypes.Text] = ReadText,
-        [ChunkTypes.End] = _ => { },
-        [ChunkTypes.Data] = ReadData
-    };
+    public File() =>
+        ChunkActions = new Dictionary<ChunkTypes, Action<Chunk>>
+        {
+            [ChunkTypes.Header] = ReadHeader,
+            [ChunkTypes.Physical] = _ => { },
+            [ChunkTypes.Palette] = ReadPalette,
+            [ChunkTypes.TransparencyInfo] = ReadAlphaPalette,
+            [ChunkTypes.Text] = ReadText,
+            [ChunkTypes.End] = _ => { },
+            [ChunkTypes.Data] = ReadData,
+        };
 
     /// <summary>
     /// Gets the alpha palette.

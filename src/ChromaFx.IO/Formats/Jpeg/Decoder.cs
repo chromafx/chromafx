@@ -15,15 +15,13 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.BaseClasses;
-
 namespace ChromaFx.IO.Formats.Jpeg;
 
 /// <summary>
 /// JPEG decoder
 /// </summary>
 /// <seealso cref="DecoderBase{File}" />
-public class Decoder : DecoderBase<Format.File>
+internal class Decoder : DecoderBase<Format.File>
 {
     /// <summary>
     /// Gets the size of the header.
@@ -39,7 +37,8 @@ public class Decoder : DecoderBase<Format.File>
     /// <value>
     /// The file extensions.
     /// </value>
-    protected override string[] FileExtensions => [".JPEG", ".JPG", ".JPE", ".JIF", ".JFIF", ".JFI"];
+    protected override string[] FileExtensions =>
+        [".JPEG", ".JPG", ".JPE", ".JIF", ".JFIF", ".JFI"];
 
     /// <summary>
     /// Determines whether this instance can decode the specified header.
@@ -62,9 +61,11 @@ public class Decoder : DecoderBase<Format.File>
     /// <returns>True if it is, false otherwise</returns>
     private static bool IsExif(byte[] header)
     {
-        return header[6] == 0x45 && header[7] == 0x78
-                                 && header[8] == 0x69 && header[9] == 0x66
-                                 && header[10] == 0x00;
+        return header[6] == 0x45
+            && header[7] == 0x78
+            && header[8] == 0x69
+            && header[9] == 0x66
+            && header[10] == 0x00;
     }
 
     /// <summary>
@@ -74,9 +75,11 @@ public class Decoder : DecoderBase<Format.File>
     /// <returns>True if it is, false otherwise.</returns>
     private static bool IsJfif(byte[] header)
     {
-        return header[6] == 0x4A && header[7] == 0x46
-                                 && header[8] == 0x49 && header[9] == 0x46
-                                 && header[10] == 0x00;
+        return header[6] == 0x4A
+            && header[7] == 0x46
+            && header[8] == 0x49
+            && header[9] == 0x46
+            && header[10] == 0x00;
     }
 
     /// <summary>

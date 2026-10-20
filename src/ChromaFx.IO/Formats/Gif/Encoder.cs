@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.BaseClasses;
 using File = ChromaFx.IO.Formats.Gif.Format.File;
 
 namespace ChromaFx.IO.Formats.Gif;
@@ -24,7 +23,7 @@ namespace ChromaFx.IO.Formats.Gif;
 /// Gif Encoder
 /// </summary>
 /// <seealso cref="EncoderBase{File}" />
-public class Encoder : EncoderBase<File>
+internal class Encoder : EncoderBase<File>
 {
     /// <summary>
     /// Gets the file extensions.

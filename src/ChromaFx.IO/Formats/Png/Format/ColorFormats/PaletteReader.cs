@@ -18,7 +18,6 @@
 using ChromaFx.Core.Colors;
 using ChromaFx.Core.ExtensionMethods;
 using ChromaFx.IO.Formats.Png.Format.Enums;
-using ChromaFx.IO.Formats.Png.Format.ColorFormats.Interfaces;
 
 namespace ChromaFx.IO.Formats.Png.Format.ColorFormats;
 
@@ -31,9 +30,8 @@ namespace ChromaFx.IO.Formats.Png.Format.ColorFormats;
 /// </remarks>
 /// <param name="palette">The palette.</param>
 /// <param name="alphaPalette">The alpha palette.</param>
-public class PaletteReader(Palette palette, Palette alphaPalette) : IColorReader
+internal class PaletteReader(Palette palette, Palette alphaPalette) : IColorReader
 {
-
     /// <summary>
     /// Gets or sets the alpha palette.
     /// </summary>
@@ -66,7 +64,9 @@ public class PaletteReader(Palette palette, Palette alphaPalette) : IColorReader
                 pixels[offset].Red = Palette.Data[pixelOffset];
                 pixels[offset].Green = Palette.Data[pixelOffset + 1];
                 pixels[offset].Blue = Palette.Data[pixelOffset + 2];
-                pixels[offset].Alpha = (byte)(AlphaPalette.Data.Length > scanline[x] ? AlphaPalette.Data[scanline[x]] : 255);
+                pixels[offset].Alpha = (byte)(
+                    AlphaPalette.Data.Length > scanline[x] ? AlphaPalette.Data[scanline[x]] : 255
+                );
             }
         }
         else

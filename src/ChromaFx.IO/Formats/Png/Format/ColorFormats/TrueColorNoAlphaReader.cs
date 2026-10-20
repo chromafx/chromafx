@@ -17,7 +17,6 @@
 
 using ChromaFx.Core.Colors;
 using ChromaFx.Core.ExtensionMethods;
-using ChromaFx.IO.Formats.Png.Format.ColorFormats.Interfaces;
 
 namespace ChromaFx.IO.Formats.Png.Format.ColorFormats;
 
@@ -25,7 +24,7 @@ namespace ChromaFx.IO.Formats.Png.Format.ColorFormats;
 /// True color without alpha channel reader
 /// </summary>
 /// <seealso cref="IColorReader"/>
-public class TrueColorNoAlphaReader : IColorReader
+internal class TrueColorNoAlphaReader : IColorReader
 {
     /// <summary>
     /// Reads the scanline.

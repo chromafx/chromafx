@@ -26,9 +26,8 @@ namespace ChromaFx.IO.Formats.Gif.Format.Helpers;
 /// Initializes a new instance of the <see cref="LzwDecoder"/> class.
 /// </remarks>
 /// <param name="stream">The stream.</param>
-public class LzwDecoder(Stream stream)
+internal class LzwDecoder(Stream stream)
 {
-
     /// <summary>
     /// Gets or sets the stream.
     /// </summary>

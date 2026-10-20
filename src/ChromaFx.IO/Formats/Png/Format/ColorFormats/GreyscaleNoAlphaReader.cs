@@ -17,7 +17,6 @@
 
 using ChromaFx.Core.Colors;
 using ChromaFx.Core.ExtensionMethods;
-using ChromaFx.IO.Formats.Png.Format.ColorFormats.Interfaces;
 
 namespace ChromaFx.IO.Formats.Png.Format.ColorFormats;
 
@@ -25,7 +24,7 @@ namespace ChromaFx.IO.Formats.Png.Format.ColorFormats;
 /// Greyscale no alpha reader
 /// </summary>
 /// <seealso cref="IColorReader"/>
-public class GreyscaleNoAlphaReader : IColorReader
+internal class GreyscaleNoAlphaReader : IColorReader
 {
     /// <summary>
     /// Reads the scanline.
@@ -37,14 +36,18 @@ public class GreyscaleNoAlphaReader : IColorReader
     public void ReadScanline(byte[] scanline, Color[] pixels, Header header, int row)
     {
         scanline = scanline.ExpandArray(header.BitDepth);
-        Parallel.For(0, header.Width, x =>
-        {
-            var offset = row * header.Width + x;
+        Parallel.For(
+            0,
+            header.Width,
+            x =>
+            {
+                var offset = row * header.Width + x;
 
-            pixels[offset].Red = scanline[x];
-            pixels[offset].Green = scanline[x];
-            pixels[offset].Blue = scanline[x];
-            pixels[offset].Alpha = 255;
-        });
+                pixels[offset].Red = scanline[x];
+                pixels[offset].Green = scanline[x];
+                pixels[offset].Blue = scanline[x];
+                pixels[offset].Alpha = 255;
+            }
+        );
     }
 }

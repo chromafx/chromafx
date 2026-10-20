@@ -20,7 +20,7 @@ namespace ChromaFx.IO.Formats.Bmp.Format;
 /// <summary>
 /// Compression type used by the bitmap file.
 /// </summary>
-public enum Compression
+internal enum Compression
 {
     /// <summary>
     /// Basic RGB bitmap
@@ -40,5 +40,5 @@ public enum Compression
     /// <summary>
     /// Uses bitfields to determine pixel layout
     /// </summary>
-    Bitfields = 3
+    Bitfields = 3,
 }

@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.Gif.Format.BaseClasses;
 using ChromaFx.IO.Formats.Gif.Format.Helpers;
 using ChromaFx.IO.Formats.Gif.Quantizers;
 
@@ -30,7 +29,7 @@ namespace ChromaFx.IO.Formats.Gif.Format;
 /// </remarks>
 /// <param name="indices">The indices.</param>
 /// <param name="bitDepth">The bit depth.</param>
-public class FrameIndices(byte[] indices, byte bitDepth) : SectionBase
+internal class FrameIndices(byte[] indices, byte bitDepth) : SectionBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="FrameIndices"/> class.
@@ -38,9 +37,7 @@ public class FrameIndices(byte[] indices, byte bitDepth) : SectionBase
     /// <param name="quantizedImage">The quantized image.</param>
     /// <param name="bitDepth">The bit depth.</param>
     public FrameIndices(QuantizedImage quantizedImage, int bitDepth)
-        : this(quantizedImage.Pixels, (byte)bitDepth)
-    {
-    }
+        : this(quantizedImage.Pixels, (byte)bitDepth) { }
 
     /// <summary>
     /// Gets or sets the bit depth.

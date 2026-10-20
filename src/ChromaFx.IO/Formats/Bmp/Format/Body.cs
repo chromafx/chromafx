@@ -17,7 +17,6 @@
 
 using ChromaFx.Core;
 using ChromaFx.IO.Formats.Bmp.Format.PixelFormats;
-using ChromaFx.IO.Formats.Bmp.Format.PixelFormats.Interfaces;
 
 namespace ChromaFx.IO.Formats.Bmp.Format;
 
@@ -28,18 +27,17 @@ namespace ChromaFx.IO.Formats.Bmp.Format;
 /// Initializes a new instance of the <see cref="Body"/> class.
 /// </remarks>
 /// <param name="data">The data.</param>
-public class Body(byte[] data)
+internal class Body(byte[] data)
 {
-
     /// <summary>
     /// Initializes a new instance of the <see cref="Body" /> class.
     /// </summary>
     /// <param name="image">The image.</param>
     /// <param name="header">The header.</param>
     public Body(Image image, Header header)
-        : this(new Rgb24Bit().Encode(header, image.Pixels.SelectMany(x => (byte[])x).ToArray(), null))
-    {
-    }
+        : this(
+            new Rgb24Bit().Encode(header, image.Pixels.SelectMany(x => (byte[])x).ToArray(), null)
+        ) { }
 
     /// <summary>
     /// Gets or sets the data.
@@ -57,7 +55,7 @@ public class Body(byte[] data)
         [16] = new Rgb16Bit(),
         [8] = new Rgb8Bit(),
         [4] = new Rgb4Bit(),
-        [1] = new Rgb1Bit()
+        [1] = new Rgb1Bit(),
     };
 
     /// <summary>

@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.Png.Format.ColorFormats.Interfaces;
-
 namespace ChromaFx.IO.Formats.Png.Format.ColorFormats;
 
 /// <summary>
@@ -28,9 +26,12 @@ namespace ChromaFx.IO.Formats.Png.Format.ColorFormats;
 /// <param name="scanlineFactor">The scanline factor.</param>
 /// <param name="supportedBitDepths">The supported bit depths.</param>
 /// <param name="scanlineReaderFactory">The scanline reader factory.</param>
-public class ColorTypeInformation(int scanlineFactor, int[] supportedBitDepths, Func<Palette, Palette, IColorReader> scanlineReaderFactory)
+internal class ColorTypeInformation(
+    int scanlineFactor,
+    int[] supportedBitDepths,
+    Func<Palette, Palette, IColorReader> scanlineReaderFactory
+)
 {
-
     /// <summary>
     /// Gets or sets the scanline factor.
     /// </summary>
@@ -45,7 +46,8 @@ public class ColorTypeInformation(int scanlineFactor, int[] supportedBitDepths, 
     /// <value>
     /// The scanline reader factory.
     /// </value>
-    public Func<Palette, Palette, IColorReader> ScanlineReaderFactory { get; set; } = scanlineReaderFactory;
+    public Func<Palette, Palette, IColorReader> ScanlineReaderFactory { get; set; } =
+        scanlineReaderFactory;
 
     /// <summary>
     /// Gets or sets the supported bit depths.

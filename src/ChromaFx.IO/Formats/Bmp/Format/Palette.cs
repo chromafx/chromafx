@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ namespace ChromaFx.IO.Formats.Bmp.Format;
 /// <summary>
 /// Palette used by the bitmap
 /// </summary>
-public class Palette
+internal class Palette
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="Palette" /> class.
@@ -57,7 +57,10 @@ public class Palette
     /// <returns>The resulting palette information</returns>
     public static Palette Read(Header header, Stream stream)
     {
-        var numberOfColors = header.ColorsUsed == 0 && header.Bpp < 16 ? (int)Math.Pow(2, header.Bpp) : header.ColorsUsed;
+        var numberOfColors =
+            header.ColorsUsed == 0 && header.Bpp < 16
+                ? (int)Math.Pow(2, header.Bpp)
+                : header.ColorsUsed;
         var data = new byte[numberOfColors * 4];
         if (numberOfColors > 0)
             stream.ReadExactly(data);
@@ -68,7 +71,5 @@ public class Palette
     /// Writes the data to the specified writer.
     /// </summary>
     /// <param name="writer">The writer.</param>
-    public static void Write(BinaryWriter writer)
-    {
-    }
+    public static void Write(BinaryWriter writer) { }
 }

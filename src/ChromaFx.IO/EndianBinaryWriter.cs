@@ -15,9 +15,8 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Converters;
-using ChromaFx.IO.Converters.BaseClasses;
 using System.Text;
+using ChromaFx.IO.Converters;
 
 namespace ChromaFx.IO;
 
@@ -25,7 +24,7 @@ namespace ChromaFx.IO;
 /// Endian based binary writer
 /// </summary>
 /// <seealso cref="IDisposable" />
-public class EndianBinaryWriter : IDisposable
+internal class EndianBinaryWriter : IDisposable
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="EndianBinaryWriter"/> class.
@@ -33,9 +32,7 @@ public class EndianBinaryWriter : IDisposable
     /// <param name="bitConverter">The bit converter.</param>
     /// <param name="stream">The stream.</param>
     public EndianBinaryWriter(EndianBitConverterBase bitConverter, Stream stream)
-        : this(bitConverter, stream, Encoding.UTF8)
-    {
-    }
+        : this(bitConverter, stream, Encoding.UTF8) { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="EndianBinaryWriter"/> class.

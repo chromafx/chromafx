@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,17 +25,14 @@ namespace ChromaFx.IO.Formats.Bmp.Format;
 /// </remarks>
 /// <param name="fileSize">Size of the file.</param>
 /// <param name="offset">The offset.</param>
-public class FileHeader(int fileSize, int offset)
+internal class FileHeader(int fileSize, int offset)
 {
-
     /// <summary>
     /// Initializes a new instance of the <see cref="FileHeader"/> class.
     /// </summary>
     /// <param name="data">The data.</param>
     public FileHeader(byte[] data)
-        : this(BitConverter.ToInt32(data, 2), BitConverter.ToInt32(data, 10))
-    {
-    }
+        : this(BitConverter.ToInt32(data, 2), BitConverter.ToInt32(data, 10)) { }
 
     /// <summary>
     /// Gets the size of the file.

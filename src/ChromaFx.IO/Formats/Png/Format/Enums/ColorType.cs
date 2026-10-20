@@ -20,7 +20,7 @@ namespace ChromaFx.IO.Formats.Png.Format.Enums;
 /// <summary>
 /// Color type enum
 /// </summary>
-public enum ColorType : byte
+internal enum ColorType : byte
 {
     /// <summary>
     /// The greyscale
@@ -45,5 +45,5 @@ public enum ColorType : byte
     /// <summary>
     /// The RGB with alpha
     /// </summary>
-    TrueColorWithAlpha = 6
+    TrueColorWithAlpha = 6,
 }

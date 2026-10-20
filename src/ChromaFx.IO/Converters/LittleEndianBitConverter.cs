@@ -15,15 +15,13 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Converters.BaseClasses;
-
 namespace ChromaFx.IO.Converters;
 
 /// <summary>
 /// Little endian bit converter
 /// </summary>
 /// <seealso cref="EndianBitConverterBase" />
-public class LittleEndianBitConverter : EndianBitConverterBase
+internal class LittleEndianBitConverter : EndianBitConverterBase
 {
     /// <summary>
     /// Gets a value indicating whether this instance is little endian.

@@ -15,15 +15,13 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.BaseClasses;
-
 namespace ChromaFx.IO.Formats.Png;
 
 /// <summary>
 /// PNG Decoder
 /// </summary>
 /// <seealso cref="DecoderBase{File}" />
-public class Decoder : DecoderBase<Format.File>
+internal class Decoder : DecoderBase<Format.File>
 {
     /// <summary>
     /// Gets the size of the header.
@@ -52,9 +50,13 @@ public class Decoder : DecoderBase<Format.File>
     {
         if (header == null || header.Length < 8)
             return false;
-        return header[0] == 0x89 && header[1] == 0x50 &&
-               header[2] == 0x4E && header[3] == 0x47 &&
-               header[4] == 0x0D && header[5] == 0x0A &&
-               header[6] == 0x1A && header[7] == 0x0A;
+        return header[0] == 0x89
+            && header[1] == 0x50
+            && header[2] == 0x4E
+            && header[3] == 0x47
+            && header[4] == 0x0D
+            && header[5] == 0x0A
+            && header[6] == 0x1A
+            && header[7] == 0x0A;
     }
 }

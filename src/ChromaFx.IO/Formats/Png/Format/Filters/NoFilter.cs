@@ -1,5 +1,4 @@
 ﻿using ChromaFx.IO.Formats.Png.Format.Enums;
-using ChromaFx.IO.Formats.Png.Format.Filters.BaseClasses;
 
 namespace ChromaFx.IO.Formats.Png.Format.Filters;
 
@@ -7,7 +6,7 @@ namespace ChromaFx.IO.Formats.Png.Format.Filters;
 /// No filter applied
 /// </summary>
 /// <seealso cref="FilterBaseClass"/>
-public class NoFilter : FilterBaseClass
+internal class NoFilter : FilterBaseClass
 {
     /// <summary>
     /// Gets the filter value.

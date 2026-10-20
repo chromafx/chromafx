@@ -17,9 +17,6 @@ limitations under the License.
 using ChromaFx.Core;
 using ChromaFx.Core.Colors.ColorSpaces;
 using ChromaFx.IO.Formats.Jpeg.Format.Enums;
-using ChromaFx.IO.Formats.Jpeg.Format.HelperClasses;
-using ChromaFx.IO.Formats.Jpeg.Format.HelperClasses.Enums;
-using ChromaFx.IO.Formats.Jpeg.Format.Segments.BaseClasses;
 
 namespace ChromaFx.IO.Formats.Jpeg.Format.Segments;
 
@@ -27,7 +24,7 @@ namespace ChromaFx.IO.Formats.Jpeg.Format.Segments;
 /// Start of scan segment
 /// </summary>
 /// <seealso cref="SegmentBase"/>
-public class StartOfScan : SegmentBase
+internal class StartOfScan : SegmentBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="StartOfScan"/> class.
@@ -45,7 +42,11 @@ public class StartOfScan : SegmentBase
     /// <param name="image">The image.</param>
     /// <param name="defineHuffmanTableSegment">The define huffman table segment.</param>
     /// <param name="defineQuantizationTableSegment">The define quantization table segment.</param>
-    public StartOfScan(Image image, DefineHuffmanTable defineHuffmanTableSegment, DefineQuantizationTable defineQuantizationTableSegment)
+    public StartOfScan(
+        Image image,
+        DefineHuffmanTable defineHuffmanTableSegment,
+        DefineQuantizationTable defineQuantizationTableSegment
+    )
         : base(SegmentTypes.StartOfScan, null)
     {
         Image = image;
@@ -84,34 +85,330 @@ public class StartOfScan : SegmentBase
 
     private static readonly int[] Unzig =
     [
-        0, 1, 8, 16, 9, 2, 3, 10,
-        17, 24, 32, 25, 18, 11, 4, 5,
-        12, 19, 26, 33, 40, 48, 41, 34,
-        27, 20, 13, 6, 7, 14, 21, 28,
-        35, 42, 49, 56, 57, 50, 43, 36,
-        29, 22, 15, 23, 30, 37, 44, 51,
-        58, 59, 52, 45, 38, 31, 39, 46,
-        53, 60, 61, 54, 47, 55, 62, 63
+        0,
+        1,
+        8,
+        16,
+        9,
+        2,
+        3,
+        10,
+        17,
+        24,
+        32,
+        25,
+        18,
+        11,
+        4,
+        5,
+        12,
+        19,
+        26,
+        33,
+        40,
+        48,
+        41,
+        34,
+        27,
+        20,
+        13,
+        6,
+        7,
+        14,
+        21,
+        28,
+        35,
+        42,
+        49,
+        56,
+        57,
+        50,
+        43,
+        36,
+        29,
+        22,
+        15,
+        23,
+        30,
+        37,
+        44,
+        51,
+        58,
+        59,
+        52,
+        45,
+        38,
+        31,
+        39,
+        46,
+        53,
+        60,
+        61,
+        54,
+        47,
+        55,
+        62,
+        63,
     ];
 
     private readonly byte[] _bitCount =
     [
-        0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4,
-        5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
-        6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-        6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8
+        0,
+        1,
+        2,
+        2,
+        3,
+        3,
+        3,
+        3,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
     ];
 
     /// <summary>
@@ -119,8 +416,20 @@ public class StartOfScan : SegmentBase
     /// </summary>
     private readonly byte[] _sosHeaderYCbCr =
     [
-        0xff, 0xda, 0x00, 0x0c, 0x03, 0x01, 0x00, 0x02,
-        0x11, 0x03, 0x11, 0x00, 0x3f, 0x00
+        0xff,
+        0xda,
+        0x00,
+        0x0c,
+        0x03,
+        0x01,
+        0x00,
+        0x02,
+        0x11,
+        0x03,
+        0x11,
+        0x00,
+        0x3f,
+        0x00,
     ];
 
     private uint _bits;
@@ -167,8 +476,12 @@ public class StartOfScan : SegmentBase
         var n = Length;
         var startOfFrameSegment = segments.OfType<StartOfFrame>().FirstOrDefault();
         var defineHuffmanTableSegment = segments.OfType<DefineHuffmanTable>().FirstOrDefault();
-        var defineRestartIntervalSegment = segments.OfType<DefineRestartInterval>().FirstOrDefault() ?? new DefineRestartInterval(null);
-        var defineQuantizationTableSegment = segments.OfType<DefineQuantizationTable>().FirstOrDefault();
+        var defineRestartIntervalSegment =
+            segments.OfType<DefineRestartInterval>().FirstOrDefault()
+            ?? new DefineRestartInterval(null);
+        var defineQuantizationTableSegment = segments
+            .OfType<DefineQuantizationTable>()
+            .FirstOrDefault();
         if (startOfFrameSegment == null)
         {
             throw new Exception("missing SOF marker");
@@ -217,7 +530,9 @@ public class StartOfScan : SegmentBase
                 }
             }
 
-            totalHv += startOfFrameSegment.Components[compIndex].HorizontalSamplingFactor * startOfFrameSegment.Components[compIndex].VerticalSamplingFactor;
+            totalHv +=
+                startOfFrameSegment.Components[compIndex].HorizontalSamplingFactor
+                * startOfFrameSegment.Components[compIndex].VerticalSamplingFactor;
 
             scan[i].Td = (byte)(TempData[2 + 2 * i] >> 4);
             if (scan[i].Td > MaximumTh)
@@ -282,7 +597,12 @@ public class StartOfScan : SegmentBase
                 int compIndex = scan[i].ComponentIndex;
                 if (_progressiveCoefficients[compIndex] == null)
                 {
-                    _progressiveCoefficients[compIndex] = new Block[mxx * myy * startOfFrameSegment.Components[compIndex].HorizontalSamplingFactor * startOfFrameSegment.Components[compIndex].VerticalSamplingFactor];
+                    _progressiveCoefficients[compIndex] = new Block[
+                        mxx
+                            * myy
+                            * startOfFrameSegment.Components[compIndex].HorizontalSamplingFactor
+                            * startOfFrameSegment.Components[compIndex].VerticalSamplingFactor
+                    ];
 
                     for (var j = 0; j < _progressiveCoefficients[compIndex].Length; j++)
                     {
@@ -300,7 +620,9 @@ public class StartOfScan : SegmentBase
         Block b;
         var dc = new int[MaximumNumberComponents];
 
-        int bx, by, blockCount = 0;
+        int bx,
+            by,
+            blockCount = 0;
 
         for (var my = 0; my < myy; my++)
         {
@@ -311,7 +633,9 @@ public class StartOfScan : SegmentBase
                     int compIndex = scan[i].ComponentIndex;
                     var hi = startOfFrameSegment.Components[compIndex].HorizontalSamplingFactor;
                     var vi = startOfFrameSegment.Components[compIndex].VerticalSamplingFactor;
-                    var qt = defineQuantizationTableSegment.Quant[startOfFrameSegment.Components[compIndex].QuatizationTableDestSelector];
+                    var qt = defineQuantizationTableSegment.Quant[
+                        startOfFrameSegment.Components[compIndex].QuatizationTableDestSelector
+                    ];
 
                     for (var j = 0; j < hi * vi; j++)
                     {
@@ -326,7 +650,10 @@ public class StartOfScan : SegmentBase
                             bx = blockCount % q;
                             by = blockCount / q;
                             blockCount++;
-                            if (bx * 8 >= startOfFrameSegment.Width || by * 8 >= startOfFrameSegment.Height)
+                            if (
+                                bx * 8 >= startOfFrameSegment.Width
+                                || by * 8 >= startOfFrameSegment.Height
+                            )
                                 continue;
                         }
                         if (startOfFrameSegment.Progressive)
@@ -336,7 +663,13 @@ public class StartOfScan : SegmentBase
 
                         if (ah != 0)
                         {
-                            Refine(b, defineHuffmanTableSegment.HuffmanCodes[AcTable, scan[i].Ta], zigStart, zigEnd, 1 << al);
+                            Refine(
+                                b,
+                                defineHuffmanTableSegment.HuffmanCodes[AcTable, scan[i].Ta],
+                                zigStart,
+                                zigEnd,
+                                1 << al
+                            );
                         }
                         else
                         {
@@ -344,7 +677,9 @@ public class StartOfScan : SegmentBase
                             if (zig == 0)
                             {
                                 zig++;
-                                var value = defineHuffmanTableSegment.HuffmanCodes[DcTable, scan[i].Td].DecodeHuffman(Bytes);
+                                var value = defineHuffmanTableSegment
+                                    .HuffmanCodes[DcTable, scan[i].Td]
+                                    .DecodeHuffman(Bytes);
                                 if (value > 16)
                                 {
                                     throw new Exception("Excessive DC component");
@@ -361,7 +696,10 @@ public class StartOfScan : SegmentBase
                             }
                             else
                             {
-                                var huffv = defineHuffmanTableSegment.HuffmanCodes[AcTable, scan[i].Ta];
+                                var huffv = defineHuffmanTableSegment.HuffmanCodes[
+                                    AcTable,
+                                    scan[i].Ta
+                                ];
                                 for (; zig <= zigEnd; zig++)
                                 {
                                     var value = huffv.DecodeHuffman(Bytes);
@@ -473,7 +811,11 @@ public class StartOfScan : SegmentBase
 
                 mcu++;
 
-                if (defineRestartIntervalSegment.RestartInterval > 0 && mcu % defineRestartIntervalSegment.RestartInterval == 0 && mcu < mxx * myy)
+                if (
+                    defineRestartIntervalSegment.RestartInterval > 0
+                    && mcu % defineRestartIntervalSegment.RestartInterval == 0
+                    && mcu < mxx * myy
+                )
                 {
                     Bytes.ReadFull(TempData, 0, 2);
                     if (TempData[0] != 0xff || TempData[1] != expectedRst)
@@ -553,7 +895,8 @@ public class StartOfScan : SegmentBase
             nBits = 8 + (uint)_bitCount[a >> 8];
 
         EmitHuff(h, (int)((uint)(runLength << 4) | nBits), writer);
-        if (nBits > 0) Emit((uint)b & (uint)((1 << (int)nBits) - 1), nBits, writer);
+        if (nBits > 0)
+            Emit((uint)b & (uint)((1 << (int)nBits) - 1), nBits, writer);
     }
 
     private void Encode444(BinaryWriter writer)
@@ -561,7 +904,9 @@ public class StartOfScan : SegmentBase
         var b = new Block();
         var cb = new Block();
         var cr = new Block();
-        int prevDcy = 0, prevDcCb = 0, prevDcCr = 0;
+        int prevDcy = 0,
+            prevDcCb = 0,
+            prevDcCr = 0;
 
         for (var y = 0; y < Image.Height; y += 8)
         {
@@ -679,7 +1024,9 @@ public class StartOfScan : SegmentBase
 
                 zig = RefineNonZeroes(b, zig, zigEnd, val0, delta);
                 if (zig > zigEnd)
-                    throw new Exception(string.Format("too many coefficients {0} > {1}", zig, zigEnd));
+                    throw new Exception(
+                        string.Format("too many coefficients {0} > {1}", zig, zigEnd)
+                    );
 
                 if (z != 0)
                     b[Unzig[zig]] = z;
@@ -732,13 +1079,15 @@ public class StartOfScan : SegmentBase
 
         for (int j = 0; j < 8; j++)
         {
-            int row = y + j;    
-            if (row > ymax) row = ymax;
+            int row = y + j;
+            if (row > ymax)
+                row = ymax;
             int rowBase = row * width;
             for (int i = 0; i < 8; i++)
             {
                 int col = x + i;
-                if (col > xmax) col = xmax;
+                if (col > xmax)
+                    col = xmax;
                 int offset = col + rowBase;
                 YCbCr color = pixels[offset];
                 int index = 8 * j + i;
@@ -786,4 +1135,3 @@ public class StartOfScan : SegmentBase
         return dc;
     }
 }
-

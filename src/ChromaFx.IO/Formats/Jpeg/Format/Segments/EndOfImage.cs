@@ -15,9 +15,6 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.Jpeg.Format.HelperClasses;
-using ChromaFx.IO.Formats.Jpeg.Format.Segments.BaseClasses;
-
 namespace ChromaFx.IO.Formats.Jpeg.Format.Segments;
 
 /// <summary>
@@ -28,16 +25,13 @@ namespace ChromaFx.IO.Formats.Jpeg.Format.Segments;
 /// Initializes a new instance of the <see cref="EndOfImage" /> class.
 /// </remarks>
 /// <param name="buffer">The buffer.</param>
-public class EndOfImage(ByteBuffer buffer) : SegmentBase(SegmentTypes.EndOfImage, buffer)
+internal class EndOfImage(ByteBuffer buffer) : SegmentBase(SegmentTypes.EndOfImage, buffer)
 {
-
     /// <summary>
     /// Setups the specified segments.
     /// </summary>
     /// <param name="segments">The segments.</param>
-    public override void Setup(IEnumerable<SegmentBase> segments)
-    {
-    }
+    public override void Setup(IEnumerable<SegmentBase> segments) { }
 
     /// <summary>
     /// Writes the information to the specified writer.

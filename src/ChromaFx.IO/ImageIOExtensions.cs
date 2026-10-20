@@ -1,5 +1,5 @@
-/*
- * Copyright 2025 Ho Tzin Mein
+﻿/*
+ * Copyright 2025–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,42 +15,74 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.Core.Exceptions;
+using ChromaFx.IO.Encoders;
 using ChromaFx.IO.Formats;
 
 namespace ChromaFx.IO;
 
+/// <summary>
+/// Image load/save extensions.
+/// </summary>
 public static class ImageIOExtensions
 {
-    static ImageIOExtensions()
+    /// <summary>
+    /// Saves the image to a file path (format inferred from extension).
+    /// </summary>
+    public static void Save(this Image image, string fileName)
     {
-        Image.RegisterLoaders(LoadFromPath, LoadFromStream);
+        ArgumentNullException.ThrowIfNull(image);
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
+        ImageFormats.Encode(fileName, image);
     }
 
-    public static bool Save(this Image image, string fileName)
-        => FormatManager.Instance.Encode(fileName, image);
+    /// <summary>
+    /// Saves the image to a file path using the specified encoder.
+    /// </summary>
+    public static void Save(this Image image, string fileName, IImageEncoder encoder)
+    {
+        ArgumentNullException.ThrowIfNull(image);
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
+        ArgumentNullException.ThrowIfNull(encoder);
+        new FileInfo(fileName).Directory?.Create();
+        using var stream = File.Open(fileName, FileMode.Create, FileAccess.Write, FileShare.None);
+        ImageFormats.Encode(stream, image, encoder);
+    }
 
-    public static bool Save(this Image image, Stream stream, FileFormats format)
-        => FormatManager.Instance.Encode(stream, image, format);
+    /// <summary>
+    /// Saves the image to a stream using the specified encoder.
+    /// </summary>
+    public static void Save(this Image image, Stream stream, IImageEncoder encoder)
+    {
+        ArgumentNullException.ThrowIfNull(image);
+        ImageFormats.Encode(stream, image, encoder);
+    }
 
+    /// <summary>
+    /// Saves the image to a stream using a built-in format.
+    /// </summary>
+    public static void Save(this Image image, Stream stream, FileFormats format)
+    {
+        ArgumentNullException.ThrowIfNull(image);
+        ImageFormats.Encode(stream, image, format);
+    }
+
+    /// <summary>
+    /// Encodes the image as a base-64 string.
+    /// </summary>
     public static string ToBase64String(this Image image, FileFormats desiredFormat)
     {
         using var stream = new MemoryStream();
-        if (!image.Save(stream, desiredFormat))
-            return string.Empty;
-        var tempArray = stream.ToArray();
-        return Convert.ToBase64String(tempArray, 0, tempArray.Length);
+        image.Save(stream, desiredFormat);
+        return Convert.ToBase64String(stream.ToArray());
     }
 
-    private static Image LoadFromPath(string fileName)
+    /// <summary>
+    /// Encodes the image as a base-64 string using the specified encoder.
+    /// </summary>
+    public static string ToBase64String(this Image image, IImageEncoder encoder)
     {
-        using var stream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-        return LoadFromStream(stream);
-    }
-
-    private static Image LoadFromStream(Stream stream)
-    {
-        var image = FormatManager.Instance.Decode(stream);
-        return image ?? throw new ImageException("Unable to decode image from stream.");
+        using var stream = new MemoryStream();
+        image.Save(stream, encoder);
+        return Convert.ToBase64String(stream.ToArray());
     }
 }
