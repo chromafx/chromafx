@@ -1,6 +1,4 @@
 ﻿using ChromaFx.Processing.Filters.Overlays;
-using ChromaFx.Processing.Filters.Resampling;
-using ChromaFx.Processing.Filters.Resampling.Enums;
 using ChromaFx.Tests.BaseClasses;
 using Xunit;
 
@@ -14,9 +12,18 @@ public class OverlayFilters : FilterTestBaseClass
 
     public static readonly TheoryData<string, IFilter, Rectangle> Filters = new()
     {
-        { "Blend-50", new Blend(Image.Load("./TestImages/Formats/Bmp/EncodingTest.bmp").Apply(new Resize(500,500,ResamplingFiltersAvailable.Bilinear)),0.5f),new Rectangle(100,100,500,500) },
-        { "Glow",new Glow(Color.Aqua,0.4f,0.4f),default },
-        { "Vignette",new Vignette(Color.Aqua,0.4f,0.4f),default }
+        {
+            "Blend-50",
+            new Blend(
+                Image
+                    .Load("./TestImages/Formats/Bmp/EncodingTest.bmp")
+                    .Mutate(c => c.Resize(500, 500)),
+                0.5f
+            ),
+            new Rectangle(100, 100, 500, 500)
+        },
+        { "Glow", new Glow(Color.Aqua, 0.4f, 0.4f), default },
+        { "Vignette", new Vignette(Color.Aqua, 0.4f, 0.4f), default },
     };
 
     [Theory]

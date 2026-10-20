@@ -35,7 +35,6 @@ public class BumpMap : ProcessingPipelineBaseClass
     public BumpMap(Direction direction)
         : base(false)
     {
-        AddFilter(new SobelEmboss(direction))
-            .AddFilter(new Greyscale601());
+        AddFilter(new SobelEmboss(direction)).AddFilter(new Greyscale601());
     }
 }

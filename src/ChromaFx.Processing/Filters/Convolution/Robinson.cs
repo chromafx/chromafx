@@ -53,21 +53,11 @@ public class Robinson : Convolution2DBaseClass
     /// Gets the x matrix.
     /// </summary>
     /// <value>The x matrix.</value>
-    public override float[] XMatrix =>
-    [
-        -1, 0, 1,
-        -1, 0, 1,
-        -1, 0, 1
-    ];
+    public override float[] XMatrix => [-1, 0, 1, -1, 0, 1, -1, 0, 1];
 
     /// <summary>
     /// Gets the y matrix.
     /// </summary>
     /// <value>The y matrix.</value>
-    public override float[] YMatrix =>
-    [
-        -1, -1, -1,
-        0, 0, 0,
-        1, 1, 1
-    ];
+    public override float[] YMatrix => [-1, -1, -1, 0, 0, 0, 1, 1, 1];
 }

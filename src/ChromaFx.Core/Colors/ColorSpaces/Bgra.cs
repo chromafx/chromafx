@@ -118,7 +118,7 @@ public struct Bgra(byte blue, byte green, byte red, byte alpha = 255)
     /// <returns>
     /// <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public readonly override bool Equals(object obj)
+    public override readonly bool Equals(object obj)
     {
         return obj is Bgra bgra && Equals(bgra);
     }
@@ -143,7 +143,7 @@ public struct Bgra(byte blue, byte green, byte red, byte alpha = 255)
     /// A hash code for this instance, suitable for use in hashing algorithms and data structures
     /// like a hash table.
     /// </returns>
-    public readonly override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         var hash = Blue.GetHashCode();
         hash = ComputeHash(hash, Green);
@@ -155,7 +155,7 @@ public struct Bgra(byte blue, byte green, byte red, byte alpha = 255)
     /// Returns a <see cref="string"/> that represents this instance.
     /// </summary>
     /// <returns>A <see cref="string"/> that represents this instance.</returns>
-    public readonly override string ToString() =>
+    public override readonly string ToString() =>
         $"({Blue:#0.##},{Green:#0.##},{Red:#0.##},{Alpha:#0.##})";
 
     /// <summary>

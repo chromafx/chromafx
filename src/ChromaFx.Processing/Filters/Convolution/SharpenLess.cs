@@ -41,12 +41,7 @@ public class SharpenLess : ConvolutionBaseClass
     /// Gets the matrix.
     /// </summary>
     /// <value>The matrix.</value>
-    public override float[] Matrix =>
-    [
-        -1, 0, -1,
-        0,  7,  0,
-        -1, 0, -1
-    ];
+    public override float[] Matrix => [-1, 0, -1, 0, 7, 0, -1, 0, -1];
 
     /// <summary>
     /// Gets the offset.

@@ -16,7 +16,6 @@ namespace ChromaFx.Core.Colors.ColorSpaces;
 /// <param name="value">The value.</param>
 public struct Hsv(double hue, double saturation, double value) : IEquatable<Hsv>, IColorSpace
 {
-
     /// <summary>
     /// Gets or sets the hue.
     /// </summary>
@@ -100,11 +99,7 @@ public struct Hsv(double hue, double saturation, double value) : IEquatable<Hsv>
             }
         }
 
-        return new Color(
-            (red * 255).ToByte(),
-            (green * 255).ToByte(),
-            (blue * 255).ToByte()
-        );
+        return new Color((red * 255).ToByte(), (green * 255).ToByte(), (blue * 255).ToByte());
     }
 
     /// <summary>
@@ -174,7 +169,7 @@ public struct Hsv(double hue, double saturation, double value) : IEquatable<Hsv>
     /// <returns>
     /// <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public readonly override bool Equals(object obj)
+    public override readonly bool Equals(object obj)
     {
         return obj is Hsv hsv && Equals(hsv);
     }
@@ -198,7 +193,7 @@ public struct Hsv(double hue, double saturation, double value) : IEquatable<Hsv>
     /// A hash code for this instance, suitable for use in hashing algorithms and data structures
     /// like a hash table.
     /// </returns>
-    public readonly override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         var hash = Hue.GetHashCode();
         hash = ComputeHash(hash, Saturation);
@@ -209,7 +204,7 @@ public struct Hsv(double hue, double saturation, double value) : IEquatable<Hsv>
     /// Returns a <see cref="string"/> that represents this instance.
     /// </summary>
     /// <returns>A <see cref="string"/> that represents this instance.</returns>
-    public readonly override string ToString() => $"({Hue:#0.##},{Saturation:#0.##},{Value:#0.##})";
+    public override readonly string ToString() => $"({Hue:#0.##},{Saturation:#0.##},{Value:#0.##})";
 
     /// <summary>
     /// Computes the hash.

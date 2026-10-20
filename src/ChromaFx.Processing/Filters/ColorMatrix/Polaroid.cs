@@ -32,11 +32,32 @@ public class PolaroidColorMatrix : MatrixBaseClass
     /// <value>
     /// The matrix.
     /// </value>
-    public override Matrix5X5 Matrix => new(
-        1.538f, -0.062f, -0.262f, 0f, 0f,
-        -0.022f, 1.578f, -0.022f, 0f, 0f,
-        .216f, -.16f, 1.5831f, 0f, 0f,
-        0f, 0f, 0f, 1f, 0f,
-        -0.02f, -0.05f, -0.05f, 0f, 1f
-    );
+    public override Matrix5X5 Matrix =>
+        new(
+            1.538f,
+            -0.062f,
+            -0.262f,
+            0f,
+            0f,
+            -0.022f,
+            1.578f,
+            -0.022f,
+            0f,
+            0f,
+            .216f,
+            -.16f,
+            1.5831f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f,
+            0f,
+            -0.02f,
+            -0.05f,
+            -0.05f,
+            0f,
+            1f
+        );
 }

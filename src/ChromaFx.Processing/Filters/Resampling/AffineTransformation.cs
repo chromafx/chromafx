@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
+using System.Numerics;
 using ChromaFx.Core;
 using ChromaFx.Processing.Filters.Resampling.BaseClasses;
 using ChromaFx.Processing.Filters.Resampling.Enums;
 using ChromaFx.Processing.Numerics;
-using System.Numerics;
 
 namespace ChromaFx.Processing.Filters.Resampling;
 
@@ -34,9 +34,13 @@ namespace ChromaFx.Processing.Filters.Resampling;
 /// <param name="width">The new width.</param>
 /// <param name="height">The new height.</param>
 /// <param name="filter">The filter to use (defaults to nearest neighbor).</param>
-public class AffineTransformation(Matrix3x2 matrix, int width = -1, int height = -1, ResamplingFiltersAvailable filter = ResamplingFiltersAvailable.NearestNeighbor) : AffineBaseClass(width, height, filter)
+public class AffineTransformation(
+    Matrix3x2 matrix,
+    int width = -1,
+    int height = -1,
+    ResamplingFiltersAvailable filter = ResamplingFiltersAvailable.NearestNeighbor
+) : AffineBaseClass(width, height, filter)
 {
-
     /// <summary>
     /// Gets or sets the matrix.
     /// </summary>
@@ -49,7 +53,10 @@ public class AffineTransformation(Matrix3x2 matrix, int width = -1, int height =
     /// <param name="value1">The value1.</param>
     /// <param name="value2">The value2.</param>
     /// <returns>The result of the operator.</returns>
-    public static AffineTransformation operator *(AffineTransformation value1, AffineTransformation value2)
+    public static AffineTransformation operator *(
+        AffineTransformation value1,
+        AffineTransformation value2
+    )
     {
         return new AffineTransformation(value1.Matrix * value2.Matrix);
     }

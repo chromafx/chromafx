@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
+using System.Numerics;
 using ChromaFx.Core;
 using ChromaFx.Core.Colors;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Filters.Resampling.Enums;
 using ChromaFx.Processing.Filters.Resampling.ResamplingFilters.Interfaces;
 using ChromaFx.Processing.Numerics;
-using System.Numerics;
 
 namespace ChromaFx.Processing.Filters.Resampling.BaseClasses;
 

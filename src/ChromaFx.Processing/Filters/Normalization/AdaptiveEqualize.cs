@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
+using ChromaFx.Core;
 using ChromaFx.Core.Colors;
-using ChromaFx.Processing.Numerics.Interfaces;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
-using ChromaFx.Core;
+using ChromaFx.Processing.Numerics.Interfaces;
 
 namespace ChromaFx.Processing.Filters.Normalization;
 
@@ -34,7 +34,6 @@ namespace ChromaFx.Processing.Filters.Normalization;
 /// <param name="histogram">The histogram.</param>
 public class AdaptiveEqualize(int radius, Func<IHistogram> histogram = null) : IFilter
 {
-
     /// <summary>
     /// Gets or sets the radius.
     /// </summary>

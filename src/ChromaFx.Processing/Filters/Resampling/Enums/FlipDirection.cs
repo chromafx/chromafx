@@ -31,5 +31,5 @@ public enum FlipDirection
     /// <summary>
     /// The vertical
     /// </summary>
-    Vertical = 2
+    Vertical = 2,
 }

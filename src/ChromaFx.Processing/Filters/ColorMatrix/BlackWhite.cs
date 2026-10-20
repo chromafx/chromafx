@@ -30,11 +30,32 @@ public class BlackWhite : MatrixBaseClass
     /// Gets the matrix.
     /// </summary>
     /// <value>The matrix.</value>
-    public override Matrix5X5 Matrix => new(
-        1f, 1f, 1f, 0f, 0f,
-        1f, 1f, 1f, 0f, 0f,
-        1f, 1f, 1f, 0f, 0f,
-        0f, 0f, 0f, 1f, 0f,
-        -1f, -1f, -1f, 0f, 1f
-    );
+    public override Matrix5X5 Matrix =>
+        new(
+            1f,
+            1f,
+            1f,
+            0f,
+            0f,
+            1f,
+            1f,
+            1f,
+            0f,
+            0f,
+            1f,
+            1f,
+            1f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f,
+            0f,
+            -1f,
+            -1f,
+            -1f,
+            0f,
+            1f
+        );
 }

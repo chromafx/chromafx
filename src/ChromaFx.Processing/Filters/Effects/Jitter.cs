@@ -31,7 +31,6 @@ namespace ChromaFx.Processing.Filters.Effects;
 /// <param name="amount">The amount of potential randomization.</param>
 public class Jitter(int amount) : IFilter
 {
-
     /// <summary>
     /// Gets or sets the amount.
     /// </summary>
@@ -60,17 +59,13 @@ public class Jitter(int amount) : IFilter
                     newX += x;
                     newY += y;
                     newX =
-                        newX < targetLocation.Left
-                            ? targetLocation.Left
-                            : newX >= targetLocation.Right
-                                ? targetLocation.Right - 1
-                                : newX;
+                        newX < targetLocation.Left ? targetLocation.Left
+                        : newX >= targetLocation.Right ? targetLocation.Right - 1
+                        : newX;
                     newY =
-                        newY < targetLocation.Bottom
-                            ? targetLocation.Bottom
-                            : newY >= targetLocation.Top
-                                ? targetLocation.Top - 1
-                                : newY;
+                        newY < targetLocation.Bottom ? targetLocation.Bottom
+                        : newY >= targetLocation.Top ? targetLocation.Top - 1
+                        : newY;
 
                     var sourceIndex = y * image.Width + x;
                     var destinationIndex = newY * image.Width + newX;

@@ -32,11 +32,32 @@ public class Greyscale709 : MatrixBaseClass
     /// <value>
     /// The matrix.
     /// </value>
-    public override Matrix5X5 Matrix => new(
-        .2126f, .2126f, .2126f, 0f, 0f,
-        .7152f, .7152f, .7152f, 0f, 0f,
-        .0722f, .0722f, .0722f, 0f, 0f,
-        0f, 0f, 0f, 1f, 0f,
-        0f, 0f, 0f, 0f, 1f
-    );
+    public override Matrix5X5 Matrix =>
+        new(
+            .2126f,
+            .2126f,
+            .2126f,
+            0f,
+            0f,
+            .7152f,
+            .7152f,
+            .7152f,
+            0f,
+            0f,
+            .0722f,
+            .0722f,
+            .0722f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f
+        );
 }

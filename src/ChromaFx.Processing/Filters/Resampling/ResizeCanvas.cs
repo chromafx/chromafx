@@ -33,9 +33,9 @@ namespace ChromaFx.Processing.Filters.Resampling;
 /// <param name="width">The width.</param>
 /// <param name="height">The height.</param>
 /// <param name="options">The options.</param>
-public class ResizeCanvas(int width, int height, ResizeOptions options = ResizeOptions.UpperLeft) : IFilter
+public class ResizeCanvas(int width, int height, ResizeOptions options = ResizeOptions.UpperLeft)
+    : IFilter
 {
-
     /// <summary>
     /// Gets or sets the height.
     /// </summary>

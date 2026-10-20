@@ -40,7 +40,8 @@ public class HermiteFilter : ResamplingFilterBase
     public override double GetValue(double value)
     {
         value = Math.Abs(value);
-        if (value < 1) return (2 * value - 3) * value * value + 1;
+        if (value < 1)
+            return (2 * value - 3) * value * value + 1;
         return 0;
     }
 }

@@ -1,5 +1,3 @@
 ﻿namespace ChromaFx.Tests.Colors;
 
-public class Color
-{
-}
+public class Color { }

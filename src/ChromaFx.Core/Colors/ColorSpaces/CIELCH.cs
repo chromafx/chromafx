@@ -30,7 +30,6 @@ namespace ChromaFx.Core.Colors.ColorSpaces;
 /// <param name="h">The h.</param>
 public struct Cielch(double l, double c, double h) : IEquatable<Cielch>, IColorSpace
 {
-
     /// <summary>
     /// Gets or sets the c.
     /// </summary>
@@ -83,9 +82,7 @@ public struct Cielch(double l, double c, double h) : IEquatable<Cielch>, IColorS
     public static implicit operator Cielch(CieLab color)
     {
         var h = Math.Atan2(color.B, color.A);
-        h = h > 0 ?
-            h / Math.PI * 180.0 :
-            360 - Math.Abs(h) / Math.PI * 180.0;
+        h = h > 0 ? h / Math.PI * 180.0 : 360 - Math.Abs(h) / Math.PI * 180.0;
         if (h < 0)
         {
             h += 360.0;
@@ -114,7 +111,7 @@ public struct Cielch(double l, double c, double h) : IEquatable<Cielch>, IColorS
     /// <param name="color1">The color1.</param>
     /// <param name="color2">The color2.</param>
     /// <returns>The result of the operator.</returns>
-        public static bool operator !=(Cielch color1, Cielch color2)
+    public static bool operator !=(Cielch color1, Cielch color2)
     {
         return !(color1 == color2);
     }
@@ -125,7 +122,7 @@ public struct Cielch(double l, double c, double h) : IEquatable<Cielch>, IColorS
     /// <param name="color1">The color1.</param>
     /// <param name="color2">The color2.</param>
     /// <returns>The result of the operator.</returns>
-        public static bool operator ==(Cielch color1, Cielch color2)
+    public static bool operator ==(Cielch color1, Cielch color2)
     {
         return color1.Equals(color2);
     }
@@ -137,7 +134,7 @@ public struct Cielch(double l, double c, double h) : IEquatable<Cielch>, IColorS
     /// <returns>
     /// <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-        public readonly override bool Equals(object obj)
+    public override readonly bool Equals(object obj)
     {
         return obj is Cielch cielch && Equals(cielch);
     }
@@ -149,11 +146,11 @@ public struct Cielch(double l, double c, double h) : IEquatable<Cielch>, IColorS
     /// <returns>
     /// true if the current object is equal to the <paramref name="other"/> parameter; otherwise, false.
     /// </returns>
-        public readonly bool Equals(Cielch other)
+    public readonly bool Equals(Cielch other)
     {
         return Math.Abs(other.L - L) < Epsilon
-               && Math.Abs(other.C - C) < Epsilon
-               && Math.Abs(other.H - H) < Epsilon;
+            && Math.Abs(other.C - C) < Epsilon
+            && Math.Abs(other.H - H) < Epsilon;
     }
 
     /// <summary>
@@ -163,7 +160,7 @@ public struct Cielch(double l, double c, double h) : IEquatable<Cielch>, IColorS
     /// A hash code for this instance, suitable for use in hashing algorithms and data structures
     /// like a hash table.
     /// </returns>
-    public readonly override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         var hash = L.GetHashCode();
         hash = ComputeHash(hash, C);
@@ -174,7 +171,7 @@ public struct Cielch(double l, double c, double h) : IEquatable<Cielch>, IColorS
     /// Returns a <see cref="string"/> that represents this instance.
     /// </summary>
     /// <returns>A <see cref="string"/> that represents this instance.</returns>
-    public readonly override string ToString() => $"({L:#0.##},{C:#0.##},{H:#0.##})";
+    public override readonly string ToString() => $"({L:#0.##},{C:#0.##},{H:#0.##})";
 
     /// <summary>
     /// Computes the hash.

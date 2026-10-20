@@ -30,7 +30,6 @@ namespace ChromaFx.Processing.Filters.ColorMatrix;
 /// <param name="matrix">The matrix.</param>
 public class ColorMatrix(Matrix5X5 matrix) : MatrixBaseClass
 {
-
     /// <summary>
     /// Gets the matrix.
     /// </summary>

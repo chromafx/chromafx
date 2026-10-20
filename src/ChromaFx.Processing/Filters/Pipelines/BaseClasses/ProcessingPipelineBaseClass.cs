@@ -34,7 +34,6 @@ namespace ChromaFx.Processing.Filters.Pipelines.BaseClasses;
 /// </param>
 public abstract class ProcessingPipelineBaseClass(bool combine) : IFilter
 {
-
     /// <summary>
     /// Gets or sets a value indicating whether this <see cref="ProcessingPipelineBaseClass"/>
     /// should combine the filters or not.

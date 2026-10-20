@@ -12,12 +12,28 @@ public class BinaryFilters : FilterTestBaseClass
 
     public static readonly TheoryData<string, IFilter, Rectangle> Filters = new()
     {
-        { "AdaptiveThreshold", new AdaptiveThreshold(10,Color.White,Color.Black,.5f),default },
-        { "Threshold", new Threshold(Color.White,Color.Black,.5f),default },
-        { "AdaptiveThreshold-Partial", new AdaptiveThreshold(10,Color.White,Color.Black,.5f),new Rectangle(100,100,500,500) },
-        { "Threshold-Partial", new Threshold(Color.White,Color.Black,.5f),new Rectangle(100,100,500,500) },
-        { "NonMaximalSuppression", new NonMaximalSuppression(Color.White,Color.Black,0.8f,0.5f),default },
-        { "NonMaximalSuppression-Partial", new NonMaximalSuppression(Color.White,Color.Black,0.8f,0.5f),new Rectangle(100,100,500,500) }
+        { "AdaptiveThreshold", new AdaptiveThreshold(10, Color.White, Color.Black, .5f), default },
+        { "Threshold", new Threshold(Color.White, Color.Black, .5f), default },
+        {
+            "AdaptiveThreshold-Partial",
+            new AdaptiveThreshold(10, Color.White, Color.Black, .5f),
+            new Rectangle(100, 100, 500, 500)
+        },
+        {
+            "Threshold-Partial",
+            new Threshold(Color.White, Color.Black, .5f),
+            new Rectangle(100, 100, 500, 500)
+        },
+        {
+            "NonMaximalSuppression",
+            new NonMaximalSuppression(Color.White, Color.Black, 0.8f, 0.5f),
+            default
+        },
+        {
+            "NonMaximalSuppression-Partial",
+            new NonMaximalSuppression(Color.White, Color.Black, 0.8f, 0.5f),
+            new Rectangle(100, 100, 500, 500)
+        },
     };
 
     [Theory]

@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
+using ChromaFx.Core;
 using ChromaFx.Core.Colors;
+using ChromaFx.Processing.Filters.Convolution.Enums;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
-using ChromaFx.Processing.Filters.Convolution.Enums;
-using ChromaFx.Core;
 
 namespace ChromaFx.Processing.Filters.Effects;
 
@@ -35,7 +35,6 @@ namespace ChromaFx.Processing.Filters.Effects;
 /// <param name="direction">The direction.</param>
 public class SinWave(float amplitude, float frequency, Direction direction) : IFilter
 {
-
     /// <summary>
     /// Gets or sets the amplitude.
     /// </summary>
@@ -78,12 +77,10 @@ public class SinWave(float amplitude, float frequency, Direction direction) : IF
 
                     switch (Direction)
                     {
-                        case Direction.RightToLeft
-                        or Direction.LeftToRight:
+                        case Direction.RightToLeft or Direction.LeftToRight:
                             value1 = Math.Sin(x * Frequency * Math.PI / 180.0d) * Amplitude;
                             break;
-                        case Direction.BottomToTop
-                        or Direction.TopToBottom:
+                        case Direction.BottomToTop or Direction.TopToBottom:
                             value2 = Math.Sin(y * Frequency * Math.PI / 180.0d) * Amplitude;
                             break;
                     }

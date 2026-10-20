@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
+using ChromaFx.Core;
 using ChromaFx.Core.Colors;
+using ChromaFx.Processing.Filters.ColorMatrix;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
-using ChromaFx.Core;
-using ChromaFx.Processing.Filters.ColorMatrix;
 
 namespace ChromaFx.Processing.Filters.Binary;
 
@@ -34,9 +34,9 @@ namespace ChromaFx.Processing.Filters.Binary;
 /// <param name="color2">The second color.</param>
 /// <param name="threshold1">The threshold1.</param>
 /// <param name="threshold2">The threshold2.</param>
-public class NonMaximalSuppression(Color color1, Color color2, float threshold1, float threshold2) : IFilter
+public class NonMaximalSuppression(Color color1, Color color2, float threshold1, float threshold2)
+    : IFilter
 {
-
     /// <summary>
     /// Gets or sets the color1.
     /// </summary>
@@ -74,14 +74,18 @@ public class NonMaximalSuppression(Color color1, Color color2, float threshold1,
         var result = new Image(image.Width, image.Height, new Color[image.Pixels.Length]);
         Array.Copy(image.Pixels, result.Pixels, result.Pixels.Length);
         new Drawing.Rectangle(Color2, true, targetLocation).Apply(result);
-        Parallel.For(targetLocation.Bottom, targetLocation.Top, y =>
-        {
-            for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+        Parallel.For(
+            targetLocation.Bottom,
+            targetLocation.Top,
+            y =>
             {
-                if (image.Pixels[y * image.Width + x].Red >= Threshold1)
-                    FillPixels(result.Pixels, image, x, y, targetLocation);
+                for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+                {
+                    if (image.Pixels[y * image.Width + x].Red >= Threshold1)
+                        FillPixels(result.Pixels, image, x, y, targetLocation);
+                }
             }
-        });
+        );
         return image.ReCreate(image.Width, image.Height, result.Pixels);
     }
 
@@ -95,8 +99,10 @@ public class NonMaximalSuppression(Color color1, Color color2, float threshold1,
             var left = currentPixel.Item1 - 1;
             if (left >= targetLocation.Left)
             {
-                if (image.Pixels[currentPixel.Item2 * image.Width + left].Red > Threshold2
-                    && result[currentPixel.Item2 * image.Width + left] != Color1)
+                if (
+                    image.Pixels[currentPixel.Item2 * image.Width + left].Red > Threshold2
+                    && result[currentPixel.Item2 * image.Width + left] != Color1
+                )
                 {
                     result[currentPixel.Item2 * image.Width + left] = Color1;
                     tempPixels.Push(new Tuple<int, int>(left, currentPixel.Item2));
@@ -105,8 +111,10 @@ public class NonMaximalSuppression(Color color1, Color color2, float threshold1,
             var right = currentPixel.Item1 + 1;
             if (right < targetLocation.Right)
             {
-                if (image.Pixels[currentPixel.Item2 * image.Width + right].Red > Threshold2
-                    && result[currentPixel.Item2 * image.Width + right] != Color1)
+                if (
+                    image.Pixels[currentPixel.Item2 * image.Width + right].Red > Threshold2
+                    && result[currentPixel.Item2 * image.Width + right] != Color1
+                )
                 {
                     result[currentPixel.Item2 * image.Width + right] = Color1;
                     tempPixels.Push(new Tuple<int, int>(right, currentPixel.Item2));
@@ -115,8 +123,10 @@ public class NonMaximalSuppression(Color color1, Color color2, float threshold1,
             var bottom = currentPixel.Item2 - 1;
             if (bottom >= targetLocation.Bottom)
             {
-                if (image.Pixels[bottom * image.Width + currentPixel.Item1].Red > Threshold2
-                    && result[bottom * image.Width + currentPixel.Item1] != Color1)
+                if (
+                    image.Pixels[bottom * image.Width + currentPixel.Item1].Red > Threshold2
+                    && result[bottom * image.Width + currentPixel.Item1] != Color1
+                )
                 {
                     result[bottom * image.Width + currentPixel.Item1] = Color1;
                     tempPixels.Push(new Tuple<int, int>(currentPixel.Item1, bottom));
@@ -125,8 +135,10 @@ public class NonMaximalSuppression(Color color1, Color color2, float threshold1,
             var top = currentPixel.Item2 + 1;
             if (top < targetLocation.Top)
             {
-                if (image.Pixels[top * image.Width + currentPixel.Item1].Red > Threshold2
-                    && result[top * image.Width + currentPixel.Item1] != Color1)
+                if (
+                    image.Pixels[top * image.Width + currentPixel.Item1].Red > Threshold2
+                    && result[top * image.Width + currentPixel.Item1] != Color1
+                )
                 {
                     result[top * image.Width + currentPixel.Item1] = Color1;
                     tempPixels.Push(new Tuple<int, int>(currentPixel.Item1, top));
@@ -134,8 +146,10 @@ public class NonMaximalSuppression(Color color1, Color color2, float threshold1,
             }
             if (left >= targetLocation.Left && bottom >= targetLocation.Bottom)
             {
-                if (image.Pixels[bottom * image.Width + left].Red > Threshold2
-                    && result[bottom * image.Width + left] != Color1)
+                if (
+                    image.Pixels[bottom * image.Width + left].Red > Threshold2
+                    && result[bottom * image.Width + left] != Color1
+                )
                 {
                     result[bottom * image.Width + left] = Color1;
                     tempPixels.Push(new Tuple<int, int>(left, bottom));
@@ -143,8 +157,10 @@ public class NonMaximalSuppression(Color color1, Color color2, float threshold1,
             }
             if (left >= targetLocation.Left && top < targetLocation.Top)
             {
-                if (image.Pixels[top * image.Width + left].Red > Threshold2
-                    && result[top * image.Width + left] != Color1)
+                if (
+                    image.Pixels[top * image.Width + left].Red > Threshold2
+                    && result[top * image.Width + left] != Color1
+                )
                 {
                     result[top * image.Width + left] = Color1;
                     tempPixels.Push(new Tuple<int, int>(left, top));
@@ -152,8 +168,10 @@ public class NonMaximalSuppression(Color color1, Color color2, float threshold1,
             }
             if (right < targetLocation.Right && bottom >= targetLocation.Bottom)
             {
-                if (image.Pixels[bottom * image.Width + right].Red > Threshold2
-                    && result[bottom * image.Width + right] != Color1)
+                if (
+                    image.Pixels[bottom * image.Width + right].Red > Threshold2
+                    && result[bottom * image.Width + right] != Color1
+                )
                 {
                     result[bottom * image.Width + right] = Color1;
                     tempPixels.Push(new Tuple<int, int>(right, bottom));
@@ -161,8 +179,10 @@ public class NonMaximalSuppression(Color color1, Color color2, float threshold1,
             }
             if (right < targetLocation.Left && top < targetLocation.Top)
             {
-                if (image.Pixels[top * image.Width + right].Red > Threshold2
-                    && result[top * image.Width + right] != Color1)
+                if (
+                    image.Pixels[top * image.Width + right].Red > Threshold2
+                    && result[top * image.Width + right] != Color1
+                )
                 {
                     result[top * image.Width + right] = Color1;
                     tempPixels.Push(new Tuple<int, int>(right, top));

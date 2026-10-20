@@ -32,11 +32,32 @@ public class LomographColorMatrix : MatrixBaseClass
     /// <value>
     /// The matrix.
     /// </value>
-    public override Matrix5X5 Matrix => new(
-        1.5f, 0f, 0f, 0f, 0f,
-        0f, 1.45f, 0f, 0f, 0f,
-        0f, 0f, 1.11f, 0f, 0f,
-        0f, 0f, 0f, 1f, 0f,
-        -.1f, 0f, -.08f, 0f, 1f
-    );
+    public override Matrix5X5 Matrix =>
+        new(
+            1.5f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1.45f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1.11f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f,
+            0f,
+            -.1f,
+            0f,
+            -.08f,
+            0f,
+            1f
+        );
 }

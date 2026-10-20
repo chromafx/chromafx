@@ -42,13 +42,7 @@ public class LaplacianOfGaussianEdgeDetector : ConvolutionBaseClass
     /// </summary>
     /// <value>The matrix.</value>
     public override float[] Matrix =>
-    [
-        0, 0, -1,  0,  0,
-        0, -1, -2, -1,  0,
-        -1, -2, 16, -2, -1,
-        0, -1, -2, -1,  0,
-        0, 0, -1,  0,  0
-    ];
+        [0, 0, -1, 0, 0, 0, -1, -2, -1, 0, -1, -2, 16, -2, -1, 0, -1, -2, -1, 0, 0, 0, -1, 0, 0];
 
     /// <summary>
     /// Gets the offset.

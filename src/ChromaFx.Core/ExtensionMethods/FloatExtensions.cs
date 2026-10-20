@@ -33,7 +33,9 @@ public static class Extensions
     /// <returns>The clamped value.</returns>
     public static float Clamp(this float value, float min, float max)
     {
-        return value < min ? min : value > max ? max : value;
+        return value < min ? min
+            : value > max ? max
+            : value;
     }
 
     /// <summary>

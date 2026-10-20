@@ -44,7 +44,7 @@ public class BilinearFilter : ResamplingFilterBase
         return value switch
         {
             <= 0.5 => 1,
-            _ => 0
+            _ => 0,
         };
     }
 }

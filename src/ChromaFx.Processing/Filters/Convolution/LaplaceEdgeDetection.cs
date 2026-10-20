@@ -42,13 +42,33 @@ public class LaplaceEdgeDetection : ConvolutionBaseClass
     /// </summary>
     /// <value>The matrix.</value>
     public override float[] Matrix =>
-    [
-        -1, -1, -1, -1, -1,
-        -1, -1, -1, -1, -1,
-        -1, -1, 24, -1, -1,
-        -1, -1, -1, -1, -1,
-        -1, -1, -1, -1, -1
-    ];
+        [
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            24,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+        ];
 
     /// <summary>
     /// Gets the offset.

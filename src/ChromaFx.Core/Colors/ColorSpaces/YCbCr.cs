@@ -31,9 +31,10 @@ namespace ChromaFx.Core.Colors.ColorSpaces;
 /// <param name="yLuminance">The y luminance.</param>
 /// <param name="cbChroma">The cb chroma.</param>
 /// <param name="crChroma">The cr chroma.</param>
-public struct YCbCr(double yLuminance, double cbChroma, double crChroma) : IEquatable<YCbCr>, IColorSpace
+public struct YCbCr(double yLuminance, double cbChroma, double crChroma)
+    : IEquatable<YCbCr>,
+        IColorSpace
 {
-
     /// <summary>
     /// Gets or sets the cb chroma.
     /// </summary>
@@ -68,9 +69,11 @@ public struct YCbCr(double yLuminance, double cbChroma, double crChroma) : IEqua
         var cb = color.CbChroma - 128;
         var cr = color.CrChroma - 128;
 
-        return new Color(Math.Round(y + 1.402 * cr, MidpointRounding.AwayFromZero).ToByte(),
+        return new Color(
+            Math.Round(y + 1.402 * cr, MidpointRounding.AwayFromZero).ToByte(),
             Math.Round(y - 0.344136 * cb - 0.714136 * cr, MidpointRounding.AwayFromZero).ToByte(),
-            Math.Round(y + 1.772 * cb, MidpointRounding.AwayFromZero).ToByte());
+            Math.Round(y + 1.772 * cb, MidpointRounding.AwayFromZero).ToByte()
+        );
     }
 
     /// <summary>
@@ -85,9 +88,11 @@ public struct YCbCr(double yLuminance, double cbChroma, double crChroma) : IEqua
         var g = color.Green;
         var b = color.Blue;
 
-        return new YCbCr(0.299 * r + 0.587 * g + 0.114 * b,
+        return new YCbCr(
+            0.299 * r + 0.587 * g + 0.114 * b,
             128 - 0.168736 * r - 0.331264 * g + 0.5 * b,
-            128 + 0.5 * r - 0.418688 * g - 0.081312 * b);
+            128 + 0.5 * r - 0.418688 * g - 0.081312 * b
+        );
     }
 
     /// <summary>
@@ -96,7 +101,7 @@ public struct YCbCr(double yLuminance, double cbChroma, double crChroma) : IEqua
     /// <param name="color1">The color1.</param>
     /// <param name="color2">The color2.</param>
     /// <returns>The result of the operator.</returns>
-        public static bool operator !=(YCbCr color1, YCbCr color2)
+    public static bool operator !=(YCbCr color1, YCbCr color2)
     {
         return !(color1 == color2);
     }
@@ -107,7 +112,7 @@ public struct YCbCr(double yLuminance, double cbChroma, double crChroma) : IEqua
     /// <param name="color1">The color1.</param>
     /// <param name="color2">The color2.</param>
     /// <returns>The result of the operator.</returns>
-        public static bool operator ==(YCbCr color1, YCbCr color2)
+    public static bool operator ==(YCbCr color1, YCbCr color2)
     {
         return color1.Equals(color2);
     }
@@ -119,7 +124,7 @@ public struct YCbCr(double yLuminance, double cbChroma, double crChroma) : IEqua
     /// <returns>
     /// <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-        public readonly override bool Equals(object obj)
+    public override readonly bool Equals(object obj)
     {
         return obj is YCbCr cr && Equals(cr);
     }
@@ -131,11 +136,11 @@ public struct YCbCr(double yLuminance, double cbChroma, double crChroma) : IEqua
     /// <returns>
     /// true if the current object is equal to the <paramref name="other"/> parameter; otherwise, false.
     /// </returns>
-        public readonly bool Equals(YCbCr other)
+    public readonly bool Equals(YCbCr other)
     {
         return Math.Abs(other.YLuminance - YLuminance) < Epsilon
-               && Math.Abs(other.CbChroma - CbChroma) < Epsilon
-               && Math.Abs(other.CrChroma - CrChroma) < Epsilon;
+            && Math.Abs(other.CbChroma - CbChroma) < Epsilon
+            && Math.Abs(other.CrChroma - CrChroma) < Epsilon;
     }
 
     /// <summary>
@@ -145,7 +150,7 @@ public struct YCbCr(double yLuminance, double cbChroma, double crChroma) : IEqua
     /// A hash code for this instance, suitable for use in hashing algorithms and data structures
     /// like a hash table.
     /// </returns>
-    public readonly override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         var hash = YLuminance.GetHashCode();
         hash = ComputeHash(hash, CbChroma);
@@ -156,7 +161,8 @@ public struct YCbCr(double yLuminance, double cbChroma, double crChroma) : IEqua
     /// Returns a <see cref="string"/> that represents this instance.
     /// </summary>
     /// <returns>A <see cref="string"/> that represents this instance.</returns>
-    public readonly override string ToString() => $"({YLuminance:#0.##},{CbChroma:#0.##},{CrChroma:#0.##})";
+    public override readonly string ToString() =>
+        $"({YLuminance:#0.##},{CbChroma:#0.##},{CrChroma:#0.##})";
 
     /// <summary>
     /// Computes the hash.

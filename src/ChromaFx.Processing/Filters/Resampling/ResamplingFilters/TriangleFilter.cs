@@ -40,7 +40,8 @@ public class TriangleFilter : ResamplingFilterBase
     public override double GetValue(double value)
     {
         value = Math.Abs(value);
-        if (value < 1) return 1 - value;
+        if (value < 1)
+            return 1 - value;
         return 0;
     }
 }

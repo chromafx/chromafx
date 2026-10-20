@@ -44,7 +44,7 @@ public class QuadraticFilter : ResamplingFilterBase
         {
             <= 0.5 => -2 * value * value + 1,
             <= 1.5 => value * value - 2.5 * value + 1.5,
-            _ => 0
+            _ => 0,
         };
     }
 }

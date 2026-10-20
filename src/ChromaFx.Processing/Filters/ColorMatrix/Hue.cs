@@ -46,19 +46,30 @@ public class Hue : MatrixBaseClass
         const float oneMinusLumB = 1f - lumB;
         Matrix = new Matrix5X5(
             (float)(lumR + cosRadians * oneMinusLumR - sinRadians * lumR), // M11
-            (float)(lumR - cosRadians * lumR - sinRadians * 0.143),        // M12
+            (float)(lumR - cosRadians * lumR - sinRadians * 0.143), // M12
             (float)(lumR - cosRadians * lumR - sinRadians * oneMinusLumR), // M13
-            0, 0,                                                         // M14, M15
-            (float)(lumG - cosRadians * lumG - sinRadians * lumG),         // M21
-            (float)(lumG + cosRadians * oneMinusLumG + sinRadians * 0.140),// M22
-            (float)(lumG - cosRadians * lumG + sinRadians * lumG),         // M23
-            0, 0,                                                         // M24, M25
+            0,
+            0, // M14, M15
+            (float)(lumG - cosRadians * lumG - sinRadians * lumG), // M21
+            (float)(lumG + cosRadians * oneMinusLumG + sinRadians * 0.140), // M22
+            (float)(lumG - cosRadians * lumG + sinRadians * lumG), // M23
+            0,
+            0, // M24, M25
             (float)(lumB - cosRadians * lumB + sinRadians * oneMinusLumB), // M31
-            (float)(lumB - cosRadians * lumB - sinRadians * 0.283),        // M32
+            (float)(lumB - cosRadians * lumB - sinRadians * 0.283), // M32
             (float)(lumB + cosRadians * oneMinusLumB + sinRadians * lumB), // M33
-            0, 0,                                                         // M34, M35
-            0, 0, 0, 1, 0,                                                // M41, M42, M43, M44, M45
-            0, 0, 0, 0, 1                                                 // M51, M52, M53, M54, M55
+            0,
+            0, // M34, M35
+            0,
+            0,
+            0,
+            1,
+            0, // M41, M42, M43, M44, M45
+            0,
+            0,
+            0,
+            0,
+            1 // M51, M52, M53, M54, M55
         );
     }
 
@@ -66,13 +77,34 @@ public class Hue : MatrixBaseClass
     /// Gets the matrix.
     /// </summary>
     /// <value>The matrix.</value>
-    public override Matrix5X5 Matrix { get; } = new(
-        1f, 0f, 0f, 0f, 0f,
-        0f, 1f, 0f, 0f, 0f,
-        0f, 0f, 1f, 0f, 0f,
-        0f, 0f, 0f, 1f, 0f,
-        0f, 0f, 0f, 0f, 1f
-    );
+    public override Matrix5X5 Matrix { get; } =
+        new(
+            1f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f
+        );
 
     /// <summary>
     /// Gets the value.

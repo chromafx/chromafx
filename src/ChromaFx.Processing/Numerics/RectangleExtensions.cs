@@ -16,8 +16,6 @@ public static class RectangleExtensions
     /// <returns>A normalized rectangle.</returns>
     public static Rectangle Normalize(this Rectangle rect, Image image)
     {
-        return rect == default
-            ? new Rectangle(0, 0, image.Width, image.Height)
-            : rect.Clamp(image);
+        return rect == default ? new Rectangle(0, 0, image.Width, image.Height) : rect.Clamp(image);
     }
 }

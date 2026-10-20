@@ -46,10 +46,16 @@ public class RobidouxFilter : ResamplingFilterBase
         var temp = value * value;
         return value switch
         {
-            < 1 => ((12 - 9 * b - 6 * c) * (value * temp) + (-18 + 12 * b + 6 * c) * temp + (6 - 2 * b)) / 6,
-            < 2 => ((-b - 6 * c) * (value * temp) + (6 * b + 30 * c) * temp + (-12 * b - 48 * c) * value +
-                    (8 * b + 24 * c)) / 6,
-            _ => 0
+            < 1 => (
+                (12 - 9 * b - 6 * c) * (value * temp) + (-18 + 12 * b + 6 * c) * temp + (6 - 2 * b)
+            ) / 6,
+            < 2 => (
+                (-b - 6 * c) * (value * temp)
+                + (6 * b + 30 * c) * temp
+                + (-12 * b - 48 * c) * value
+                + (8 * b + 24 * c)
+            ) / 6,
+            _ => 0,
         };
     }
 }

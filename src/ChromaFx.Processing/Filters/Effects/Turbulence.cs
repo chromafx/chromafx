@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
+using ChromaFx.Core;
 using ChromaFx.Core.Colors;
-using ChromaFx.Processing.Procedural;
+using ChromaFx.Core.ExtensionMethods;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
-using ChromaFx.Core.ExtensionMethods;
-using ChromaFx.Core;
+using ChromaFx.Processing.Procedural;
 
 namespace ChromaFx.Processing.Filters.Effects;
 
@@ -36,7 +36,6 @@ namespace ChromaFx.Processing.Filters.Effects;
 /// <param name="seed">The seed.</param>
 public class Turbulence(int roughness = 8, float power = 0.02f, int seed = 25123864) : IFilter
 {
-
     /// <summary>
     /// Gets or sets the power.
     /// </summary>

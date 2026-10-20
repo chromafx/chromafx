@@ -40,7 +40,7 @@ public enum Direction
     /// <summary>
     /// Right to left
     /// </summary>
-    RightToLeft = 3
+    RightToLeft = 3,
 }
 
 /// <summary>
@@ -56,7 +56,7 @@ public enum XDirection
     /// <summary>
     /// Right to left
     /// </summary>
-    RightToLeft = 1
+    RightToLeft = 1,
 }
 
 /// <summary>
@@ -72,5 +72,5 @@ public enum YDirection
     /// <summary>
     /// Bottom to top
     /// </summary>
-    BottomToTop = 1
+    BottomToTop = 1,
 }

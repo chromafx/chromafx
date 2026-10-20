@@ -14,7 +14,6 @@ namespace ChromaFx.Processing.Filters.Drawing.BaseClasses;
 /// <param name="color">The color.</param>
 public abstract class ShapeBaseClass(Color color) : IShape
 {
-
     /// <summary>
     /// Gets or sets the color.
     /// </summary>
@@ -47,7 +46,13 @@ public abstract class ShapeBaseClass(Color color) : IShape
     /// <param name="y">The y coordinate.</param>
     /// <param name="brightness">The brightness of the pixel.</param>
     /// <param name="targetLocation">The target location.</param>
-    protected void Plot(Image image, int x, int y, float brightness, Numerics.Rectangle targetLocation)
+    protected void Plot(
+        Image image,
+        int x,
+        int y,
+        float brightness,
+        Numerics.Rectangle targetLocation
+    )
     {
         if (!targetLocation.Contains(x, y))
             return;

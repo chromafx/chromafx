@@ -33,7 +33,6 @@ namespace ChromaFx.Processing.Filters.Drawing;
 /// <param name="bounds">The bounds.</param>
 public class Rectangle(Color color, bool fill, Numerics.Rectangle bounds) : ShapeBaseClass(color)
 {
-
     /// <summary>
     /// Gets or sets the bounds.
     /// </summary>

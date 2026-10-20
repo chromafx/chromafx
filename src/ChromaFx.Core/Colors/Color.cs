@@ -639,16 +639,9 @@ public partial struct Color : IEquatable<Color>
     public Color Divide(Color color)
     {
         Red = color.Red == 0 ? Red : (Red / 255f / (color.Red / 255f) * 255f).ToByte();
-        Green =
-            color.Green == 0
-                ? Green
-                : (Green / 255f / (color.Green / 255f) * 255f).ToByte();
-        Blue =
-            color.Blue == 0 ? Blue : (Blue / 255f / (color.Blue / 255f) * 255f).ToByte();
-        Alpha =
-            color.Alpha == 0
-                ? Alpha
-                : (Alpha / 255f / (color.Alpha / 255f) * 255f).ToByte();
+        Green = color.Green == 0 ? Green : (Green / 255f / (color.Green / 255f) * 255f).ToByte();
+        Blue = color.Blue == 0 ? Blue : (Blue / 255f / (color.Blue / 255f) * 255f).ToByte();
+        Alpha = color.Alpha == 0 ? Alpha : (Alpha / 255f / (color.Alpha / 255f) * 255f).ToByte();
         return this;
     }
 
@@ -812,7 +805,7 @@ public partial struct Color : IEquatable<Color>
     /// <returns>
     /// <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public readonly override bool Equals(object obj)
+    public override readonly bool Equals(object obj)
     {
         return obj is Color color && Equals(color);
     }
@@ -824,7 +817,7 @@ public partial struct Color : IEquatable<Color>
     /// A hash code for this instance, suitable for use in hashing algorithms and data structures
     /// like a hash table.
     /// </returns>
-    public readonly override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         var hash = Red.GetHashCode();
         hash = ComputeHash(hash, Green);
@@ -852,7 +845,7 @@ public partial struct Color : IEquatable<Color>
     /// Returns a <see cref="string"/> that represents this instance.
     /// </summary>
     /// <returns>A <see cref="string"/> that represents this instance.</returns>
-    public readonly override string ToString() => $"({Red},{Green},{Blue},{Alpha})";
+    public override readonly string ToString() => $"({Red},{Green},{Blue},{Alpha})";
 
     /// <summary>
     /// Computes the hash.

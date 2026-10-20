@@ -41,12 +41,7 @@ public class Emboss : ConvolutionBaseClass
     /// Gets the matrix.
     /// </summary>
     /// <value>The matrix.</value>
-    public override float[] Matrix =>
-    [
-        -2, -1, 0,
-        -1, 1,  1,
-        0,  1,  2
-    ];
+    public override float[] Matrix => [-2, -1, 0, -1, 1, 1, 0, 1, 2];
 
     /// <summary>
     /// Gets the offset.

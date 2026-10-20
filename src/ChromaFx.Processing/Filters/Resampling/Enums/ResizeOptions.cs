@@ -30,5 +30,5 @@ public enum ResizeOptions
     /// <summary>
     /// Center the image when resizing
     /// </summary>
-    Center
+    Center,
 }

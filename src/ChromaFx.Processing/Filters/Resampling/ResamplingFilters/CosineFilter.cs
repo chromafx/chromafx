@@ -39,7 +39,8 @@ public class CosineFilter : ResamplingFilterBase
     /// <returns>The new value based on the input.</returns>
     public override double GetValue(double value)
     {
-        if (value is >= -1 and <= 1) return (Math.Cos(value * Math.PI) + 1) / 2f;
+        if (value is >= -1 and <= 1)
+            return (Math.Cos(value * Math.PI) + 1) / 2f;
         return 0;
     }
 }

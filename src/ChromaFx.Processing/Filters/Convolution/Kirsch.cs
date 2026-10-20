@@ -54,21 +54,11 @@ public class Kirsch : Convolution2DBaseClass
     /// Gets the x matrix.
     /// </summary>
     /// <value>The x matrix.</value>
-    public override float[] XMatrix =>
-    [
-        5, 5, 5,
-        -3, 0, -3,
-        -3, -3, -3
-    ];
+    public override float[] XMatrix => [5, 5, 5, -3, 0, -3, -3, -3, -3];
 
     /// <summary>
     /// Gets the y matrix.
     /// </summary>
     /// <value>The y matrix.</value>
-    public override float[] YMatrix =>
-    [
-        5, -3, -3,
-        5, 0, -3,
-        5, -3, -3
-    ];
+    public override float[] YMatrix => [5, -3, -3, 5, 0, -3, 5, -3, -3];
 }

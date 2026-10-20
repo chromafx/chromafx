@@ -32,7 +32,6 @@ namespace ChromaFx.Processing.Filters.Morphology;
 /// <param name="apertureRadius">The aperture radius.</param>
 public class Constrict(int apertureRadius) : IFilter
 {
-
     /// <summary>
     /// Gets or sets the aperture radius.
     /// </summary>

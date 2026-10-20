@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
+using ChromaFx.Core;
 using ChromaFx.Core.Colors;
+using ChromaFx.Processing.Filters.ColorMatrix;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
-using ChromaFx.Core;
-using ChromaFx.Processing.Filters.ColorMatrix;
 
 namespace ChromaFx.Processing.Filters.Binary;
 
@@ -35,7 +35,6 @@ namespace ChromaFx.Processing.Filters.Binary;
 /// <param name="threshold">The threshold.</param>
 public class Threshold(Color color1, Color color2, float threshold) : IFilter
 {
-
     /// <summary>
     /// Gets or sets the color1.
     /// </summary>

@@ -30,11 +30,32 @@ public class Achromatopsia : MatrixBaseClass
     /// Gets the matrix.
     /// </summary>
     /// <value>The matrix.</value>
-    public override Matrix5X5 Matrix => new(
-        .299f, .299f, .299f, 0f, 0f,
-        .587f, .587f, .587f, 0f, 0f,
-        .114f, .114f, .114f, 0f, 0f,
-        0f, 0f, 0f, 1f, 0f,
-        0f, 0f, 0f, 0f, 1f
-    );
+    public override Matrix5X5 Matrix =>
+        new(
+            .299f,
+            .299f,
+            .299f,
+            0f,
+            0f,
+            .587f,
+            .587f,
+            .587f,
+            0f,
+            0f,
+            .114f,
+            .114f,
+            .114f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f
+        );
 }

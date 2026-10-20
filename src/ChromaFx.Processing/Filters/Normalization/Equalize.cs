@@ -32,7 +32,6 @@ namespace ChromaFx.Processing.Filters.Normalization;
 /// <param name="histogram">The histogram.</param>
 public class Equalize(IHistogram histogram = null) : IFilter
 {
-
     /// <summary>
     /// Gets or sets the histogram.
     /// </summary>

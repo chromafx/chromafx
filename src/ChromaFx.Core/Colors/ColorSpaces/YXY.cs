@@ -30,7 +30,6 @@ namespace ChromaFx.Core.Colors.ColorSpaces;
 /// <param name="y2">The y2.</param>
 public struct Yxy(double y1, double x, double y2) : IEquatable<Yxy>, IColorSpace
 {
-
     /// <summary>
     /// Gets or sets the x.
     /// </summary>
@@ -71,9 +70,11 @@ public struct Yxy(double y1, double x, double y2) : IEquatable<Yxy>, IColorSpace
     /// <returns>The result of the conversion.</returns>
     public static implicit operator Xyz(Yxy color)
     {
-        return new Xyz(color.X * (color.Y1 / color.Y2),
+        return new Xyz(
+            color.X * (color.Y1 / color.Y2),
             color.Y1,
-            (1.0 - color.X - color.Y2) * (color.Y1 / color.Y2));
+            (1.0 - color.X - color.Y2) * (color.Y1 / color.Y2)
+        );
     }
 
     /// <summary>
@@ -86,9 +87,11 @@ public struct Yxy(double y1, double x, double y2) : IEquatable<Yxy>, IColorSpace
         var xyz = color;
         var xDividend = xyz.X + xyz.Y + xyz.Z;
         var y2Dividend = xyz.X + xyz.Y + xyz.Z;
-        return new Yxy(xyz.Y,
+        return new Yxy(
+            xyz.Y,
             Math.Abs(xDividend) < Epsilon ? 0.0 : xyz.X / xDividend,
-            Math.Abs(y2Dividend) < Epsilon ? 0.0 : xyz.Y / (xyz.X + xyz.Y + xyz.Z));
+            Math.Abs(y2Dividend) < Epsilon ? 0.0 : xyz.Y / (xyz.X + xyz.Y + xyz.Z)
+        );
     }
 
     /// <summary>
@@ -107,7 +110,7 @@ public struct Yxy(double y1, double x, double y2) : IEquatable<Yxy>, IColorSpace
     /// <param name="color1">The color1.</param>
     /// <param name="color2">The color2.</param>
     /// <returns>The result of the operator.</returns>
-        public static bool operator !=(Yxy color1, Yxy color2)
+    public static bool operator !=(Yxy color1, Yxy color2)
     {
         return !(color1 == color2);
     }
@@ -118,7 +121,7 @@ public struct Yxy(double y1, double x, double y2) : IEquatable<Yxy>, IColorSpace
     /// <param name="color1">The color1.</param>
     /// <param name="color2">The color2.</param>
     /// <returns>The result of the operator.</returns>
-        public static bool operator ==(Yxy color1, Yxy color2)
+    public static bool operator ==(Yxy color1, Yxy color2)
     {
         return color1.Equals(color2);
     }
@@ -130,7 +133,7 @@ public struct Yxy(double y1, double x, double y2) : IEquatable<Yxy>, IColorSpace
     /// <returns>
     /// <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-        public readonly override bool Equals(object obj)
+    public override readonly bool Equals(object obj)
     {
         return obj is Yxy yxy && Equals(yxy);
     }
@@ -142,11 +145,11 @@ public struct Yxy(double y1, double x, double y2) : IEquatable<Yxy>, IColorSpace
     /// <returns>
     /// true if the current object is equal to the <paramref name="other"/> parameter; otherwise, false.
     /// </returns>
-        public readonly bool Equals(Yxy other)
+    public readonly bool Equals(Yxy other)
     {
         return Math.Abs(other.X - X) < Epsilon
-               && Math.Abs(other.Y1 - Y1) < Epsilon
-               && Math.Abs(other.Y2 - Y2) < Epsilon;
+            && Math.Abs(other.Y1 - Y1) < Epsilon
+            && Math.Abs(other.Y2 - Y2) < Epsilon;
     }
 
     /// <summary>
@@ -156,7 +159,7 @@ public struct Yxy(double y1, double x, double y2) : IEquatable<Yxy>, IColorSpace
     /// A hash code for this instance, suitable for use in hashing algorithms and data structures
     /// like a hash table.
     /// </returns>
-    public readonly override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         var hash = X.GetHashCode();
         hash = ComputeHash(hash, Y1);
@@ -167,7 +170,7 @@ public struct Yxy(double y1, double x, double y2) : IEquatable<Yxy>, IColorSpace
     /// Returns a <see cref="string"/> that represents this instance.
     /// </summary>
     /// <returns>A <see cref="string"/> that represents this instance.</returns>
-    public readonly override string ToString() => $"({Y1:#0.##},{X:#0.##},{Y2:#0.##})";
+    public override readonly string ToString() => $"({Y1:#0.##},{X:#0.##},{Y2:#0.##})";
 
     /// <summary>
     /// Computes the hash.

@@ -20,6 +20,4 @@ namespace ChromaFx.Core.Colors.ColorSpaces.Interfaces;
 /// <summary>
 /// Color space interface
 /// </summary>
-public interface IColorSpace
-{
-}
+public interface IColorSpace { }

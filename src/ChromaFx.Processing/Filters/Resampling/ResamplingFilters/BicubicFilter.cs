@@ -47,7 +47,7 @@ public class BicubicFilter : ResamplingFilterBase
         {
             <= 1 => (1.5f * value - 2.5f) * value * value + 1,
             < 2 => ((a * value + 2.5f) * value - 4) * value + 2,
-            _ => 0
+            _ => 0,
         };
     }
 }

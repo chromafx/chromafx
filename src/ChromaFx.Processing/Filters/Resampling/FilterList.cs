@@ -29,26 +29,27 @@ public class FilterList
     /// <summary>
     /// Dictionary of available resampling filters
     /// </summary>
-    public static Dictionary<ResamplingFiltersAvailable, IResamplingFilter> Filters => new()
-    {
-        { ResamplingFiltersAvailable.Bell, new BellFilter() },
-        { ResamplingFiltersAvailable.CatmullRom, new CatmullRomFilter() },
-        { ResamplingFiltersAvailable.Cosine, new CosineFilter() },
-        { ResamplingFiltersAvailable.CubicBSpline, new CubicBSplineFilter() },
-        { ResamplingFiltersAvailable.CubicConvolution, new CubicConvolutionFilter() },
-        { ResamplingFiltersAvailable.Hermite, new HermiteFilter() },
-        { ResamplingFiltersAvailable.Lanczos3, new Lanczos3Filter() },
-        { ResamplingFiltersAvailable.Lanczos8, new Lanczos8Filter() },
-        { ResamplingFiltersAvailable.Mitchell, new MitchellFilter() },
-        { ResamplingFiltersAvailable.Quadratic, new QuadraticFilter() },
-        { ResamplingFiltersAvailable.QuadraticBSpline, new QuadraticBSplineFilter() },
-        { ResamplingFiltersAvailable.Triangle, new TriangleFilter() },
-        { ResamplingFiltersAvailable.Box, new BoxFilter() },
-        { ResamplingFiltersAvailable.Bilinear, new BilinearFilter() },
-        { ResamplingFiltersAvailable.NearestNeighbor, new NearestNeighborFilter() },
-        { ResamplingFiltersAvailable.Robidoux, new RobidouxFilter() },
-        { ResamplingFiltersAvailable.RobidouxSharp, new RobidouxSharpFilter() },
-        { ResamplingFiltersAvailable.RobidouxSoft, new RobidouxSoftFilter() },
-        { ResamplingFiltersAvailable.Bicubic, new BicubicFilter() }
-    };
+    public static Dictionary<ResamplingFiltersAvailable, IResamplingFilter> Filters =>
+        new()
+        {
+            { ResamplingFiltersAvailable.Bell, new BellFilter() },
+            { ResamplingFiltersAvailable.CatmullRom, new CatmullRomFilter() },
+            { ResamplingFiltersAvailable.Cosine, new CosineFilter() },
+            { ResamplingFiltersAvailable.CubicBSpline, new CubicBSplineFilter() },
+            { ResamplingFiltersAvailable.CubicConvolution, new CubicConvolutionFilter() },
+            { ResamplingFiltersAvailable.Hermite, new HermiteFilter() },
+            { ResamplingFiltersAvailable.Lanczos3, new Lanczos3Filter() },
+            { ResamplingFiltersAvailable.Lanczos8, new Lanczos8Filter() },
+            { ResamplingFiltersAvailable.Mitchell, new MitchellFilter() },
+            { ResamplingFiltersAvailable.Quadratic, new QuadraticFilter() },
+            { ResamplingFiltersAvailable.QuadraticBSpline, new QuadraticBSplineFilter() },
+            { ResamplingFiltersAvailable.Triangle, new TriangleFilter() },
+            { ResamplingFiltersAvailable.Box, new BoxFilter() },
+            { ResamplingFiltersAvailable.Bilinear, new BilinearFilter() },
+            { ResamplingFiltersAvailable.NearestNeighbor, new NearestNeighborFilter() },
+            { ResamplingFiltersAvailable.Robidoux, new RobidouxFilter() },
+            { ResamplingFiltersAvailable.RobidouxSharp, new RobidouxSharpFilter() },
+            { ResamplingFiltersAvailable.RobidouxSoft, new RobidouxSoftFilter() },
+            { ResamplingFiltersAvailable.Bicubic, new BicubicFilter() },
+        };
 }

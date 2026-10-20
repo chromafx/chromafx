@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
+using System.Numerics;
 using ChromaFx.Core;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Filters.Resampling.BaseClasses;
 using ChromaFx.Processing.Filters.Resampling.Enums;
 using ChromaFx.Processing.Numerics;
-using System.Numerics;
 
 namespace ChromaFx.Processing.Filters.Resampling;
 
@@ -35,9 +35,12 @@ namespace ChromaFx.Processing.Filters.Resampling;
 /// <param name="xAngle">The x angle.</param>
 /// <param name="yAngle">The y angle.</param>
 /// <param name="filter">The filter.</param>
-public class Skew(float xAngle, float yAngle, ResamplingFiltersAvailable filter = ResamplingFiltersAvailable.NearestNeighbor) : AffineBaseClass(filter: filter)
+public class Skew(
+    float xAngle,
+    float yAngle,
+    ResamplingFiltersAvailable filter = ResamplingFiltersAvailable.NearestNeighbor
+) : AffineBaseClass(filter: filter)
 {
-
     /// <summary>
     /// Gets or sets the x angle.
     /// </summary>

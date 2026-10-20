@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,7 @@ public abstract class ResamplingFilterBase : IResamplingFilter
     /// <summary>
     /// Initializes a new instance of the <see cref="ResamplingFilterBase"/> class.
     /// </summary>
-    protected ResamplingFilterBase()
-    {
-    }
+    protected ResamplingFilterBase() { }
 
     /// <summary>
     /// Gets the filter radius.
@@ -87,16 +85,10 @@ public abstract class ResamplingFilterBase : IResamplingFilter
                 left = 0;
             if (right >= sourceSize)
                 right = sourceSize - 1;
-            result[x] = new Weights
-            {
-                Left = left,
-                Values = new double[(right - left) + 1]
-            };
+            result[x] = new Weights { Left = left, Values = new double[(right - left) + 1] };
             for (int y = left, count = 0; y <= right; ++y, ++count)
             {
-                result[x].Values[count] = scale < 1f ?
-                    GetValue((x - y) * scale) :
-                    GetValue(x - y);
+                result[x].Values[count] = scale < 1f ? GetValue((x - y) * scale) : GetValue(x - y);
                 result[x].TotalWeight += result[x].Values[count];
             }
 

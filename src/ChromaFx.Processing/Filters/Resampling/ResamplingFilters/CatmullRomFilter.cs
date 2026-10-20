@@ -45,7 +45,7 @@ public class CatmullRomFilter : ResamplingFilterBase
         {
             <= 1 => 1.5 * temp * value - 2.5 * temp + 1,
             <= 2 => -0.5 * temp * value + 2.5 * temp - 4 * value + 2,
-            _ => 0
+            _ => 0,
         };
     }
 }

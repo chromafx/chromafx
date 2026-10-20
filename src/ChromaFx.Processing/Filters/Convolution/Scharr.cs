@@ -54,21 +54,11 @@ public class Scharr : Convolution2DBaseClass
     /// Gets the x matrix.
     /// </summary>
     /// <value>The x matrix.</value>
-    public override float[] XMatrix =>
-    [
-        -3, 0, 3,
-        -10, 0, 10,
-        -3, 0, 3
-    ];
+    public override float[] XMatrix => [-3, 0, 3, -10, 0, 10, -3, 0, 3];
 
     /// <summary>
     /// Gets the y matrix.
     /// </summary>
     /// <value>The y matrix.</value>
-    public override float[] YMatrix =>
-    [
-        3, 10, 3,
-        0, 0, 0,
-        -3, -10, -3
-    ];
+    public override float[] YMatrix => [3, 10, 3, 0, 0, 0, -3, -10, -3];
 }

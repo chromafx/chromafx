@@ -1,5 +1,5 @@
-﻿using ChromaFx.Core;
-using System.Numerics;
+﻿using System.Numerics;
+using ChromaFx.Core;
 
 namespace ChromaFx.Processing.Numerics;
 
@@ -20,9 +20,7 @@ public struct Rectangle(Vector4 value) : IEquatable<Rectangle>
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
     public Rectangle(int x, int y, int width, int height)
-        : this(new Vector4(x, y, x + width, y + height))
-    {
-    }
+        : this(new Vector4(x, y, x + width, y + height)) { }
 
     /// <summary>
     /// Gets the bottom.
@@ -89,7 +87,7 @@ public struct Rectangle(Vector4 value) : IEquatable<Rectangle>
     /// <param name="left">The left.</param>
     /// <param name="right">The right.</param>
     /// <returns>The result of the operator.</returns>
-        public static bool operator ==(Rectangle left, Rectangle right)
+    public static bool operator ==(Rectangle left, Rectangle right)
     {
         return left.Equals(right);
     }
@@ -99,12 +97,14 @@ public struct Rectangle(Vector4 value) : IEquatable<Rectangle>
     /// </summary>
     /// <param name="image">The image.</param>
     /// <returns>The resulting clamped rectangle</returns>
-        public Rectangle Clamp(Image image)
+    public Rectangle Clamp(Image image)
     {
-        Data = new Vector4(Data.X < 0 ? 0 : Data.X,
+        Data = new Vector4(
+            Data.X < 0 ? 0 : Data.X,
             Data.Y < 0 ? 0 : Data.Y,
             Data.Z > image.Width ? image.Width : Data.Z,
-            Data.W > image.Height ? image.Height : Data.W);
+            Data.W > image.Height ? image.Height : Data.W
+        );
         return this;
     }
 
@@ -113,12 +113,14 @@ public struct Rectangle(Vector4 value) : IEquatable<Rectangle>
     /// </summary>
     /// <param name="image">The image.</param>
     /// <returns>The resulting clamped rectangle</returns>
-        public Rectangle Clamp(Rectangle image)
+    public Rectangle Clamp(Rectangle image)
     {
-        Data = new Vector4(Data.X < image.Left ? image.Left : Data.X,
+        Data = new Vector4(
+            Data.X < image.Left ? image.Left : Data.X,
             Data.Y < image.Bottom ? image.Bottom : Data.Y,
             Data.Z > image.Right ? image.Right : Data.Z,
-            Data.W > image.Top ? image.Top : Data.W);
+            Data.W > image.Top ? image.Top : Data.W
+        );
         return this;
     }
 
@@ -128,12 +130,9 @@ public struct Rectangle(Vector4 value) : IEquatable<Rectangle>
     /// <param name="x">The x.</param>
     /// <param name="y">The y.</param>
     /// <returns>True if it does, false otherwise</returns>
-        public readonly bool Contains(int x, int y)
+    public readonly bool Contains(int x, int y)
     {
-        return Left <= x
-               && Right > x
-               && Top > y
-               && Bottom <= y;
+        return Left <= x && Right > x && Top > y && Bottom <= y;
     }
 
     /// <summary>
@@ -143,7 +142,7 @@ public struct Rectangle(Vector4 value) : IEquatable<Rectangle>
     /// <returns>
     /// true if the current object is equal to the <paramref name="other"/> parameter; otherwise, false.
     /// </returns>
-        public readonly bool Equals(Rectangle other)
+    public readonly bool Equals(Rectangle other)
     {
         return other.Data == Data;
     }
@@ -155,7 +154,7 @@ public struct Rectangle(Vector4 value) : IEquatable<Rectangle>
     /// <returns>
     /// <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-        public readonly override bool Equals(object obj)
+    public override readonly bool Equals(object obj)
     {
         return obj is Rectangle rectangle && Equals(rectangle);
     }
@@ -167,7 +166,7 @@ public struct Rectangle(Vector4 value) : IEquatable<Rectangle>
     /// A hash code for this instance, suitable for use in hashing algorithms and data structures
     /// like a hash table.
     /// </returns>
-    public readonly override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         return Data.GetHashCode();
     }
@@ -176,7 +175,7 @@ public struct Rectangle(Vector4 value) : IEquatable<Rectangle>
     /// Returns a <see cref="string"/> that represents this instance.
     /// </summary>
     /// <returns>A <see cref="string"/> that represents this instance.</returns>
-    public readonly override string ToString()
+    public override readonly string ToString()
     {
         return $"{{ {Data.X}, {Data.Y}, {Data.Z}, {Data.W} }}";
     }

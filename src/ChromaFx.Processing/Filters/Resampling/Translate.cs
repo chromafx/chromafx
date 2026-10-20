@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
+using System.Numerics;
 using ChromaFx.Core;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Filters.Resampling.BaseClasses;
 using ChromaFx.Processing.Numerics;
-using System.Numerics;
 
 namespace ChromaFx.Processing.Filters.Resampling;
 
@@ -35,7 +35,6 @@ namespace ChromaFx.Processing.Filters.Resampling;
 /// <param name="yDelta">The y delta.</param>
 public class Translate(int xDelta, int yDelta) : AffineBaseClass
 {
-
     /// <summary>
     /// Gets or sets the x delta.
     /// </summary>

@@ -31,7 +31,6 @@ namespace ChromaFx.Processing.Filters.Effects;
 /// <param name="pixelSize">Size of the pixel.</param>
 public class Pixellate(int pixelSize) : IFilter
 {
-
     /// <summary>
     /// Gets or sets the size of the pixel.
     /// </summary>

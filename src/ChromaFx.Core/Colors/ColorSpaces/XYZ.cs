@@ -30,7 +30,6 @@ namespace ChromaFx.Core.Colors.ColorSpaces;
 /// <param name="z">The z.</param>
 public struct Xyz(double x, double y, double z) : IEquatable<Xyz>, IColorSpace
 {
-
     /// <summary>
     /// Gets the white reference.
     /// </summary>
@@ -128,7 +127,7 @@ public struct Xyz(double x, double y, double z) : IEquatable<Xyz>, IColorSpace
     /// <returns>
     /// <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public readonly override bool Equals(object obj)
+    public override readonly bool Equals(object obj)
     {
         return obj is Xyz xyz && Equals(xyz);
     }
@@ -154,7 +153,7 @@ public struct Xyz(double x, double y, double z) : IEquatable<Xyz>, IColorSpace
     /// A hash code for this instance, suitable for use in hashing algorithms and data structures
     /// like a hash table.
     /// </returns>
-    public readonly override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         var hash = X.GetHashCode();
         hash = ComputeHash(hash, Y);
@@ -165,7 +164,7 @@ public struct Xyz(double x, double y, double z) : IEquatable<Xyz>, IColorSpace
     /// Returns a <see cref="string"/> that represents this instance.
     /// </summary>
     /// <returns>A <see cref="string"/> that represents this instance.</returns>
-    public readonly override string ToString() => $"({X:#0.##},{Y:#0.##},{Z:#0.##})";
+    public override readonly string ToString() => $"({X:#0.##},{Y:#0.##},{Z:#0.##})";
 
     /// <summary>
     /// Pivots the RGB.

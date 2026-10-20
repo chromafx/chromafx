@@ -41,7 +41,9 @@ public class Temperature : MatrixBaseClass
         value /= 100;
 
         // Compute each color in turn.
-        int red, green, blue;
+        int red,
+            green,
+            blue;
 
         // First: red.
         if (value <= 66)
@@ -85,13 +87,32 @@ public class Temperature : MatrixBaseClass
                 break;
         }
 
-
         Matrix = new Matrix5X5(
-            red / 255f, 0, 0, 0, 0, // M11, M12, M13, M14, M15
-            0, green / 255f, 0, 0, 0, // M21, M22, M23, M24, M25
-            0, 0, blue / 255f, 0, 0, // M31, M32, M33, M34, M35
-            0, 0, 0, 1, 0, // M41, M42, M43, M44, M45
-            0, 0, 0, 0, 1 // M51, M52, M53, M54, M55
+            red / 255f,
+            0,
+            0,
+            0,
+            0, // M11, M12, M13, M14, M15
+            0,
+            green / 255f,
+            0,
+            0,
+            0, // M21, M22, M23, M24, M25
+            0,
+            0,
+            blue / 255f,
+            0,
+            0, // M31, M32, M33, M34, M35
+            0,
+            0,
+            0,
+            1,
+            0, // M41, M42, M43, M44, M45
+            0,
+            0,
+            0,
+            0,
+            1 // M51, M52, M53, M54, M55
         );
     }
 

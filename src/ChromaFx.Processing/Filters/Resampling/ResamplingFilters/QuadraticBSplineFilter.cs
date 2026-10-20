@@ -44,7 +44,7 @@ public class QuadraticBSplineFilter : ResamplingFilterBase
         {
             <= 0.5 => -value * value + 0.75,
             <= 1.5 => 0.5 * value * value - 1.5 * value + 1.125,
-            _ => 0
+            _ => 0,
         };
     }
 }

@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-using ChromaFx.Core.Colors;
 using System.Numerics;
-using ChromaFx.Processing.Filters.Drawing.BaseClasses;
 using ChromaFx.Core;
+using ChromaFx.Core.Colors;
+using ChromaFx.Processing.Filters.Drawing.BaseClasses;
 
 namespace ChromaFx.Processing.Filters.Drawing;
 
@@ -34,9 +34,9 @@ namespace ChromaFx.Processing.Filters.Drawing;
 /// <param name="width">The width.</param>
 /// <param name="height">The height.</param>
 /// <param name="center">The center.</param>
-public class Ellipse(Color color, bool fill, int width, int height, Vector2 center) : ShapeBaseClass(color)
+public class Ellipse(Color color, bool fill, int width, int height, Vector2 center)
+    : ShapeBaseClass(color)
 {
-
     /// <summary>
     /// Gets or sets the center.
     /// </summary>
@@ -69,7 +69,10 @@ public class Ellipse(Color color, bool fill, int width, int height, Vector2 cent
     /// <returns></returns>
     public override Image Apply(Image image, Numerics.Rectangle targetLocation = default)
     {
-        targetLocation = targetLocation == default ? new Numerics.Rectangle(0, 0, image.Width, image.Height) : targetLocation.Clamp(image);
+        targetLocation =
+            targetLocation == default
+                ? new Numerics.Rectangle(0, 0, image.Width, image.Height)
+                : targetLocation.Clamp(image);
         if (Fill)
         {
             DrawFilledEllipse(image, targetLocation);

@@ -33,7 +33,6 @@ namespace ChromaFx.Processing.Filters.Effects;
 /// <param name="amount">The amount of potential randomization (0 to 1).</param>
 public class Noise(byte amount) : IFilter
 {
-
     /// <summary>
     /// Gets or sets the amount.
     /// </summary>

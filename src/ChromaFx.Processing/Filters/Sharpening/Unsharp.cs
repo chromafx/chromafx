@@ -34,7 +34,6 @@ namespace ChromaFx.Processing.Filters.Sharpening;
 /// <param name="constant">The constant to scale by (usually 0.2 to 0.7).</param>
 public class Unsharp(int size, float constant) : IFilter
 {
-
     /// <summary>
     /// Gets or sets the constant.
     /// </summary>
@@ -60,12 +59,35 @@ public class Unsharp(int size, float constant) : IFilter
         new BoxBlur(Size).Apply(blurredImage, targetLocation);
         var difference = new Image(image);
         new Subtract(blurredImage).Apply(difference);
-        new ColorMatrix.ColorMatrix(new Matrix5X5(
-            Constant, 0, 0, 0, 0,
-            0, Constant, 0, 0, 0,
-            0, 0, Constant, 0, 0,
-            0, 0, 0, 1, 0,
-            0, 0, 0, 0, 1)).Apply(difference, targetLocation);
+        new ColorMatrix.ColorMatrix(
+            new Matrix5X5(
+                Constant,
+                0,
+                0,
+                0,
+                0,
+                0,
+                Constant,
+                0,
+                0,
+                0,
+                0,
+                0,
+                Constant,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1
+            )
+        ).Apply(difference, targetLocation);
         new Add(difference).Apply(image);
         return image;
     }

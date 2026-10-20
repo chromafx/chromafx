@@ -34,13 +34,32 @@ public class Contrast : MatrixBaseClass
     {
         Value = value;
         var tempValue = 0.5f * (1f - value);
-        Matrix = new Matrix5X5
-        (
-            value, 0f, 0f, 0f, 0f,
-            0f, value, 0f, 0f, 0f,
-            0f, 0f, value, 0f, 0f,
-            0f, 0f, 0f, 1f, 0f,
-            tempValue, tempValue, tempValue, 0f, 1f
+        Matrix = new Matrix5X5(
+            value,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            value,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            value,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f,
+            0f,
+            tempValue,
+            tempValue,
+            tempValue,
+            0f,
+            1f
         );
     }
 

@@ -30,11 +30,32 @@ public class Tritanomaly : MatrixBaseClass
     /// Gets the matrix.
     /// </summary>
     /// <value>The matrix.</value>
-    public override Matrix5X5 Matrix => new(
-        .967f, 0f, 0f, 0f, 0f,
-        .33f, .733f, .183f, 0f, 0f,
-        0f, .267f, .817f, 0f, 0f,
-        0f, 0f, 0f, 1f, 0f,
-        0f, 0f, 0f, 0f, 1f
-    );
+    public override Matrix5X5 Matrix =>
+        new(
+            .967f,
+            0f,
+            0f,
+            0f,
+            0f,
+            .33f,
+            .733f,
+            .183f,
+            0f,
+            0f,
+            0f,
+            .267f,
+            .817f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f
+        );
 }

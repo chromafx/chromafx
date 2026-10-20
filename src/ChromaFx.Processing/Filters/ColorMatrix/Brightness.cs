@@ -30,18 +30,37 @@ namespace ChromaFx.Processing.Filters.ColorMatrix;
 /// <param name="value">The brightness value (-1 to 1).</param>
 public class Brightness(float value) : MatrixBaseClass
 {
-
     /// <summary>
     /// Gets the matrix.
     /// </summary>
     /// <value>The matrix.</value>
-    public override Matrix5X5 Matrix { get; } = new Matrix5X5
-        (
-            1f, 0f, 0f, 0f, 0f,
-            0f, 1f, 0f, 0f, 0f,
-            0f, 0f, 1f, 0f, 0f,
-            0f, 0f, 0f, 1f, 0f,
-            value, value, value, 0f, 1f
+    public override Matrix5X5 Matrix { get; } =
+        new Matrix5X5(
+            1f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            1f,
+            0f,
+            value,
+            value,
+            value,
+            0f,
+            1f
         );
 
     /// <summary>

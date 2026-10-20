@@ -115,5 +115,5 @@ public enum ResamplingFiltersAvailable
     /// <summary>
     /// The box
     /// </summary>
-    Box
+    Box,
 }

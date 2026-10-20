@@ -31,9 +31,10 @@ namespace ChromaFx.Core.Colors.ColorSpaces;
 /// <param name="lightness">The lightness.</param>
 /// <param name="aComponent">The A component.</param>
 /// <param name="bComponent">The B component.</param>
-public struct CieLab(double lightness, double aComponent, double bComponent) : IEquatable<CieLab>, IColorSpace
+public struct CieLab(double lightness, double aComponent, double bComponent)
+    : IEquatable<CieLab>,
+        IColorSpace
 {
-
     /// <summary>
     /// Gets or sets a component.
     /// </summary>
@@ -162,7 +163,7 @@ public struct CieLab(double lightness, double aComponent, double bComponent) : I
     /// <returns>
     /// <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public readonly override bool Equals(object obj)
+    public override readonly bool Equals(object obj)
     {
         return obj is CieLab lab && Equals(lab);
     }
@@ -186,7 +187,7 @@ public struct CieLab(double lightness, double aComponent, double bComponent) : I
     /// A hash code for this instance, suitable for use in hashing algorithms and data structures
     /// like a hash table.
     /// </returns>
-    public readonly override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         var hash = L.GetHashCode();
         hash = ComputeHash(hash, A);
@@ -197,7 +198,7 @@ public struct CieLab(double lightness, double aComponent, double bComponent) : I
     /// Returns a <see cref="string"/> that represents this instance.
     /// </summary>
     /// <returns>A <see cref="string"/> that represents this instance.</returns>
-    public readonly override string ToString() => $"({L:#0.##},{A:#0.##},{B:#0.##})";
+    public override readonly string ToString() => $"({L:#0.##},{A:#0.##},{B:#0.##})";
 
     /// <summary>
     /// Pivots to xyz.

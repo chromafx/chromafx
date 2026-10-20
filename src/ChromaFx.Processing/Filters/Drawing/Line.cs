@@ -35,7 +35,6 @@ namespace ChromaFx.Processing.Filters.Drawing;
 /// <param name="y2">The y2.</param>
 public class Line(Color color, int x1, int y1, int x2, int y2) : ShapeBaseClass(color)
 {
-
     /// <summary>
     /// Gets or sets the x1.
     /// </summary>
@@ -68,7 +67,10 @@ public class Line(Color color, int x1, int y1, int x2, int y2) : ShapeBaseClass(
     /// <returns></returns>
     public override Image Apply(Image image, Numerics.Rectangle targetLocation = default)
     {
-        targetLocation = targetLocation == default ? new Numerics.Rectangle(0, 0, image.Width, image.Height) : targetLocation.Clamp(image);
+        targetLocation =
+            targetLocation == default
+                ? new Numerics.Rectangle(0, 0, image.Width, image.Height)
+                : targetLocation.Clamp(image);
         var isSteep = Math.Abs(Y2 - Y1) > Math.Abs(X2 - X1);
         if (isSteep)
         {

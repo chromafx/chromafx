@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-using ChromaFx.Core.Colors;
 using System.Numerics;
-using SysRandom = System.Random;
+using ChromaFx.Core;
+using ChromaFx.Core.Colors;
+using ChromaFx.Processing.Filters.Drawing;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
-using ChromaFx.Core;
-using ChromaFx.Processing.Filters.Drawing;
+using SysRandom = System.Random;
 
 namespace ChromaFx.Processing.Filters.Effects;
 
@@ -35,7 +35,6 @@ namespace ChromaFx.Processing.Filters.Effects;
 /// <param name="pointSize">Size of the points.</param>
 public class Pointillism(int pointSize) : IFilter
 {
-
     /// <summary>
     /// Gets or sets the size of the points.
     /// </summary>
@@ -54,7 +53,13 @@ public class Pointillism(int pointSize) : IFilter
         var pointSize2 = PointSize * 2;
         var copy = new Color[image.Pixels.Length];
         Array.Copy(image.Pixels, copy, copy.Length);
-        var ellipseDrawer = new Ellipse(Color.AliceBlue, true, PointSize, PointSize, new Vector2(0, 0));
+        var ellipseDrawer = new Ellipse(
+            Color.AliceBlue,
+            true,
+            PointSize,
+            PointSize,
+            new Vector2(0, 0)
+        );
 
         for (var y = targetLocation.Bottom; y < targetLocation.Top; y += pointSize2)
         {
@@ -65,8 +70,16 @@ public class Pointillism(int pointSize) : IFilter
                 uint rValue = 0;
                 uint gValue = 0;
                 uint bValue = 0;
-                var minX = Math.Clamp((x - PointSize), targetLocation.Left, targetLocation.Right - 1);
-                var maxX = Math.Clamp((x + PointSize), targetLocation.Left, targetLocation.Right - 1);
+                var minX = Math.Clamp(
+                    (x - PointSize),
+                    targetLocation.Left,
+                    targetLocation.Right - 1
+                );
+                var maxX = Math.Clamp(
+                    (x + PointSize),
+                    targetLocation.Left,
+                    targetLocation.Right - 1
+                );
                 var numberPixels = 0;
                 for (var x2 = minX; x2 < maxX; ++x2)
                 {
@@ -96,8 +109,16 @@ public class Pointillism(int pointSize) : IFilter
                 uint rValue = 0;
                 uint gValue = 0;
                 uint bValue = 0;
-                var minX = Math.Clamp((x - PointSize), targetLocation.Left, targetLocation.Right - 1);
-                var maxX = Math.Clamp((x + PointSize), targetLocation.Left, targetLocation.Right - 1);
+                var minX = Math.Clamp(
+                    (x - PointSize),
+                    targetLocation.Left,
+                    targetLocation.Right - 1
+                );
+                var maxX = Math.Clamp(
+                    (x + PointSize),
+                    targetLocation.Left,
+                    targetLocation.Right - 1
+                );
                 var numberPixels = 0;
                 for (var x2 = minX; x2 < maxX; ++x2)
                 {
@@ -121,16 +142,32 @@ public class Pointillism(int pointSize) : IFilter
         for (var y = targetLocation.Bottom; y < targetLocation.Top; y += pointSize2)
         {
             var tempY = y + new SysRandom(y).Next(-PointSize, PointSize);
-            var minY = Math.Clamp((tempY - PointSize), targetLocation.Bottom, targetLocation.Top - 1);
-            var maxY = Math.Clamp((tempY + PointSize), targetLocation.Bottom, targetLocation.Top - 1);
+            var minY = Math.Clamp(
+                (tempY - PointSize),
+                targetLocation.Bottom,
+                targetLocation.Top - 1
+            );
+            var maxY = Math.Clamp(
+                (tempY + PointSize),
+                targetLocation.Bottom,
+                targetLocation.Top - 1
+            );
             for (var x = targetLocation.Left + PointSize; x < targetLocation.Right; x += pointSize2)
             {
                 uint rValue = 0;
                 uint gValue = 0;
                 uint bValue = 0;
                 var tempX = x + new SysRandom(x).Next(-PointSize, PointSize);
-                var minX = Math.Clamp((tempX - PointSize), targetLocation.Left, targetLocation.Right - 1);
-                var maxX = Math.Clamp((tempX + PointSize), targetLocation.Left, targetLocation.Right - 1);
+                var minX = Math.Clamp(
+                    (tempX - PointSize),
+                    targetLocation.Left,
+                    targetLocation.Right - 1
+                );
+                var maxX = Math.Clamp(
+                    (tempX + PointSize),
+                    targetLocation.Left,
+                    targetLocation.Right - 1
+                );
                 var numberPixels = 0;
                 for (var x2 = minX; x2 < maxX; ++x2)
                 {

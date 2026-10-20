@@ -30,7 +30,6 @@ namespace ChromaFx.Core.Colors.ColorSpaces;
 /// <param name="b">The b.</param>
 public struct HunterLab(double l, double a, double b) : IEquatable<HunterLab>, IColorSpace
 {
-
     /// <summary>
     /// Gets or sets a.
     /// </summary>
@@ -99,10 +98,7 @@ public struct HunterLab(double l, double a, double b) : IEquatable<HunterLab>, I
         var y = itemL10 * itemL10;
         var z = color.B / 7.0 * color.L / 10.0;
 
-        return new Xyz((x + y) / 1.02,
-            y,
-            -(z - y) / .847
-        );
+        return new Xyz((x + y) / 1.02, y, -(z - y) / .847);
     }
 
     /// <summary>
@@ -111,7 +107,7 @@ public struct HunterLab(double l, double a, double b) : IEquatable<HunterLab>, I
     /// <param name="color1">The color1.</param>
     /// <param name="color2">The color2.</param>
     /// <returns>The result of the operator.</returns>
-        public static bool operator !=(HunterLab color1, HunterLab color2)
+    public static bool operator !=(HunterLab color1, HunterLab color2)
     {
         return !(color1 == color2);
     }
@@ -122,7 +118,7 @@ public struct HunterLab(double l, double a, double b) : IEquatable<HunterLab>, I
     /// <param name="color1">The color1.</param>
     /// <param name="color2">The color2.</param>
     /// <returns>The result of the operator.</returns>
-        public static bool operator ==(HunterLab color1, HunterLab color2)
+    public static bool operator ==(HunterLab color1, HunterLab color2)
     {
         return color1.Equals(color2);
     }
@@ -134,7 +130,7 @@ public struct HunterLab(double l, double a, double b) : IEquatable<HunterLab>, I
     /// <returns>
     /// <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-        public readonly override bool Equals(object obj)
+    public override readonly bool Equals(object obj)
     {
         return obj is HunterLab lab && Equals(lab);
     }
@@ -146,11 +142,11 @@ public struct HunterLab(double l, double a, double b) : IEquatable<HunterLab>, I
     /// <returns>
     /// true if the current object is equal to the <paramref name="other"/> parameter; otherwise, false.
     /// </returns>
-        public readonly bool Equals(HunterLab other)
+    public readonly bool Equals(HunterLab other)
     {
         return Math.Abs(other.L - L) < Epsilon
-               && Math.Abs(other.A - A) < Epsilon
-               && Math.Abs(other.B - B) < Epsilon;
+            && Math.Abs(other.A - A) < Epsilon
+            && Math.Abs(other.B - B) < Epsilon;
     }
 
     /// <summary>
@@ -160,7 +156,7 @@ public struct HunterLab(double l, double a, double b) : IEquatable<HunterLab>, I
     /// A hash code for this instance, suitable for use in hashing algorithms and data structures
     /// like a hash table.
     /// </returns>
-    public readonly override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         var hash = L.GetHashCode();
         hash = ComputeHash(hash, A);
@@ -171,7 +167,7 @@ public struct HunterLab(double l, double a, double b) : IEquatable<HunterLab>, I
     /// Returns a <see cref="string"/> that represents this instance.
     /// </summary>
     /// <returns>A <see cref="string"/> that represents this instance.</returns>
-    public readonly override string ToString() => $"({L:#0.##},{A:#0.##},{B:#0.##})";
+    public override readonly string ToString() => $"({L:#0.##},{A:#0.##},{B:#0.##})";
 
     /// <summary>
     /// Computes the hash.

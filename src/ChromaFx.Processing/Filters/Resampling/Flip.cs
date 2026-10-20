@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
+using System.Numerics;
 using ChromaFx.Core;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Filters.Resampling.BaseClasses;
 using ChromaFx.Processing.Filters.Resampling.Enums;
 using ChromaFx.Processing.Numerics;
-using System.Numerics;
 
 namespace ChromaFx.Processing.Filters.Resampling;
 
@@ -33,9 +33,11 @@ namespace ChromaFx.Processing.Filters.Resampling;
 /// </remarks>
 /// <param name="direction">The direction.</param>
 /// <param name="filter">The filter.</param>
-public class Flip(FlipDirection direction, ResamplingFiltersAvailable filter = ResamplingFiltersAvailable.NearestNeighbor) : AffineBaseClass(filter: filter)
+public class Flip(
+    FlipDirection direction,
+    ResamplingFiltersAvailable filter = ResamplingFiltersAvailable.NearestNeighbor
+) : AffineBaseClass(filter: filter)
 {
-
     /// <summary>
     /// Gets or sets the direction.
     /// </summary>
@@ -52,7 +54,8 @@ public class Flip(FlipDirection direction, ResamplingFiltersAvailable filter = R
     {
         var xScale = 1f;
         var yScale = 1f;
-        xScale = (FlipDirection.Horizontal & Direction) == FlipDirection.Horizontal ? -xScale : xScale;
+        xScale =
+            (FlipDirection.Horizontal & Direction) == FlipDirection.Horizontal ? -xScale : xScale;
         yScale = (FlipDirection.Vertical & Direction) == FlipDirection.Vertical ? -yScale : yScale;
         return Matrix3x2.CreateScale(xScale, yScale, targetLocation.Center);
     }

@@ -23,6 +23,4 @@ namespace ChromaFx.Processing.Filters.Drawing.Interfaces;
 /// Shape drawing interface
 /// </summary>
 /// <seealso cref="IFilter"/>
-public interface IShape : IFilter
-{
-}
+public interface IShape : IFilter { }

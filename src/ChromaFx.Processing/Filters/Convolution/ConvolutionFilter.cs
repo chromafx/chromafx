@@ -31,9 +31,9 @@ namespace ChromaFx.Processing.Filters.Convolution;
 /// <param name="height">The height.</param>
 /// <param name="absolute">if set to <c>true</c> [absolute].</param>
 /// <param name="offset">The offset.</param>
-public class ConvolutionFilter(float[] matrix, int width, int height, bool absolute, float offset) : ConvolutionBaseClass
+public class ConvolutionFilter(float[] matrix, int width, int height, bool absolute, float offset)
+    : ConvolutionBaseClass
 {
-
     /// <summary>
     /// Gets a value indicating whether this <see cref="ConvolutionBaseClass"/> is absolute.
     /// </summary>

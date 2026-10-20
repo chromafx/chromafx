@@ -1,6 +1,6 @@
 /*
- * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Copyright 2017â€“2020 JaCraig
+ * Modifications Copyright 2023â€“2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,27 @@
  * limitations under the License.
  */
 
+using System.Text;
 using ChromaFx.Core;
 using ChromaFx.Core.Colors;
-using System.Text;
 
 namespace ChromaFx.Processing;
 
 public static class ImageProcessingExtensions
 {
     private static readonly string[] DefaultCharacters =
-        ["#", "@", "%", "=", "+", "*", ":", "-", ".", " "];
+    [
+        "#",
+        "@",
+        "%",
+        "=",
+        "+",
+        "*",
+        ":",
+        "-",
+        ".",
+        " ",
+    ];
 
     /// <summary>
     /// Renders the image as ASCII art using a fixed-width character ramp.
@@ -78,13 +89,7 @@ public static class ImageProcessingExtensions
         return builder.ToString();
     }
 
-    private static float GetAverageLuminance(
-        Image image,
-        int x,
-        int y,
-        int stepX,
-        int verticalStep
-    )
+    private static float GetAverageLuminance(Image image, int x, int y, int stepX, int verticalStep)
     {
         var sum = 0f;
         var count = 0;

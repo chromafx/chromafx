@@ -32,11 +32,7 @@ public abstract class TestBaseClass
         fileName.Contains("Rotate", StringComparison.OrdinalIgnoreCase)
         || fileName.Contains("Skew", StringComparison.OrdinalIgnoreCase);
 
-    private static bool CompareBitmapPixels(
-        byte[] expected,
-        byte[] actual,
-        int maxDifferentPixels
-    )
+    private static bool CompareBitmapPixels(byte[] expected, byte[] actual, int maxDifferentPixels)
     {
         if (expected.Length != actual.Length || expected.Length <= BmpHeaderSize)
             return false;

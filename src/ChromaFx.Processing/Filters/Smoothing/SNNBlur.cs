@@ -32,7 +32,6 @@ namespace ChromaFx.Processing.Filters.Smoothing;
 /// <param name="apertureRadius">The aperture radius.</param>
 public class SnnBlur(int apertureRadius) : IFilter
 {
-
     /// <summary>
     /// Gets or sets the aperture radius.
     /// </summary>

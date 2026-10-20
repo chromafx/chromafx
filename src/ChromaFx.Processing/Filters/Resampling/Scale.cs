@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
+using System.Numerics;
 using ChromaFx.Core;
 using ChromaFx.Processing.Filters.Resampling.BaseClasses;
 using ChromaFx.Processing.Filters.Resampling.Enums;
 using ChromaFx.Processing.Numerics;
-using System.Numerics;
 
 namespace ChromaFx.Processing.Filters.Resampling;
 
@@ -33,9 +33,12 @@ namespace ChromaFx.Processing.Filters.Resampling;
 /// <param name="width">The width.</param>
 /// <param name="height">The height.</param>
 /// <param name="filter">The filter to use (defaults to nearest neighbor).</param>
-public class Scale(int width, int height, ResamplingFiltersAvailable filter = ResamplingFiltersAvailable.NearestNeighbor) : AffineBaseClass(width, height, filter)
+public class Scale(
+    int width,
+    int height,
+    ResamplingFiltersAvailable filter = ResamplingFiltersAvailable.NearestNeighbor
+) : AffineBaseClass(width, height, filter)
 {
-
     /// <summary>
     /// Gets the matrix.
     /// </summary>

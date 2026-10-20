@@ -46,7 +46,7 @@ public class CubicConvolutionFilter : ResamplingFilterBase
             <= 1 => 4f / 3f * temp * value - 7f / 3f * temp + 1,
             <= 2 => -(7f / 12f) * temp * value + 3 * temp - 59f / 12f * value + 2.5,
             <= 3 => 1f / 12f * temp * value - 2f / 3f * temp + 1.75 * value - 1.5,
-            _ => 0
+            _ => 0,
         };
     }
 }

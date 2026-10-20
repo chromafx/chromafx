@@ -9,18 +9,14 @@ public class Random : System.Random
     /// <summary>
     /// Initializes a new instance of the <see cref="Random"/> class.
     /// </summary>
-    public Random()
-    {
-    }
+    public Random() { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Random"/> class.
     /// </summary>
     /// <param name="seed">The seed.</param>
     public Random(int seed)
-        : base(seed)
-    {
-    }
+        : base(seed) { }
 
     /// <summary>
     /// The global seed
@@ -62,7 +58,10 @@ public class Random : System.Random
     /// <param name="min">The minimum.</param>
     /// <param name="max">The maximum.</param>
     /// <returns>A randomly generated value</returns>
-    public static double ThreadSafeNextDouble(double min = double.MinValue, double max = double.MaxValue)
+    public static double ThreadSafeNextDouble(
+        double min = double.MinValue,
+        double max = double.MaxValue
+    )
     {
         if (min > max)
         {

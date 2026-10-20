@@ -35,7 +35,6 @@ namespace ChromaFx.Processing.Filters.Overlays;
 /// <param name="yRadius">The y radius (between 0 and 1).</param>
 public class Glow(Color color, float xRadius, float yRadius) : IFilter
 {
-
     /// <summary>
     /// Gets or sets the color.
     /// </summary>
