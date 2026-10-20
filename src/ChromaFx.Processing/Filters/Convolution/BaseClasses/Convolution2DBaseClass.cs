@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
+using System.Numerics;
 using ChromaFx.Core;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
-using System.Numerics;
 
 namespace ChromaFx.Processing.Filters.Convolution.BaseClasses;
 
@@ -82,83 +82,110 @@ public abstract class Convolution2DBaseClass : IFilter
             var height = image.Height;
             var xMatrix = XMatrix;
             var yMatrix = YMatrix;
-            Parallel.For(
-            targetLocation.Bottom,
-            targetLocation.Top,
-            y =>
-            {
-                for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+            var kernelWidth = Width;
+            var absolute = Absolute;
+
+            FilterParallelism.ForRows(
+                targetLocation,
+                y =>
                 {
-                    var xValue = new Vector4(0, 0, 0, 0);
-                    var yValue = new Vector4(0, 0, 0, 0);
-                    float weightX = 0;
-                    float weightY = 0;
-                    var xCurrent = -Width >> 1;
-                    var yCurrent = -Height >> 1;
-                    var matrixOffset = 0;
-                    for (var matrixIndex = 0; matrixIndex < xMatrix.Length; ++matrixIndex)
+                    for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                     {
-                        if (matrixIndex % Width == 0 && matrixIndex != 0)
+                        float xR = 0,
+                            xG = 0,
+                            xB = 0,
+                            xA = 0;
+                        float yR = 0,
+                            yG = 0,
+                            yB = 0,
+                            yA = 0;
+                        float weightX = 0;
+                        float weightY = 0;
+                        var xCurrent = -kernelWidth >> 1;
+                        var yCurrent = -Height >> 1;
+                        var matrixOffset = 0;
+
+                        for (var matrixIndex = 0; matrixIndex < xMatrix.Length; ++matrixIndex)
                         {
-                            ++yCurrent;
-                            xCurrent = 0;
-                        }
-                        if (
-                            xCurrent + x < width
-                            && xCurrent + x >= 0
-                            && yCurrent + y < height
-                            && yCurrent + y >= 0
-                        )
-                        {
-                            var xMatrixValue = xMatrix[matrixOffset];
-                            var yMatrixValue = yMatrix[matrixOffset];
-                            if (xMatrixValue != 0 || yMatrixValue != 0)
+                            if (matrixIndex % kernelWidth == 0 && matrixIndex != 0)
                             {
-                                var start = (yCurrent + y) * width + x + xCurrent;
-                                var tempPixel = tempPixels[start];
-                                xValue += new Vector4(
-                                    xMatrixValue * tempPixel.Red,
-                                    xMatrixValue * tempPixel.Green,
-                                    xMatrixValue * tempPixel.Blue,
-                                    xMatrixValue * tempPixel.Alpha
-                                );
-                                yValue += new Vector4(
-                                    yMatrixValue * tempPixel.Red,
-                                    yMatrixValue * tempPixel.Green,
-                                    yMatrixValue * tempPixel.Blue,
-                                    yMatrixValue * tempPixel.Alpha
-                                );
-                                weightX += xMatrixValue;
-                                weightY += yMatrixValue;
+                                ++yCurrent;
+                                xCurrent = 0;
                             }
-                            ++matrixOffset;
+
+                            if (
+                                xCurrent + x < width
+                                && xCurrent + x >= 0
+                                && yCurrent + y < height
+                                && yCurrent + y >= 0
+                            )
+                            {
+                                var xMatrixValue = xMatrix[matrixOffset];
+                                var yMatrixValue = yMatrix[matrixOffset];
+                                if (xMatrixValue != 0 || yMatrixValue != 0)
+                                {
+                                    var tempPixel = tempPixels[
+                                        (yCurrent + y) * width + x + xCurrent
+                                    ];
+                                    xR += xMatrixValue * tempPixel.Red;
+                                    xG += xMatrixValue * tempPixel.Green;
+                                    xB += xMatrixValue * tempPixel.Blue;
+                                    xA += xMatrixValue * tempPixel.Alpha;
+                                    yR += yMatrixValue * tempPixel.Red;
+                                    yG += yMatrixValue * tempPixel.Green;
+                                    yB += yMatrixValue * tempPixel.Blue;
+                                    yA += yMatrixValue * tempPixel.Alpha;
+                                    weightX += xMatrixValue;
+                                    weightY += yMatrixValue;
+                                }
+                                ++matrixOffset;
+                            }
+                            ++xCurrent;
                         }
-                        ++xCurrent;
-                    }
-                    if (weightX == 0)
-                        weightX = 1;
-                    if (weightY == 0)
-                        weightY = 1;
-                    if (weightX > 0 && weightY > 0)
-                    {
-                        if (Absolute)
+
+                        if (weightX == 0)
+                            weightX = 1;
+                        if (weightY == 0)
+                            weightY = 1;
+                        if (weightX > 0 && weightY > 0)
                         {
-                            yValue = Vector4.Abs(yValue);
-                            xValue = Vector4.Abs(xValue);
+                            if (absolute)
+                            {
+                                xR = Math.Abs(xR);
+                                xG = Math.Abs(xG);
+                                xB = Math.Abs(xB);
+                                xA = Math.Abs(xA);
+                                yR = Math.Abs(yR);
+                                yG = Math.Abs(yG);
+                                yB = Math.Abs(yB);
+                                yA = Math.Abs(yA);
+                            }
+
+                            xR /= weightX;
+                            xG /= weightX;
+                            xB /= weightX;
+                            xA /= weightX;
+                            yR /= weightY;
+                            yG /= weightY;
+                            yB /= weightY;
+                            yA /= weightY;
+
+                            var tempResult = new Vector4(
+                                MathF.Sqrt(xR * xR + yR * yR),
+                                MathF.Sqrt(xG * xG + yG * yG),
+                                MathF.Sqrt(xB * xB + yB * yB),
+                                MathF.Sqrt(xA * xA + yA * yA)
+                            );
+                            tempResult =
+                                Vector4.Clamp(
+                                    tempResult,
+                                    Vector4.Zero,
+                                    new Vector4(255, 255, 255, 255)
+                                ) / 255f;
+                            outputPixels[y * width + x] = tempResult;
                         }
-                        xValue /= weightX;
-                        yValue /= weightY;
-                        var tempResult = Vector4.SquareRoot(xValue * xValue + yValue * yValue);
-                        tempResult =
-                            Vector4.Clamp(
-                                tempResult,
-                                Vector4.Zero,
-                                new Vector4(255, 255, 255, 255)
-                            ) / 255f;
-                        outputPixels[y * width + x] = tempResult;
                     }
                 }
-            }
             );
         }
         finally

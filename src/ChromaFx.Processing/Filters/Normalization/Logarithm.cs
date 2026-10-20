@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,22 +45,25 @@ public class Logarithm : IFilter
             maxValue.Alpha
         );
 
-        FilterParallelism.ForRows(targetLocation, y =>
-        {
-            for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+        FilterParallelism.ForRows(
+            targetLocation,
+            y =>
             {
-                var pixelIndex = y * image.Width + x;
-                image.Pixels[pixelIndex].Red = (byte)(
-                    maxValue.Red * Math.Log(1f + image.Pixels[pixelIndex].Red)
-                );
-                image.Pixels[pixelIndex].Green = (byte)(
-                    maxValue.Green * Math.Log(1f + image.Pixels[pixelIndex].Green)
-                );
-                image.Pixels[pixelIndex].Blue = (byte)(
-                    maxValue.Blue * Math.Log(1f + image.Pixels[pixelIndex].Blue)
-                );
+                for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+                {
+                    var pixelIndex = y * image.Width + x;
+                    image.Pixels[pixelIndex].Red = (byte)(
+                        maxValue.Red * Math.Log(1f + image.Pixels[pixelIndex].Red)
+                    );
+                    image.Pixels[pixelIndex].Green = (byte)(
+                        maxValue.Green * Math.Log(1f + image.Pixels[pixelIndex].Green)
+                    );
+                    image.Pixels[pixelIndex].Blue = (byte)(
+                        maxValue.Blue * Math.Log(1f + image.Pixels[pixelIndex].Blue)
+                    );
+                }
             }
-        });
+        );
 
         return image;
     }

@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@
 using ChromaFx.Core;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
-using System.Numerics;
 
 namespace ChromaFx.Processing.Filters.Convolution.BaseClasses;
 
@@ -64,7 +63,10 @@ public abstract class ConvolutionBaseClass : IFilter
     /// <param name="value1">The value1.</param>
     /// <param name="value2">The value2.</param>
     /// <returns>The result of the operator.</returns>
-    public static ConvolutionBaseClass operator *(ConvolutionBaseClass value1, ConvolutionBaseClass value2)
+    public static ConvolutionBaseClass operator *(
+        ConvolutionBaseClass value1,
+        ConvolutionBaseClass value2
+    )
     {
         if (value1.Matrix.Length > value2.Matrix.Length)
         {
@@ -84,10 +86,17 @@ public abstract class ConvolutionBaseClass : IFilter
                 {
                     for (var j = 0; j < value2.Height; ++j)
                     {
-                        if (i + value2XPosition >= 0 && i + value2XPosition < value1.Width
-                                                     && j + value2YPosition >= 0 && j + value2YPosition < value1.Height)
+                        if (
+                            i + value2XPosition >= 0
+                            && i + value2XPosition < value1.Width
+                            && j + value2YPosition >= 0
+                            && j + value2YPosition < value1.Height
+                        )
                         {
-                            value += value1.Matrix[i + value2XPosition + (j + value2YPosition) * value1.Width] * value2.Matrix[i + j * value2.Width];
+                            value +=
+                                value1.Matrix[
+                                    i + value2XPosition + (j + value2YPosition) * value1.Width
+                                ] * value2.Matrix[i + j * value2.Width];
                         }
                     }
                 }
@@ -96,7 +105,13 @@ public abstract class ConvolutionBaseClass : IFilter
             }
             ++value2YPosition;
         }
-        return new ConvolutionFilter(values, width, height, value1.Absolute | value2.Absolute, value1.Offset + value2.Offset);
+        return new ConvolutionFilter(
+            values,
+            width,
+            height,
+            value1.Absolute | value2.Absolute,
+            value1.Offset + value2.Offset
+        );
     }
 
     /// <summary>
@@ -115,58 +130,80 @@ public abstract class ConvolutionBaseClass : IFilter
             var width = image.Width;
             var height = image.Height;
             var matrix = Matrix;
-            Parallel.For(targetLocation.Bottom, targetLocation.Top, y =>
-            {
-            for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
-            {
-                var values = new Vector4(0, 0, 0, 0);
-                float weight = 0;
-                var xCurrent = -Width >> 1;
-                var yCurrent = -Height >> 1;
-                var matrixOffset = 0;
-                for (var matrixIndex = 0; matrixIndex < matrix.Length; ++matrixIndex)
+            var kernelWidth = Width;
+            var absolute = Absolute;
+            var offset = Offset;
+            // Sparse index→weight map: skip zero slots when sampling (same walk / matrixOffset rules).
+            var nonZero = BuildNonZeroMask(matrix);
+
+            FilterParallelism.ForRows(
+                targetLocation,
+                y =>
                 {
-                    if (matrixIndex % Width == 0 && matrixIndex != 0)
+                    for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                     {
-                        ++yCurrent;
-                        xCurrent = 0;
-                    }
-                    if (xCurrent + x < width && xCurrent + x >= 0
-                        && yCurrent + y < height && yCurrent + y >= 0)
-                    {
-                        var matrixValue = matrix[matrixOffset];
-                        if (matrixValue != 0)
+                        float sumR = 0,
+                            sumG = 0,
+                            sumB = 0;
+                        float weight = 0;
+                        var xCurrent = -kernelWidth >> 1;
+                        var yCurrent = -Height >> 1;
+                        var matrixOffset = 0;
+
+                        for (var matrixIndex = 0; matrixIndex < matrix.Length; ++matrixIndex)
                         {
-                            var start = (yCurrent + y) * width + x + xCurrent;
-                            var tempPixel = tempPixels[start];
-                            values += new Vector4(
-                                matrixValue * tempPixel.Red,
-                                matrixValue * tempPixel.Green,
-                                matrixValue * tempPixel.Blue,
-                                tempPixel.Alpha
-                            );
-                            weight += matrixValue;
+                            if (matrixIndex % kernelWidth == 0 && matrixIndex != 0)
+                            {
+                                ++yCurrent;
+                                xCurrent = 0;
+                            }
+
+                            if (
+                                xCurrent + x < width
+                                && xCurrent + x >= 0
+                                && yCurrent + y < height
+                                && yCurrent + y >= 0
+                            )
+                            {
+                                if (nonZero[matrixOffset])
+                                {
+                                    var matrixValue = matrix[matrixOffset];
+                                    var tempPixel = tempPixels[
+                                        (yCurrent + y) * width + x + xCurrent
+                                    ];
+                                    sumR += matrixValue * tempPixel.Red;
+                                    sumG += matrixValue * tempPixel.Green;
+                                    sumB += matrixValue * tempPixel.Blue;
+                                    weight += matrixValue;
+                                }
+                                ++matrixOffset;
+                            }
+                            ++xCurrent;
                         }
-                        ++matrixOffset;
+
+                        if (weight == 0)
+                            weight = 1;
+                        if (weight > 0)
+                        {
+                            if (absolute)
+                            {
+                                sumR = Math.Abs(sumR);
+                                sumG = Math.Abs(sumG);
+                                sumB = Math.Abs(sumB);
+                            }
+
+                            sumR = sumR / weight + offset;
+                            sumG = sumG / weight + offset;
+                            sumB = sumB / weight + offset;
+
+                            var outputIndex = y * width + x;
+                            outputPixels[outputIndex].Red = (byte)Math.Clamp(sumR, 0, 255);
+                            outputPixels[outputIndex].Green = (byte)Math.Clamp(sumG, 0, 255);
+                            outputPixels[outputIndex].Blue = (byte)Math.Clamp(sumB, 0, 255);
+                        }
                     }
-                    ++xCurrent;
                 }
-                if (weight == 0)
-                    weight = 1;
-                if (weight > 0)
-                {
-                    if (Absolute)
-                        values = Vector4.Abs(values);
-                    values /= weight;
-                    values = new Vector4(values.X + Offset, values.Y + Offset, values.Z + Offset, 1);
-                    values = Vector4.Clamp(values, Vector4.Zero, new Vector4(255, 255, 255, 255));
-                    var outputIndex = y * width + x;
-                    outputPixels[outputIndex].Red = (byte)values.X;
-                    outputPixels[outputIndex].Green = (byte)values.Y;
-                    outputPixels[outputIndex].Blue = (byte)values.Z;
-                }
-            }
-            });
+            );
         }
         finally
         {
@@ -174,5 +211,13 @@ public abstract class ConvolutionBaseClass : IFilter
         }
 
         return image;
+    }
+
+    private static bool[] BuildNonZeroMask(float[] matrix)
+    {
+        var mask = new bool[matrix.Length];
+        for (var i = 0; i < matrix.Length; ++i)
+            mask[i] = matrix[i] != 0;
+        return mask;
     }
 }

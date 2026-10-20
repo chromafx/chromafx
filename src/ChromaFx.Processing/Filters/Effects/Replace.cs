@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ namespace ChromaFx.Processing.Filters.Effects;
 /// <param name="epsilon">The epsilon.</param>
 public class Replace(Color sourceColor, Color targetColor, float epsilon) : IFilter
 {
-
     /// <summary>
     /// Gets or sets the epsilon.
     /// </summary>
@@ -64,16 +63,31 @@ public class Replace(Color sourceColor, Color targetColor, float epsilon) : IFil
         targetLocation = targetLocation.Normalize(image);
         var pixels = image.Pixels;
         var width = image.Width;
-        FilterParallelism.ForRows(targetLocation, y =>
-        {
-            var rowStart = y * width;
-            for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+        int left = targetLocation.Left;
+        int right = targetLocation.Right;
+        var source = SourceColor;
+        var target = TargetColor;
+        double epsilonSq = (double)Epsilon * Epsilon;
+
+        FilterParallelism.ForRows(
+            targetLocation,
+            y =>
             {
-                ref var pixel = ref pixels[rowStart + x];
-                if (Distance.Euclidean(pixel, SourceColor) < Epsilon)
-                    pixel = TargetColor;
+                var rowStart = y * width;
+                for (var x = left; x < right; ++x)
+                {
+                    ref var pixel = ref pixels[rowStart + x];
+                    int dr = pixel.Red - source.Red;
+                    int dg = pixel.Green - source.Green;
+                    int db = pixel.Blue - source.Blue;
+                    int da = pixel.Alpha - source.Alpha;
+                    double distSq =
+                        (double)dr * dr + (double)dg * dg + (double)db * db + (double)da * da;
+                    if (distSq < epsilonSq)
+                        pixel = target;
+                }
             }
-        });
+        );
         return image;
     }
 }

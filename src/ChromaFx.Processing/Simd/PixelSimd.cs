@@ -31,7 +31,8 @@ internal static class PixelSimd
 
     internal static Span<byte> AsBytes(Span<Color> pixels) => MemoryMarshal.AsBytes(pixels);
 
-    internal static Span<uint> AsUInts(Span<Color> pixels) => MemoryMarshal.Cast<Color, uint>(pixels);
+    internal static Span<uint> AsUInts(Span<Color> pixels) =>
+        MemoryMarshal.Cast<Color, uint>(pixels);
 
     /// <summary>
     /// Inverts RGB channels in place; alpha is unchanged.
@@ -61,7 +62,11 @@ internal static class PixelSimd
     /// </summary>
     internal static void AddSaturating(Span<Color> destination, ReadOnlySpan<Color> source)
     {
-        ByteSimd.AddSaturating(AsBytes(destination), MemoryMarshal.AsBytes(source), AsBytes(destination));
+        ByteSimd.AddSaturating(
+            AsBytes(destination),
+            MemoryMarshal.AsBytes(source),
+            AsBytes(destination)
+        );
     }
 
     /// <summary>
@@ -69,7 +74,11 @@ internal static class PixelSimd
     /// </summary>
     internal static void SubtractSaturating(Span<Color> destination, ReadOnlySpan<Color> source)
     {
-        ByteSimd.SubtractSaturating(AsBytes(destination), MemoryMarshal.AsBytes(source), AsBytes(destination));
+        ByteSimd.SubtractSaturating(
+            AsBytes(destination),
+            MemoryMarshal.AsBytes(source),
+            AsBytes(destination)
+        );
     }
 
     internal static void And(Span<Color> destination, ReadOnlySpan<Color> source)
@@ -85,5 +94,19 @@ internal static class PixelSimd
     internal static void Xor(Span<Color> destination, ReadOnlySpan<Color> source)
     {
         ByteSimd.XorInPlace(AsBytes(destination), MemoryMarshal.AsBytes(source));
+    }
+
+    /// <summary>
+    /// Applies a 256-entry LUT to R, G, and B; alpha is unchanged.
+    /// </summary>
+    internal static void ApplyRgbLut(Span<Color> pixels, ReadOnlySpan<byte> lut)
+    {
+        for (int i = 0; i < pixels.Length; i++)
+        {
+            ref var p = ref pixels[i];
+            p.Red = lut[p.Red];
+            p.Green = lut[p.Green];
+            p.Blue = lut[p.Blue];
+        }
     }
 }

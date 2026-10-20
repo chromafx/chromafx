@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 using ChromaFx.Core;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
+using ChromaFx.Processing.Simd;
 
 namespace ChromaFx.Processing.Filters.Effects;
 
@@ -27,6 +28,8 @@ namespace ChromaFx.Processing.Filters.Effects;
 /// <seealso cref="IFilter"/>
 public class Posterize : IFilter
 {
+    private readonly byte[] _lut = new byte[256];
+
     /// <summary>
     /// Initializes a new instance of the <see cref="Posterize"/> class.
     /// </summary>
@@ -43,6 +46,9 @@ public class Posterize : IFilter
             Divisions[x] = (byte)(Divisions[x - 1] + step);
         }
         Divisions[divisions] = 255;
+
+        for (var i = 0; i < 256; ++i)
+            _lut[i] = FindValue((byte)i);
     }
 
     /// <summary>
@@ -62,17 +68,19 @@ public class Posterize : IFilter
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        FilterParallelism.ForRows(targetLocation, y =>
-        {
-            var rowOffset = y * image.Width;
-            for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+        var pixels = image.Pixels;
+        int width = image.Width;
+        int left = targetLocation.Left;
+        int rowWidth = targetLocation.Right - left;
+        var lut = _lut;
+
+        FilterParallelism.ForRows(
+            targetLocation,
+            y =>
             {
-                var pixelOffset = rowOffset + x;
-                image.Pixels[pixelOffset].Red = FindValue(image.Pixels[pixelOffset].Red);
-                image.Pixels[pixelOffset].Green = FindValue(image.Pixels[pixelOffset].Green);
-                image.Pixels[pixelOffset].Blue = FindValue(image.Pixels[pixelOffset].Blue);
+                PixelSimd.ApplyRgbLut(pixels.AsSpan(y * width + left, rowWidth), lut);
             }
-        });
+        );
         return image;
     }
 

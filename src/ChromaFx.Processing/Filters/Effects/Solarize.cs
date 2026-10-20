@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.Core.Colors;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
 
@@ -32,7 +31,6 @@ namespace ChromaFx.Processing.Filters.Effects;
 /// <param name="threshold">The threshold (between 0 and 3).</param>
 public class Solarize(float threshold) : IFilter
 {
-
     /// <summary>
     /// Gets or sets the threshold.
     /// </summary>
@@ -48,22 +46,37 @@ public class Solarize(float threshold) : IFilter
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        FilterParallelism.ForRows(targetLocation, y =>
-        {
-            for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+        var pixels = image.Pixels;
+        int width = image.Width;
+        int left = targetLocation.Left;
+        int right = targetLocation.Right;
+        // Black is (0,0,0,255); compare squared Euclidean to avoid Sqrt per pixel.
+        double thresholdSq = (double)Threshold * Threshold;
+        const int blackAlpha = 255;
+
+        FilterParallelism.ForRows(
+            targetLocation,
+            y =>
             {
-                var pixelIndex = y * image.Width + x;
-                if (Distance.Euclidean(image.Pixels[pixelIndex], Color.Black) < Threshold)
+                int rowStart = y * width;
+                for (var x = left; x < right; ++x)
                 {
-                    image.Pixels[pixelIndex] = new Color(
-                        (byte)(255 - image.Pixels[pixelIndex].Red),
-                        (byte)(255 - image.Pixels[pixelIndex].Green),
-                        (byte)(255 - image.Pixels[pixelIndex].Blue),
-                        image.Pixels[pixelIndex].Alpha
-                    );
+                    ref var pixel = ref pixels[rowStart + x];
+                    int da = pixel.Alpha - blackAlpha;
+                    double distSq =
+                        (double)pixel.Red * pixel.Red
+                        + (double)pixel.Green * pixel.Green
+                        + (double)pixel.Blue * pixel.Blue
+                        + (double)da * da;
+                    if (distSq < thresholdSq)
+                    {
+                        pixel.Red = (byte)(255 - pixel.Red);
+                        pixel.Green = (byte)(255 - pixel.Green);
+                        pixel.Blue = (byte)(255 - pixel.Blue);
+                    }
                 }
             }
-        });
+        );
 
         return image;
     }

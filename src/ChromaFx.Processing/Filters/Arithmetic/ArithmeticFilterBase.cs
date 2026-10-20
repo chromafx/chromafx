@@ -69,8 +69,10 @@ public abstract class ArithmeticFilterBase(Image secondImage) : IFilter
                 int srcStart = (y - bottom) * srcWidth;
                 ProcessRow(
                     destPixels.AsSpan(destStart, overlapWidth),
-                    srcPixels.AsSpan(srcStart, overlapWidth));
-            });
+                    srcPixels.AsSpan(srcStart, overlapWidth)
+                );
+            }
+        );
 
         return image;
     }

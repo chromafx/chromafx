@@ -30,7 +30,11 @@ internal static class ByteSimd
     /// <summary>
     /// Wrapping byte subtract: <c>dst[i] = left[i] - right[i]</c>.
     /// </summary>
-    internal static void SubtractWrapping(ReadOnlySpan<byte> left, ReadOnlySpan<byte> right, Span<byte> destination)
+    internal static void SubtractWrapping(
+        ReadOnlySpan<byte> left,
+        ReadOnlySpan<byte> right,
+        Span<byte> destination
+    )
     {
         int length = left.Length;
         int i = 0;
@@ -53,7 +57,11 @@ internal static class ByteSimd
     /// <summary>
     /// Wrapping byte add: <c>dst[i] = left[i] + right[i]</c>.
     /// </summary>
-    internal static void AddWrapping(ReadOnlySpan<byte> left, ReadOnlySpan<byte> right, Span<byte> destination)
+    internal static void AddWrapping(
+        ReadOnlySpan<byte> left,
+        ReadOnlySpan<byte> right,
+        Span<byte> destination
+    )
     {
         int length = left.Length;
         int i = 0;
@@ -76,7 +84,11 @@ internal static class ByteSimd
     /// <summary>
     /// Saturating byte add clamped to 0–255.
     /// </summary>
-    internal static void AddSaturating(ReadOnlySpan<byte> left, ReadOnlySpan<byte> right, Span<byte> destination)
+    internal static void AddSaturating(
+        ReadOnlySpan<byte> left,
+        ReadOnlySpan<byte> right,
+        Span<byte> destination
+    )
     {
         int length = left.Length;
         int i = 0;
@@ -137,7 +149,11 @@ internal static class ByteSimd
     /// <summary>
     /// Saturating byte subtract clamped to 0–255.
     /// </summary>
-    internal static void SubtractSaturating(ReadOnlySpan<byte> left, ReadOnlySpan<byte> right, Span<byte> destination)
+    internal static void SubtractSaturating(
+        ReadOnlySpan<byte> left,
+        ReadOnlySpan<byte> right,
+        Span<byte> destination
+    )
     {
         int length = left.Length;
         int i = 0;
@@ -184,11 +200,13 @@ internal static class ByteSimd
                 var diffLo = Vector.ConditionalSelect(
                     Vector.GreaterThanOrEqual(leftLo, rightLo),
                     leftLo - rightLo,
-                    Vector<ushort>.Zero);
+                    Vector<ushort>.Zero
+                );
                 var diffHi = Vector.ConditionalSelect(
                     Vector.GreaterThanOrEqual(leftHi, rightHi),
                     leftHi - rightHi,
-                    Vector<ushort>.Zero);
+                    Vector<ushort>.Zero
+                );
                 Vector.Narrow(diffLo, diffHi).CopyTo(destination.Slice(i));
             }
         }
@@ -278,7 +296,8 @@ internal static class ByteSimd
         ReadOnlySpan<byte> current,
         ReadOnlySpan<byte> previous,
         Span<byte> destination,
-        int bytesPerPixel)
+        int bytesPerPixel
+    )
     {
         int length = current.Length;
         int i = 0;
@@ -316,7 +335,11 @@ internal static class ByteSimd
     /// <summary>
     /// PNG Sub encode: <c>dst[i] = cur[i] - cur[i - bpp]</c> (left = 0 for the first bpp bytes).
     /// </summary>
-    internal static void SubPredictSubtract(ReadOnlySpan<byte> current, Span<byte> destination, int bytesPerPixel)
+    internal static void SubPredictSubtract(
+        ReadOnlySpan<byte> current,
+        Span<byte> destination,
+        int bytesPerPixel
+    )
     {
         int length = current.Length;
         int i = 0;
@@ -338,6 +361,104 @@ internal static class ByteSimd
 
         for (; i < length; i++)
             destination[i] = (byte)(current[i] - current[i - bpp]);
+    }
+
+    /// <summary>
+    /// PNG Sub decode in place: <c>data[i] += data[i - bpp]</c> (left = 0 for the first bpp bytes).
+    /// Left-dependency keeps this scalar.
+    /// </summary>
+    internal static void SubPredictAddInPlace(Span<byte> data, int bytesPerPixel)
+    {
+        int bpp = bytesPerPixel;
+        for (int i = bpp; i < data.Length; i++)
+            data[i] = (byte)(data[i] + data[i - bpp]);
+    }
+
+    /// <summary>
+    /// PNG Average decode in place: <c>data[i] += (left + up) / 2</c>.
+    /// Left-dependency keeps this scalar.
+    /// </summary>
+    internal static void AveragePredictAddInPlace(
+        Span<byte> data,
+        ReadOnlySpan<byte> previous,
+        int bytesPerPixel
+    )
+    {
+        int bpp = bytesPerPixel;
+        int length = data.Length;
+        int i = 0;
+
+        for (; i < bpp && i < length; i++)
+            data[i] = (byte)(data[i] + (previous[i] >> 1));
+
+        for (; i < length; i++)
+            data[i] = (byte)(data[i] + ((data[i - bpp] + previous[i]) >> 1));
+    }
+
+    /// <summary>
+    /// PNG Paeth decode in place.
+    /// </summary>
+    internal static void PaethPredictAddInPlace(
+        Span<byte> data,
+        ReadOnlySpan<byte> previous,
+        int bytesPerPixel
+    )
+    {
+        int bpp = bytesPerPixel;
+        int length = data.Length;
+        int i = 0;
+
+        for (; i < bpp && i < length; i++)
+        {
+            byte above = previous[i];
+            data[i] = (byte)(data[i] + PaethPredictor(0, above, 0));
+        }
+
+        for (; i < length; i++)
+        {
+            byte left = data[i - bpp];
+            byte above = previous[i];
+            byte upperLeft = previous[i - bpp];
+            data[i] = (byte)(data[i] + PaethPredictor(left, above, upperLeft));
+        }
+    }
+
+    /// <summary>
+    /// PNG Paeth encode: <c>dst[i] = cur[i] - Paeth(left, up, upLeft)</c>.
+    /// Branchy; kept scalar.
+    /// </summary>
+    internal static void PaethPredictSubtract(
+        ReadOnlySpan<byte> current,
+        ReadOnlySpan<byte> previous,
+        Span<byte> destination,
+        int bytesPerPixel
+    )
+    {
+        int bpp = bytesPerPixel;
+        int length = current.Length;
+        int i = 0;
+
+        for (; i < bpp && i < length; i++)
+            destination[i] = (byte)(current[i] - PaethPredictor(0, previous[i], 0));
+
+        for (; i < length; i++)
+        {
+            byte left = current[i - bpp];
+            byte above = previous[i];
+            byte upperLeft = previous[i - bpp];
+            destination[i] = (byte)(current[i] - PaethPredictor(left, above, upperLeft));
+        }
+    }
+
+    private static byte PaethPredictor(byte left, byte above, byte upperLeft)
+    {
+        int p = left + above - upperLeft;
+        int pa = Math.Abs(p - left);
+        int pb = Math.Abs(p - above);
+        int pc = Math.Abs(p - upperLeft);
+        if (pa <= pb && pa <= pc)
+            return left;
+        return pb <= pc ? above : upperLeft;
     }
 
     /// <summary>

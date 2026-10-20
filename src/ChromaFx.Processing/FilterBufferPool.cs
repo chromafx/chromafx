@@ -1,5 +1,5 @@
-/*
- * Copyright 2025 Ho Tzin Mein
+﻿/*
+ * Copyright 2025–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ internal static class FilterBufferPool
 {
     internal static Vector4[] RentVector4(int length) => ArrayPool<Vector4>.Shared.Rent(length);
 
+    internal static float[] RentFloat(int length) => ArrayPool<float>.Shared.Rent(length);
+
     internal static Color[] RentCopy(Color[] source)
     {
         var buffer = ArrayPool<Color>.Shared.Rent(source.Length);
@@ -34,4 +36,6 @@ internal static class FilterBufferPool
     internal static void Return(Color[] buffer) => ArrayPool<Color>.Shared.Return(buffer);
 
     internal static void Return(Vector4[] buffer) => ArrayPool<Vector4>.Shared.Return(buffer);
+
+    internal static void Return(float[] buffer) => ArrayPool<float>.Shared.Return(buffer);
 }

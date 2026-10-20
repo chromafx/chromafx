@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-using System.Numerics;
 using ChromaFx.Core;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
@@ -72,45 +71,15 @@ public class Gamma : IFilter
         int width = image.Width;
         int left = targetLocation.Left;
         int right = targetLocation.Right;
-        int bottom = targetLocation.Bottom;
-        int top = targetLocation.Top;
         int[] ramp = Ramp;
 
-        int simdLength = Vector<byte>.Count;
-
-        Parallel.For(
-            bottom,
-            top,
+        FilterParallelism.ForRows(
+            targetLocation,
             y =>
             {
                 int rowStart = y * width + left;
                 int rowEnd = y * width + right;
-                int x = rowStart;
-                byte[] rArr = new byte[simdLength];
-                byte[] gArr = new byte[simdLength];
-                byte[] bArr = new byte[simdLength];
-                for (; x <= rowEnd - simdLength; x += simdLength)
-                {
-                    for (int i = 0; i < simdLength; i++)
-                    {
-                        rArr[i] = pixels[x + i].Red;
-                        gArr[i] = pixels[x + i].Green;
-                        bArr[i] = pixels[x + i].Blue;
-                    }
-                    for (int i = 0; i < simdLength; i++)
-                    {
-                        rArr[i] = (byte)ramp[rArr[i]];
-                        gArr[i] = (byte)ramp[gArr[i]];
-                        bArr[i] = (byte)ramp[bArr[i]];
-                    }
-                    for (int i = 0; i < simdLength; i++)
-                    {
-                        pixels[x + i].Red = rArr[i];
-                        pixels[x + i].Green = gArr[i];
-                        pixels[x + i].Blue = bArr[i];
-                    }
-                }
-                for (; x < rowEnd; x++)
+                for (int x = rowStart; x < rowEnd; x++)
                 {
                     pixels[x].Red = (byte)ramp[pixels[x].Red];
                     pixels[x].Green = (byte)ramp[pixels[x].Green];

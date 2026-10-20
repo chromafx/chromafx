@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 using ChromaFx.Core;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
+using ChromaFx.Processing.Simd;
 
 namespace ChromaFx.Processing.Filters.Effects;
 
@@ -37,16 +38,18 @@ public class Invert : IFilter
     {
         targetLocation = targetLocation.Normalize(image);
 
-        FilterParallelism.ForRows(targetLocation, y =>
-        {
-            for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+        int width = image.Width;
+        int left = targetLocation.Left;
+        int rowWidth = targetLocation.Right - left;
+        var pixels = image.Pixels;
+
+        FilterParallelism.ForRows(
+            targetLocation,
+            y =>
             {
-                var index = y * image.Width + x;
-                image.Pixels[index].Red = (byte)(255 - image.Pixels[index].Red);
-                image.Pixels[index].Green = (byte)(255 - image.Pixels[index].Green);
-                image.Pixels[index].Blue = (byte)(255 - image.Pixels[index].Blue);
+                PixelSimd.InvertRgb(pixels.AsSpan(y * width + left, rowWidth));
             }
-        });
+        );
 
         return image;
     }

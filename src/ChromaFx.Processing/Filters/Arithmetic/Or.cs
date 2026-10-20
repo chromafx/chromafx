@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.Processing.Filters.Interfaces;
-using ChromaFx.Processing.Numerics;
+using ChromaFx.Core.Colors;
+using ChromaFx.Processing.Simd;
 
 namespace ChromaFx.Processing.Filters.Arithmetic;
 
@@ -29,54 +29,9 @@ namespace ChromaFx.Processing.Filters.Arithmetic;
 /// Initializes a new instance of the <see cref="Or"/> class.
 /// </remarks>
 /// <param name="secondImage">The second image.</param>
-public class Or(Image secondImage) : IFilter
+public class Or(Image secondImage) : ArithmeticFilterBase(secondImage)
 {
-
-    /// <summary>
-    /// Gets or sets the second image.
-    /// </summary>
-    /// <value>The second image.</value>
-    public Image SecondImage { get; set; } = secondImage;
-
-    /// <summary>
-    /// Applies the specified image.
-    /// </summary>
-    /// <param name="image">The image.</param>
-    /// <param name="targetLocation">The target location.</param>
-    /// <returns>The image</returns>
-    public Image Apply(Image image, Rectangle targetLocation = default)
-    {
-        targetLocation = targetLocation.Normalize(image);
-
-        Parallel.For(
-            targetLocation.Bottom,
-            targetLocation.Top,
-            y =>
-            {
-                if (y >= SecondImage.Height)
-                {
-                    return;
-                }
-
-                for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
-                {
-                    if (x - targetLocation.Left >= SecondImage.Width)
-                    {
-                        break;
-                    }
-
-                    image
-                        .Pixels[y * image.Width + x]
-                        .Or(
-                            SecondImage.Pixels[
-                                (y - targetLocation.Bottom) * SecondImage.Width
-                                    + (x - targetLocation.Left)
-                            ]
-                        );
-                }
-            }
-        );
-
-        return image;
-    }
+    /// <inheritdoc />
+    protected override void ProcessRow(Span<Color> destination, ReadOnlySpan<Color> source) =>
+        PixelSimd.Or(destination, source);
 }
