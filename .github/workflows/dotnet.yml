@@ -63,6 +63,8 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     needs: build
+    permissions:
+      id-token: write  # Required to enable GitHub OIDC token issuance
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -78,5 +80,11 @@ jobs:
           name: nupkg
           path: ./artifacts
 
+      - name: NuGet login (OIDC -> temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}  # Your nuget.org username (profile name, not email)
+
       - name: Publish to NuGet
-        run: dotnet nuget push "./artifacts/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push "./artifacts/*.nupkg" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
