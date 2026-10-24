@@ -8,16 +8,26 @@ namespace ChromaFx.Benchmarks.Filters;
 
 public class Resize
 {
-    [Benchmark(Description = "ChromaFx Resize")]
-    public void ResizeChromaFx()
+    private Core.Image _source = null!;
+    private Processing.Filters.Resampling.Resize _filter = null!;
+
+    [GlobalSetup]
+    public void Setup()
     {
-        var testImage = new Core.Image(2000, 2000);
-        var filter = new Processing.Filters.Resampling.Resize(
+        _source = new Core.Image(2000, 2000);
+        _filter = new Processing.Filters.Resampling.Resize(
             400,
             400,
             ResamplingFiltersAvailable.NearestNeighbor
         );
-        filter.Apply(testImage);
+    }
+
+    [Benchmark(Description = "ChromaFx Resize")]
+    public void ResizeChromaFx()
+    {
+        // Clone so each iteration starts from the full-size source without counting alloc in setup.
+        var testImage = _source.Clone();
+        _filter.Apply(testImage);
     }
 
     [SupportedOSPlatform("windows")]
