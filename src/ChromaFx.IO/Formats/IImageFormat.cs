@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,51 +27,35 @@ public interface IImageFormat
     /// <summary>
     /// Gets the format.
     /// </summary>
-    /// <value>
-    /// The format.
-    /// </value>
     FileFormats Format { get; }
 
     /// <summary>
     /// Determines whether this instance can decode the specified file name.
     /// </summary>
-    /// <param name="fileName">Name of the file.</param>
-    /// <returns>True if it can, false otherwise</returns>
     bool CanDecode(string fileName);
 
     /// <summary>
     /// Determines whether this instance can decode the specified header.
     /// </summary>
-    /// <param name="header">The header data</param>
-    /// <returns>True if it can, false otherwise</returns>
     bool CanDecode(byte[] header);
 
     /// <summary>
     /// Determines whether this instance can decode the specified stream.
     /// </summary>
-    /// <param name="stream">The stream.</param>
-    /// <returns>True if it can, false otherwise</returns>
     bool CanDecode(Stream stream);
 
     /// <summary>
     /// Determines whether this instance can encode the specified file name.
     /// </summary>
-    /// <param name="fileName">Name of the file.</param>
-    /// <returns>True if it can, false otherwise</returns>
     bool CanEncode(string fileName);
 
     /// <summary>
-    /// Decodes the specified stream and returns an image
+    /// Decodes the specified stream and returns an image.
     /// </summary>
-    /// <param name="stream">The stream containing the image data.</param>
-    /// <returns>The resulting image</returns>
     Image Decode(Stream stream);
 
     /// <summary>
-    /// Encodes an image and places it in the specified writer.
+    /// Encodes an image into the specified writer. Throws on failure.
     /// </summary>
-    /// <param name="writer">The binary writer.</param>
-    /// <param name="image">The image to encode.</param>
-    /// <returns>True if it is encoded successfully, false otherwise.</returns>
-    bool Encode(BinaryWriter writer, Image image);
+    void Encode(BinaryWriter writer, Image image);
 }

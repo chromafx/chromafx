@@ -23,17 +23,20 @@ public partial class Image
 {
     private static Func<string, Image> _loadFromPath;
     private static Func<Stream, Image> _loadFromStream;
+    private static Func<ReadOnlyMemory<byte>, Image> _loadFromMemory;
 
     /// <summary>
     /// Registers image loaders. Called automatically when ChromaFx.IO is referenced.
     /// </summary>
     internal static void RegisterLoaders(
         Func<string, Image> fromPath,
-        Func<Stream, Image> fromStream
+        Func<Stream, Image> fromStream,
+        Func<ReadOnlyMemory<byte>, Image> fromMemory = null
     )
     {
         _loadFromPath = fromPath;
         _loadFromStream = fromStream;
+        _loadFromMemory = fromMemory;
     }
 
     /// <summary>
@@ -55,6 +58,23 @@ public partial class Image
     /// Thrown when no loader is registered. Reference ChromaFx or ChromaFx.IO.
     /// </exception>
     public static Image Load(Stream stream) => GetLoader(ref _loadFromStream).Invoke(stream);
+
+    /// <summary>
+    /// Loads an image from encoded bytes in memory.
+    /// </summary>
+    public static Image Load(ReadOnlySpan<byte> data)
+    {
+        if (_loadFromMemory != null)
+            return _loadFromMemory(data.ToArray());
+
+        TryInitializeIo();
+        if (_loadFromMemory != null)
+            return _loadFromMemory(data.ToArray());
+
+        // Fallback when only stream loader is registered.
+        using var stream = new MemoryStream(data.ToArray(), writable: false);
+        return Load(stream);
+    }
 
     private static Func<T, Image> GetLoader<T>(ref Func<T, Image> loader)
     {

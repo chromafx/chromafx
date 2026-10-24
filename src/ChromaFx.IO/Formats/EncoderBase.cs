@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,18 +35,9 @@ internal abstract class EncoderBase<TFile> : IEncoder
     /// <summary>
     /// Gets the file extensions.
     /// </summary>
-    /// <value>
-    /// The file extensions.
-    /// </value>
     protected abstract string[] FileExtensions { get; }
 
-    /// <summary>
-    /// Determines whether this instance can encode the specified file name.
-    /// </summary>
-    /// <param name="fileName">Name of the file.</param>
-    /// <returns>
-    /// True if it can, false otherwise
-    /// </returns>
+    /// <inheritdoc />
     public bool CanEncode(string fileName)
     {
         if (string.IsNullOrEmpty(fileName))
@@ -54,33 +45,19 @@ internal abstract class EncoderBase<TFile> : IEncoder
         return FileExtensions.Any(x => fileName.EndsWith(x, StringComparison.OrdinalIgnoreCase));
     }
 
-    /// <summary>
-    /// Encodes an animation and places it in the specified writer.
-    /// </summary>
-    /// <param name="writer">The binary writer.</param>
-    /// <param name="animation">The animation to encode.</param>
-    /// <returns>
-    /// True if it encoded successfully, false otherwise
-    /// </returns>
-    public bool Encode(BinaryWriter writer, Animation animation)
+    /// <inheritdoc />
+    public void Encode(BinaryWriter writer, Animation animation)
     {
-        if (writer == null || animation == null)
-            return false;
-        return new TFile().Write(writer, animation);
+        ArgumentNullException.ThrowIfNull(writer);
+        ArgumentNullException.ThrowIfNull(animation);
+        new TFile().Write(writer, animation);
     }
 
-    /// <summary>
-    /// Encodes an image and places it in the specified writer.
-    /// </summary>
-    /// <param name="writer">The binary writer.</param>
-    /// <param name="image">The image to encode.</param>
-    /// <returns>
-    /// True if it encoded successfully, false otherwise
-    /// </returns>
-    public bool Encode(BinaryWriter writer, Image image)
+    /// <inheritdoc />
+    public void Encode(BinaryWriter writer, Image image)
     {
-        if (writer == null || image == null)
-            return false;
-        return new TFile().Write(writer, image);
+        ArgumentNullException.ThrowIfNull(writer);
+        ArgumentNullException.ThrowIfNull(image);
+        new TFile().Write(writer, image);
     }
 }

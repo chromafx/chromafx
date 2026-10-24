@@ -16,7 +16,6 @@
 
 using System.Text;
 using ChromaFx.Core;
-using ChromaFx.Core.Exceptions;
 using ChromaFx.IO.Formats;
 using ChromaFx.IO.Formats.Png;
 
@@ -36,7 +35,6 @@ public sealed class PngEncoder : IImageEncoder
         ArgumentNullException.ThrowIfNull(stream);
         ArgumentNullException.ThrowIfNull(image);
         using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
-        if (!new PngFormat().Encode(writer, image))
-            throw new ImageException("PNG encode failed.");
+        new PngFormat().Encode(writer, image);
     }
 }

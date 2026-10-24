@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+using System.Text;
 using ChromaFx.Core;
 using ChromaFx.IO.Converters;
 using ChromaFx.IO.Formats.Gif.Quantizers;
@@ -162,12 +163,11 @@ internal class File : FileBase
     /// <param name="writer">The writer.</param>
     /// <param name="animation">The animation.</param>
     /// <returns>True if it writes successfully, false otherwise.</returns>
-    public override bool Write(BinaryWriter writer, Animation animation)
+    public override void Write(BinaryWriter writer, Animation animation)
     {
         var quantized = Quantizer.Quantize(animation[0], Quality);
         LoadAnimation(animation, quantized);
         WriteToFile(writer);
-        return true;
     }
 
     /// <summary>
@@ -175,13 +175,11 @@ internal class File : FileBase
     /// </summary>
     /// <param name="stream">The stream.</param>
     /// <param name="image">The image.</param>
-    /// <returns>True if it writes successfully, false otherwise.</returns>
-    public override bool Write(BinaryWriter stream, Image image)
+    public override void Write(BinaryWriter stream, Image image)
     {
         var quantized = Quantizer.Quantize(image, Quality);
         LoadImage(image, quantized);
         WriteToFile(stream);
-        return true;
     }
 
     /// <summary>
@@ -190,14 +188,19 @@ internal class File : FileBase
     /// <returns>The animation version of the file</returns>
     protected override Animation ToAnimation()
     {
-        var delay = (
-            GraphicsControlExtension
-            ?? new GraphicsControl(0, 0, false, Enums.DisposalMethod.Undefined)
-        ).Delay;
-        return new Animation(
-            Frames.Select(x => new Image(ScreenDescriptor.Width, ScreenDescriptor.Height, x.Data)),
-            delay
-        );
+        var images = Frames
+            .Select(x => new Image(ScreenDescriptor.Width, ScreenDescriptor.Height, x.Data))
+            .ToList();
+        var delays = Frames
+            .Select(x =>
+                (
+                    x.GraphicsControl
+                    ?? GraphicsControlExtension
+                    ?? new GraphicsControl(0, 0, false, Enums.DisposalMethod.Undefined)
+                ).Delay
+            )
+            .ToList();
+        return new Animation(images, delays);
     }
 
     /// <summary>
@@ -221,7 +224,7 @@ internal class File : FileBase
 
         Header = new FileHeader();
         ScreenDescriptor = new LogicalScreenDescriptor(tempImage, transparencyIndex, BitDepth);
-        Frames.Add(new Frame(tempImage, quantizedImage, BitDepth, animation.Delay));
+        Frames.Add(new Frame(tempImage, quantizedImage, BitDepth, animation.GetFrameDelay(0)));
         if (animation.Count > 1)
         {
             AppExtension = new ApplicationExtension(animation.RepeatCount, animation.Count);
@@ -229,7 +232,9 @@ internal class File : FileBase
             {
                 quantizedImage = Quantizer.Quantize(animation[x], Quality);
                 tempImage = animation[x];
-                Frames.Add(new Frame(tempImage, quantizedImage, BitDepth, animation.Delay));
+                Frames.Add(
+                    new Frame(tempImage, quantizedImage, BitDepth, animation.GetFrameDelay(x))
+                );
             }
         }
     }
@@ -254,19 +259,16 @@ internal class File : FileBase
     {
         using var writer2 = new EndianBinaryWriter(
             EndianBitConverterBase.LittleEndian,
-            writer.BaseStream
+            writer.BaseStream,
+            Encoding.UTF8,
+            leaveOpen: true
         );
         Header.Write(writer2);
         ScreenDescriptor.Write(writer2);
-        Frames[0].Write(writer2);
-        if (Frames.Count > 1)
-        {
+        if (Frames.Count > 1 && AppExtension is not null)
             AppExtension.Write(writer2);
-            for (var x = 0; x < Frames.Count; ++x)
-            {
-                Frames[x].Write(writer2);
-            }
-        }
+        for (var x = 0; x < Frames.Count; ++x)
+            Frames[x].Write(writer2);
         writer.Write(SectionTypes.EndIntroducer);
     }
 }

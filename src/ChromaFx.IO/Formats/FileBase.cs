@@ -68,20 +68,14 @@ internal abstract class FileBase : IFile
     /// </summary>
     /// <param name="stream">The stream.</param>
     /// <param name="image">The image.</param>
-    /// <returns>
-    /// True if it writes successfully, false otherwise.
-    /// </returns>
-    public abstract bool Write(BinaryWriter stream, Image image);
+    public abstract void Write(BinaryWriter stream, Image image);
 
     /// <summary>
     /// Writes to the specified stream.
     /// </summary>
     /// <param name="writer">The writer.</param>
     /// <param name="animation">The animation.</param>
-    /// <returns>
-    /// True if it writes successfully, false otherwise.
-    /// </returns>
-    public abstract bool Write(BinaryWriter writer, Animation animation);
+    public abstract void Write(BinaryWriter writer, Animation animation);
 
     /// <summary>
     /// Converts the file to an animation.

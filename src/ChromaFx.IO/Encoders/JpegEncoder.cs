@@ -16,7 +16,6 @@
 
 using System.Text;
 using ChromaFx.Core;
-using ChromaFx.Core.Exceptions;
 using ChromaFx.IO.Formats;
 
 namespace ChromaFx.IO.Encoders;
@@ -41,7 +40,6 @@ public sealed class JpegEncoder : IImageEncoder
         ArgumentNullException.ThrowIfNull(image);
         var quality = Math.Clamp(Quality, 1, 100);
         using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
-        if (!new ChromaFx.IO.Formats.Jpeg.Format.File().Write(writer, image, quality))
-            throw new ImageException("JPEG encode failed.");
+        new ChromaFx.IO.Formats.Jpeg.Format.File().Write(writer, image, quality);
     }
 }

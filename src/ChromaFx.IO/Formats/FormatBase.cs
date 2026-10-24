@@ -115,9 +115,8 @@ public abstract class FormatBase : IImageFormat
     /// </summary>
     /// <param name="writer">The binary writer.</param>
     /// <param name="image">The image to encode.</param>
-    /// <returns>True if it is encoded, false otherwise</returns>
-    public bool Encode(BinaryWriter writer, Image image)
+    public void Encode(BinaryWriter writer, Image image)
     {
-        return Encoder.Encode(writer, image);
+        Encoder.Encode(writer, image);
     }
 }

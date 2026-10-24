@@ -34,7 +34,7 @@ internal static class ImageFormatsBootstrap
     internal static void Initialize()
     {
         ImageFormats.EnsureBuiltIns();
-        Image.RegisterLoaders(LoadImageFromPath, LoadImageFromStream);
+        Image.RegisterLoaders(LoadImageFromPath, LoadImageFromStream, LoadImageFromMemory);
         Animation.RegisterLoaders(LoadAnimationFromPath, LoadAnimationFromStream);
     }
 
@@ -45,6 +45,12 @@ internal static class ImageFormatsBootstrap
     }
 
     private static Image LoadImageFromStream(Stream stream) => ImageFormats.Decode(stream);
+
+    private static Image LoadImageFromMemory(ReadOnlyMemory<byte> data)
+    {
+        using var stream = new MemoryStream(data.ToArray(), writable: false);
+        return LoadImageFromStream(stream);
+    }
 
     private static Animation LoadAnimationFromPath(string fileName)
     {

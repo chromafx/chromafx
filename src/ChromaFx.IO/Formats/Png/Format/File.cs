@@ -128,9 +128,9 @@ internal class File : FileBase
     /// <returns>
     /// True if it writes successfully, false otherwise.
     /// </returns>
-    public override bool Write(BinaryWriter writer, Animation animation)
+    public override void Write(BinaryWriter writer, Animation animation)
     {
-        return Write(writer, animation[0]);
+        Write(writer, animation[0]);
     }
 
     /// <summary>
@@ -138,17 +138,13 @@ internal class File : FileBase
     /// </summary>
     /// <param name="stream">The stream.</param>
     /// <param name="image">The image.</param>
-    /// <returns>
-    /// True if it writes successfully, false otherwise.
-    /// </returns>
-    public override bool Write(BinaryWriter stream, Image image)
+    public override void Write(BinaryWriter stream, Image image)
     {
         LoadImage(image);
         FileHeader.Write(stream);
         ((Chunk)Header).Write(stream);
         ((Chunk)Data).Write(stream);
         ((Chunk)FileEnd).Write(stream);
-        return true;
     }
 
     /// <summary>

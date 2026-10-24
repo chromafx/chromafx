@@ -58,7 +58,7 @@ public class BmpFormat : FormatTestBase
             var imageFormat = new IO.Formats.Bmp.BmpFormat();
             var tempImage = imageFormat.Decode(tempFile);
             using var tempFile2 = File.OpenWrite(OutputDirectory + fileName);
-            Assert.True(imageFormat.Encode(new BinaryWriter(tempFile2), tempImage));
+            imageFormat.Encode(new BinaryWriter(tempFile2), tempImage);
         }
         Assert.True(CheckFileCorrect(fileName));
     }

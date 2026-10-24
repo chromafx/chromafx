@@ -27,7 +27,9 @@ using ChromaFx.IO.Formats.Png;
 namespace ChromaFx.IO;
 
 /// <summary>
-/// Global registry of image and animation formats used by <see cref="Image.Load"/> / <see cref="Image"/> Save.
+/// Global registry of image and animation formats used by <see cref="Image.Load"/> / Save.
+/// Decode uses the first registered format that accepts the stream; encode-by-extension prefers
+/// the last registered match so plugins can override built-ins.
 /// </summary>
 public static class ImageFormats
 {
@@ -59,6 +61,19 @@ public static class ImageFormats
             AnimationFormats.Add(format);
             if (format is IImageFormat imageFormat && !Formats.Contains(imageFormat))
                 Formats.Add(imageFormat);
+        }
+    }
+
+    /// <summary>
+    /// Tries to get the first registered format with the given <see cref="FileFormats"/> id.
+    /// </summary>
+    public static bool TryGetFormat(FileFormats format, out IImageFormat imageFormat)
+    {
+        EnsureBuiltIns();
+        lock (Gate)
+        {
+            imageFormat = Formats.FirstOrDefault(f => f.Format == format);
+            return imageFormat is not null;
         }
     }
 
@@ -138,8 +153,7 @@ public static class ImageFormats
                 FileShare.None
             );
             using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
-            if (!snapshot[i].Encode(writer, image))
-                throw new ImageException($"Failed to encode image to '{fileName}'.");
+            snapshot[i].Encode(writer, image);
             return;
         }
 
@@ -165,8 +179,7 @@ public static class ImageFormats
                 FileShare.None
             );
             using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
-            if (!format.Encode(writer, animation))
-                throw new ImageException($"Failed to encode animation to '{fileName}'.");
+            format.Encode(writer, animation);
             return;
         }
 
@@ -182,6 +195,14 @@ public static class ImageFormats
         encoder.Encode(stream, image);
     }
 
+    internal static void Encode(Stream stream, Animation animation, IAnimationEncoder encoder)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(animation);
+        ArgumentNullException.ThrowIfNull(encoder);
+        encoder.Encode(stream, animation);
+    }
+
     internal static void Encode(Stream stream, Image image, FileFormats format)
     {
         var encoder = CreateEncoder(format);
@@ -195,6 +216,9 @@ public static class ImageFormats
             FileFormats.Png => new PngEncoder(),
             FileFormats.Jpeg => new JpegEncoder(),
             FileFormats.Gif => new GifEncoder(),
+            FileFormats.WebP or FileFormats.Avif => throw new UnknownImageFormatException(
+                $"Format '{format}' requires ChromaFx.Native or a registered plugin encoder."
+            ),
             _ => throw new UnknownImageFormatException($"Unsupported format '{format}'."),
         };
 }

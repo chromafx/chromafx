@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,178 +20,175 @@ using System.Collections;
 namespace ChromaFx.Core;
 
 /// <summary>
-/// A series of images used in an animation
+/// A series of images used in an animation.
 /// </summary>
 /// <seealso cref="IList{Image}" />
-/// <remarks>
-/// Initializes a new instance of the <see cref="Animation" /> class.
-/// </remarks>
-/// <param name="images">The images.</param>
-/// <param name="delay">The delay.</param>
-public partial class Animation(IEnumerable<Image> images, short delay) : IList<Image>
+public partial class Animation : IList<Image>
 {
+    private readonly List<Image> _frames;
+    private readonly List<short> _frameDelays;
+    private short _defaultDelay;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="Animation"/> class.
     /// </summary>
     public Animation()
-        : this(new List<Image>(), 0) { }
+        : this([], (short)0) { }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Animation"/> class.
+    /// Initializes a new instance of the <see cref="Animation"/> class with a uniform frame delay.
+    /// </summary>
+    /// <param name="images">The images.</param>
+    /// <param name="delay">Delay applied to every frame (and used for frames added later).</param>
+    public Animation(IEnumerable<Image> images, short delay)
+    {
+        ArgumentNullException.ThrowIfNull(images);
+        _frames = images.ToList();
+        _defaultDelay = delay;
+        _frameDelays = new List<short>(_frames.Count);
+        for (var i = 0; i < _frames.Count; i++)
+            _frameDelays.Add(delay);
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Animation"/> class with per-frame delays.
+    /// </summary>
+    /// <param name="images">The images.</param>
+    /// <param name="delays">Per-frame delays; must match <paramref name="images"/> count.</param>
+    public Animation(IEnumerable<Image> images, IEnumerable<short> delays)
+    {
+        ArgumentNullException.ThrowIfNull(images);
+        ArgumentNullException.ThrowIfNull(delays);
+        _frames = images.ToList();
+        _frameDelays = delays.ToList();
+        if (_frameDelays.Count != _frames.Count)
+        {
+            throw new ArgumentException(
+                "Frame delay count must match image count.",
+                nameof(delays)
+            );
+        }
+
+        _defaultDelay = _frameDelays.Count > 0 ? _frameDelays[0] : (short)0;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Animation"/> class by copying another animation.
     /// </summary>
     /// <param name="animation">The animation.</param>
     public Animation(Animation animation)
-        : this(animation, animation.Delay) { }
+        : this(
+            animation ?? throw new ArgumentNullException(nameof(animation)),
+            animation._frameDelays
+        )
+    {
+        RepeatCount = animation.RepeatCount;
+    }
+
+    /// <inheritdoc />
+    public int Count => _frames.Count;
 
     /// <summary>
-    /// Gets the number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.
+    /// Gets or sets a uniform delay applied to all frames.
+    /// Getting returns the first frame's delay (or the default when empty).
+    /// Setting applies the value to every frame and the default for future adds.
     /// </summary>
-    public int Count => ((IList<Image>)Frames).Count;
+    public short Delay
+    {
+        get => _frameDelays.Count > 0 ? _frameDelays[0] : _defaultDelay;
+        set => SetAllFrameDelays(value);
+    }
 
     /// <summary>
-    /// Gets or sets the delay.
+    /// Gets per-frame delays (same order and length as frames).
     /// </summary>
-    /// <value>
-    /// The delay.
-    /// </value>
-    public short Delay { get; set; } = delay;
+    public IReadOnlyList<short> FrameDelays => _frameDelays;
 
-    /// <summary>
-    /// Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.
-    /// </summary>
-    public bool IsReadOnly => ((IList<Image>)Frames).IsReadOnly;
+    /// <inheritdoc />
+    public bool IsReadOnly => false;
 
     /// <summary>
     /// Gets or sets the repeat count. (0 means loop indefinitely, otherwise loop N+1 times)
     /// </summary>
-    /// <value>
-    /// The repeat count.
-    /// </value>
     public ushort RepeatCount { get; set; }
 
-    /// <summary>
-    /// Gets or sets the frames.
-    /// </summary>
-    /// <value>
-    /// The frames.
-    /// </value>
-    private List<Image> Frames { get; } = images.ToList();
-
-    /// <summary>
-    /// Gets or sets the <see cref="Image"/> at the specified index.
-    /// </summary>
-    /// <value>
-    /// The <see cref="Image"/>.
-    /// </value>
-    /// <param name="index">The index.</param>
-    /// <returns>The image at the index specified</returns>
+    /// <inheritdoc />
     public Image this[int index]
     {
-        get => ((IList<Image>)Frames)[index];
-        set => ((IList<Image>)Frames)[index] = value;
+        get => _frames[index];
+        set => _frames[index] = value;
     }
 
     /// <summary>
-    /// Adds an item to the <see cref="T:System.Collections.Generic.ICollection`1" />.
+    /// Gets the delay for the frame at <paramref name="index"/>.
     /// </summary>
-    /// <param name="item">The object to add to the <see cref="T:System.Collections.Generic.ICollection`1" />.</param>
+    public short GetFrameDelay(int index) => _frameDelays[index];
+
+    /// <summary>
+    /// Sets the delay for the frame at <paramref name="index"/>.
+    /// </summary>
+    public void SetFrameDelay(int index, short delay) => _frameDelays[index] = delay;
+
+    /// <summary>
+    /// Sets every frame's delay (and the default for frames added later).
+    /// </summary>
+    public void SetAllFrameDelays(short delay)
+    {
+        _defaultDelay = delay;
+        for (var i = 0; i < _frameDelays.Count; i++)
+            _frameDelays[i] = delay;
+    }
+
+    /// <inheritdoc />
     public void Add(Image item)
     {
-        ((IList<Image>)Frames).Add(item);
+        _frames.Add(item);
+        _frameDelays.Add(_defaultDelay);
     }
 
-    /// <summary>
-    /// Removes all items from the <see cref="T:System.Collections.Generic.ICollection`1" />.
-    /// </summary>
+    /// <inheritdoc />
     public void Clear()
     {
-        ((IList<Image>)Frames).Clear();
+        _frames.Clear();
+        _frameDelays.Clear();
     }
 
-    /// <summary>
-    /// Determines whether the <see cref="T:System.Collections.Generic.ICollection`1" /> contains a specific value.
-    /// </summary>
-    /// <param name="item">The object to locate in the <see cref="T:System.Collections.Generic.ICollection`1" />.</param>
-    /// <returns>
-    /// true if <paramref name="item" /> is found in the <see cref="T:System.Collections.Generic.ICollection`1" />; otherwise, false.
-    /// </returns>
-    public bool Contains(Image item)
-    {
-        return ((IList<Image>)Frames).Contains(item);
-    }
+    /// <inheritdoc />
+    public bool Contains(Image item) => _frames.Contains(item);
 
-    /// <summary>
-    /// Copies the elements of the <see cref="T:System.Collections.Generic.ICollection`1" /> to an <see cref="T:System.Array" />, starting at a particular <see cref="T:System.Array" /> index.
-    /// </summary>
-    /// <param name="array">The one-dimensional <see cref="T:System.Array" /> that is the destination of the elements copied from <see cref="T:System.Collections.Generic.ICollection`1" />. The <see cref="T:System.Array" /> must have zero-based indexing.</param>
-    /// <param name="arrayIndex">The zero-based index in <paramref name="array" /> at which copying begins.</param>
-    public void CopyTo(Image[] array, int arrayIndex)
-    {
-        ((IList<Image>)Frames).CopyTo(array, arrayIndex);
-    }
+    /// <inheritdoc />
+    public void CopyTo(Image[] array, int arrayIndex) => _frames.CopyTo(array, arrayIndex);
 
-    /// <summary>
-    /// Returns an enumerator that iterates through the collection.
-    /// </summary>
-    /// <returns>
-    /// An enumerator that can be used to iterate through the collection.
-    /// </returns>
-    public IEnumerator<Image> GetEnumerator()
-    {
-        return ((IList<Image>)Frames).GetEnumerator();
-    }
+    /// <inheritdoc />
+    public IEnumerator<Image> GetEnumerator() => _frames.GetEnumerator();
 
-    /// <summary>
-    /// Returns an enumerator that iterates through a collection.
-    /// </summary>
-    /// <returns>
-    /// An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.
-    /// </returns>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return ((IList<Image>)Frames).GetEnumerator();
-    }
+    /// <inheritdoc />
+    IEnumerator IEnumerable.GetEnumerator() => _frames.GetEnumerator();
 
-    /// <summary>
-    /// Determines the index of a specific item in the <see cref="T:System.Collections.Generic.IList`1" />.
-    /// </summary>
-    /// <param name="item">The object to locate in the <see cref="T:System.Collections.Generic.IList`1" />.</param>
-    /// <returns>
-    /// The index of <paramref name="item" /> if found in the list; otherwise, -1.
-    /// </returns>
-    public int IndexOf(Image item)
-    {
-        return ((IList<Image>)Frames).IndexOf(item);
-    }
+    /// <inheritdoc />
+    public int IndexOf(Image item) => _frames.IndexOf(item);
 
-    /// <summary>
-    /// Inserts an item to the <see cref="T:System.Collections.Generic.IList`1" /> at the specified index.
-    /// </summary>
-    /// <param name="index">The zero-based index at which <paramref name="item" /> should be inserted.</param>
-    /// <param name="item">The object to insert into the <see cref="T:System.Collections.Generic.IList`1" />.</param>
+    /// <inheritdoc />
     public void Insert(int index, Image item)
     {
-        ((IList<Image>)Frames).Insert(index, item);
+        _frames.Insert(index, item);
+        _frameDelays.Insert(index, _defaultDelay);
     }
 
-    /// <summary>
-    /// Removes the first occurrence of a specific object from the <see cref="T:System.Collections.Generic.ICollection`1" />.
-    /// </summary>
-    /// <param name="item">The object to remove from the <see cref="T:System.Collections.Generic.ICollection`1" />.</param>
-    /// <returns>
-    /// true if <paramref name="item" /> was successfully removed from the <see cref="T:System.Collections.Generic.ICollection`1" />; otherwise, false. This method also returns false if <paramref name="item" /> is not found in the original <see cref="T:System.Collections.Generic.ICollection`1" />.
-    /// </returns>
+    /// <inheritdoc />
     public bool Remove(Image item)
     {
-        return ((IList<Image>)Frames).Remove(item);
+        var index = _frames.IndexOf(item);
+        if (index < 0)
+            return false;
+        RemoveAt(index);
+        return true;
     }
 
-    /// <summary>
-    /// Removes the <see cref="T:System.Collections.Generic.IList`1" /> item at the specified index.
-    /// </summary>
-    /// <param name="index">The zero-based index of the item to remove.</param>
+    /// <inheritdoc />
     public void RemoveAt(int index)
     {
-        ((IList<Image>)Frames).RemoveAt(index);
+        _frames.RemoveAt(index);
+        _frameDelays.RemoveAt(index);
     }
 }

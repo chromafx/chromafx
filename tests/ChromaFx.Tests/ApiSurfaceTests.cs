@@ -113,6 +113,45 @@ public class ApiSurfaceTests
         Assert.True(animation.Count >= 1);
         Assert.True(animation[0].Width > 0);
         Assert.True(animation[0].Height > 0);
+        Assert.Equal(animation.Count, animation.FrameDelays.Count);
+    }
+
+    [Fact]
+    public void AnimationPerFrameDelaysRoundTripViaGifEncoder()
+    {
+        var red = new Image(8, 8);
+        var blue = new Image(8, 8);
+        red.Buffer.Fill(Color.RedColor);
+        blue.Buffer.Fill(Color.BlueColor);
+
+        var animation = new Animation([red, blue], [10, 40])
+        {
+            // RepeatCount 1 skips writing the NETSCAPE app block (known Size quirk).
+            RepeatCount = 1,
+        };
+        using var stream = new MemoryStream();
+        animation.Save(stream, new GifEncoder());
+        stream.Position = 0;
+
+        var loaded = Animation.Load(stream);
+        Assert.Equal(2, loaded.Count);
+        Assert.Equal(10, loaded.GetFrameDelay(0));
+        Assert.Equal(40, loaded.GetFrameDelay(1));
+    }
+
+    [Fact]
+    public void TryGetFormatFindsBuiltInPng()
+    {
+        Assert.True(ImageFormats.TryGetFormat(FileFormats.Png, out var format));
+        Assert.Equal(FileFormats.Png, format!.Format);
+    }
+
+    [Fact]
+    public void FluentContextExtensionsCompile()
+    {
+        var image = new Image(2, 2);
+        image.Mutate(ctx => ctx.BoxBlur(3).Saturation(0.1f).Grayscale());
+        Assert.Equal(2, image.Width);
     }
 
     private sealed class StubImageFormat : IImageFormat
@@ -132,11 +171,10 @@ public class ApiSurfaceTests
 
         public Image Decode(Stream stream) => throw new NotSupportedException();
 
-        public bool Encode(BinaryWriter writer, Image image)
+        public void Encode(BinaryWriter writer, Image image)
         {
             EncodeCalls++;
             writer.Write(Encoding.ASCII.GetBytes("STUB"));
-            return true;
         }
     }
 }

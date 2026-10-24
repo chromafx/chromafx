@@ -40,8 +40,14 @@ internal class EndianBinaryWriter : IDisposable
     /// <param name="bitConverter">The bit converter.</param>
     /// <param name="stream">The stream.</param>
     /// <param name="encoding">The encoding.</param>
+    /// <param name="leaveOpen">If true, dispose does not close the underlying stream.</param>
     /// <exception cref="ArgumentException">Stream is not writable</exception>
-    public EndianBinaryWriter(EndianBitConverterBase bitConverter, Stream stream, Encoding encoding)
+    public EndianBinaryWriter(
+        EndianBitConverterBase bitConverter,
+        Stream stream,
+        Encoding encoding,
+        bool leaveOpen = false
+    )
     {
         bitConverter ??= new BigEndianBitConverter();
         stream ??= new MemoryStream();
@@ -51,7 +57,10 @@ internal class EndianBinaryWriter : IDisposable
         BaseStream = stream;
         BitConverter = bitConverter;
         Encoding = encoding;
+        _leaveOpen = leaveOpen;
     }
+
+    private readonly bool _leaveOpen;
 
     /// <summary>
     /// Gets the underlying stream of the EndianBinaryWriter.
@@ -96,14 +105,15 @@ internal class EndianBinaryWriter : IDisposable
     }
 
     /// <summary>
-    /// Disposes of the underlying stream.
+    /// Disposes of the writer; closes the underlying stream unless constructed with leaveOpen.
     /// </summary>
     public void Dispose()
     {
         if (BaseStream != null)
         {
             Flush();
-            BaseStream.Dispose();
+            if (!_leaveOpen)
+                BaseStream.Dispose();
             BaseStream = null;
         }
     }

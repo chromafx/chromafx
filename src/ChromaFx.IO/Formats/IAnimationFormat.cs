@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,22 +20,17 @@ using ChromaFx.Core;
 namespace ChromaFx.IO.Formats;
 
 /// <summary>
-/// Animation format interface
+/// Animation format plugin contract.
 /// </summary>
 public interface IAnimationFormat : IImageFormat
 {
     /// <summary>
-    /// Decodes the specified stream and returns an image
+    /// Decodes an animation from the stream.
     /// </summary>
-    /// <param name="stream">The stream containing the image data.</param>
-    /// <returns>The resulting image</returns>
     Animation DecodeAnimation(Stream stream);
 
     /// <summary>
-    /// Encodes an image and places it in the specified writer.
+    /// Encodes an animation into the specified writer. Throws on failure.
     /// </summary>
-    /// <param name="writer">The binary writer.</param>
-    /// <param name="image">The image to encode.</param>
-    /// <returns>True if it is encoded successfully, false otherwise.</returns>
-    bool Encode(BinaryWriter writer, Animation image);
+    void Encode(BinaryWriter writer, Animation image);
 }

@@ -15,6 +15,7 @@
  */
 
 using ChromaFx.Core;
+using ChromaFx.IO.Encoders;
 
 namespace ChromaFx.IO;
 
@@ -24,12 +25,36 @@ namespace ChromaFx.IO;
 public static class AnimationIOExtensions
 {
     /// <summary>
-    /// Saves the animation to a file path.
+    /// Saves the animation to a file path (format chosen by extension).
     /// </summary>
     public static void Save(this Animation animation, string fileName)
     {
         ArgumentNullException.ThrowIfNull(animation);
         ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
         ImageFormats.Encode(fileName, animation);
+    }
+
+    /// <summary>
+    /// Saves the animation to a file path using the given encoder.
+    /// </summary>
+    public static void Save(this Animation animation, string fileName, IAnimationEncoder encoder)
+    {
+        ArgumentNullException.ThrowIfNull(animation);
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
+        ArgumentNullException.ThrowIfNull(encoder);
+        new FileInfo(fileName).Directory?.Create();
+        using var stream = File.Open(fileName, FileMode.Create, FileAccess.Write, FileShare.None);
+        ImageFormats.Encode(stream, animation, encoder);
+    }
+
+    /// <summary>
+    /// Saves the animation to a stream using the given encoder.
+    /// </summary>
+    public static void Save(this Animation animation, Stream stream, IAnimationEncoder encoder)
+    {
+        ArgumentNullException.ThrowIfNull(animation);
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(encoder);
+        ImageFormats.Encode(stream, animation, encoder);
     }
 }

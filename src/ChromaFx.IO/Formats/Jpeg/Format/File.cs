@@ -74,7 +74,7 @@ internal class File : FileBase
     /// <returns>
     /// True if it writes successfully, false otherwise.
     /// </returns>
-    public override bool Write(BinaryWriter stream, Image image) =>
+    public override void Write(BinaryWriter stream, Image image) =>
         Write(stream, image, quality: 90);
 
     /// <summary>
@@ -83,8 +83,7 @@ internal class File : FileBase
     /// <param name="stream">The writer.</param>
     /// <param name="image">The image.</param>
     /// <param name="quality">JPEG quality (1–100).</param>
-    /// <returns>True if successful.</returns>
-    public bool Write(BinaryWriter stream, Image image, int quality)
+    public void Write(BinaryWriter stream, Image image, int quality)
     {
         new StartOfImage().Write(stream);
         var quantizationTableSegment = new DefineQuantizationTable(Math.Clamp(quality, 1, 100));
@@ -94,7 +93,6 @@ internal class File : FileBase
         huffmanTableSegment.Write(stream);
         new StartOfScan(image, huffmanTableSegment, quantizationTableSegment).Write(stream);
         new EndOfImage(null).Write(stream);
-        return true;
     }
 
     /// <summary>
@@ -102,12 +100,9 @@ internal class File : FileBase
     /// </summary>
     /// <param name="writer">The writer.</param>
     /// <param name="animation">The animation.</param>
-    /// <returns>
-    /// True if it writes successfully, false otherwise.
-    /// </returns>
-    public override bool Write(BinaryWriter writer, Animation animation)
+    public override void Write(BinaryWriter writer, Animation animation)
     {
-        return Write(writer, animation[0]);
+        Write(writer, animation[0]);
     }
 
     /// <summary>

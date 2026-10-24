@@ -22,7 +22,7 @@ public class GifFormat : FormatTestBase
             var imageFormat = new IO.Formats.Gif.GifFormat();
             var tempImage = imageFormat.DecodeAnimation(tempFile);
             using var tempFile2 = File.OpenWrite(OutputDirectory + fileName);
-            Assert.True(imageFormat.Encode(new BinaryWriter(tempFile2), tempImage));
+            imageFormat.Encode(new BinaryWriter(tempFile2), tempImage);
         }
         Assert.True(CheckFileCorrect(fileName));
     }

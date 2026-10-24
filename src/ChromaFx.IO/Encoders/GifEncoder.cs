@@ -16,16 +16,15 @@
 
 using System.Text;
 using ChromaFx.Core;
-using ChromaFx.Core.Exceptions;
 using ChromaFx.IO.Formats;
 using ChromaFx.IO.Formats.Gif;
 
 namespace ChromaFx.IO.Encoders;
 
 /// <summary>
-/// GIF encoder options.
+/// GIF still-image and animation encoder.
 /// </summary>
-public sealed class GifEncoder : IImageEncoder
+public sealed class GifEncoder : IImageEncoder, IAnimationEncoder
 {
     /// <inheritdoc />
     public FileFormats Format => FileFormats.Gif;
@@ -36,7 +35,15 @@ public sealed class GifEncoder : IImageEncoder
         ArgumentNullException.ThrowIfNull(stream);
         ArgumentNullException.ThrowIfNull(image);
         using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
-        if (!new GifFormat().Encode(writer, image))
-            throw new ImageException("GIF encode failed.");
+        new GifFormat().Encode(writer, image);
+    }
+
+    /// <inheritdoc />
+    public void Encode(Stream stream, Animation animation)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(animation);
+        using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
+        new GifFormat().Encode(writer, animation);
     }
 }
