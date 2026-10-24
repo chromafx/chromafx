@@ -21,7 +21,7 @@ public class GifFormat : FormatTestBase
         {
             var imageFormat = new IO.Formats.Gif.GifFormat();
             var tempImage = imageFormat.DecodeAnimation(tempFile);
-            using var tempFile2 = File.OpenWrite(OutputDirectory + fileName);
+            using var tempFile2 = File.Create(OutputDirectory + fileName);
             imageFormat.Encode(new BinaryWriter(tempFile2), tempImage);
         }
         Assert.True(CheckFileCorrect(fileName));

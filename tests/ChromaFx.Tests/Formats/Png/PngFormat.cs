@@ -53,7 +53,7 @@ public class PngFormat : FormatTestBase
         {
             var imageFormat = new IO.Formats.Png.PngFormat();
             var tempImage = imageFormat.Decode(tempFile);
-            using var tempFile2 = File.OpenWrite(OutputDirectory + fileName);
+            using var tempFile2 = File.Create(OutputDirectory + fileName);
             imageFormat.Encode(new BinaryWriter(tempFile2), tempImage);
         }
 
