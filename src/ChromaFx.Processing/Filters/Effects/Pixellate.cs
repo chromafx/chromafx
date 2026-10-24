@@ -82,7 +82,7 @@ public class Pixellate(int pixelSize) : IFilter
                 {
                     for (var y2 = minY; y2 < maxY; ++y2)
                     {
-                        var tempPixel = image.Pixels[y * image.Width + x];
+                        var tempPixel = image.GetRowSpan(y)[x];
                         rValue += tempPixel.Red;
                         gValue += tempPixel.Green;
                         bValue += tempPixel.Blue;
@@ -101,9 +101,9 @@ public class Pixellate(int pixelSize) : IFilter
                     {
                         for (var y2 = minY; y2 < maxY; ++y2)
                         {
-                            image.Pixels[y2 * image.Width + x2].Red = (byte)rValue;
-                            image.Pixels[y2 * image.Width + x2].Green = (byte)gValue;
-                            image.Pixels[y2 * image.Width + x2].Blue = (byte)bValue;
+                            image.GetRowSpan(y2)[x2].Red = (byte)rValue;
+                            image.GetRowSpan(y2)[x2].Green = (byte)gValue;
+                            image.GetRowSpan(y2)[x2].Blue = (byte)bValue;
                         }
                     }
                 );

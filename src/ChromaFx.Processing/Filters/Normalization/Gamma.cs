@@ -18,6 +18,7 @@
 using ChromaFx.Core;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
+using ChromaFx.Processing.Simd;
 
 namespace ChromaFx.Processing.Filters.Normalization;
 
@@ -34,57 +35,35 @@ public class Gamma : IFilter
     public Gamma(float value)
     {
         Value = value;
-        Ramp = new int[256];
-        Parallel.For(
-            0,
-            256,
-            x =>
-            {
-                Ramp[x] = (int)(255.0 * Math.Pow(x / 255.0, 1.0 / Value) + 0.5);
-                Ramp[x] =
-                    Ramp[x] < 0 ? 0
-                    : Ramp[x] > 255 ? 255
-                    : Ramp[x];
-            }
-        );
+        Lut = new byte[256];
+        for (var x = 0; x < 256; x++)
+        {
+            var mapped = (int)(255.0 * Math.Pow(x / 255.0, 1.0 / Value) + 0.5);
+            Lut[x] = (byte)Math.Clamp(mapped, 0, 255);
+        }
     }
 
     /// <summary>
     /// Gets or sets the value.
     /// </summary>
-    /// <value>The value.</value>
     public float Value { get; set; }
 
-    private int[] Ramp { get; }
+    private byte[] Lut { get; }
 
-    /// <summary>
-    /// Applies the filter to the specified image.
-    /// </summary>
-    /// <param name="image">The image.</param>
-    /// <param name="targetLocation">The target location.</param>
-    /// <returns>The image</returns>
+    /// <inheritdoc />
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
 
-        var pixels = image.Pixels;
-        int width = image.Width;
         int left = targetLocation.Left;
-        int right = targetLocation.Right;
-        int[] ramp = Ramp;
+        int rowWidth = targetLocation.Right - left;
+        var lut = Lut;
 
         FilterParallelism.ForRows(
             targetLocation,
             y =>
             {
-                int rowStart = y * width + left;
-                int rowEnd = y * width + right;
-                for (int x = rowStart; x < rowEnd; x++)
-                {
-                    pixels[x].Red = (byte)ramp[pixels[x].Red];
-                    pixels[x].Green = (byte)ramp[pixels[x].Green];
-                    pixels[x].Blue = (byte)ramp[pixels[x].Blue];
-                }
+                PixelSimd.ApplyRgbLut(image.GetRowSpan(y).Slice(left, rowWidth), lut);
             }
         );
 

@@ -1072,7 +1072,8 @@ internal class StartOfScan : SegmentBase
         int height = Image.Height;
         int xmax = width - 1;
         int ymax = height - 1;
-        var pixels = Image.Pixels.AsSpan();
+        var pixels = Image.PixelSpan;
+        int stride = Image.Stride;
         var yData = yBlock.Data.AsSpan();
         var cbData = cbBlock.Data.AsSpan();
         var crData = crBlock.Data.AsSpan();
@@ -1082,7 +1083,7 @@ internal class StartOfScan : SegmentBase
             int row = y + j;
             if (row > ymax)
                 row = ymax;
-            int rowBase = row * width;
+            int rowBase = row * stride;
             for (int i = 0; i < 8; i++)
             {
                 int col = x + i;
@@ -1090,6 +1091,7 @@ internal class StartOfScan : SegmentBase
                     col = xmax;
                 int offset = col + rowBase;
                 YCbCr color = pixels[offset];
+
                 int index = 8 * j + i;
                 yData[index] = (int)color.YLuminance;
                 cbData[index] = (int)color.CbChroma;

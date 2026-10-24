@@ -51,8 +51,8 @@ public class Pointillism(int pointSize) : IFilter
     {
         targetLocation = targetLocation.Normalize(image);
         var pointSize2 = PointSize * 2;
-        var copy = new Color[image.Pixels.Length];
-        Array.Copy(image.Pixels, copy, copy.Length);
+        var copy = new Color[image.PixelCount];
+        image.CopyPixelsTo(copy);
         var ellipseDrawer = new Ellipse(
             Color.AliceBlue,
             true,
@@ -85,7 +85,7 @@ public class Pointillism(int pointSize) : IFilter
                 {
                     for (var y2 = minY; y2 < maxY; ++y2)
                     {
-                        var offset = y * image.Width + x;
+                        var offset = y2 * image.Width + x2;
                         rValue += copy[offset].Red;
                         gValue += copy[offset].Green;
                         bValue += copy[offset].Blue;
@@ -124,7 +124,7 @@ public class Pointillism(int pointSize) : IFilter
                 {
                     for (var y2 = minY; y2 < maxY; ++y2)
                     {
-                        var offset = y * image.Width + x;
+                        var offset = y2 * image.Width + x2;
                         rValue += copy[offset].Red;
                         gValue += copy[offset].Green;
                         bValue += copy[offset].Blue;
@@ -173,7 +173,7 @@ public class Pointillism(int pointSize) : IFilter
                 {
                     for (var y2 = minY; y2 < maxY; ++y2)
                     {
-                        var offset = y * image.Width + x;
+                        var offset = y2 * image.Width + x2;
                         rValue += copy[offset].Red;
                         gValue += copy[offset].Green;
                         bValue += copy[offset].Blue;

@@ -47,8 +47,8 @@ public class SnnBlur(int apertureRadius) : IFilter
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        var tempValues = new Color[image.Pixels.Length];
-        Array.Copy(image.Pixels, tempValues, tempValues.Length);
+        var tempValues = new Color[image.PixelCount];
+        image.CopyPixelsTo(tempValues);
         var apertureMin = -ApertureRadius;
         var apertureMax = ApertureRadius;
         Parallel.For(
@@ -89,9 +89,9 @@ public class SnnBlur(int apertureRadius) : IFilter
                             )
                                 continue;
 
-                            var tempValue1 = image.Pixels[y * image.Width + x];
-                            var tempValue2 = image.Pixels[tempY1 * image.Width + tempX1];
-                            var tempValue3 = image.Pixels[tempY2 * image.Width + tempX2];
+                            var tempValue1 = image.GetRowSpan(y)[x];
+                            var tempValue2 = image.GetRowSpan(tempY1)[tempX1];
+                            var tempValue3 = image.GetRowSpan(tempY2)[tempX2];
 
                             if (
                                 Distance.Euclidean(tempValue1, tempValue2)
@@ -116,7 +116,7 @@ public class SnnBlur(int apertureRadius) : IFilter
                     tempValues[y * image.Width + x].Red = (byte)(rValue / numPixels);
                     tempValues[y * image.Width + x].Green = (byte)(gValue / numPixels);
                     tempValues[y * image.Width + x].Blue = (byte)(bValue / numPixels);
-                    tempValues[y * image.Width + x].Alpha = image.Pixels[y * image.Width + x].Alpha;
+                    tempValues[y * image.Width + x].Alpha = image.GetRowSpan(y)[x].Alpha;
                 }
             }
         );

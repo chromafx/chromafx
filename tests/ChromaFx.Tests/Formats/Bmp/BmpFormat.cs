@@ -43,7 +43,7 @@ public class BmpFormat : FormatTestBase
     {
         using var tempFile = File.OpenRead("./TestImages/Formats/Bmp/EncodingTest.bmp");
         var tempImage = new IO.Formats.Bmp.BmpFormat().Decode(tempFile);
-        Assert.Equal(1760, tempImage.Pixels.Length);
+        Assert.Equal(1760, tempImage.PixelCount);
         Assert.Equal(44, tempImage.Width);
         Assert.Equal(40, tempImage.Height);
         Assert.Equal(44d / 40d, tempImage.PixelRatio);

@@ -62,11 +62,9 @@ internal class OctreeQuantizer : QuantizerBase
         _octree ??= new Octree(GetBitsNeededForColorDepth(maxColors));
         for (var y = 0; y < image.Height; y++)
         {
+            var row = image.GetRowSpan(y);
             for (var x = 0; x < image.Width; x++)
-            {
-                var tempOffset = y * image.Width + x;
-                _octree.AddColor(image.Pixels[tempOffset]);
-            }
+                _octree.AddColor(row[x]);
         }
     }
 
@@ -85,8 +83,9 @@ internal class OctreeQuantizer : QuantizerBase
             {
                 for (var x = 0; x < image.Width; x++)
                 {
-                    var tempOffset = y * image.Width + x;
-                    quantizedPixels[tempOffset] = QuantizePixel(image.Pixels[tempOffset]);
+                    quantizedPixels[y * image.Width + x] = QuantizePixel(
+                        image.GetRowSpan(y)[x]
+                    );
                 }
             }
         );

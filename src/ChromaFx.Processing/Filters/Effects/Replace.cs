@@ -61,8 +61,6 @@ public class Replace(Color sourceColor, Color targetColor, float epsilon) : IFil
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        var pixels = image.Pixels;
-        var width = image.Width;
         int left = targetLocation.Left;
         int right = targetLocation.Right;
         var source = SourceColor;
@@ -73,10 +71,10 @@ public class Replace(Color sourceColor, Color targetColor, float epsilon) : IFil
             targetLocation,
             y =>
             {
-                var rowStart = y * width;
+                var row = image.GetRowSpan(y);
                 for (var x = left; x < right; ++x)
                 {
-                    ref var pixel = ref pixels[rowStart + x];
+                    ref var pixel = ref row[x];
                     int dr = pixel.Red - source.Red;
                     int dg = pixel.Green - source.Green;
                     int db = pixel.Blue - source.Blue;

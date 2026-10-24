@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+using System.Runtime.InteropServices;
 using ChromaFx.Core.Colors;
 using ChromaFx.Core.ExtensionMethods;
 
@@ -26,16 +27,19 @@ namespace ChromaFx.IO.Formats.Png.Format.ColorFormats;
 /// <seealso cref="IColorReader"/>
 internal class TrueColorAlphaReader : IColorReader
 {
-    /// <summary>
-    /// Reads the scanline.
-    /// </summary>
-    /// <param name="scanline">The scanline.</param>
-    /// <param name="pixels">The pixels.</param>
-    /// <param name="header">The header.</param>
-    /// <param name="row">The row.</param>
+    /// <inheritdoc />
     public void ReadScanline(byte[] scanline, Color[] pixels, Header header, int row)
     {
         scanline = scanline.ExpandArray(header.BitDepth);
+
+        // 8-bit RGBA matches Color memory layout — bulk copy.
+        if (header.BitDepth == 8)
+        {
+            var dest = MemoryMarshal.AsBytes(pixels.AsSpan(row * header.Width, header.Width));
+            scanline.AsSpan(0, header.Width * 4).CopyTo(dest);
+            return;
+        }
+
         var bytesPerPixel = header.BitDepth * 4 / 8;
         var bytesPerChannel = header.BitDepth / 8;
 

@@ -49,18 +49,13 @@ public class Logarithm : IFilter
             targetLocation,
             y =>
             {
+                var row = image.GetRowSpan(y);
                 for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                 {
-                    var pixelIndex = y * image.Width + x;
-                    image.Pixels[pixelIndex].Red = (byte)(
-                        maxValue.Red * Math.Log(1f + image.Pixels[pixelIndex].Red)
-                    );
-                    image.Pixels[pixelIndex].Green = (byte)(
-                        maxValue.Green * Math.Log(1f + image.Pixels[pixelIndex].Green)
-                    );
-                    image.Pixels[pixelIndex].Blue = (byte)(
-                        maxValue.Blue * Math.Log(1f + image.Pixels[pixelIndex].Blue)
-                    );
+                    ref var pixel = ref row[x];
+                    pixel.Red = (byte)(maxValue.Red * Math.Log(1f + pixel.Red));
+                    pixel.Green = (byte)(maxValue.Green * Math.Log(1f + pixel.Green));
+                    pixel.Blue = (byte)(maxValue.Blue * Math.Log(1f + pixel.Blue));
                 }
             }
         );
@@ -73,17 +68,16 @@ public class Logarithm : IFilter
         var returnValue = new Color(0);
         for (var y = targetLocation.Bottom; y < targetLocation.Top; ++y)
         {
+            var row = image.GetRowSpan(y);
             for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
             {
-                var red = image.Pixels[y * image.Width + x].Red;
-                if (returnValue.Red < red)
-                    returnValue.Red = red;
-                var green = image.Pixels[y * image.Width + x].Green;
-                if (returnValue.Green < green)
-                    returnValue.Green = green;
-                var blue = image.Pixels[y * image.Width + x].Blue;
-                if (returnValue.Blue < blue)
-                    returnValue.Blue = blue;
+                var pixel = row[x];
+                if (returnValue.Red < pixel.Red)
+                    returnValue.Red = pixel.Red;
+                if (returnValue.Green < pixel.Green)
+                    returnValue.Green = pixel.Green;
+                if (returnValue.Blue < pixel.Blue)
+                    returnValue.Blue = pixel.Blue;
                 if (returnValue == Color.White)
                     return returnValue;
             }

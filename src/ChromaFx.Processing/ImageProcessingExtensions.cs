@@ -52,7 +52,7 @@ public static class ImageProcessingExtensions
     public static string ToAsciiArt(this Image image, int maxWidth = 0)
     {
         ArgumentNullException.ThrowIfNull(image);
-        if (image.Pixels is null || image.Width <= 0 || image.Height <= 0)
+        if (image.Width <= 0 || image.Height <= 0)
             return string.Empty;
 
         var sourceWidth = image.Width;
@@ -98,10 +98,10 @@ public static class ImageProcessingExtensions
 
         for (var sy = y; sy < maxY; sy++)
         {
-            var rowStart = sy * image.Width;
+            var row = image.GetRowSpan(sy);
             for (var sx = x; sx < maxX; sx++)
             {
-                sum += GetLuminance(image.Pixels[rowStart + sx]);
+                sum += GetLuminance(row[sx]);
                 count++;
             }
         }

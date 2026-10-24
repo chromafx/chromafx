@@ -49,7 +49,7 @@ public class Crop : IFilter
                     result[
                         (y - targetLocation.Bottom) * targetLocation.Width
                             + (x - targetLocation.Left)
-                    ] = image.Pixels[y * image.Width + x];
+                    ] = image.GetRowSpan(y)[x];
                 }
             }
         );

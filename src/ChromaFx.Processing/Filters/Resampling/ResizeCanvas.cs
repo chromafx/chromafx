@@ -87,7 +87,7 @@ public class ResizeCanvas(int width, int height, ResizeOptions options = ResizeO
                     if (x + xOffset < 0)
                         continue;
 
-                    final[y * Width + x] = image.Pixels[(y + yOffset) * image.Width + x + xOffset];
+                    final[y * Width + x] = image.GetRowSpan(y + yOffset)[x + xOffset];
                 }
             }
         );

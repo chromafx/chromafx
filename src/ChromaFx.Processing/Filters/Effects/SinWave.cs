@@ -62,8 +62,8 @@ public class SinWave(float amplitude, float frequency, Direction direction) : IF
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        var result = new Color[image.Pixels.Length];
-        Array.Copy(image.Pixels, result, result.Length);
+        var result = new Color[image.PixelCount];
+        image.CopyPixelsTo(result);
 
         Parallel.For(
             targetLocation.Bottom,
@@ -97,9 +97,7 @@ public class SinWave(float amplitude, float frequency, Direction direction) : IF
                     while (value2 >= image.Width)
                         value2 -= image.Width;
 
-                    result[y * image.Width + x] = image.Pixels[
-                        (int)value1 * image.Width + (int)value2
-                    ];
+                    result[y * image.Width + x] = image.GetRowSpan((int)value1)[(int)value2];
                 }
             }
         );

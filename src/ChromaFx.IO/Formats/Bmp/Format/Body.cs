@@ -35,9 +35,14 @@ internal class Body(byte[] data)
     /// <param name="image">The image.</param>
     /// <param name="header">The header.</param>
     public Body(Image image, Header header)
-        : this(
-            new Rgb24Bit().Encode(header, image.Pixels.SelectMany(x => (byte[])x).ToArray(), null)
-        ) { }
+        : this(EncodeImage(image, header)) { }
+
+    private static byte[] EncodeImage(Image image, Header header)
+    {
+        var rgba = new byte[image.PixelCount * 4];
+        image.CopyRgbaBytesTo(rgba);
+        return new Rgb24Bit().Encode(header, rgba, null);
+    }
 
     /// <summary>
     /// Gets or sets the data.

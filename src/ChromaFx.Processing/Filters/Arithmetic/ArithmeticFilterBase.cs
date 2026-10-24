@@ -46,9 +46,8 @@ public abstract class ArithmeticFilterBase(Image secondImage) : IFilter
     {
         targetLocation = targetLocation.Normalize(image);
 
-        var destPixels = image.Pixels;
-        var srcPixels = SecondImage.Pixels;
-        int destWidth = image.Width;
+        int destStride = image.Stride;
+        int srcStride = SecondImage.Stride;
         int srcWidth = SecondImage.Width;
         int srcHeight = SecondImage.Height;
         int left = targetLocation.Left;
@@ -61,15 +60,18 @@ public abstract class ArithmeticFilterBase(Image secondImage) : IFilter
         if (overlapWidth <= 0 || top <= bottom)
             return image;
 
+        var destPixels = image.PixelMemory;
+        var srcPixels = SecondImage.PixelMemory;
+
         FilterParallelism.ForRows(
             new Rectangle(left, bottom, overlapWidth, top - bottom),
             y =>
             {
-                int destStart = y * destWidth + left;
-                int srcStart = (y - bottom) * srcWidth;
+                int destStart = y * destStride + left;
+                int srcStart = (y - bottom) * srcStride;
                 ProcessRow(
-                    destPixels.AsSpan(destStart, overlapWidth),
-                    srcPixels.AsSpan(srcStart, overlapWidth)
+                    destPixels.Span.Slice(destStart, overlapWidth),
+                    srcPixels.Span.Slice(srcStart, overlapWidth)
                 );
             }
         );

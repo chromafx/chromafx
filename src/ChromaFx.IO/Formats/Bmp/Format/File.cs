@@ -113,7 +113,7 @@ internal class File : FileBase
     /// <param name="image">The image.</param>
     private void LoadImage(Image image)
     {
-        var imageSize = image.Pixels.Length * 4;
+        var imageSize = image.PixelCount * 4;
         FileHeader = new FileHeader(54 + imageSize, 54);
         Header = new Header(image.Width, image.Height, 24, imageSize, 0, 0, 0, 0, Compression.Rgb);
         Palette = new Palette(0, []);

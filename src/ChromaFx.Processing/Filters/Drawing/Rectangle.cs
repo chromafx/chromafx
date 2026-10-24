@@ -76,11 +76,9 @@ public class Rectangle(Color color, bool fill, Numerics.Rectangle bounds) : Shap
             targetLocation.Top,
             y =>
             {
+                var row = image.GetRowSpan(y);
                 for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
-                {
-                    var index = y * image.Width + x;
-                    image.Pixels[index] = Color;
-                }
+                    row[x] = Color;
             }
         );
 

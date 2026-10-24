@@ -67,10 +67,7 @@ public class Jitter(int amount) : IFilter
                         : newY >= targetLocation.Top ? targetLocation.Top - 1
                         : newY;
 
-                    var sourceIndex = y * image.Width + x;
-                    var destinationIndex = newY * image.Width + newX;
-
-                    image.Pixels[destinationIndex] = image.Pixels[sourceIndex];
+                    image.GetRowSpan(newY)[newX] = image.GetRowSpan(y)[x];
                 }
             }
         );

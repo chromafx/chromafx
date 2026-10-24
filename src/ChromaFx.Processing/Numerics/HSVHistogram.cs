@@ -109,7 +109,7 @@ public class HsvHistogram : IHistogram
         {
             for (var y = 0; y < image.Height; ++y)
             {
-                var pixel = image.Pixels[y * image.Width + x];
+                var pixel = image.GetRowSpan(y)[x];
                 var tempHsv = (Hsv)new Color(pixel.Red, pixel.Green, pixel.Blue);
                 ++V[(int)(tempHsv.Value * 100)];
             }

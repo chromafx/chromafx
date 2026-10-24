@@ -54,22 +54,17 @@ public class Noise(byte amount) : IFilter
             targetLocation.Top,
             y =>
             {
+                var row = image.GetRowSpan(y);
                 for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                 {
-                    var outputIndex = y * image.Width + x;
+                    ref var pixel = ref row[x];
+                    var r = pixel.Red + Random.ThreadSafeNext(-Amount, Amount);
+                    var g = pixel.Green + Random.ThreadSafeNext(-Amount, Amount);
+                    var b = pixel.Blue + Random.ThreadSafeNext(-Amount, Amount);
 
-                    var r = image.Pixels[outputIndex].Red + Random.ThreadSafeNext(-Amount, Amount);
-                    var g =
-                        image.Pixels[outputIndex].Green + Random.ThreadSafeNext(-Amount, Amount);
-                    var b = image.Pixels[outputIndex].Blue + Random.ThreadSafeNext(-Amount, Amount);
-
-                    r = r.ToByte();
-                    g = g.ToByte();
-                    b = b.ToByte();
-
-                    image.Pixels[outputIndex].Red = (byte)r;
-                    image.Pixels[outputIndex].Green = (byte)g;
-                    image.Pixels[outputIndex].Blue = (byte)b;
+                    pixel.Red = (byte)r.ToByte();
+                    pixel.Green = (byte)g.ToByte();
+                    pixel.Blue = (byte)b.ToByte();
                 }
             }
         );

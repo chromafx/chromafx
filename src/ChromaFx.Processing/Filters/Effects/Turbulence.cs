@@ -63,8 +63,8 @@ public class Turbulence(int roughness = 8, float power = 0.02f, int seed = 25123
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        var result = new Color[image.Pixels.Length];
-        Array.Copy(image.Pixels, result, result.Length);
+        var result = new Color[image.PixelCount];
+        image.CopyPixelsTo(result);
         var xNoise = PerlinNoise.Generate(
             image.Width,
             image.Height,
@@ -94,14 +94,11 @@ public class Turbulence(int roughness = 8, float power = 0.02f, int seed = 25123
             {
                 for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                 {
-                    var xDistortion = x + xNoise.Pixels[y * image.Width + x].Red * Power;
-                    var yDistortion = y + yNoise.Pixels[y * image.Width + x].Red * Power;
+                    var xDistortion = x + xNoise.GetRowSpan(y)[x].Red * Power;
+                    var yDistortion = y + yNoise.GetRowSpan(y)[x].Red * Power;
                     var x1 = (int)xDistortion.Clamp(0, image.Width - 1);
                     var y1 = (int)yDistortion.Clamp(0, image.Height - 1);
-                    var resultOffset = y * image.Width + x;
-                    var sourceOffset = y1 * image.Width + x1;
-
-                    result[resultOffset] = image.Pixels[sourceOffset];
+                    result[y * image.Width + x] = image.GetRowSpan(y1)[x1];
                 }
             }
         );

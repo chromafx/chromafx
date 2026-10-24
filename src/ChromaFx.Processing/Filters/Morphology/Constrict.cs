@@ -47,8 +47,8 @@ public class Constrict(int apertureRadius) : IFilter
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        var tempValues = new Color[image.Pixels.Length];
-        Array.Copy(image.Pixels, tempValues, tempValues.Length);
+        var tempValues = new Color[image.PixelCount];
+        image.CopyPixelsTo(tempValues);
         var apertureMin = -ApertureRadius;
         var apertureMax = ApertureRadius;
 
@@ -100,7 +100,7 @@ public class Constrict(int apertureRadius) : IFilter
                         }
                     }
 
-                    image.Pixels[y * image.Width + x] = new Color(rValue, gValue, bValue);
+                    image.GetRowSpan(y)[x] = new Color(rValue, gValue, bValue);
                 }
             }
         );

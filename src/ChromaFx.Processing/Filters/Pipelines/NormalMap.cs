@@ -66,13 +66,14 @@ public class NormalMap(XDirection xDirection, YDirection yDirection) : IFilter
             targetLocation.Top,
             y =>
             {
+                var row = image.GetRowSpan(y);
+                var rowX = tempImageX.GetRowSpan(y);
+                var rowY = tempImageY.GetRowSpan(y);
                 for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                 {
-                    var index = y * image.Width + x;
-
                     var tempVector = new Vector3(
-                        tempImageX.Pixels[index].Red / 255f,
-                        tempImageY.Pixels[index].Red / 255f,
+                        rowX[x].Red / 255f,
+                        rowY[x].Red / 255f,
                         1f
                     );
 
@@ -84,9 +85,9 @@ public class NormalMap(XDirection xDirection, YDirection yDirection) : IFilter
                     );
                     tempVector /= 2.0f;
 
-                    image.Pixels[index].Red = (byte)(tempVector.X * 255);
-                    image.Pixels[index].Green = (byte)(tempVector.Y * 255);
-                    image.Pixels[index].Blue = (byte)(tempVector.Z * 255);
+                    row[x].Red = (byte)(tempVector.X * 255);
+                    row[x].Green = (byte)(tempVector.Y * 255);
+                    row[x].Blue = (byte)(tempVector.Z * 255);
                 }
             }
         );

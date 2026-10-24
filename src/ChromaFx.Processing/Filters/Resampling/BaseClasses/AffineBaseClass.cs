@@ -101,7 +101,7 @@ public abstract class AffineBaseClass : IFilter
     {
         Filter.Precompute(image.Width, image.Height, Width, Height);
         targetLocation = targetLocation.Normalize(image);
-        var copy = FilterBufferPool.RentCopy(image.Pixels);
+        var copy = FilterBufferPool.RentCopy(image.PixelSpan);
         try
         {
             TransformationMatrix = GetMatrix(image, targetLocation);
@@ -112,9 +112,11 @@ public abstract class AffineBaseClass : IFilter
             YRadius = yScale < 1f ? Filter.FilterRadius / yScale : Filter.FilterRadius;
             XRadius = xScale < 1f ? Filter.FilterRadius / xScale : Filter.FilterRadius;
 
-            Parallel.For(
+            FilterParallelism.For(
                 targetLocation.Bottom,
                 targetLocation.Top,
+                (targetLocation.Top - targetLocation.Bottom)
+                    * (targetLocation.Right - targetLocation.Left),
                 y =>
                 {
                     for (int x = targetLocation.Left; x < targetLocation.Right; x++)
@@ -132,7 +134,7 @@ public abstract class AffineBaseClass : IFilter
                             || rotatedX < 0
                         )
                         {
-                            image.Pixels[y * image.Width + x] = new Color(0, 0, 0, 255);
+                            image.GetRowSpan(y)[x] = new Color(0, 0, 0, 255);
                             continue;
                         }
                         var left = (int)(rotatedX - XRadius);
@@ -161,7 +163,7 @@ public abstract class AffineBaseClass : IFilter
                                 if (tempWeight == 0)
                                     continue;
 
-                                var pixel = copy[i * image.Width + j];
+                                var pixel = copy[i * image.Stride + j];
                                 values.X += pixel.Red * (float)tempWeight;
                                 values.Y += pixel.Green * (float)tempWeight;
                                 values.Z += pixel.Blue * (float)tempWeight;
@@ -178,7 +180,7 @@ public abstract class AffineBaseClass : IFilter
                                 Vector4.Zero,
                                 new Vector4(255, 255, 255, 255)
                             );
-                            image.Pixels[y * image.Width + x] = new Color(
+                            image.GetRowSpan(y)[x] = new Color(
                                 (byte)values.X,
                                 (byte)values.Y,
                                 (byte)values.Z,

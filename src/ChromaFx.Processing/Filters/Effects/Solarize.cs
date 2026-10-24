@@ -46,8 +46,6 @@ public class Solarize(float threshold) : IFilter
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        var pixels = image.Pixels;
-        int width = image.Width;
         int left = targetLocation.Left;
         int right = targetLocation.Right;
         // Black is (0,0,0,255); compare squared Euclidean to avoid Sqrt per pixel.
@@ -58,10 +56,10 @@ public class Solarize(float threshold) : IFilter
             targetLocation,
             y =>
             {
-                int rowStart = y * width;
+                var row = image.GetRowSpan(y);
                 for (var x = left; x < right; ++x)
                 {
-                    ref var pixel = ref pixels[rowStart + x];
+                    ref var pixel = ref row[x];
                     int da = pixel.Alpha - blackAlpha;
                     double distSq =
                         (double)pixel.Red * pixel.Red

@@ -25,14 +25,28 @@ internal static class FilterParallelism
     internal static void ForRows(Rectangle region, Action<int> processRow)
     {
         var pixelCount = (region.Top - region.Bottom) * (region.Right - region.Left);
-        if (pixelCount < ParallelPixelThreshold)
+        For(region.Bottom, region.Top, pixelCount, processRow);
+    }
+
+    /// <summary>
+    /// Parallelizes over <paramref name="fromInclusive"/>..<paramref name="toExclusive"/> when
+    /// <paramref name="pixelCountHint"/> meets the threshold.
+    /// </summary>
+    internal static void For(
+        int fromInclusive,
+        int toExclusive,
+        int pixelCountHint,
+        Action<int> body
+    )
+    {
+        if (pixelCountHint < ParallelPixelThreshold || toExclusive - fromInclusive <= 1)
         {
-            for (var y = region.Bottom; y < region.Top; ++y)
-                processRow(y);
+            for (var i = fromInclusive; i < toExclusive; ++i)
+                body(i);
         }
         else
         {
-            Parallel.For(region.Bottom, region.Top, processRow);
+            Parallel.For(fromInclusive, toExclusive, body);
         }
     }
 }

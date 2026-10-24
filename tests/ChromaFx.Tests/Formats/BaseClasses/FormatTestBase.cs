@@ -32,14 +32,18 @@ public abstract class FormatTestBase
         if (!dimensionsOk)
             return false;
 
-        var pixelsOk = true;
-        for (var index = 0; index < outputImage.Pixels.Length; index++)
+        for (var y = 0; y < outputImage.Height; y++)
         {
-            if (!outputImage.Pixels[index].Equals(expectedImage.Pixels[index]))
-                pixelsOk = false;
+            var outputRow = outputImage.GetRowSpan(y);
+            var expectedRow = expectedImage.GetRowSpan(y);
+            for (var x = 0; x < outputImage.Width; x++)
+            {
+                if (!outputRow[x].Equals(expectedRow[x]))
+                    return false;
+            }
         }
 
-        return pixelsOk;
+        return true;
     }
 
     protected static byte[] ReadBinary(FileStream stream)

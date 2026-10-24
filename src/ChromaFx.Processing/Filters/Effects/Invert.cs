@@ -38,16 +38,14 @@ public class Invert : IFilter
     {
         targetLocation = targetLocation.Normalize(image);
 
-        int width = image.Width;
         int left = targetLocation.Left;
         int rowWidth = targetLocation.Right - left;
-        var pixels = image.Pixels;
 
         FilterParallelism.ForRows(
             targetLocation,
             y =>
             {
-                PixelSimd.InvertRgb(pixels.AsSpan(y * width + left, rowWidth));
+                PixelSimd.InvertRgb(image.GetRowSpan(y).Slice(left, rowWidth));
             }
         );
 

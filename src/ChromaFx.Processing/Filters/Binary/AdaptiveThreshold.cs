@@ -69,7 +69,7 @@ public class AdaptiveThreshold(int apertureRadius, Color color1, Color color2, f
         new Greyscale709().Apply(image, targetLocation);
 
         var tempValues = new Color[image.Width * image.Height];
-        Array.Copy(image.Pixels, tempValues, tempValues.Length);
+        image.CopyPixelsTo(tempValues);
 
         var apertureMin = -ApertureRadius;
         var apertureMax = ApertureRadius;
@@ -97,8 +97,7 @@ public class AdaptiveThreshold(int apertureRadius, Color color1, Color color2, f
                             var tempY = y + y2;
                             if (tempY >= targetLocation.Bottom && tempY < targetLocation.Top)
                             {
-                                var pixelIndex = tempY * image.Width + tempX;
-                                rValues.Add(image.Pixels[pixelIndex].Red);
+                                rValues.Add(image.GetRowSpan(tempY)[tempX].Red);
                             }
                         }
                     }

@@ -56,10 +56,8 @@ public abstract class ShapeBaseClass(Color color) : IShape
     {
         if (!targetLocation.Contains(x, y))
             return;
-        var offset = y * image.Width + x;
         var tempColor = Color * brightness;
-        //float TempAlpha = TempColor.Alpha / 255f;
-        image.Pixels[offset] = tempColor;
+        image.GetRowSpan(y)[x] = tempColor;
     }
 
     /// <summary>

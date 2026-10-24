@@ -68,8 +68,6 @@ public class Posterize : IFilter
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        var pixels = image.Pixels;
-        int width = image.Width;
         int left = targetLocation.Left;
         int rowWidth = targetLocation.Right - left;
         var lut = _lut;
@@ -78,7 +76,7 @@ public class Posterize : IFilter
             targetLocation,
             y =>
             {
-                PixelSimd.ApplyRgbLut(pixels.AsSpan(y * width + left, rowWidth), lut);
+                PixelSimd.ApplyRgbLut(image.GetRowSpan(y).Slice(left, rowWidth), lut);
             }
         );
         return image;

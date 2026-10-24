@@ -74,12 +74,12 @@ public abstract class Convolution2DBaseClass : IFilter
     {
         targetLocation = targetLocation.Normalize(image);
 
-        var tempPixels = FilterBufferPool.RentCopy(image.Pixels);
+        var tempPixels = FilterBufferPool.RentCopy(image.PixelSpan);
         try
         {
-            var outputPixels = image.Pixels;
             var width = image.Width;
             var height = image.Height;
+            var stride = image.Stride;
             var xMatrix = XMatrix;
             var yMatrix = YMatrix;
             var kernelWidth = Width;
@@ -89,6 +89,7 @@ public abstract class Convolution2DBaseClass : IFilter
                 targetLocation,
                 y =>
                 {
+                    var outRow = image.GetRowSpan(y);
                     for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                     {
                         float xR = 0,
@@ -125,7 +126,7 @@ public abstract class Convolution2DBaseClass : IFilter
                                 if (xMatrixValue != 0 || yMatrixValue != 0)
                                 {
                                     var tempPixel = tempPixels[
-                                        (yCurrent + y) * width + x + xCurrent
+                                        (yCurrent + y) * stride + x + xCurrent
                                     ];
                                     xR += xMatrixValue * tempPixel.Red;
                                     xG += xMatrixValue * tempPixel.Green;
@@ -182,7 +183,7 @@ public abstract class Convolution2DBaseClass : IFilter
                                     Vector4.Zero,
                                     new Vector4(255, 255, 255, 255)
                                 ) / 255f;
-                            outputPixels[y * width + x] = tempResult;
+                            outRow[x] = tempResult;
                         }
                     }
                 }

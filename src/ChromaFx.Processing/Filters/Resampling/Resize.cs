@@ -97,9 +97,10 @@ public class Resize(int width, int height, ResamplingFiltersAvailable filter) : 
         var yRadius = yScale < 1f ? Filter.FilterRadius / yScale : Filter.FilterRadius;
         var xRadius = xScale < 1f ? Filter.FilterRadius / xScale : Filter.FilterRadius;
 
-        Parallel.For(
+        FilterParallelism.For(
             0,
             Height,
+            Width * Height,
             y =>
             {
                 for (var x = 0; x < Width; ++x)
@@ -137,7 +138,7 @@ public class Resize(int width, int height, ResamplingFiltersAvailable filter) : 
                             if (tempWeight == 0)
                                 continue;
 
-                            var pixel = image.Pixels[i * image.Width + j];
+                            var pixel = image.GetRowSpan(i)[j];
                             values.X += pixel.Red * (float)tempWeight;
                             values.Y += pixel.Green * (float)tempWeight;
                             values.Z += pixel.Blue * (float)tempWeight;
@@ -192,12 +193,13 @@ public class Resize(int width, int height, ResamplingFiltersAvailable filter) : 
 
         try
         {
-            Parallel.For(
+            FilterParallelism.For(
                 0,
                 image.Height,
+                image.Height * Width,
                 row =>
                 {
-                    var sourceRow = row * image.Width;
+                    var sourceRowSpan = image.GetRowSpan(row);
                     for (var x = 0; x < Width; ++x)
                     {
                         var values = new Vector4(0, 0, 0, 0);
@@ -211,7 +213,7 @@ public class Resize(int width, int height, ResamplingFiltersAvailable filter) : 
                             if (tempWeight == 0)
                                 continue;
 
-                            var pixel = image.Pixels[sourceRow + xWeights.Left + xCount];
+                            var pixel = sourceRowSpan[xWeights.Left + xCount];
                             values.X += pixel.Red * (float)tempWeight;
                             values.Y += pixel.Green * (float)tempWeight;
                             values.Z += pixel.Blue * (float)tempWeight;
@@ -223,9 +225,10 @@ public class Resize(int width, int height, ResamplingFiltersAvailable filter) : 
                 }
             );
 
-            Parallel.For(
+            FilterParallelism.For(
                 0,
                 Height,
+                Height * Width,
                 y =>
                 {
                     for (var x = 0; x < Width; ++x)

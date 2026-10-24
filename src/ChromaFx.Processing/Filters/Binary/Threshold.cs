@@ -69,11 +69,10 @@ public class Threshold(Color color1, Color color2, float threshold) : IFilter
             targetLocation.Top,
             y =>
             {
+                var row = image.GetRowSpan(y);
                 for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                 {
-                    var targetIndex = y * image.Width + x;
-                    image.Pixels[targetIndex] =
-                        image.Pixels[targetIndex].Red / 255f >= ThresholdValue ? Color1 : Color2;
+                    row[x] = row[x].Red / 255f >= ThresholdValue ? Color1 : Color2;
                 }
             }
         );

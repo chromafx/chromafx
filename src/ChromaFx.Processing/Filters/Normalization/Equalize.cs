@@ -54,14 +54,13 @@ public class Equalize(IHistogram histogram = null) : IFilter
             targetLocation.Top,
             y =>
             {
+                var row = image.GetRowSpan(y);
                 for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                 {
-                    var pixelIndex = y * image.Width + x;
-                    var resultColor = Histogram.EqualizeColor(image.Pixels[pixelIndex]);
-
-                    image.Pixels[pixelIndex].Red = resultColor.Red;
-                    image.Pixels[pixelIndex].Green = resultColor.Green;
-                    image.Pixels[pixelIndex].Blue = resultColor.Blue;
+                    var resultColor = Histogram.EqualizeColor(row[x]);
+                    row[x].Red = resultColor.Red;
+                    row[x].Green = resultColor.Green;
+                    row[x].Blue = resultColor.Blue;
                 }
             }
         );

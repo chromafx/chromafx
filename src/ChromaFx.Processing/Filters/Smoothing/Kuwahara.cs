@@ -61,8 +61,8 @@ public class Kuwahara : IFilter
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        var result = new Color[image.Pixels.Length];
-        Array.Copy(image.Pixels, result, result.Length);
+        var result = new Color[image.PixelCount];
+        image.CopyPixelsTo(result);
         Parallel.For(
             targetLocation.Bottom,
             targetLocation.Top,
@@ -93,25 +93,25 @@ public class Kuwahara : IFilter
                                 var tempY = y + y2;
                                 if (tempY < 0 || tempY >= image.Height)
                                     continue;
-                                var index = tempY * image.Width + tempX;
-                                rValues[i] += image.Pixels[index].Red;
-                                gValues[i] += image.Pixels[index].Green;
-                                bValues[i] += image.Pixels[index].Blue;
+                                var sample = image.GetRowSpan(tempY)[tempX];
+                                rValues[i] += sample.Red;
+                                gValues[i] += sample.Green;
+                                bValues[i] += sample.Blue;
 
-                                if (image.Pixels[index].Red > maxRValue[i])
-                                    maxRValue[i] = image.Pixels[index].Red;
-                                else if (image.Pixels[index].Red < minRValue[i])
-                                    minRValue[i] = image.Pixels[index].Red;
+                                if (sample.Red > maxRValue[i])
+                                    maxRValue[i] = sample.Red;
+                                else if (sample.Red < minRValue[i])
+                                    minRValue[i] = sample.Red;
 
-                                if (image.Pixels[index].Green > maxGValue[i])
-                                    maxGValue[i] = image.Pixels[index].Green;
-                                else if (image.Pixels[index].Green < minGValue[i])
-                                    minGValue[i] = image.Pixels[index].Green;
+                                if (sample.Green > maxGValue[i])
+                                    maxGValue[i] = sample.Green;
+                                else if (sample.Green < minGValue[i])
+                                    minGValue[i] = sample.Green;
 
-                                if (image.Pixels[index].Blue > maxBValue[i])
-                                    maxBValue[i] = image.Pixels[index].Blue;
-                                else if (image.Pixels[index].Blue < minBValue[i])
-                                    minBValue[i] = image.Pixels[index].Blue;
+                                if (sample.Blue > maxBValue[i])
+                                    maxBValue[i] = sample.Blue;
+                                else if (sample.Blue < minBValue[i])
+                                    minBValue[i] = sample.Blue;
 
                                 ++numPixels[i];
                             }

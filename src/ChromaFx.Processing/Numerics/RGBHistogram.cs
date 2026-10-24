@@ -147,7 +147,7 @@ public class RgbHistogram : IHistogram
         {
             for (var y = 0; y < image.Height; ++y)
             {
-                var pixel = image.Pixels[y * image.Width + x];
+                var pixel = image.GetRowSpan(y)[x];
                 ++R[pixel.Red];
                 ++G[pixel.Green];
                 ++B[pixel.Blue];

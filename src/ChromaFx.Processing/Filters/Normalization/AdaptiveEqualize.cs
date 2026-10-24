@@ -55,8 +55,8 @@ public class AdaptiveEqualize(int radius, Func<IHistogram> histogram = null) : I
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        var tempValues = new Color[image.Pixels.Length];
-        Array.Copy(image.Pixels, tempValues, tempValues.Length);
+        var tempValues = new Color[image.PixelCount];
+        image.CopyPixelsTo(tempValues);
         var apertureMin = -Radius;
         var apertureMax = Radius;
 
@@ -91,12 +91,12 @@ public class AdaptiveEqualize(int radius, Func<IHistogram> histogram = null) : I
 
                     var tempHistogram = Histogram().Load(colorList.ToArray()).Equalize();
                     var resultColor = tempHistogram.EqualizeColor(
-                        image.Pixels[y * image.Width + x]
+                        image.GetRowSpan(y)[x]
                     );
 
-                    image.Pixels[y * image.Width + x].Red = resultColor.Red;
-                    image.Pixels[y * image.Width + x].Green = resultColor.Green;
-                    image.Pixels[y * image.Width + x].Blue = resultColor.Blue;
+                    image.GetRowSpan(y)[x].Red = resultColor.Red;
+                    image.GetRowSpan(y)[x].Green = resultColor.Green;
+                    image.GetRowSpan(y)[x].Blue = resultColor.Blue;
                 }
             }
         );

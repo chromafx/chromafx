@@ -26,10 +26,10 @@ internal static class FilterBufferPool
 
     internal static float[] RentFloat(int length) => ArrayPool<float>.Shared.Rent(length);
 
-    internal static Color[] RentCopy(Color[] source)
+    internal static Color[] RentCopy(ReadOnlySpan<Color> source)
     {
         var buffer = ArrayPool<Color>.Shared.Rent(source.Length);
-        Array.Copy(source, buffer, source.Length);
+        source.CopyTo(buffer.AsSpan(0, source.Length));
         return buffer;
     }
 

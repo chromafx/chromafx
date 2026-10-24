@@ -4,10 +4,13 @@ using ChromaFx.Core;
 namespace ChromaFx.Processing.Numerics;
 
 /// <summary>
-/// Rectangle struct, holds 4 points indicating a rectangular region.
+/// Rectangle describing an axis-aligned region in image coordinates.
 /// </summary>
 /// <remarks>
-/// Initializes a new instance of the <see cref="Rectangle"/> struct.
+/// Prefer the <c>(x, y, width, height)</c> constructor: <c>x</c>/<c>y</c> are the top-left corner
+/// in pixel space (y increases downward), matching typical image layouts.
+/// <see cref="Left"/>/<see cref="Right"/>/<see cref="Width"/>/<see cref="Height"/> follow that box;
+/// <see cref="Top"/>/<see cref="Bottom"/> map to the stored Vector4 corners used by filters.
 /// </remarks>
 /// <param name="value">The value.</param>
 public struct Rectangle(Vector4 value) : IEquatable<Rectangle>
@@ -15,10 +18,10 @@ public struct Rectangle(Vector4 value) : IEquatable<Rectangle>
     /// <summary>
     /// Initializes a new instance of the <see cref="Rectangle"/> struct.
     /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
-    /// <param name="width">The width.</param>
-    /// <param name="height">The height.</param>
+    /// <param name="x">Left edge (inclusive).</param>
+    /// <param name="y">Top edge (inclusive); y increases downward.</param>
+    /// <param name="width">Width in pixels.</param>
+    /// <param name="height">Height in pixels.</param>
     public Rectangle(int x, int y, int width, int height)
         : this(new Vector4(x, y, x + width, y + height)) { }
 

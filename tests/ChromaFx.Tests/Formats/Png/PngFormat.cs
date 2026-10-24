@@ -39,7 +39,7 @@ public class PngFormat : FormatTestBase
     {
         using var tempFile = File.OpenRead("./TestImages/Formats/Png/splash.png");
         var tempImage = new IO.Formats.Png.PngFormat().Decode(tempFile);
-        Assert.Equal(241500, tempImage.Pixels.Length);
+        Assert.Equal(241500, tempImage.PixelCount);
         Assert.Equal(500, tempImage.Width);
         Assert.Equal(483, tempImage.Height);
         Assert.Equal(500d / 483d, tempImage.PixelRatio);

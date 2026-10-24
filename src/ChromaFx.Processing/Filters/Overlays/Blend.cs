@@ -85,23 +85,14 @@ public class Blend : IFilter
             var targetRow = new Color[targetLocation.Width];
             var sourceRow = new Color[SourceLocation.Width];
 
-            // Copy data from image to targetRow
-            Array.Copy(
-                image.Pixels,
-                y1 * image.Width + targetLocation.Left,
-                targetRow,
-                0,
-                targetLocation.Width
-            );
-
-            // Copy data from Image to sourceRow
-            Array.Copy(
-                Image.Pixels,
-                y2 * Image.Width + SourceLocation.Left,
-                sourceRow,
-                0,
-                SourceLocation.Width
-            );
+            image
+                .GetRowSpan(y1)
+                .Slice(targetLocation.Left, targetLocation.Width)
+                .CopyTo(targetRow);
+            Image
+                .GetRowSpan(y2)
+                .Slice(SourceLocation.Left, SourceLocation.Width)
+                .CopyTo(sourceRow);
 
             for (
                 int x1 = 0, x2 = 0;
@@ -113,14 +104,9 @@ public class Blend : IFilter
                 targetRow[x1] = targetRow[x1] * (1f - tempAlpha) + sourceRow[x2] * tempAlpha;
             }
 
-            // Copy the modified row back to the image
-            Array.Copy(
-                targetRow,
-                0,
-                image.Pixels,
-                y1 * image.Width + targetLocation.Left,
-                targetLocation.Width
-            );
+            targetRow
+                .AsSpan(0, targetLocation.Width)
+                .CopyTo(image.GetRowSpan(y1).Slice(targetLocation.Left, targetLocation.Width));
         }
 
         return image;

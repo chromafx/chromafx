@@ -27,6 +27,8 @@ namespace ChromaFx.Processing.Filters.Convolution.BaseClasses;
 /// <seealso cref="IFilter" />
 public abstract class ConvolutionBaseClass : IFilter
 {
+    private bool[] _nonZeroMask;
+
     /// <summary>
     /// Gets a value indicating whether this <see cref="ConvolutionBaseClass"/> is absolute.
     /// </summary>
@@ -120,26 +122,27 @@ public abstract class ConvolutionBaseClass : IFilter
     /// <param name="image">The image.</param>
     /// <param name="targetLocation">The target location.</param>
     /// <returns>The image</returns>
-    public Image Apply(Image image, Rectangle targetLocation = default)
+    public virtual Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        var tempPixels = FilterBufferPool.RentCopy(image.Pixels);
+        var tempPixels = FilterBufferPool.RentCopy(image.PixelSpan);
         try
         {
-            var outputPixels = image.Pixels;
             var width = image.Width;
             var height = image.Height;
+            var stride = image.Stride;
             var matrix = Matrix;
             var kernelWidth = Width;
             var absolute = Absolute;
             var offset = Offset;
             // Sparse index→weight map: skip zero slots when sampling (same walk / matrixOffset rules).
-            var nonZero = BuildNonZeroMask(matrix);
+            var nonZero = _nonZeroMask ??= BuildNonZeroMask(matrix);
 
             FilterParallelism.ForRows(
                 targetLocation,
                 y =>
                 {
+                    var outRow = image.GetRowSpan(y);
                     for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                     {
                         float sumR = 0,
@@ -169,7 +172,7 @@ public abstract class ConvolutionBaseClass : IFilter
                                 {
                                     var matrixValue = matrix[matrixOffset];
                                     var tempPixel = tempPixels[
-                                        (yCurrent + y) * width + x + xCurrent
+                                        (yCurrent + y) * stride + x + xCurrent
                                     ];
                                     sumR += matrixValue * tempPixel.Red;
                                     sumG += matrixValue * tempPixel.Green;
@@ -196,10 +199,10 @@ public abstract class ConvolutionBaseClass : IFilter
                             sumG = sumG / weight + offset;
                             sumB = sumB / weight + offset;
 
-                            var outputIndex = y * width + x;
-                            outputPixels[outputIndex].Red = (byte)Math.Clamp(sumR, 0, 255);
-                            outputPixels[outputIndex].Green = (byte)Math.Clamp(sumG, 0, 255);
-                            outputPixels[outputIndex].Blue = (byte)Math.Clamp(sumB, 0, 255);
+                            ref var outPx = ref outRow[x];
+                            outPx.Red = (byte)Math.Clamp(sumR, 0, 255);
+                            outPx.Green = (byte)Math.Clamp(sumG, 0, 255);
+                            outPx.Blue = (byte)Math.Clamp(sumB, 0, 255);
                         }
                     }
                 }

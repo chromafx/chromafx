@@ -168,32 +168,25 @@ internal class Data
     internal static byte[] ToScanlines(Image image)
     {
         var rowLength = image.Width * 4 + 1;
+        var rowBytes = image.Width * 4;
 
         using var ms = new MemoryStream();
         using (var compressor = new ZLibStream(ms, CompressionLevel.Optimal, leaveOpen: true))
         {
-            var prevRow = new byte[image.Width * 4];
-            var curRow = new byte[image.Width * 4];
+            var prevRow = new byte[rowBytes];
+            var curRow = new byte[rowBytes];
             var filteredRow = new byte[rowLength];
             var bestRow = new byte[rowLength];
 
             for (int y = 0; y < image.Height; y++)
             {
-                // Fill current row (raw RGBA)
-                for (int x = 0; x < image.Width; x++)
-                {
-                    var pixel = image.Pixels[y * image.Width + x];
-                    int offset = x * 4;
-                    curRow[offset] = pixel.Red;
-                    curRow[offset + 1] = pixel.Green;
-                    curRow[offset + 2] = pixel.Blue;
-                    curRow[offset + 3] = pixel.Alpha;
-                }
+                // Row-wise: storage may include SIMD padding beyond Width.
+                System.Runtime.InteropServices.MemoryMarshal.AsBytes(image.GetRowSpan(y))
+                    .CopyTo(curRow);
 
-                // Try all filters (0–4), keep the one with lowest "cost"
+                // Score None / Sub / Up only (Average/Paeth rarely win enough to offset cost).
                 int bestScore = int.MaxValue;
-
-                for (int filter = 0; filter <= 4; filter++)
+                for (int filter = 0; filter <= 2; filter++)
                 {
                     ApplyFilter(filter, curRow, prevRow, filteredRow);
                     int score = Score(filteredRow);
@@ -205,8 +198,6 @@ internal class Data
                 }
 
                 compressor.Write(bestRow, 0, bestRow.Length);
-
-                // Swap rows
                 (curRow, prevRow) = (prevRow, curRow);
             }
         }

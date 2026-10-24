@@ -45,24 +45,13 @@ public class StretchContrast : IFilter
             targetLocation.Top,
             y =>
             {
+                var row = image.GetRowSpan(y);
                 for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                 {
-                    var pixelIndex = y * image.Width + x;
-                    image.Pixels[pixelIndex].Red = Map(
-                        image.Pixels[pixelIndex].Red,
-                        minValue[0],
-                        maxValue[0]
-                    );
-                    image.Pixels[pixelIndex].Green = Map(
-                        image.Pixels[pixelIndex].Green,
-                        minValue[1],
-                        maxValue[1]
-                    );
-                    image.Pixels[pixelIndex].Blue = Map(
-                        image.Pixels[pixelIndex].Blue,
-                        minValue[2],
-                        maxValue[2]
-                    );
+                    ref var pixel = ref row[x];
+                    pixel.Red = Map(pixel.Red, minValue[0], maxValue[0]);
+                    pixel.Green = Map(pixel.Green, minValue[1], maxValue[1]);
+                    pixel.Blue = Map(pixel.Blue, minValue[2], maxValue[2]);
                 }
             }
         );
@@ -74,13 +63,14 @@ public class StretchContrast : IFilter
     {
         minValue[0] = minValue[1] = minValue[2] = 255;
         maxValue[0] = maxValue[1] = maxValue[2] = 0;
-        for (var x = 0; x < image.Width; ++x)
+        for (var y = 0; y < image.Height; ++y)
         {
-            for (var y = 0; y < image.Height; ++y)
+            var row = image.GetRowSpan(y);
+            for (var x = 0; x < image.Width; ++x)
             {
-                var tempR = image.Pixels[y * image.Width + x].Red;
-                var tempG = image.Pixels[y * image.Width + x].Green;
-                var tempB = image.Pixels[y * image.Width + x].Blue;
+                var tempR = row[x].Red;
+                var tempG = row[x].Green;
+                var tempB = row[x].Blue;
                 if (minValue[0] > tempR)
                     minValue[0] = tempR;
                 if (maxValue[0] < tempR)

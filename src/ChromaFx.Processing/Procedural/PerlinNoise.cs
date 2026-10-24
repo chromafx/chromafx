@@ -71,10 +71,10 @@ public static class PerlinNoise
                 value = value * 0.5f + 0.5f;
                 value *= 255;
                 var rgbValue = (byte)value.Clamp(minRgbValue, maxRgbValue);
-                returnValue.Pixels[y * width + x].Red = rgbValue;
-                returnValue.Pixels[y * width + x].Green = rgbValue;
-                returnValue.Pixels[y * width + x].Blue = rgbValue;
-                returnValue.Pixels[y * width + x].Alpha = 255;
+                returnValue.GetRowSpan(y)[x].Red = rgbValue;
+                returnValue.GetRowSpan(y)[x].Green = rgbValue;
+                returnValue.GetRowSpan(y)[x].Blue = rgbValue;
+                returnValue.GetRowSpan(y)[x].Alpha = 255;
             }
         }
 

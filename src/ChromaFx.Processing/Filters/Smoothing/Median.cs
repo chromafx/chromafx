@@ -47,8 +47,8 @@ public class Median(int apertureRadius) : IFilter
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        var tempValues = new Color[image.Pixels.Length];
-        Array.Copy(image.Pixels, tempValues, tempValues.Length);
+        var tempValues = new Color[image.PixelCount];
+        image.CopyPixelsTo(tempValues);
         var apertureMin = -ApertureRadius;
         var apertureMax = ApertureRadius;
         var kernelSide = apertureMax - apertureMin;
@@ -91,7 +91,7 @@ public class Median(int apertureRadius) : IFilter
                     if (tempY < targetLocation.Bottom || tempY >= targetLocation.Top)
                         continue;
 
-                    var pixel = image.Pixels[tempY * image.Width + tempX];
+                    var pixel = image.GetRowSpan(tempY)[tempX];
                     rBuffer[count] = pixel.Red;
                     gBuffer[count] = pixel.Green;
                     bBuffer[count] = pixel.Blue;
@@ -110,7 +110,7 @@ public class Median(int apertureRadius) : IFilter
             tempValues[index].Red = rValues[count / 2];
             tempValues[index].Green = gValues[count / 2];
             tempValues[index].Blue = bValues[count / 2];
-            tempValues[index].Alpha = image.Pixels[index].Alpha;
+            tempValues[index].Alpha = image.GetRowSpan(y)[x].Alpha;
         }
     }
 }

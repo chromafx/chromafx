@@ -55,44 +55,38 @@ public abstract class MatrixBaseClass : IFilter
     {
         targetLocation = targetLocation.Normalize(image);
 
-        int width = image.Width;
-        Color[] pixels = image.Pixels;
         Matrix5X5 matrix = Matrix;
+        int left = targetLocation.Left;
+        int right = targetLocation.Right;
         FilterParallelism.ForRows(
             targetLocation,
-            y => ApplyRow(pixels, width, matrix, y, targetLocation.Left, targetLocation.Right)
+            y => ApplyRow(image.GetRowSpan(y), matrix, left, right)
         );
 
         return image;
     }
 
-    private static void ApplyRow(
-        Color[] pixels,
-        int width,
-        Matrix5X5 matrix,
-        int y,
-        int left,
-        int right
-    )
+    private static void ApplyRow(Span<Color> row, Matrix5X5 matrix, int left, int right)
     {
-        int rowStart = y * width + left;
         int rowWidth = right - left;
         if (rowWidth <= 0)
             return;
+
+        var segment = row.Slice(left, rowWidth);
 
         // Planar RGBA floats: [R…][G…][B…][A…]
         int planarLength = rowWidth * 4;
         if (planarLength <= 1024)
         {
             Span<float> planar = stackalloc float[planarLength];
-            ApplyPlanar(pixels, rowStart, rowWidth, matrix, planar);
+            ApplyPlanar(segment, matrix, planar);
         }
         else
         {
             var rented = FilterBufferPool.RentFloat(planarLength);
             try
             {
-                ApplyPlanar(pixels, rowStart, rowWidth, matrix, rented.AsSpan(0, planarLength));
+                ApplyPlanar(segment, matrix, rented.AsSpan(0, planarLength));
             }
             finally
             {
@@ -101,14 +95,9 @@ public abstract class MatrixBaseClass : IFilter
         }
     }
 
-    private static void ApplyPlanar(
-        Color[] pixels,
-        int rowStart,
-        int rowWidth,
-        Matrix5X5 matrix,
-        Span<float> planar
-    )
+    private static void ApplyPlanar(Span<Color> pixels, Matrix5X5 matrix, Span<float> planar)
     {
+        int rowWidth = pixels.Length;
         var r = planar.Slice(0, rowWidth);
         var g = planar.Slice(rowWidth, rowWidth);
         var b = planar.Slice(rowWidth * 2, rowWidth);
@@ -116,7 +105,7 @@ public abstract class MatrixBaseClass : IFilter
 
         for (int j = 0; j < rowWidth; ++j)
         {
-            var c = pixels[rowStart + j];
+            var c = pixels[j];
             r[j] = c.Red / 255f;
             g[j] = c.Green / 255f;
             b[j] = c.Blue / 255f;
@@ -160,12 +149,7 @@ public abstract class MatrixBaseClass : IFilter
 
             for (int j = 0; j < simdWidth; ++j)
             {
-                pixels[rowStart + i + j] = new Color(
-                    (byte)Math.Clamp(rOut[j] * 255f, 0, 255),
-                    (byte)Math.Clamp(gOut[j] * 255f, 0, 255),
-                    (byte)Math.Clamp(bOut[j] * 255f, 0, 255),
-                    (byte)Math.Clamp(aOut[j] * 255f, 0, 255)
-                );
+                pixels[i + j].IntData = PackRgba(rOut[j], gOut[j], bOut[j], aOut[j]);
             }
         }
 
@@ -183,12 +167,16 @@ public abstract class MatrixBaseClass : IFilter
                 rf * matrix.M13 + gf * matrix.M23 + bf * matrix.M33 + af * matrix.M43 + matrix.M53;
             float aOut =
                 rf * matrix.M14 + gf * matrix.M24 + bf * matrix.M34 + af * matrix.M44 + matrix.M54;
-            pixels[rowStart + i] = new Color(
-                (byte)Math.Clamp(rOut * 255f, 0, 255),
-                (byte)Math.Clamp(gOut * 255f, 0, 255),
-                (byte)Math.Clamp(bOut * 255f, 0, 255),
-                (byte)Math.Clamp(aOut * 255f, 0, 255)
-            );
+            pixels[i].IntData = PackRgba(rOut, gOut, bOut, aOut);
         }
+    }
+
+    private static uint PackRgba(float r, float g, float b, float a)
+    {
+        var rb = (byte)Math.Clamp(r * 255f, 0, 255);
+        var gb = (byte)Math.Clamp(g * 255f, 0, 255);
+        var bb = (byte)Math.Clamp(b * 255f, 0, 255);
+        var ab = (byte)Math.Clamp(a * 255f, 0, 255);
+        return rb | ((uint)gb << 8) | ((uint)bb << 16) | ((uint)ab << 24);
     }
 }

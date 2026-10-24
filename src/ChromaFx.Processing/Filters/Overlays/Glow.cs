@@ -74,12 +74,12 @@ public class Glow(Color color, float xRadius, float yRadius) : IFilter
                 for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                 {
                     var distance = Vector2.Distance(image.Center, new Vector2(x, y));
-                    var sourceColor = (Vector4)image.Pixels[y * image.Width + x];
+                    var sourceColor = (Vector4)image.GetRowSpan(y)[x];
                     var result = Vector4.Lerp(Color, sourceColor, .5f * (distance / maxDistance));
                     var tempAlpha = result.W;
                     result = sourceColor * (1 - tempAlpha) + result * sourceColor * tempAlpha;
 
-                    image.Pixels[y * image.Width + x] = result;
+                    image.GetRowSpan(y)[x] = result;
                 }
             }
         );

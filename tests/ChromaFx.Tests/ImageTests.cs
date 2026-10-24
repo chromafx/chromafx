@@ -29,7 +29,8 @@ public class ImageTests : FilterTestBaseClass
         Assert.Equal(1, tempImage.Width);
         Assert.Equal(1, tempImage.Height);
         Assert.Equal(1, tempImage.PixelRatio);
-        Assert.Null(tempImage.Pixels);
+        Assert.Equal(1, tempImage.PixelCount);
+        Assert.Equal(new Color(0, 0, 0, 0), tempImage[0, 0]);
     }
 
     [Theory]
@@ -97,7 +98,7 @@ public class ImageTests : FilterTestBaseClass
         Assert.Equal(1, tempImage.Width);
         Assert.Equal(1, tempImage.Height);
         Assert.Equal(1, tempImage.PixelRatio);
-        Assert.Equal(new Color(0, 0, 0, 0), tempImage.Pixels[0]);
+        Assert.Equal(new Color(0, 0, 0, 0), tempImage[0, 0]);
     }
 
     [Fact]

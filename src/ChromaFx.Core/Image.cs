@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,20 +25,21 @@ namespace ChromaFx.Core;
 /// </summary>
 public partial class Image
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Image"/> class.
-    /// </summary>
-    /// <param name="width">The width.</param>
-    /// <param name="height">The height.</param>
-    public Image(int width, int height)
-        : this(width, height, new Color[width * height]) { }
+    private PixelBuffer _buffer;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Image"/> class.
     /// </summary>
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
-    /// <param name="data">The data.</param>
+    public Image(int width, int height) => ReCreate(width, height);
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Image"/> class.
+    /// </summary>
+    /// <param name="width">The width.</param>
+    /// <param name="height">The height.</param>
+    /// <param name="data">The data (copied into owned storage).</param>
     public Image(int width, int height, Color[] data) => ReCreate(width, height, data);
 
     /// <summary>
@@ -46,23 +47,35 @@ public partial class Image
     /// </summary>
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
-    /// <param name="data">The data.</param>
+    /// <param name="data">The data (copied into owned storage).</param>
+    public Image(int width, int height, ReadOnlySpan<Color> data) => ReCreate(width, height, data);
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Image"/> class.
+    /// </summary>
+    /// <param name="width">The width.</param>
+    /// <param name="height">The height.</param>
+    /// <param name="data">RGBA byte data (copied into owned storage).</param>
     public Image(int width, int height, byte[] data)
     {
         if (data is null)
         {
-            ReCreate(width, height, null);
+            ReCreate(width, height);
             return;
         }
-        var returnValues = new Color[width * height];
-        for (var x = 0; x < returnValues.Length; ++x)
+
+        ReCreate(width, height);
+        var count = Math.Min(PixelCount, data.Length / 4);
+        for (var i = 0; i < count; ++i)
         {
-            returnValues[x].Red = data[x * 4];
-            returnValues[x].Green = data[x * 4 + 1];
-            returnValues[x].Blue = data[x * 4 + 2];
-            returnValues[x].Alpha = data[x * 4 + 3];
+            var y = i / Width;
+            var x = i % Width;
+            ref var pixel = ref GetRowSpan(y)[x];
+            pixel.Red = data[i * 4];
+            pixel.Green = data[i * 4 + 1];
+            pixel.Blue = data[i * 4 + 2];
+            pixel.Alpha = data[i * 4 + 3];
         }
-        ReCreate(width, height, returnValues);
     }
 
     /// <summary>
@@ -70,7 +83,11 @@ public partial class Image
     /// </summary>
     /// <param name="image">The image to copy the data from.</param>
     public Image(Image image)
-        : this(image.Width, image.Height, image.Pixels) { }
+    {
+        ArgumentNullException.ThrowIfNull(image);
+        ReCreate(image.Width, image.Height);
+        CopyPixelsFrom(image);
+    }
 
     /// <summary>
     /// Gets the center.
@@ -88,9 +105,20 @@ public partial class Image
     public double PixelRatio { get; private set; }
 
     /// <summary>
-    /// Gets or sets the pixels.
+    /// Gets the number of logical pixels (<see cref="Width"/> × <see cref="Height"/>).
     /// </summary>
-    public Color[] Pixels { get; private set; }
+    public int PixelCount => _buffer.PixelCount;
+
+    /// <summary>
+    /// Gets the storage stride in pixels (≥ <see cref="Width"/>).
+    /// Index flat storage as <c>y * Stride + x</c>.
+    /// </summary>
+    public int Stride => _buffer.Stride;
+
+    /// <summary>
+    /// Gets the owned pixel buffer.
+    /// </summary>
+    public PixelBuffer Buffer => _buffer;
 
     /// <summary>
     /// Gets or sets the width.
@@ -98,22 +126,31 @@ public partial class Image
     public int Width { get; private set; }
 
     /// <summary>
-    /// Recreates the image object using the new data.
+    /// Recreates the image object using the new data (copied into owned storage).
     /// </summary>
     /// <param name="width">The new width.</param>
     /// <param name="height">The new height.</param>
     /// <param name="data">The new pixel data.</param>
     /// <returns>this</returns>
-    public Image ReCreate(int width, int height, Color[] data)
+    public Image ReCreate(int width, int height, Color[] data) =>
+        ReCreate(width, height, data is null ? default : data.AsSpan());
+
+    /// <summary>
+    /// Recreates the image object using the new data (copied into owned storage).
+    /// </summary>
+    /// <param name="width">The new width.</param>
+    /// <param name="height">The new height.</param>
+    /// <param name="data">The new pixel data.</param>
+    /// <returns>this</returns>
+    public Image ReCreate(int width, int height, ReadOnlySpan<Color> data)
     {
         Width = width < 1 ? 1 : width;
         Height = height < 1 ? 1 : height;
         PixelRatio = (double)Width / Height;
         Center = new Vector2(Width >> 1, Height >> 1);
-        if (data is null)
-            return this;
-        Pixels = new Color[width * height];
-        data.AsSpan().CopyTo(Pixels);
+        _buffer = data.IsEmpty
+            ? new PixelBuffer(Width, Height)
+            : new PixelBuffer(Width, Height, data);
         return this;
     }
 
@@ -129,7 +166,25 @@ public partial class Image
         Height = height < 1 ? 1 : height;
         PixelRatio = (double)Width / Height;
         Center = new Vector2(Width >> 1, Height >> 1);
-        Pixels = new Color[width * height];
+        _buffer = new PixelBuffer(Width, Height);
         return this;
+    }
+
+    /// <summary>
+    /// Copies logical pixels from <paramref name="source"/> into this image (same dimensions).
+    /// </summary>
+    internal void CopyPixelsFrom(Image source)
+    {
+        if (source.Width != Width || source.Height != Height)
+            throw new ArgumentException("Source dimensions must match.", nameof(source));
+
+        if (source.Stride == Stride)
+        {
+            source.PixelSpan.CopyTo(PixelSpan);
+            return;
+        }
+
+        for (var y = 0; y < Height; y++)
+            source.GetRowSpan(y).CopyTo(GetRowSpan(y));
     }
 }

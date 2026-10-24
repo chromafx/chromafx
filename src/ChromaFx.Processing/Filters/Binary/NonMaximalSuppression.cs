@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,25 +71,26 @@ public class NonMaximalSuppression(Color color1, Color color2, float threshold1,
     {
         targetLocation = targetLocation.Normalize(image);
         new Greyscale709().Apply(image, targetLocation);
-        var result = new Image(image.Width, image.Height, new Color[image.Pixels.Length]);
-        Array.Copy(image.Pixels, result.Pixels, result.Pixels.Length);
+        var result = new Image(image.Width, image.Height);
+        image.PixelSpan.CopyTo(result.PixelSpan);
         new Drawing.Rectangle(Color2, true, targetLocation).Apply(result);
         Parallel.For(
             targetLocation.Bottom,
             targetLocation.Top,
             y =>
             {
+                var row = image.GetRowSpan(y);
                 for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                 {
-                    if (image.Pixels[y * image.Width + x].Red >= Threshold1)
-                        FillPixels(result.Pixels, image, x, y, targetLocation);
+                    if (row[x].Red >= Threshold1)
+                        FillPixels(result, image, x, y, targetLocation);
                 }
             }
         );
-        return image.ReCreate(image.Width, image.Height, result.Pixels);
+        return image.ReCreate(image.Width, image.Height, result.PixelSpan);
     }
 
-    private void FillPixels(Color[] result, Image image, int x, int y, Rectangle targetLocation)
+    private void FillPixels(Image result, Image image, int x, int y, Rectangle targetLocation)
     {
         var tempPixels = new Stack<Tuple<int, int>>();
         tempPixels.Push(new Tuple<int, int>(x, y));
@@ -100,11 +101,11 @@ public class NonMaximalSuppression(Color color1, Color color2, float threshold1,
             if (left >= targetLocation.Left)
             {
                 if (
-                    image.Pixels[currentPixel.Item2 * image.Width + left].Red > Threshold2
-                    && result[currentPixel.Item2 * image.Width + left] != Color1
+                    image.GetRowSpan(currentPixel.Item2)[left].Red > Threshold2
+                    && result.GetRowSpan(currentPixel.Item2)[left] != Color1
                 )
                 {
-                    result[currentPixel.Item2 * image.Width + left] = Color1;
+                    result.GetRowSpan(currentPixel.Item2)[left] = Color1;
                     tempPixels.Push(new Tuple<int, int>(left, currentPixel.Item2));
                 }
             }
@@ -112,11 +113,11 @@ public class NonMaximalSuppression(Color color1, Color color2, float threshold1,
             if (right < targetLocation.Right)
             {
                 if (
-                    image.Pixels[currentPixel.Item2 * image.Width + right].Red > Threshold2
-                    && result[currentPixel.Item2 * image.Width + right] != Color1
+                    image.GetRowSpan(currentPixel.Item2)[right].Red > Threshold2
+                    && result.GetRowSpan(currentPixel.Item2)[right] != Color1
                 )
                 {
-                    result[currentPixel.Item2 * image.Width + right] = Color1;
+                    result.GetRowSpan(currentPixel.Item2)[right] = Color1;
                     tempPixels.Push(new Tuple<int, int>(right, currentPixel.Item2));
                 }
             }
@@ -124,11 +125,11 @@ public class NonMaximalSuppression(Color color1, Color color2, float threshold1,
             if (bottom >= targetLocation.Bottom)
             {
                 if (
-                    image.Pixels[bottom * image.Width + currentPixel.Item1].Red > Threshold2
-                    && result[bottom * image.Width + currentPixel.Item1] != Color1
+                    image.GetRowSpan(bottom)[currentPixel.Item1].Red > Threshold2
+                    && result.GetRowSpan(bottom)[currentPixel.Item1] != Color1
                 )
                 {
-                    result[bottom * image.Width + currentPixel.Item1] = Color1;
+                    result.GetRowSpan(bottom)[currentPixel.Item1] = Color1;
                     tempPixels.Push(new Tuple<int, int>(currentPixel.Item1, bottom));
                 }
             }
@@ -136,55 +137,55 @@ public class NonMaximalSuppression(Color color1, Color color2, float threshold1,
             if (top < targetLocation.Top)
             {
                 if (
-                    image.Pixels[top * image.Width + currentPixel.Item1].Red > Threshold2
-                    && result[top * image.Width + currentPixel.Item1] != Color1
+                    image.GetRowSpan(top)[currentPixel.Item1].Red > Threshold2
+                    && result.GetRowSpan(top)[currentPixel.Item1] != Color1
                 )
                 {
-                    result[top * image.Width + currentPixel.Item1] = Color1;
+                    result.GetRowSpan(top)[currentPixel.Item1] = Color1;
                     tempPixels.Push(new Tuple<int, int>(currentPixel.Item1, top));
                 }
             }
             if (left >= targetLocation.Left && bottom >= targetLocation.Bottom)
             {
                 if (
-                    image.Pixels[bottom * image.Width + left].Red > Threshold2
-                    && result[bottom * image.Width + left] != Color1
+                    image.GetRowSpan(bottom)[left].Red > Threshold2
+                    && result.GetRowSpan(bottom)[left] != Color1
                 )
                 {
-                    result[bottom * image.Width + left] = Color1;
+                    result.GetRowSpan(bottom)[left] = Color1;
                     tempPixels.Push(new Tuple<int, int>(left, bottom));
                 }
             }
             if (left >= targetLocation.Left && top < targetLocation.Top)
             {
                 if (
-                    image.Pixels[top * image.Width + left].Red > Threshold2
-                    && result[top * image.Width + left] != Color1
+                    image.GetRowSpan(top)[left].Red > Threshold2
+                    && result.GetRowSpan(top)[left] != Color1
                 )
                 {
-                    result[top * image.Width + left] = Color1;
+                    result.GetRowSpan(top)[left] = Color1;
                     tempPixels.Push(new Tuple<int, int>(left, top));
                 }
             }
             if (right < targetLocation.Right && bottom >= targetLocation.Bottom)
             {
                 if (
-                    image.Pixels[bottom * image.Width + right].Red > Threshold2
-                    && result[bottom * image.Width + right] != Color1
+                    image.GetRowSpan(bottom)[right].Red > Threshold2
+                    && result.GetRowSpan(bottom)[right] != Color1
                 )
                 {
-                    result[bottom * image.Width + right] = Color1;
+                    result.GetRowSpan(bottom)[right] = Color1;
                     tempPixels.Push(new Tuple<int, int>(right, bottom));
                 }
             }
             if (right < targetLocation.Left && top < targetLocation.Top)
             {
                 if (
-                    image.Pixels[top * image.Width + right].Red > Threshold2
-                    && result[top * image.Width + right] != Color1
+                    image.GetRowSpan(top)[right].Red > Threshold2
+                    && result.GetRowSpan(top)[right] != Color1
                 )
                 {
-                    result[top * image.Width + right] = Color1;
+                    result.GetRowSpan(top)[right] = Color1;
                     tempPixels.Push(new Tuple<int, int>(right, top));
                 }
             }
