@@ -53,9 +53,11 @@ Image.Load("input.png")
 
 - Prefer the `ChromaFx` meta-package (`ChromaFx.Core` + `.IO` + `.Processing`).
 - `Image.Load` / `Save` / `ImageFormats` live in **IO**; Mutate/Clone in **Processing**.
-- Typed encoders: `ChromaFx.IO.Encoders` (`JpegEncoder`, `PngEncoder`, …).
-- Plugins: `IImageFormat` / `FormatBase` in `ChromaFx.IO.Formats` (wire types are internal).
-- Path `Save` uses the registered format matching the extension.
+- Fluent context: core ops on `IImageProcessingContext`, more via extensions (`BoxBlur`, `Saturation`, `Dilate`, `Grayscale`, …); escape hatch `Apply(IFilter)`.
+- Typed encoders: `ChromaFx.IO.Encoders` (`JpegEncoder`, `PngEncoder`, `GifEncoder` as `IAnimationEncoder`, …).
+- Plugins: `IImageFormat` / `IAnimationFormat` (`Encode` throws on failure); `FileFormats.WebP` / `Avif` reserved for `ChromaFx.Native` or custom plugins.
+- `Animation` supports per-frame delays (`GetFrameDelay` / `SetFrameDelay` / `FrameDelays`); `Delay` sets all frames.
+- Path `Save` uses the registered format matching the extension; `ImageFormats.TryGetFormat` looks up by id.
 - Meta-package injects common usings via `buildTransitive/ChromaFx.props`.
 - Pack with `dotnet pack` (not on every local build).
 
@@ -70,6 +72,7 @@ These older APIs are **removed** (not obsolete):
 | `ImageOperatorExtensions` (`BrightnessUp`, …) | `Clone`/`Mutate` + context ops |
 | `img.Copy()` | `img.Clone()` |
 | `img.Save(path)` → `bool` | `void` (throws) |
+| `IImageFormat.Encode` → `bool` | `void` (throws) |
 | `LoadAnimation(path)` | `Animation.Load(path)` |
 | `FormatManager` / `Manager` | `ImageFormats.Register` |
 | `IFormat` | `IImageFormat` |
