@@ -70,23 +70,30 @@ public sealed class TerminalImageCapabilities
         var kittyWindow = Get(variables, "KITTY_WINDOW_ID");
         var termFeatures = Get(variables, "TERM_FEATURES");
 
+        var isWezTerm =
+            string.Equals(termProgram, "WezTerm", StringComparison.OrdinalIgnoreCase)
+            || ContainsIgnoreCase(term, "wezterm");
+        var isGhostty = string.Equals(termProgram, "ghostty", StringComparison.OrdinalIgnoreCase);
+
+        // WezTerm and Ghostty speak Kitty's graphics protocol; Prefer ranks Kitty first.
         var supportsKitty =
             !string.IsNullOrEmpty(kittyWindow)
             || ContainsIgnoreCase(term, "kitty")
-            || ContainsIgnoreCase(termFeatures, "kitty");
+            || ContainsIgnoreCase(termFeatures, "kitty")
+            || isWezTerm
+            || isGhostty;
 
-        // WezTerm implements the iTerm2 inline image protocol.
+        // WezTerm also implements the iTerm2 inline image protocol.
         var supportsITerm2 =
             string.Equals(termProgram, "iTerm.app", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(termProgram, "WezTerm", StringComparison.OrdinalIgnoreCase)
-            || ContainsIgnoreCase(term, "wezterm");
+            || isWezTerm;
 
         var supportsTrueColor =
             string.Equals(colorTerm, "truecolor", StringComparison.OrdinalIgnoreCase)
             || string.Equals(colorTerm, "24bit", StringComparison.OrdinalIgnoreCase)
             || supportsKitty
             || supportsITerm2
-            || string.Equals(termProgram, "ghostty", StringComparison.OrdinalIgnoreCase)
+            || isGhostty
             || !string.IsNullOrEmpty(Get(variables, "WT_SESSION"));
 
         return new TerminalImageCapabilities(supportsKitty, supportsITerm2, supportsTrueColor);

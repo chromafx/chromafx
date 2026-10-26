@@ -22,6 +22,9 @@ using ChromaFx.Core.Colors;
 
 namespace ChromaFx.Processing.Terminal;
 
+/// <summary>
+/// ASCII and ANSI truecolor/256-color art rendering for terminal UIs.
+/// </summary>
 public static class TerminalArtExtensions
 {
     /// <summary>Default dark → light ramp for light terminal backgrounds.</summary>

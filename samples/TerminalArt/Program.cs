@@ -58,13 +58,14 @@ Console.Write(ansi);
 
 Console.WriteLine();
 Console.WriteLine($"Preferred protocol ({caps.Preferred}):");
+var png = cover.ToByteArray(FileFormats.Png);
 switch (caps.Preferred)
 {
     case TerminalImageProtocol.Kitty:
-        Console.Write(KittyGraphics.FromPng(EncodePng(cover), columns: 24, rows: 12));
+        Console.Write(KittyGraphics.FromPng(png, columns: 24, rows: 12));
         break;
     case TerminalImageProtocol.ITerm2:
-        Console.Write(ITerm2InlineImage.FromPng(EncodePng(cover), columns: 24, rows: 12));
+        Console.Write(ITerm2InlineImage.FromPng(png, columns: 24, rows: 12));
         break;
     case TerminalImageProtocol.AnsiArt:
         Console.Write(
@@ -84,14 +85,7 @@ switch (caps.Preferred)
 }
 
 Console.WriteLine();
-Console.WriteLine("Tip: encode PNG yourself, then KittyGraphics.FromPng / ITerm2InlineImage.FromPng.");
-
-static byte[] EncodePng(Image image)
-{
-    using var stream = new MemoryStream();
-    image.Save(stream, FileFormats.Png);
-    return stream.ToArray();
-}
+Console.WriteLine("Pattern: image.ToByteArray(FileFormats.Png) → KittyGraphics / ITerm2InlineImage.FromPng.");
 
 static Image CreateDemoCover(int width, int height)
 {

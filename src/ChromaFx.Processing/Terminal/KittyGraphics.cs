@@ -20,8 +20,8 @@ namespace ChromaFx.Processing.Terminal;
 
 /// <summary>
 /// Kitty graphics protocol (PNG over APC). Pure managed; no shared memory.
-/// Pass already-encoded PNG bytes; use the ChromaFx meta-package helpers to
-/// encode an <c>Image</c>.
+/// Encode with <c>image.ToByteArray(FileFormats.Png)</c> (ChromaFx.IO), then call
+/// <see cref="FromPng"/>.
 /// </summary>
 public static class KittyGraphics
 {
@@ -32,14 +32,11 @@ public static class KittyGraphics
     /// Builds a Kitty transmit-and-display sequence for a PNG payload.
     /// </summary>
     /// <param name="pngBytes">Encoded PNG bytes.</param>
-    /// <param name="columns">Optional display width in cells (<c>c</c>).</param>
-    /// <param name="rows">Optional display height in cells (<c>r</c>).</param>
-    public static string FromPng(
-        ReadOnlySpan<byte> pngBytes,
-        int columns = 0,
-        int rows = 0
-    )
+    /// <param name="columns">Optional display width in cells (<c>c</c>); 0 omits.</param>
+    /// <param name="rows">Optional display height in cells (<c>r</c>); 0 omits.</param>
+    public static string FromPng(ReadOnlySpan<byte> pngBytes, int columns = 0, int rows = 0)
     {
+        ValidateCellSize(columns, rows);
         if (pngBytes.IsEmpty)
             return string.Empty;
 
@@ -49,7 +46,35 @@ public static class KittyGraphics
         return builder.ToString();
     }
 
-    internal static void AppendChunks(
+    /// <summary>
+    /// Appends a Kitty sequence for a PNG payload to <paramref name="destination"/>.
+    /// </summary>
+    public static void AppendFromPng(
+        StringBuilder destination,
+        ReadOnlySpan<byte> pngBytes,
+        int columns = 0,
+        int rows = 0
+    )
+    {
+        ArgumentNullException.ThrowIfNull(destination);
+        ValidateCellSize(columns, rows);
+        if (pngBytes.IsEmpty)
+            return;
+
+        var base64 = Convert.ToBase64String(pngBytes);
+        destination.EnsureCapacity(destination.Length + base64.Length + 64);
+        AppendChunks(destination, base64, columns, rows);
+    }
+
+    private static void ValidateCellSize(int columns, int rows)
+    {
+        if (columns < 0)
+            throw new ArgumentOutOfRangeException(nameof(columns), columns, "Must be >= 0.");
+        if (rows < 0)
+            throw new ArgumentOutOfRangeException(nameof(rows), rows, "Must be >= 0.");
+    }
+
+    private static void AppendChunks(
         StringBuilder builder,
         string base64,
         int columns,

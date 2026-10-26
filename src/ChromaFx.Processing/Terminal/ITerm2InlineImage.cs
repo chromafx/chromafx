@@ -20,8 +20,8 @@ namespace ChromaFx.Processing.Terminal;
 
 /// <summary>
 /// iTerm2 inline image protocol (OSC 1337). Also used by WezTerm.
-/// Pass already-encoded PNG bytes; use the ChromaFx meta-package helpers to
-/// encode an <c>Image</c>.
+/// Encode with <c>image.ToByteArray(FileFormats.Png)</c> (ChromaFx.IO), then call
+/// <see cref="FromPng"/>.
 /// </summary>
 public static class ITerm2InlineImage
 {
@@ -31,35 +31,55 @@ public static class ITerm2InlineImage
     /// <param name="pngBytes">Encoded PNG bytes.</param>
     /// <param name="columns">Optional width in cells; 0 omits the argument.</param>
     /// <param name="rows">Optional height in cells; 0 omits the argument.</param>
-    public static string FromPng(
+    public static string FromPng(ReadOnlySpan<byte> pngBytes, int columns = 0, int rows = 0)
+    {
+        var builder = new StringBuilder();
+        AppendFromPng(builder, pngBytes, columns, rows);
+        return builder.ToString();
+    }
+
+    /// <summary>
+    /// Appends an iTerm2 inline-image sequence to <paramref name="destination"/>.
+    /// </summary>
+    public static void AppendFromPng(
+        StringBuilder destination,
         ReadOnlySpan<byte> pngBytes,
         int columns = 0,
         int rows = 0
     )
     {
+        ArgumentNullException.ThrowIfNull(destination);
+        ValidateCellSize(columns, rows);
         if (pngBytes.IsEmpty)
-            return string.Empty;
+            return;
 
         var base64 = Convert.ToBase64String(pngBytes);
-        var builder = new StringBuilder(base64.Length + 64);
-        builder.Append("\u001b]1337;File=inline=1");
-        builder.Append(";size=");
-        builder.Append(pngBytes.Length);
+        destination.EnsureCapacity(destination.Length + base64.Length + 64);
+        destination.Append("\u001b]1337;File=inline=1");
+        destination.Append(";size=");
+        destination.Append(pngBytes.Length);
         if (columns > 0)
         {
-            builder.Append(";width=");
-            builder.Append(columns);
+            destination.Append(";width=");
+            destination.Append(columns);
         }
 
         if (rows > 0)
         {
-            builder.Append(";height=");
-            builder.Append(rows);
+            destination.Append(";height=");
+            destination.Append(rows);
         }
 
-        builder.Append(':');
-        builder.Append(base64);
-        builder.Append('\u0007');
-        return builder.ToString();
+        destination.Append(':');
+        destination.Append(base64);
+        destination.Append('\u0007');
+    }
+
+    private static void ValidateCellSize(int columns, int rows)
+    {
+        if (columns < 0)
+            throw new ArgumentOutOfRangeException(nameof(columns), columns, "Must be >= 0.");
+        if (rows < 0)
+            throw new ArgumentOutOfRangeException(nameof(rows), rows, "Must be >= 0.");
     }
 }

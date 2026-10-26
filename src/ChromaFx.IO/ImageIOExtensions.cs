@@ -54,6 +54,8 @@ public static class ImageIOExtensions
     public static void Save(this Image image, Stream stream, IImageEncoder encoder)
     {
         ArgumentNullException.ThrowIfNull(image);
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(encoder);
         ImageFormats.Encode(stream, image, encoder);
     }
 
@@ -63,26 +65,42 @@ public static class ImageIOExtensions
     public static void Save(this Image image, Stream stream, FileFormats format)
     {
         ArgumentNullException.ThrowIfNull(image);
+        ArgumentNullException.ThrowIfNull(stream);
         ImageFormats.Encode(stream, image, format);
+    }
+
+    /// <summary>
+    /// Encodes the image to a new byte array using a built-in format.
+    /// </summary>
+    public static byte[] ToByteArray(this Image image, FileFormats format)
+    {
+        ArgumentNullException.ThrowIfNull(image);
+        using var stream = new MemoryStream();
+        image.Save(stream, format);
+        return stream.ToArray();
+    }
+
+    /// <summary>
+    /// Encodes the image to a new byte array using the specified encoder.
+    /// </summary>
+    public static byte[] ToByteArray(this Image image, IImageEncoder encoder)
+    {
+        ArgumentNullException.ThrowIfNull(image);
+        ArgumentNullException.ThrowIfNull(encoder);
+        using var stream = new MemoryStream();
+        image.Save(stream, encoder);
+        return stream.ToArray();
     }
 
     /// <summary>
     /// Encodes the image as a base-64 string.
     /// </summary>
-    public static string ToBase64String(this Image image, FileFormats desiredFormat)
-    {
-        using var stream = new MemoryStream();
-        image.Save(stream, desiredFormat);
-        return Convert.ToBase64String(stream.ToArray());
-    }
+    public static string ToBase64String(this Image image, FileFormats desiredFormat) =>
+        Convert.ToBase64String(image.ToByteArray(desiredFormat));
 
     /// <summary>
     /// Encodes the image as a base-64 string using the specified encoder.
     /// </summary>
-    public static string ToBase64String(this Image image, IImageEncoder encoder)
-    {
-        using var stream = new MemoryStream();
-        image.Save(stream, encoder);
-        return Convert.ToBase64String(stream.ToArray());
-    }
+    public static string ToBase64String(this Image image, IImageEncoder encoder) =>
+        Convert.ToBase64String(image.ToByteArray(encoder));
 }

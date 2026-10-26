@@ -90,20 +90,32 @@ public class TerminalImageTests
     public void EncodePng_ThenKitty_RoundTripPattern()
     {
         var image = new Image(1, 1, [new Color(10, 20, 30)]);
-        using var stream = new MemoryStream();
-        image.Save(stream, FileFormats.Png);
-        var sequence = KittyGraphics.FromPng(stream.ToArray(), columns: 4, rows: 2);
+        var sequence = KittyGraphics.FromPng(image.ToByteArray(FileFormats.Png), columns: 4, rows: 2);
         Assert.Contains(",c=4,r=2,", sequence);
         Assert.StartsWith("\u001b_Ga=T,f=100,", sequence);
     }
 
-    private static byte[] EncodeTinyPng()
+    [Fact]
+    public void Detect_WezTermPrefersKitty()
     {
-        var image = new Image(1, 1, [new Color(10, 20, 30)]);
-        using var stream = new MemoryStream();
-        image.Save(stream, FileFormats.Png);
-        return stream.ToArray();
+        var caps = TerminalImageCapabilities.Detect(
+            new Hashtable { ["TERM_PROGRAM"] = "WezTerm" }
+        );
+        Assert.True(caps.SupportsKitty);
+        Assert.True(caps.SupportsITerm2);
+        Assert.Equal(TerminalImageProtocol.Kitty, caps.Preferred);
     }
+
+    [Fact]
+    public void Kitty_RejectsNegativeCellSize()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            KittyGraphics.FromPng(EncodeTinyPng(), columns: -1)
+        );
+    }
+
+    private static byte[] EncodeTinyPng() =>
+        new Image(1, 1, [new Color(10, 20, 30)]).ToByteArray(FileFormats.Png);
 
     private static int CountOccurrences(string haystack, string needle)
     {
