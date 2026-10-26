@@ -11,5 +11,6 @@
     <Using Include="ChromaFx.Processing.Filters.Interfaces" />
     <Using Include="ChromaFx.Processing.Filters.Resampling.Enums" />
     <Using Include="ChromaFx.Processing.Numerics" />
+    <Using Include="ChromaFx.Processing.Terminal" />
   </ItemGroup>
 </Project>
