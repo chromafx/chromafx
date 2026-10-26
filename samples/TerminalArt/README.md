@@ -1,9 +1,9 @@
 # Terminal art sample
 
-Smoke-tests ASCII and ANSI truecolor half-block rendering.
+Smoke-tests ASCII, ANSI half-blocks, and Kitty/iTerm2 via encode-PNG-then-`FromPng`.
 
 ```bash
 dotnet run --project samples/TerminalArt
 ```
 
-Use a truecolor-capable terminal for the ANSI panel.
+Use Kitty, iTerm2/WezTerm, or another truecolor terminal for the best output.

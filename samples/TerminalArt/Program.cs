@@ -17,12 +17,19 @@
 using System.Text;
 using ChromaFx.Core;
 using ChromaFx.Core.Colors;
+using ChromaFx.IO;
+using ChromaFx.IO.Formats;
 using ChromaFx.Processing.Terminal;
 
-// Synthetic “album cover”: diagonal hue wash + soft vignette.
 var cover = CreateDemoCover(64, 64);
+var caps = TerminalImageCapabilities.Detect();
 
-Console.WriteLine("ASCII (dark terminal, fit width 48):");
+Console.WriteLine(
+    $"Capabilities: Kitty={caps.SupportsKitty}, iTerm2={caps.SupportsITerm2}, TrueColor={caps.SupportsTrueColor}, Preferred={caps.Preferred}"
+);
+Console.WriteLine();
+
+Console.WriteLine("ASCII (dark terminal, width 48):");
 Console.Write(
     cover.ToAsciiArt(
         new AsciiArtOptions
@@ -35,7 +42,7 @@ Console.Write(
 );
 
 Console.WriteLine();
-Console.WriteLine("ANSI truecolor half-blocks (exact 24×12 panel):");
+Console.WriteLine("ANSI truecolor half-blocks (exact 24×12):");
 var ansi = new StringBuilder();
 cover.AppendAnsiArt(
     ansi,
@@ -50,7 +57,41 @@ cover.AppendAnsiArt(
 Console.Write(ansi);
 
 Console.WriteLine();
-Console.WriteLine("Tip: use a truecolor terminal for the ANSI panel.");
+Console.WriteLine($"Preferred protocol ({caps.Preferred}):");
+switch (caps.Preferred)
+{
+    case TerminalImageProtocol.Kitty:
+        Console.Write(KittyGraphics.FromPng(EncodePng(cover), columns: 24, rows: 12));
+        break;
+    case TerminalImageProtocol.ITerm2:
+        Console.Write(ITerm2InlineImage.FromPng(EncodePng(cover), columns: 24, rows: 12));
+        break;
+    case TerminalImageProtocol.AnsiArt:
+        Console.Write(
+            cover.ToAnsiArt(
+                new AnsiArtOptions
+                {
+                    MaxWidth = 24,
+                    MaxHeight = 12,
+                    SizeMode = TerminalArtSizeMode.Exact,
+                }
+            )
+        );
+        break;
+    default:
+        Console.Write(cover.ToAsciiArt(new AsciiArtOptions { MaxWidth = 48, Invert = true }));
+        break;
+}
+
+Console.WriteLine();
+Console.WriteLine("Tip: encode PNG yourself, then KittyGraphics.FromPng / ITerm2InlineImage.FromPng.");
+
+static byte[] EncodePng(Image image)
+{
+    using var stream = new MemoryStream();
+    image.Save(stream, FileFormats.Png);
+    return stream.ToArray();
+}
 
 static Image CreateDemoCover(int width, int height)
 {
@@ -65,8 +106,7 @@ static Image CreateDemoCover(int width, int height)
         for (var x = 0; x < width; x++)
         {
             var t = (x + y) / (double)(width + height - 2);
-            var hue = t * 360.0;
-            var (r, g, b) = HsvToRgb(hue, 0.85, 0.95);
+            var (r, g, b) = HsvToRgb(t * 360.0, 0.85, 0.95);
             var dx = x - cx;
             var dy = y - cy;
             var vignette = 1.0 - Math.Sqrt(dx * dx + dy * dy) / maxDist * 0.45;
