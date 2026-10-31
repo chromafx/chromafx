@@ -60,9 +60,9 @@ Image.Load("input.png")
 - `Image.Load` / `Save` / `ImageFormats` live in **IO**; Mutate/Clone in **Processing**.
 - Fluent context: core ops on `IImageProcessingContext`, more via extensions (`BoxBlur`, `Saturation`, `Dilate`, `Grayscale`, …); escape hatch `Apply(IFilter)`.
 - Typed encoders: `ChromaFx.IO.Encoders` (`JpegEncoder`, `PngEncoder`, `GifEncoder` as `IAnimationEncoder`, …).
-- Plugins: `IImageFormat` / `IAnimationFormat` (`Encode` throws on failure); `FileFormats.WebP` / `Avif` reserved for `ChromaFx.Native` or custom plugins.
+- Plugins: `IImageFormat` / `IAnimationFormat` (`Encode` throws on failure); `FileFormats.WebP` / `Avif` reserved for a future native package or custom plugins.
 - `Animation` supports per-frame delays (`GetFrameDelay` / `SetFrameDelay` / `FrameDelays`); `Delay` sets all frames.
-- Path `Save` uses the registered format matching the extension; `ImageFormats.TryGetFormat` looks up by id.
+- Path `Save` / `SaveAsync` use the last registered format that accepts the extension (plugins can override built-ins). `ImageFormats.TryGetFormat` looks up by id and returns the first match.
 - Meta-package injects common usings via `buildTransitive/ChromaFx.props`.
 - Pack with `dotnet pack` (not on every local build).
 
@@ -81,10 +81,13 @@ These older APIs are **removed** (not obsolete):
 | `LoadAnimation(path)` | `Animation.Load(path)` |
 | `FormatManager` / `Manager` | `ImageFormats.Register` |
 | `IFormat` | `IImageFormat` |
-| Public format wire types | internal (Tests keep access via `InternalsVisibleTo`) |
+| Public format types as the only API | Prefer `ImageFormats` / typed encoders (`BmpFormat` etc. remain public for advanced use) |
 
 ## Requirements
 - .NET 10 SDK
+
+## Changelog
+See [CHANGELOG.md](CHANGELOG.md) for notable changes. A separate docs site is planned; until then this README is the primary guide.
 
 ## License
 Apache 2.0 - see [LICENSE](LICENSE)
@@ -103,4 +106,4 @@ Modifications and ongoing maintenance by Ho Tzin Mein (2023–2026).
 - ⏭ **Extended features** – pixel upscaling, more drawing/effects.
 
 ## Contributing
-Contributions, bug reports, and suggestions are welcome!
+Contributions, bug reports, and suggestions are welcome.

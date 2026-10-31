@@ -4,8 +4,18 @@
     <LangVersion>latest</LangVersion>
     <!-- Pack explicitly (CI/release via `dotnet pack`); keep everyday builds fast. -->
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+
+    <!--
+      Single version line for all projects.
+      Local / unset CI: 0.5.0-beta.0
+      CI master: set /p:Version=0.5.0-beta.$GITHUB_RUN_NUMBER before build
+      Tags vX.Y.Z: set /p:Version=X.Y.Z (strip leading v) before build
+    -->
     <BuildNumber Condition="'$(GITHUB_RUN_NUMBER)' != ''">$(GITHUB_RUN_NUMBER)</BuildNumber>
     <BuildNumber Condition="'$(BuildNumber)' == ''">0</BuildNumber>
-    <Version Condition="'$(Version)' == ''">1.0.0-beta.$(BuildNumber)</Version>
+    <Version Condition="'$(Version)' == ''">0.5.0-beta.$(BuildNumber)</Version>
+
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReleaseNotes>0.5.0 beta line. See CHANGELOG.md. API may still change before 1.0.</PackageReleaseNotes>
   </PropertyGroup>
 </Project>

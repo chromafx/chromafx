@@ -108,7 +108,8 @@ public partial class Animation : IList<Image>
     public bool IsReadOnly => false;
 
     /// <summary>
-    /// Gets or sets the repeat count. (0 means loop indefinitely, otherwise loop N+1 times)
+    /// Gets or sets how many times the animation plays.
+    /// 0 means loop indefinitely; 1 means play once; N means play N times.
     /// </summary>
     public ushort RepeatCount { get; set; }
 

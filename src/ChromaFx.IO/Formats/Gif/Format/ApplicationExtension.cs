@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,79 +18,94 @@
 namespace ChromaFx.IO.Formats.Gif.Format;
 
 /// <summary>
-/// Application extension
+/// Application extension (NETSCAPE 2.0 loop count).
 /// </summary>
-/// <seealso cref="SectionBase" />
 /// <remarks>
 /// Initializes a new instance of the <see cref="ApplicationExtension"/> class.
 /// </remarks>
-/// <param name="repeatCount">The repeat count.</param>
+/// <param name="repeatCount">
+/// Animation repeat count: 0 = infinite, 1 = play once, N = play N times.
+/// </param>
 /// <param name="frameCount">The frame count.</param>
 internal class ApplicationExtension(ushort repeatCount, int frameCount) : SectionBase
 {
+    private const byte NetscapeIdentifierLength = 11;
+    private static readonly byte[] NetscapeIdentifier = "NETSCAPE2.0"u8.ToArray();
+
     /// <summary>
     /// Gets or sets the frame count.
     /// </summary>
-    /// <value>
-    /// The frame count.
-    /// </value>
     public int FrameCount { get; set; } = frameCount;
 
     /// <summary>
-    /// Gets or sets the repeat count.
+    /// Gets or sets the repeat count (0 = infinite, 1 = play once, N = play N times).
     /// </summary>
-    /// <value>
-    /// The repeat count.
-    /// </value>
     public int RepeatCount { get; set; } = repeatCount;
 
     /// <summary>
-    /// Gets the size.
+    /// True when this extension was a NETSCAPE 2.0 loop block.
     /// </summary>
-    /// <value>
-    /// The size.
-    /// </value>
-    public static int Size => 12;
+    public bool IsNetscapeLoop { get; private set; }
 
     /// <summary>
-    /// Reads the specified stream.
+    /// Reads the application extension at the current stream position (after the label byte).
+    /// Non-NETSCAPE app blocks are skipped; <see cref="IsNetscapeLoop"/> is false.
     /// </summary>
-    /// <param name="stream">The stream.</param>
-    /// <returns>Reads an application extension.</returns>
     public static ApplicationExtension Read(Stream stream)
     {
-        Skip(stream, Size);
-        return new ApplicationExtension(0, 0);
+        var blockSize = stream.ReadByte();
+        if (blockSize <= 0)
+            return new ApplicationExtension(1, 0);
+
+        var identifier = new byte[blockSize];
+        stream.ReadExactly(identifier);
+        var isNetscape =
+            blockSize == NetscapeIdentifierLength
+            && identifier.AsSpan().SequenceEqual(NetscapeIdentifier);
+
+        ushort? wireLoops = null;
+        var subSize = stream.ReadByte();
+        while (subSize > 0)
+        {
+            var data = new byte[subSize];
+            stream.ReadExactly(data);
+            if (isNetscape && subSize >= 3 && data[0] == 1)
+                wireLoops = (ushort)(data[1] | (data[2] << 8));
+            subSize = stream.ReadByte();
+        }
+
+        if (!isNetscape || wireLoops is null)
+            return new ApplicationExtension(1, 0);
+
+        // Wire 0 = infinite → Animation 0; wire N → Animation N+1 (play count).
+        var animationRepeat =
+            wireLoops.Value == 0 ? (ushort)0 : (ushort)(wireLoops.Value + 1);
+        return new ApplicationExtension(animationRepeat, 0) { IsNetscapeLoop = true };
     }
 
     /// <summary>
-    /// Writes the specified writer.
+    /// Writes the NETSCAPE 2.0 loop block when the animation should not play exactly once.
     /// </summary>
-    /// <param name="writer">The writer.</param>
-    /// <returns>True if it writes successfully, false otherwise</returns>
     public override bool Write(EndianBinaryWriter writer)
     {
-        if (RepeatCount != 1 && FrameCount > 0)
-        {
-            byte[] ext =
+        if (RepeatCount == 1 || FrameCount <= 0)
+            return true;
+
+        writer.Write(
             [
                 SectionTypes.ExtensionIntroducer,
                 SectionTypes.ApplicationExtensionLabel,
-                (byte)Size,
-            ];
+                NetscapeIdentifierLength,
+            ]
+        );
+        writer.Write(NetscapeIdentifier);
+        writer.Write((byte)3);
+        writer.Write((byte)1);
 
-            writer.Write(ext);
-
-            writer.Write("NETSCAPE2.0");
-            writer.Write((byte)3);
-            writer.Write((byte)1);
-
-            RepeatCount = (ushort)(Math.Max(0, RepeatCount) - 1);
-
-            writer.Write(RepeatCount);
-
-            writer.Write(SectionTypes.Terminator);
-        }
+        // Animation 0 (infinite) → wire 0; Animation N → wire N-1.
+        var wire = RepeatCount == 0 ? (ushort)0 : (ushort)(RepeatCount - 1);
+        writer.Write(wire);
+        writer.Write(SectionTypes.Terminator);
         return true;
     }
 }

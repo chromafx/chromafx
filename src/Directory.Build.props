@@ -1,0 +1,24 @@
+<Project>
+  <!-- Nearest Directory.Build.props wins; re-import repo root props. -->
+  <Import
+    Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))"
+  />
+
+  <!-- Shared packaging / docs for library projects under src/. -->
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- Core already documents its public surface under TreatWarningsAsErrors. -->
+    <NoWarn Condition="'$(MSBuildProjectName)' != 'ChromaFx.Core'">$(NoWarn);CS1591;CS1574;CS0419</NoWarn>
+
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <!-- Apache attribution for the Structure.Sketching lineage (see repo-root NOTICE). -->
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\NOTICE" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

@@ -70,6 +70,112 @@ public static class ImageIOExtensions
     }
 
     /// <summary>
+    /// Asynchronously saves the image to a file path (sync encode, async write).
+    /// Format is inferred from the extension.
+    /// </summary>
+    public static async Task SaveAsync(
+        this Image image,
+        string fileName,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ArgumentNullException.ThrowIfNull(image);
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
+        using var buffer = new MemoryStream();
+        ImageFormats.Encode(buffer, image, fileName);
+        new FileInfo(fileName).Directory?.Create();
+        await WriteBufferAsync(buffer, fileName, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Asynchronously saves the image to a file path using the specified encoder
+    /// (sync encode, async write).
+    /// </summary>
+    public static async Task SaveAsync(
+        this Image image,
+        string fileName,
+        IImageEncoder encoder,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ArgumentNullException.ThrowIfNull(image);
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
+        ArgumentNullException.ThrowIfNull(encoder);
+        using var buffer = new MemoryStream();
+        ImageFormats.Encode(buffer, image, encoder);
+        new FileInfo(fileName).Directory?.Create();
+        await WriteBufferAsync(buffer, fileName, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Asynchronously saves the image to a stream using the specified encoder
+    /// (sync encode, async write).
+    /// </summary>
+    public static async Task SaveAsync(
+        this Image image,
+        Stream stream,
+        IImageEncoder encoder,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ArgumentNullException.ThrowIfNull(image);
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(encoder);
+        using var buffer = new MemoryStream();
+        ImageFormats.Encode(buffer, image, encoder);
+        await CopyBufferAsync(buffer, stream, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Asynchronously saves the image to a stream using a built-in format
+    /// (sync encode, async write).
+    /// </summary>
+    public static async Task SaveAsync(
+        this Image image,
+        Stream stream,
+        FileFormats format,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ArgumentNullException.ThrowIfNull(image);
+        ArgumentNullException.ThrowIfNull(stream);
+        using var buffer = new MemoryStream();
+        ImageFormats.Encode(buffer, image, format);
+        await CopyBufferAsync(buffer, stream, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static async Task WriteBufferAsync(
+        MemoryStream buffer,
+        string fileName,
+        CancellationToken cancellationToken
+    )
+    {
+        if (buffer.TryGetBuffer(out var segment))
+        {
+            await File.WriteAllBytesAsync(
+                    fileName,
+                    segment.AsMemory(0, (int)buffer.Length),
+                    cancellationToken
+                )
+                .ConfigureAwait(false);
+            return;
+        }
+
+        await File.WriteAllBytesAsync(fileName, buffer.ToArray(), cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    private static async Task CopyBufferAsync(
+        MemoryStream buffer,
+        Stream destination,
+        CancellationToken cancellationToken
+    )
+    {
+        buffer.Position = 0;
+        await buffer.CopyToAsync(destination, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// Encodes the image to a new byte array using a built-in format.
     /// </summary>
     public static byte[] ToByteArray(this Image image, FileFormats format)

@@ -60,6 +60,9 @@ dlldata.c
 # Benchmark Results
 BenchmarkDotNet.Artifacts/
 
+# Filter / format golden-test outputs (do not commit)
+tests/**/TestOutput/
+
 # .NET
 project.lock.json
 project.fragment.lock.json

@@ -16,6 +16,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using ChromaFx.Core;
 
 namespace ChromaFx.IO;
@@ -35,29 +36,70 @@ internal static class ImageFormatsBootstrap
     {
         ImageFormats.EnsureBuiltIns();
         Image.RegisterLoaders(LoadImageFromPath, LoadImageFromStream, LoadImageFromMemory);
-        Animation.RegisterLoaders(LoadAnimationFromPath, LoadAnimationFromStream);
+        Animation.RegisterLoaders(
+            LoadAnimationFromPath,
+            LoadAnimationFromStream,
+            LoadAnimationFromMemory
+        );
     }
 
     private static Image LoadImageFromPath(string fileName)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
         using var stream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
         return LoadImageFromStream(stream);
     }
 
-    private static Image LoadImageFromStream(Stream stream) => ImageFormats.Decode(stream);
+    private static Image LoadImageFromStream(Stream stream)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        return ImageFormats.Decode(stream);
+    }
 
     private static Image LoadImageFromMemory(ReadOnlyMemory<byte> data)
     {
-        using var stream = new MemoryStream(data.ToArray(), writable: false);
-        return LoadImageFromStream(stream);
+        if (MemoryMarshal.TryGetArray(data, out var segment) && segment.Array is not null)
+        {
+            using var stream = new MemoryStream(
+                segment.Array,
+                segment.Offset,
+                segment.Count,
+                writable: false
+            );
+            return LoadImageFromStream(stream);
+        }
+
+        using var copy = new MemoryStream(data.ToArray(), writable: false);
+        return LoadImageFromStream(copy);
     }
 
     private static Animation LoadAnimationFromPath(string fileName)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
         using var stream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
         return LoadAnimationFromStream(stream);
     }
 
-    private static Animation LoadAnimationFromStream(Stream stream) =>
-        ImageFormats.DecodeAnimation(stream);
+    private static Animation LoadAnimationFromStream(Stream stream)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        return ImageFormats.DecodeAnimation(stream);
+    }
+
+    private static Animation LoadAnimationFromMemory(ReadOnlyMemory<byte> data)
+    {
+        if (MemoryMarshal.TryGetArray(data, out var segment) && segment.Array is not null)
+        {
+            using var stream = new MemoryStream(
+                segment.Array,
+                segment.Offset,
+                segment.Count,
+                writable: false
+            );
+            return LoadAnimationFromStream(stream);
+        }
+
+        using var copy = new MemoryStream(data.ToArray(), writable: false);
+        return LoadAnimationFromStream(copy);
+    }
 }

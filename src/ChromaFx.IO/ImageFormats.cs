@@ -100,6 +100,13 @@ public static class ImageFormats
 
     internal static Image Decode(Stream stream)
     {
+        ArgumentNullException.ThrowIfNull(stream);
+        if (!stream.CanSeek)
+        {
+            using var buffered = BufferStream(stream);
+            return Decode(buffered);
+        }
+
         EnsureBuiltIns();
         IImageFormat[] snapshot;
         lock (Gate)
@@ -116,6 +123,13 @@ public static class ImageFormats
 
     internal static Animation DecodeAnimation(Stream stream)
     {
+        ArgumentNullException.ThrowIfNull(stream);
+        if (!stream.CanSeek)
+        {
+            using var buffered = BufferStream(stream);
+            return DecodeAnimation(buffered);
+        }
+
         EnsureBuiltIns();
         IAnimationFormat[] snapshot;
         lock (Gate)
@@ -133,8 +147,79 @@ public static class ImageFormats
         );
     }
 
+    private static MemoryStream BufferStream(Stream stream)
+    {
+        var buffered = new MemoryStream();
+        stream.CopyTo(buffered);
+        buffered.Position = 0;
+        return buffered;
+    }
+
     internal static void Encode(string fileName, Image image)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
+        ArgumentNullException.ThrowIfNull(image);
+        var format = ResolveImageEncoder(fileName);
+        new FileInfo(fileName).Directory?.Create();
+        using var stream = File.Open(fileName, FileMode.Create, FileAccess.Write, FileShare.None);
+        Encode(stream, image, format);
+    }
+
+    internal static void Encode(string fileName, Animation animation)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
+        ArgumentNullException.ThrowIfNull(animation);
+        if (TryResolveAnimationEncoder(fileName, out var format))
+        {
+            new FileInfo(fileName).Directory?.Create();
+            using var stream = File.Open(
+                fileName,
+                FileMode.Create,
+                FileAccess.Write,
+                FileShare.None
+            );
+            Encode(stream, animation, format);
+            return;
+        }
+
+        // Fall back to first frame as a still image (may still throw if extension is unknown).
+        if (animation.Count == 0)
+            throw new ArgumentException("Animation contains no frames.", nameof(animation));
+        Encode(fileName, animation[0]);
+    }
+
+    /// <summary>
+    /// Encodes by file-name extension into an open stream (used by SaveAsync).
+    /// </summary>
+    internal static void Encode(Stream stream, Image image, string fileNameForExtension)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(image);
+        Encode(stream, image, ResolveImageEncoder(fileNameForExtension));
+    }
+
+    /// <summary>
+    /// Encodes by file-name extension into an open stream (used by SaveAsync).
+    /// </summary>
+    internal static void Encode(Stream stream, Animation animation, string fileNameForExtension)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(animation);
+        if (TryResolveAnimationEncoder(fileNameForExtension, out var format))
+        {
+            Encode(stream, animation, format);
+            return;
+        }
+
+        // Fall back to first frame as a still image.
+        if (animation.Count == 0)
+            throw new ArgumentException("Animation contains no frames.", nameof(animation));
+        Encode(stream, animation[0], fileNameForExtension);
+    }
+
+    private static IImageFormat ResolveImageEncoder(string fileNameForExtension)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileNameForExtension);
         EnsureBuiltIns();
         IImageFormat[] snapshot;
         lock (Gate)
@@ -143,48 +228,49 @@ public static class ImageFormats
         // Prefer last registered match so extensions can override built-ins.
         for (var i = snapshot.Length - 1; i >= 0; i--)
         {
-            if (!snapshot[i].CanEncode(fileName))
-                continue;
-            new FileInfo(fileName).Directory?.Create();
-            using var stream = File.Open(
-                fileName,
-                FileMode.Create,
-                FileAccess.Write,
-                FileShare.None
-            );
-            using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
-            snapshot[i].Encode(writer, image);
-            return;
+            if (snapshot[i].CanEncode(fileNameForExtension))
+                return snapshot[i];
         }
 
-        throw new UnknownImageFormatException($"No registered format can encode '{fileName}'.");
+        throw new UnknownImageFormatException(
+            $"No registered format can encode '{fileNameForExtension}'."
+        );
     }
 
-    internal static void Encode(string fileName, Animation animation)
+    private static bool TryResolveAnimationEncoder(
+        string fileNameForExtension,
+        out IAnimationFormat format
+    )
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileNameForExtension);
         EnsureBuiltIns();
         IAnimationFormat[] snapshot;
         lock (Gate)
             snapshot = AnimationFormats.ToArray();
 
-        foreach (var format in snapshot)
+        // Prefer last registered match so extensions can override built-ins (same as images).
+        for (var i = snapshot.Length - 1; i >= 0; i--)
         {
-            if (!format.CanEncode(fileName))
+            if (!snapshot[i].CanEncode(fileNameForExtension))
                 continue;
-            new FileInfo(fileName).Directory?.Create();
-            using var stream = File.Open(
-                fileName,
-                FileMode.Create,
-                FileAccess.Write,
-                FileShare.None
-            );
-            using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
-            format.Encode(writer, animation);
-            return;
+            format = snapshot[i];
+            return true;
         }
 
-        // Fall back to first frame as a still image.
-        Encode(fileName, animation[0]);
+        format = null!;
+        return false;
+    }
+
+    private static void Encode(Stream stream, Image image, IImageFormat format)
+    {
+        using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
+        format.Encode(writer, image);
+    }
+
+    private static void Encode(Stream stream, Animation animation, IAnimationFormat format)
+    {
+        using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
+        format.Encode(writer, animation);
     }
 
     internal static void Encode(Stream stream, Image image, IImageEncoder encoder)
@@ -209,6 +295,12 @@ public static class ImageFormats
         Encode(stream, image, encoder);
     }
 
+    internal static void Encode(Stream stream, Animation animation, FileFormats format)
+    {
+        var encoder = CreateAnimationEncoder(format);
+        Encode(stream, animation, encoder);
+    }
+
     internal static IImageEncoder CreateEncoder(FileFormats format) =>
         format switch
         {
@@ -217,8 +309,20 @@ public static class ImageFormats
             FileFormats.Jpeg => new JpegEncoder(),
             FileFormats.Gif => new GifEncoder(),
             FileFormats.WebP or FileFormats.Avif => throw new UnknownImageFormatException(
-                $"Format '{format}' requires ChromaFx.Native or a registered plugin encoder."
+                $"Format '{format}' requires a registered plugin encoder (or a future native package)."
             ),
             _ => throw new UnknownImageFormatException($"Unsupported format '{format}'."),
+        };
+
+    internal static IAnimationEncoder CreateAnimationEncoder(FileFormats format) =>
+        format switch
+        {
+            FileFormats.Gif => new GifEncoder(),
+            FileFormats.WebP or FileFormats.Avif => throw new UnknownImageFormatException(
+                $"Format '{format}' requires a registered plugin encoder (or a future native package)."
+            ),
+            _ => throw new UnknownImageFormatException(
+                $"Format '{format}' does not support animation encoding."
+            ),
         };
 }

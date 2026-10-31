@@ -70,6 +70,7 @@ public class ApiSurfaceTests
         try
         {
             Assert.Throws<UnknownImageFormatException>(() => image.Save(path));
+            Assert.False(File.Exists(path));
         }
         finally
         {
@@ -83,6 +84,91 @@ public class ApiSurfaceTests
     {
         using var stream = new MemoryStream([0x00, 0x01, 0x02, 0x03]);
         Assert.Throws<UnknownImageFormatException>(() => Image.Load(stream));
+    }
+
+    [Fact]
+    public void LoadNullStreamThrows()
+    {
+        Assert.Throws<ArgumentNullException>(() => Image.Load((Stream)null!));
+    }
+
+    [Fact]
+    public void LoadFromByteArrayAndSpanRoundTripsBmp()
+    {
+        var bytes = File.ReadAllBytes("./TestImages/Formats/Bmp/EncodingTest.bmp");
+        var fromArray = Image.Load(bytes);
+        var fromMemory = Image.Load(bytes.AsMemory());
+        var fromSpan = Image.Load(bytes.AsSpan());
+
+        Assert.Equal(fromArray.Width, fromMemory.Width);
+        Assert.Equal(fromArray.Height, fromMemory.Height);
+        Assert.Equal(fromArray.Width, fromSpan.Width);
+        Assert.Equal(fromArray.Height, fromSpan.Height);
+        Assert.Equal(fromArray[0, 0], fromSpan[0, 0]);
+    }
+
+    [Fact]
+    public async Task LoadAsyncAndSaveAsyncRoundTripPng()
+    {
+        var source = await Image.LoadAsync("./TestImages/Formats/Bmp/EncodingTest.bmp", CancellationToken.None);
+        var path = Path.Combine(Path.GetTempPath(), $"chromafx-{Guid.NewGuid():N}.png");
+        try
+        {
+            await source.SaveAsync(path, CancellationToken.None);
+            var loaded = await Image.LoadAsync(path, CancellationToken.None);
+            Assert.Equal(source.Width, loaded.Width);
+            Assert.Equal(source.Height, loaded.Height);
+            Assert.Equal(source[0, 0], loaded[0, 0]);
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public async Task LoadAsyncFromStreamRoundTrips()
+    {
+        await using var stream = File.OpenRead("./TestImages/Formats/Bmp/EncodingTest.bmp");
+        var loaded = await Image.LoadAsync(stream, CancellationToken.None);
+        Assert.True(loaded.Width > 0);
+        Assert.True(loaded.Height > 0);
+    }
+
+    [Fact]
+    public async Task AnimationLoadAsyncAndSaveAsyncRoundTripGif()
+    {
+        var source = await Animation.LoadAsync("./TestImages/Formats/Gif/rings.gif", CancellationToken.None);
+        var path = Path.Combine(Path.GetTempPath(), $"chromafx-{Guid.NewGuid():N}.gif");
+        try
+        {
+            await source.SaveAsync(path, CancellationToken.None);
+            var loaded = await Animation.LoadAsync(path, CancellationToken.None);
+            Assert.Equal(source.Count, loaded.Count);
+            Assert.Equal(source[0].Width, loaded[0].Width);
+        }
+        finally
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public void AnimationToByteArrayRoundTripsGif()
+    {
+        var red = new Image(4, 4);
+        red.Buffer.Fill(Color.RedColor);
+        var animation = new Animation([red], [20]) { RepeatCount = 1 };
+        var bytes = animation.ToByteArray(FileFormats.Gif);
+        Assert.True(bytes.Length > 6);
+        Assert.Equal((byte)'G', bytes[0]);
+
+        using var stream = new MemoryStream(bytes);
+        var loaded = Animation.Load(stream);
+        Assert.Single(loaded);
+        Assert.Equal(20, loaded.GetFrameDelay(0));
     }
 
     [Fact]
@@ -124,11 +210,7 @@ public class ApiSurfaceTests
         red.Buffer.Fill(Color.RedColor);
         blue.Buffer.Fill(Color.BlueColor);
 
-        var animation = new Animation([red, blue], [10, 40])
-        {
-            // RepeatCount 1 skips writing the NETSCAPE app block (known Size quirk).
-            RepeatCount = 1,
-        };
+        var animation = new Animation([red, blue], [10, 40]) { RepeatCount = 3 };
         using var stream = new MemoryStream();
         animation.Save(stream, new GifEncoder());
         stream.Position = 0;
@@ -137,6 +219,60 @@ public class ApiSurfaceTests
         Assert.Equal(2, loaded.Count);
         Assert.Equal(10, loaded.GetFrameDelay(0));
         Assert.Equal(40, loaded.GetFrameDelay(1));
+        Assert.Equal((ushort)3, loaded.RepeatCount);
+    }
+
+    [Fact]
+    public void AnimationRepeatCountInfiniteRoundTripsViaGif()
+    {
+        var red = new Image(4, 4);
+        var blue = new Image(4, 4);
+        red.Buffer.Fill(Color.RedColor);
+        blue.Buffer.Fill(Color.BlueColor);
+
+        var animation = new Animation([red, blue], [5, 5]) { RepeatCount = 0 };
+        var bytes = animation.ToByteArray(FileFormats.Gif);
+        var loaded = Animation.Load(bytes);
+        Assert.Equal((ushort)0, loaded.RepeatCount);
+    }
+
+    [Fact]
+    public void AnimationSaveEmptyThrows()
+    {
+        var empty = new Animation([]);
+        var path = Path.Combine(Path.GetTempPath(), $"chromafx-{Guid.NewGuid():N}.png");
+        Assert.Throws<ArgumentException>(() => empty.Save(path));
+        Assert.False(File.Exists(path));
+    }
+
+    [Fact]
+    public void LoadNonSeekableStreamBuffersAndDecodes()
+    {
+        var bytes = File.ReadAllBytes("./TestImages/Formats/Bmp/EncodingTest.bmp");
+        using var nonSeekable = new NonSeekableStream(bytes);
+        var loaded = Image.Load(nonSeekable);
+        Assert.True(loaded.Width > 0);
+        Assert.True(loaded.Height > 0);
+    }
+
+    [Fact]
+    public void AnimationToBase64StringRoundTripsGifHeader()
+    {
+        var red = new Image(2, 2);
+        red.Buffer.Fill(Color.RedColor);
+        var animation = new Animation([red], [10]) { RepeatCount = 1 };
+        var b64 = animation.ToBase64String(FileFormats.Gif);
+        var bytes = Convert.FromBase64String(b64);
+        Assert.Equal((byte)'G', bytes[0]);
+        Assert.Equal((byte)'I', bytes[1]);
+    }
+
+    private sealed class NonSeekableStream(byte[] data) : MemoryStream(data)
+    {
+        public override bool CanSeek => false;
+
+        public override long Seek(long offset, SeekOrigin loc) =>
+            throw new NotSupportedException();
     }
 
     [Fact]

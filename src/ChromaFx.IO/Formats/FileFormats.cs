@@ -43,12 +43,12 @@ public enum FileFormats
     Gif = 3,
 
     /// <summary>
-    /// WebP file format (requires <c>ChromaFx.Native</c> or a registered plugin).
+    /// WebP file format (requires a registered plugin or a future native package).
     /// </summary>
     WebP = 4,
 
     /// <summary>
-    /// AVIF file format (requires <c>ChromaFx.Native</c> or a registered plugin).
+    /// AVIF file format (requires a registered plugin or a future native package).
     /// </summary>
     Avif = 5,
 }

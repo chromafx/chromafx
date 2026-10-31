@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -140,7 +140,10 @@ internal class File : FileBase
                 }
                 else if (label == SectionTypes.ApplicationExtensionLabel)
                 {
-                    ApplicationExtension.Read(stream);
+                    var app = ApplicationExtension.Read(stream);
+                    // Keep the first NETSCAPE loop block; ignore other app extensions.
+                    if (app.IsNetscapeLoop && AppExtension is null)
+                        AppExtension = app;
                 }
                 else if (label == SectionTypes.PlainTextLabel)
                 {
@@ -200,7 +203,11 @@ internal class File : FileBase
                 ).Delay
             )
             .ToList();
-        return new Animation(images, delays);
+        return new Animation(images, delays)
+        {
+            // No app extension → play once (browser default without NETSCAPE).
+            RepeatCount = (ushort)(AppExtension?.RepeatCount ?? 1),
+        };
     }
 
     /// <summary>
