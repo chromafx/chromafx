@@ -16,7 +16,7 @@ A lean, managed alternative for .NET apps that need image processing without nat
 - Pipeline-friendly fluent context for common filters
 - `Load` / `LoadAsync` from path, stream, `byte[]`, memory, or span; matching `Save` / `SaveAsync`
 - Terminal rendering (`ChromaFx.Processing.Terminal`) — ASCII/ANSI art plus Kitty and iTerm2 inline images
-- Opt-in [`ChromaFx.PixelArt`](https://www.nuget.org/packages/ChromaFx.PixelArt/?includePrerelease=true) — Scale2x / Eagle / SaI upscalers and `RotateSprite` (not in the meta-package)
+- Opt-in [`ChromaFx.PixelArt`](https://www.nuget.org/packages/ChromaFx.PixelArt/?includePrerelease=true) — Scale2x / Scale3x / Hq2x–4x / CleanEdge / Eagle / SaI upscalers and `RotateSprite` / `CleanEdgeRotate` (not in the meta-package)
 
 ## Performance & Architecture
 
@@ -30,11 +30,11 @@ Fully managed on .NET 10 — no native codec binaries for Docker/Lambda multi-ar
 | `ChromaFx.Core`        | Core types and abstractions.                                                | [ChromaFx.Core](https://www.nuget.org/packages/ChromaFx.Core/?includePrerelease=true) |
 | `ChromaFx.IO`          | Image file IO, encoding/decoding support.                                   | [ChromaFx.IO](https://www.nuget.org/packages/ChromaFx.IO/?includePrerelease=true) |
 | `ChromaFx.Processing`  | Image processing algorithms and effects.                                    | [ChromaFx.Processing](https://www.nuget.org/packages/ChromaFx.Processing/?includePrerelease=true) |
-| `ChromaFx.PixelArt`    | Opt-in pixel-art upscaling (Scale2x, Eagle, SaI) and `RotateSprite`. Not in the meta-package. | [ChromaFx.PixelArt](https://www.nuget.org/packages/ChromaFx.PixelArt/?includePrerelease=true) |
+| `ChromaFx.PixelArt`    | Opt-in pixel-art upscaling (Scale2x / Scale3x, Hq2x–4x, CleanEdge, Eagle, SaI) and `RotateSprite` / `CleanEdgeRotate`. Not in the meta-package. | [ChromaFx.PixelArt](https://www.nuget.org/packages/ChromaFx.PixelArt/?includePrerelease=true) |
 
 - Use `ChromaFx` for new projects targeting .NET 10.
 - Use `ChromaFx.Core`, `ChromaFx.IO`, and `ChromaFx.Processing` for modular usage.
-- Add `ChromaFx.PixelArt` for Scale2x / Eagle / SaI or `RotateSprite` (optional `PixelArt2xAlgorithm` pre-pass).
+- Add `ChromaFx.PixelArt` for Scale2x / Scale3x / Hq2x–4x / CleanEdge / Eagle / SaI or `RotateSprite` / `CleanEdgeRotate`.
 
 ## Installation
 
@@ -119,7 +119,7 @@ Modifications and ongoing maintenance by Ho Tzin Mein (2023–2026).
 ## Roadmap
 - ✅ **Modularization** – Core, IO, Processing packages split out.
 - ✅ **API modernization** – `Mutate`/`Clone`, typed encoders, `ImageFormats` registry.
-- ✅ **PixelArt** – opt-in `ChromaFx.PixelArt` (Scale2x / Eagle / SaI, `RotateSprite` + `PixelArt2xAlgorithm`).
+- ✅ **PixelArt** – opt-in `ChromaFx.PixelArt` (Scale2x / Scale3x / Hq2x–4x / CleanEdge / Eagle / SaI, `RotateSprite` / `CleanEdgeRotate`).
 - ⏭ **Performance** – broaden `Span`/`ArrayPool`/SIMD coverage beyond current hot paths.
 - ⏭ **Extended formats** – optional native extension package (WebP/AVIF/…).
 - ⏭ **Extended features** – more drawing/effects.

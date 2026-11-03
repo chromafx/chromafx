@@ -21,11 +21,17 @@ public class PixelArtFilters : FilterTestBaseClass
     public static readonly TheoryData<string, IFilter, Rectangle> Filters = new()
     {
         { "Scale2x", new Scale2x(), default },
+        { "Scale3x", new Scale3x(), default },
+        { "Hq2x", new Hq2x(), default },
+        { "Hq3x", new Hq3x(), default },
+        { "Hq4x", new Hq4x(), default },
+        { "CleanEdge4x", new CleanEdge(4), default },
         { "Eagle", new Eagle(), default },
         { "SuperEagle", new SuperEagle(), default },
         { "Scale2xSaI", new Scale2xSaI(), default },
         { "Super2xSaI", new Super2xSaI(), default },
         { "RotateSprite45", new RotateSprite(45f), default },
+        { "CleanEdgeRotate45", new CleanEdgeRotate(45f), default },
     };
 
     [Theory]
@@ -79,6 +85,77 @@ public class Scale2xSyntheticTests
     }
 
     [Fact]
+    public void Scale3x_TriplesDimensions()
+    {
+        var image = new Image(3, 2, [Bg, Bg, Bg, Bg, Bg, Bg]);
+        image.Mutate(ctx => ctx.Scale3x());
+        Assert.Equal(9, image.Width);
+        Assert.Equal(6, image.Height);
+    }
+
+    [Fact]
+    public void Hq2x_DoublesDimensions()
+    {
+        var image = new Image(3, 2, [Bg, Bg, Bg, Bg, Bg, Bg]);
+        image.Mutate(ctx => ctx.Hq2x());
+        Assert.Equal(6, image.Width);
+        Assert.Equal(4, image.Height);
+    }
+
+    [Fact]
+    public void Hq3x_And_Hq4x_MultiplyDimensions()
+    {
+        var image3 = new Image(2, 2, [Bg, Bg, Bg, Bg]);
+        image3.Mutate(ctx => ctx.Hq3x());
+        Assert.Equal(6, image3.Width);
+        Assert.Equal(6, image3.Height);
+
+        var image4 = new Image(2, 2, [Bg, Bg, Bg, Bg]);
+        image4.Mutate(ctx => ctx.Hq4x());
+        Assert.Equal(8, image4.Width);
+        Assert.Equal(8, image4.Height);
+    }
+
+    [Fact]
+    public void CleanEdge_ScalesByFactor()
+    {
+        var image = new Image(2, 2, [Fg, Bg, Bg, Fg]);
+        image.Mutate(ctx => ctx.CleanEdge(3));
+        Assert.Equal(6, image.Width);
+        Assert.Equal(6, image.Height);
+    }
+
+    [Fact]
+    public void CleanEdge_UniformFill_StaysUniform()
+    {
+        var image = new Image(2, 2, [Fg, Fg, Fg, Fg]);
+        new CleanEdge(4).Apply(image);
+        Assert.Equal(8, image.Width);
+        Assert.Equal(8, image.Height);
+        for (var y = 0; y < 8; ++y)
+        {
+            var row = image.GetRowSpan(y);
+            for (var x = 0; x < 8; ++x)
+                Assert.Equal(Fg, row[x]);
+        }
+    }
+
+    [Fact]
+    public void Hq2x_UniformFill_StaysUniform()
+    {
+        var image = new Image(2, 2, [Fg, Fg, Fg, Fg]);
+        new Hq2x().Apply(image);
+        Assert.Equal(4, image.Width);
+        Assert.Equal(4, image.Height);
+        for (var y = 0; y < 4; ++y)
+        {
+            var row = image.GetRowSpan(y);
+            for (var x = 0; x < 4; ++x)
+                Assert.Equal(Fg, row[x]);
+        }
+    }
+
+    [Fact]
     public void Scale4x_And_Scale8x_MultiplyDimensions()
     {
         var image4 = new Image(2, 2, [Bg, Bg, Bg, Bg]);
@@ -90,6 +167,39 @@ public class Scale2xSyntheticTests
         image8.Mutate(ctx => ctx.Scale8x());
         Assert.Equal(16, image8.Width);
         Assert.Equal(16, image8.Height);
+    }
+
+    [Fact]
+    public void Scale3x_UniformFill_StaysUniform()
+    {
+        var image = new Image(2, 2, [Fg, Fg, Fg, Fg]);
+        new Scale3x().Apply(image);
+
+        Assert.Equal(6, image.Width);
+        Assert.Equal(6, image.Height);
+        for (var y = 0; y < 6; ++y)
+        {
+            var row = image.GetRowSpan(y);
+            for (var x = 0; x < 6; ++x)
+                Assert.Equal(Fg, row[x]);
+        }
+    }
+
+    [Fact]
+    public void Scale3x_LShape_ExpandsCornerTowardMatchingNeighbors()
+    {
+        // Center E=Bg with B=Fg (up) and D=Fg (left) → E0 becomes Fg; center E4 stays Bg.
+        var pixels = new Color[9];
+        Array.Fill(pixels, Bg);
+        pixels[1] = Fg; // B relative to center
+        pixels[3] = Fg; // D relative to center
+        var image = new Image(3, 3, pixels);
+        new Scale3x().Apply(image);
+
+        // Center source (1,1) maps to dest (3,3)-(5,5).
+        Assert.Equal(Fg, image.GetRowSpan(3)[3]); // E0
+        Assert.Equal(Bg, image.GetRowSpan(4)[4]); // E4
+        Assert.Equal(Bg, image.GetRowSpan(5)[5]); // E8
     }
 
     [Fact]
@@ -255,6 +365,29 @@ public class EagleSaISyntheticTests
                 Assert.Equal(Fg, row[x]);
         }
     }
+
+    [Theory]
+    [InlineData(typeof(Scale2xSaI))]
+    [InlineData(typeof(Super2xSaI))]
+    [InlineData(typeof(SuperEagle))]
+    public void BlendingScalers_OpaqueCheckerboard_KeepsOpaqueAlpha(Type filterType)
+    {
+        // Fg Bg
+        // Bg Fg — forces Interpolate/QInterpolate paths; alpha must stay 255.
+        var image = new Image(2, 2, [Fg, Bg, Bg, Fg]);
+        ((IFilter)Activator.CreateInstance(filterType)!).Apply(image);
+        AssertAllOpaque(image);
+    }
+
+    private static void AssertAllOpaque(Image image)
+    {
+        for (var y = 0; y < image.Height; ++y)
+        {
+            var row = image.GetRowSpan(y);
+            for (var x = 0; x < image.Width; ++x)
+                Assert.Equal(255, row[x].Alpha);
+        }
+    }
 }
 
 public class RotateSpriteSyntheticTests
@@ -279,7 +412,7 @@ public class RotateSpriteSyntheticTests
     [Fact]
     public void RotateSprite_90_SwapsDimensions()
     {
-        // 3×2 → 2×3
+        // 3×2 → 2×3 (exact cardinal remap)
         var image = new Image(
             3,
             2,
@@ -301,25 +434,8 @@ public class RotateSpriteSyntheticTests
     {
         var image = new Image(8, 8, Enumerable.Repeat(Fg, 64).ToArray());
         new RotateSprite(45f).Apply(image);
-        Assert.True(image.Width >= 8);
-        Assert.True(image.Height >= 8);
-    }
-
-    [Fact]
-    public void RotateSprite_EagleUpscale_GrowsCanvas()
-    {
-        var image = new Image(8, 8, Enumerable.Repeat(Fg, 64).ToArray());
-        image.Mutate(ctx => ctx.RotateSprite(45f, PixelArt2xAlgorithm.Eagle));
-        Assert.True(image.Width >= 8);
-        Assert.True(image.Height >= 8);
-    }
-
-    [Fact]
-    public void RotateSprite_StoresUpscaleAlgorithm()
-    {
-        var filter = new RotateSprite(30f, PixelArt2xAlgorithm.Super2xSaI);
-        Assert.Equal(PixelArt2xAlgorithm.Super2xSaI, filter.Upscale);
-        Assert.Equal(PixelArt2xAlgorithm.Scale2x, new RotateSprite(10f).Upscale);
+        Assert.True(image.Width > 8);
+        Assert.True(image.Height > 8);
     }
 
     [Fact]
@@ -336,5 +452,102 @@ public class RotateSpriteSyntheticTests
 
         Assert.Equal(Fg, scale2x.GetRowSpan(2)[2]);
         Assert.Equal(Bg, eagle.GetRowSpan(2)[2]);
+    }
+
+    [Fact]
+    public void RotateSprite_DefaultEmpty_IsOpaqueBlack()
+    {
+        Assert.Equal(new Color(0, 0, 0, 255), new RotateSprite(45f).EmptyColor);
+    }
+
+    [Fact]
+    public void RotateSprite_Checkerboard45_KeepsOpaqueAlpha()
+    {
+        var pixels = new Color[16];
+        for (var i = 0; i < 16; ++i)
+            pixels[i] = ((i % 2) ^ (i / 4 % 2)) == 0 ? Fg : Bg;
+        var image = new Image(4, 4, pixels);
+        new RotateSprite(45f).Apply(image);
+        Assert.True(image.Width >= 4);
+        Assert.True(image.Height >= 4);
+        for (var y = 0; y < image.Height; ++y)
+        {
+            var row = image.GetRowSpan(y);
+            for (var x = 0; x < image.Width; ++x)
+                Assert.Equal(255, row[x].Alpha);
+        }
+    }
+
+    [Fact]
+    public void CleanEdgeRotate_ZeroDegrees_IsNoOp()
+    {
+        var pixels = new Color[] { Fg, Bg, Bg, Fg };
+        var image = new Image(2, 2, pixels);
+        image.Mutate(ctx => ctx.CleanEdgeRotate(0f));
+        Assert.Equal(2, image.Width);
+        Assert.Equal(2, image.Height);
+        Assert.Equal(Fg, image.GetRowSpan(0)[0]);
+        Assert.Equal(Bg, image.GetRowSpan(0)[1]);
+        Assert.Equal(Bg, image.GetRowSpan(1)[0]);
+        Assert.Equal(Fg, image.GetRowSpan(1)[1]);
+    }
+
+    [Fact]
+    public void CleanEdgeRotate_90_MatchesRotateSpriteCardinal()
+    {
+        var pixels = new int[] { 1, 2, 3, 4, 5, 6 }
+            .Select(v => new Color((byte)v, 0, 0))
+            .ToArray();
+        var a = new Image(3, 2, pixels);
+        var b = new Image(3, 2, (Color[])pixels.Clone());
+        new CleanEdgeRotate(90f).Apply(a);
+        new RotateSprite(90f).Apply(b);
+        Assert.Equal(b.Width, a.Width);
+        Assert.Equal(b.Height, a.Height);
+        for (var y = 0; y < a.Height; ++y)
+        {
+            var ra = a.GetRowSpan(y);
+            var rb = b.GetRowSpan(y);
+            for (var x = 0; x < a.Width; ++x)
+                Assert.Equal(rb[x], ra[x]);
+        }
+    }
+
+    [Fact]
+    public void CleanEdgeRotate_45_MatchesRotateSpriteAabbSize()
+    {
+        var fill = Enumerable.Repeat(Fg, 64).ToArray();
+        var a = new Image(8, 8, fill);
+        var b = new Image(8, 8, (Color[])fill.Clone());
+        new CleanEdgeRotate(45f).Apply(a);
+        new RotateSprite(45f).Apply(b);
+        Assert.Equal(b.Width, a.Width);
+        Assert.Equal(b.Height, a.Height);
+        Assert.True(a.Width > 8);
+        Assert.True(a.Height > 8);
+    }
+
+    [Fact]
+    public void CleanEdgeRotate_DefaultEmpty_IsOpaqueBlack()
+    {
+        Assert.Equal(new Color(0, 0, 0, 255), new CleanEdgeRotate(45f).EmptyColor);
+    }
+
+    [Fact]
+    public void CleanEdgeRotate_Checkerboard45_KeepsOpaqueAlpha()
+    {
+        var pixels = new Color[16];
+        for (var i = 0; i < 16; ++i)
+            pixels[i] = ((i % 2) ^ (i / 4 % 2)) == 0 ? Fg : Bg;
+        var image = new Image(4, 4, pixels);
+        new CleanEdgeRotate(45f).Apply(image);
+        Assert.True(image.Width >= 4);
+        Assert.True(image.Height >= 4);
+        for (var y = 0; y < image.Height; ++y)
+        {
+            var row = image.GetRowSpan(y);
+            for (var x = 0; x < image.Width; ++x)
+                Assert.Equal(255, row[x].Alpha);
+        }
     }
 }

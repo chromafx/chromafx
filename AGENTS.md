@@ -9,7 +9,7 @@ Pure C# image processing library (PNG, JPEG, GIF, BMP). Targets **net10.0**.
 | `src/ChromaFx.Core` | Image, Color, Animation, exceptions |
 | `src/ChromaFx.IO` | Formats, encoders, Load/Save, `ImageFormats` registry |
 | `src/ChromaFx.Processing` | Filters, Mutate/Clone, numerics |
-| `src/ChromaFx.PixelArt` | Opt-in Scale2x / Eagle / SaI and RotateSprite (not in meta-package) |
+| `src/ChromaFx.PixelArt` | Opt-in Scale2x / Scale3x / Hq2x–4x / CleanEdge / Eagle / SaI and RotateSprite / CleanEdgeRotate (not in meta-package) |
 | `src/ChromaFx` | Meta-package only (refs + `buildTransitive` usings) |
 | `tests/ChromaFx.Tests` | Unit + golden-file regression |
 | `tests/ChromaFx.Benchmarks` | BenchmarkDotNet |

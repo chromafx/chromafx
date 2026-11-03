@@ -20,16 +20,30 @@ namespace ChromaFx.PixelArt;
 
 /// <summary>
 /// Midpoint / quarter blends used by SaI-family upscalers (RGBA channel averages).
+/// Uses integer channel means — not <see cref="Color.Average"/>, which clamps on add
+/// and corrupts alpha when blending two opaque colors.
 /// </summary>
 internal static class PixelArtBlend
 {
     /// <summary>Linear midpoint of two colors (SaI INTERPOLATE).</summary>
     public static Color Interpolate(Color a, Color b) =>
-        a == b ? a : Color.Average(a, b);
+        a == b
+            ? a
+            : new Color(
+                (byte)((a.Red + b.Red) / 2),
+                (byte)((a.Green + b.Green) / 2),
+                (byte)((a.Blue + b.Blue) / 2),
+                (byte)((a.Alpha + b.Alpha) / 2)
+            );
 
     /// <summary>Average of four colors (SaI Q_INTERPOLATE).</summary>
     public static Color QInterpolate(Color a, Color b, Color c, Color d) =>
-        Color.Average(Color.Average(a, b), Color.Average(c, d));
+        new(
+            (byte)((a.Red + b.Red + c.Red + d.Red) / 4),
+            (byte)((a.Green + b.Green + c.Green + d.Green) / 4),
+            (byte)((a.Blue + b.Blue + c.Blue + d.Blue) / 4),
+            (byte)((a.Alpha + b.Alpha + c.Alpha + d.Alpha) / 4)
+        );
 
     /// <summary>¾ of <paramref name="heavy"/> + ¼ of <paramref name="light"/>.</summary>
     public static Color ThreeQuarter(Color heavy, Color light) =>

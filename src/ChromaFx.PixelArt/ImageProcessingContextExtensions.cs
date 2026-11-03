@@ -31,6 +31,12 @@ public static class ImageProcessingContextExtensions
         context.Apply(new Scale2x());
 
     /// <summary>
+    /// Applies classic Scale3x (EPX), tripling width and height.
+    /// </summary>
+    public static IImageProcessingContext Scale3x(this IImageProcessingContext context) =>
+        context.Apply(new Scale3x());
+
+    /// <summary>
     /// Applies Scale2x twice (4× width and height).
     /// </summary>
     public static IImageProcessingContext Scale4x(this IImageProcessingContext context) =>
@@ -41,6 +47,24 @@ public static class ImageProcessingContextExtensions
     /// </summary>
     public static IImageProcessingContext Scale8x(this IImageProcessingContext context) =>
         context.Apply(new Scale8x());
+
+    /// <summary>
+    /// Applies HQ2x upscaling (may blend edge colors).
+    /// </summary>
+    public static IImageProcessingContext Hq2x(this IImageProcessingContext context) =>
+        context.Apply(new Hq2x());
+
+    /// <summary>
+    /// Applies HQ3x upscaling (may blend edge colors).
+    /// </summary>
+    public static IImageProcessingContext Hq3x(this IImageProcessingContext context) =>
+        context.Apply(new Hq3x());
+
+    /// <summary>
+    /// Applies HQ4x upscaling (may blend edge colors).
+    /// </summary>
+    public static IImageProcessingContext Hq4x(this IImageProcessingContext context) =>
+        context.Apply(new Hq4x());
 
     /// <summary>
     /// Applies classic Eagle 2× upscaling.
@@ -67,7 +91,7 @@ public static class ImageProcessingContextExtensions
         context.Apply(new Super2xSaI());
 
     /// <summary>
-    /// Applies RotSprite-style pixel-art rotation (counterclockwise degrees; Scale2x pre-pass).
+    /// Applies RotSprite pixel-art rotation (counterclockwise degrees; AABB canvas).
     /// </summary>
     public static IImageProcessingContext RotateSprite(
         this IImageProcessingContext context,
@@ -75,11 +99,18 @@ public static class ImageProcessingContextExtensions
     ) => context.Apply(new RotateSprite(degrees));
 
     /// <summary>
-    /// Applies RotSprite-style rotation using the chosen 2× upscaler for the 8× pre-pass.
+    /// Applies cleanEdge upscaling (default 4×; may prioritize edges toward white).
     /// </summary>
-    public static IImageProcessingContext RotateSprite(
+    public static IImageProcessingContext CleanEdge(
         this IImageProcessingContext context,
-        float degrees,
-        PixelArt2xAlgorithm upscale
-    ) => context.Apply(new RotateSprite(degrees, upscale));
+        int scale = 4
+    ) => context.Apply(new CleanEdge(scale));
+
+    /// <summary>
+    /// Applies cleanEdge sample-through rotation (counterclockwise degrees; 1× AABB canvas).
+    /// </summary>
+    public static IImageProcessingContext CleanEdgeRotate(
+        this IImageProcessingContext context,
+        float degrees
+    ) => context.Apply(new CleanEdgeRotate(degrees));
 }

@@ -9,7 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- `RotateSprite` accepts `PixelArt2xAlgorithm` for the 8× pre-pass (default Scale2x); `PixelArt2xHelpers` applies any 2× scaler for N passes.
+- `Scale3x` (EPX) — triples width/height; fluent `Scale3x()`.
+- `Hq2x` / `Hq3x` / `Hq4x` — Maxim Stepin HQX family (may blend); fluent helpers (adapted from FFmpeg ISC `vf_hqx`).
+- `CleanEdge` — torcado cleanEdge upscaler (MIT); fluent `CleanEdge(scale)`.
+- `CleanEdgeRotate` — cleanEdge sample-through rotation (1× AABB; cardinal exact); fluent `CleanEdgeRotate(degrees)`.
+- `PixelArt2xHelpers` applies any 2× scaler for N passes (Scale4x / Scale8x and tests).
+
+### Changed
+- `RotateSprite` follows Xenowhirl RotSprite: similarity Scale2x → 8×, center-pivot NN rotate+⅛ with offset search, detail restore; output sized to rotated AABB (cardinal 90/180/270 exact remap).
+- PixelArt hot paths: `CleanEdge` uses a tight source buffer, quadrant neighborhood reuse, and `Parallel.For`; HQX uses interior 3×3 sampling plus reused YUV for pattern/`Diff`.
+
+### Fixed
+- SaI-family blends (`Scale2xSaI`, `Super2xSaI`, `SuperEagle`) no longer produce semi-transparent edges (avoided `Color.Average` clamp-on-add).
+- `RotateSprite` default empty fill is opaque black instead of transparent, so uncovered areas do not show as white wedges.
 
 ## [0.5.0-beta]
 

@@ -17,7 +17,7 @@
 namespace ChromaFx.PixelArt;
 
 /// <summary>
-/// 2× pixel-art upscalers available for repeated passes (e.g. RotSprite pre-scale).
+/// 2× pixel-art upscalers available for repeated passes (Scale4x / Scale8x helpers).
 /// </summary>
 public enum PixelArt2xAlgorithm
 {
