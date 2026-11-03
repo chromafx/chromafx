@@ -33,7 +33,7 @@ public partial class Animation : IList<Image>
     /// Initializes a new instance of the <see cref="Animation"/> class.
     /// </summary>
     public Animation()
-        : this([], (short)0) { }
+        : this([], 0) { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Animation"/> class with a uniform frame delay.

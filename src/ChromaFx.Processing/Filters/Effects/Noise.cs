@@ -62,9 +62,9 @@ public class Noise(byte amount) : IFilter
                     var g = pixel.Green + Random.ThreadSafeNext(-Amount, Amount);
                     var b = pixel.Blue + Random.ThreadSafeNext(-Amount, Amount);
 
-                    pixel.Red = (byte)r.ToByte();
-                    pixel.Green = (byte)g.ToByte();
-                    pixel.Blue = (byte)b.ToByte();
+                    pixel.Red = r.ToByte();
+                    pixel.Green = g.ToByte();
+                    pixel.Blue = b.ToByte();
                 }
             }
         );

@@ -21,39 +21,32 @@ namespace ChromaFx.Processing.Terminal;
 /// <summary>
 /// Heuristic terminal image capabilities from environment variables.
 /// </summary>
-public sealed class TerminalImageCapabilities
-{
-    public TerminalImageCapabilities(
-        bool supportsKitty,
-        bool supportsITerm2,
-        bool supportsTrueColor
+public sealed class TerminalImageCapabilities(
+    bool supportsKitty,
+    bool supportsITerm2,
+    bool supportsTrueColor
     )
-    {
-        SupportsKitty = supportsKitty;
-        SupportsITerm2 = supportsITerm2;
-        SupportsTrueColor = supportsTrueColor;
-        Preferred = supportsKitty
+{
+
+    /// <summary>Kitty graphics protocol appears available.</summary>
+    public bool SupportsKitty { get; } = supportsKitty;
+
+    /// <summary>iTerm2 (or WezTerm) inline images appear available.</summary>
+    public bool SupportsITerm2 { get; } = supportsITerm2;
+
+    /// <summary>24-bit color SGR appears available.</summary>
+    public bool SupportsTrueColor { get; } = supportsTrueColor;
+
+    /// <summary>
+    /// Suggested protocol: Kitty → iTerm2 → ANSI art → ASCII art.
+    /// </summary>
+    public TerminalImageProtocol Preferred { get; } = supportsKitty
             ? TerminalImageProtocol.Kitty
             : supportsITerm2
                 ? TerminalImageProtocol.ITerm2
                 : supportsTrueColor
                     ? TerminalImageProtocol.AnsiArt
                     : TerminalImageProtocol.AsciiArt;
-    }
-
-    /// <summary>Kitty graphics protocol appears available.</summary>
-    public bool SupportsKitty { get; }
-
-    /// <summary>iTerm2 (or WezTerm) inline images appear available.</summary>
-    public bool SupportsITerm2 { get; }
-
-    /// <summary>24-bit color SGR appears available.</summary>
-    public bool SupportsTrueColor { get; }
-
-    /// <summary>
-    /// Suggested protocol: Kitty → iTerm2 → ANSI art → ASCII art.
-    /// </summary>
-    public TerminalImageProtocol Preferred { get; }
 
     /// <summary>Detect from the current process environment.</summary>
     public static TerminalImageCapabilities Detect() =>

@@ -36,7 +36,7 @@ internal static class AnsiSgr
         if (mode == AnsiColorMode.Ansi256)
         {
             var index = ToAnsi256Index(color);
-            key = unchecked((int)0x1000000) | index;
+            key = unchecked(0x1000000) | index;
             if (lastKey == key)
                 return;
             lastKey = key;

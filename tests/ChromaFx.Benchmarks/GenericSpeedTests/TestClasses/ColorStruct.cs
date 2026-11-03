@@ -136,7 +136,7 @@ public struct ColorStruct : IEquatable<ColorStruct>
     /// <returns>The average color</returns>
     public static ColorStruct Average(ColorStruct color1, ColorStruct color2)
     {
-        return (color1 + color2) / (byte)2;
+        return (color1 + color2) / 2;
     }
 
     /// <summary>
@@ -259,7 +259,7 @@ public struct ColorStruct : IEquatable<ColorStruct>
     /// <returns>The result of the operator.</returns>
     public static ColorStruct operator !(ColorStruct color)
     {
-        return (byte)255 - color;
+        return 255 - color;
     }
 
     /// <summary>
