@@ -1,0 +1,11 @@
+fixture128.bmp — original ChromaFx pixel-art test fixture (128×128)
+
+Dedicated to the public domain under CC0 1.0 Universal.
+https://creativecommons.org/publicdomain/zero/1.0/
+
+Designed for Scale2x (and later rotation / pixel-art) goldens:
+stepped sky/ground ramps, dithered metal/fire gradients, 1px lines,
+L/T junctions, diagonals, circles, shaded disc, checker dither,
+palette bars, and a small filled sprite body.
+
+No third-party artwork was used.

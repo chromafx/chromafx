@@ -29,9 +29,11 @@ Fully managed on .NET 10 — no native codec binaries for Docker/Lambda multi-ar
 | `ChromaFx.Core`        | Core types and abstractions.                                                | [ChromaFx.Core](https://www.nuget.org/packages/ChromaFx.Core/) |
 | `ChromaFx.IO`          | Image file IO, encoding/decoding support.                                   | [ChromaFx.IO](https://www.nuget.org/packages/ChromaFx.IO/) |
 | `ChromaFx.Processing`  | Image processing algorithms and effects.                                    | [ChromaFx.Processing](https://www.nuget.org/packages/ChromaFx.Processing/) |
+| `ChromaFx.PixelArt`    | Opt-in pixel-art upscaling (Scale2x / Scale4x / Scale8x). Not in the meta-package. | [ChromaFx.PixelArt](https://www.nuget.org/packages/ChromaFx.PixelArt/) |
 
 - Use `ChromaFx` for new projects targeting .NET 10.
 - Use `ChromaFx.Core`, `ChromaFx.IO`, and `ChromaFx.Processing` for modular usage.
+- Add `ChromaFx.PixelArt` when you need Scale2x-style pixel-art upscaling.
 
 ## Installation
 
@@ -114,7 +116,8 @@ Modifications and ongoing maintenance by Ho Tzin Mein (2023–2026).
 - ✅ **API modernization** – `Mutate`/`Clone`, typed encoders, `ImageFormats` registry.
 - ⏭ **Performance** – broaden `Span`/`ArrayPool`/SIMD coverage beyond current hot paths.
 - ⏭ **Extended formats** – optional native extension package (WebP/AVIF/…).
-- ⏭ **Extended features** – pixel upscaling, more drawing/effects.
+- ⏭ **Extended features** – more pixel-art upscalers (RotSprite/…), more drawing/effects.
+- ✅ **PixelArt Scale2x** – opt-in `ChromaFx.PixelArt` (Scale2x / 4× / 8×).
 
 ## Contributing
 Contributions, bug reports, and suggestions are welcome.

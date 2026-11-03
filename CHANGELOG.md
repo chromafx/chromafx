@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `ChromaFx.PixelArt` opt-in package with classic Scale2x (EPX) and Scale4x/Scale8x helpers (repeated 2× passes).
+
+### Fixed
+- BMP 24-bit encode wrote `biSizeImage` / file size as `PixelCount * 4` (RGBA) instead of padded BGR row bytes, so round-tripped BMPs failed to decode with `EndOfStreamException`.
+- BMP golden compares ignore `bfSize` / `biSizeImage` so existing ExpectedResults stay valid after the size-field fix.
+
 ## [0.5.0-beta]
 
 NuGet versions are `0.5.0-beta.{CI run}` from the packaging commit onward.

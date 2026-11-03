@@ -64,6 +64,9 @@ jobs:
       - name: Pack ChromaFx.Processing
         if: github.event_name != 'pull_request'
         run: dotnet pack src/ChromaFx.Processing/ChromaFx.Processing.csproj -c Release -o ./artifacts /p:Version=$VERSION --no-build
+      - name: Pack ChromaFx.PixelArt
+        if: github.event_name != 'pull_request'
+        run: dotnet pack src/ChromaFx.PixelArt/ChromaFx.PixelArt.csproj -c Release -o ./artifacts /p:Version=$VERSION --no-build
 
       - name: Upload NuGet packages
         if: github.event_name != 'pull_request'
