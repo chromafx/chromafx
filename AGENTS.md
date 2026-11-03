@@ -13,7 +13,7 @@ Pure C# image processing library (PNG, JPEG, GIF, BMP). Targets **net10.0**.
 | `tests/ChromaFx.Tests` | Unit + golden-file regression |
 | `tests/ChromaFx.Benchmarks` | BenchmarkDotNet |
 
-In this workspace the docs site (when present) lives at `../website`, not under this repo.
+This repository is the library only. Sibling folders in the local workspace (`chromafx-site`, `github-org`) are documented in the workspace root `AGENTS.md`.
 
 Shared TFMs/version: `Directory.Build.props` (`GeneratePackageOnBuild` is off — use `dotnet pack` when needed). SDK pin: `global.json`.
 

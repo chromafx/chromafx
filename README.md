@@ -86,8 +86,11 @@ These older APIs are **removed** (not obsolete):
 ## Requirements
 - .NET 10 SDK
 
+## Documentation
+Guides: [chromafx.net](https://chromafx.net) ([chromafx/chromafx-site](https://github.com/chromafx/chromafx-site)).
+
 ## Changelog
-See [CHANGELOG.md](CHANGELOG.md) for notable changes. A separate docs site is planned; until then this README is the primary guide.
+See [CHANGELOG.md](CHANGELOG.md) for notable changes.
 
 ## License
 Apache 2.0 - see [LICENSE](LICENSE)
