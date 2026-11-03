@@ -304,4 +304,37 @@ public class RotateSpriteSyntheticTests
         Assert.True(image.Width >= 8);
         Assert.True(image.Height >= 8);
     }
+
+    [Fact]
+    public void RotateSprite_EagleUpscale_GrowsCanvas()
+    {
+        var image = new Image(8, 8, Enumerable.Repeat(Fg, 64).ToArray());
+        image.Mutate(ctx => ctx.RotateSprite(45f, PixelArt2xAlgorithm.Eagle));
+        Assert.True(image.Width >= 8);
+        Assert.True(image.Height >= 8);
+    }
+
+    [Fact]
+    public void RotateSprite_StoresUpscaleAlgorithm()
+    {
+        var filter = new RotateSprite(30f, PixelArt2xAlgorithm.Super2xSaI);
+        Assert.Equal(PixelArt2xAlgorithm.Super2xSaI, filter.Upscale);
+        Assert.Equal(PixelArt2xAlgorithm.Scale2x, new RotateSprite(10f).Upscale);
+    }
+
+    [Fact]
+    public void PixelArt2xHelpers_EaglePass_DiffersFromScale2x_OnIsolatedPixel()
+    {
+        // Lone Fg: Eagle erases the center block; Scale2x keeps it.
+        var pixels = new Color[9];
+        Array.Fill(pixels, Bg);
+        pixels[4] = Fg;
+        var scale2x = new Image(3, 3, pixels);
+        var eagle = new Image(3, 3, (Color[])pixels.Clone());
+        PixelArt2xHelpers.ApplyPasses(scale2x, PixelArt2xAlgorithm.Scale2x, 1);
+        PixelArt2xHelpers.ApplyPasses(eagle, PixelArt2xAlgorithm.Eagle, 1);
+
+        Assert.Equal(Fg, scale2x.GetRowSpan(2)[2]);
+        Assert.Equal(Bg, eagle.GetRowSpan(2)[2]);
+    }
 }

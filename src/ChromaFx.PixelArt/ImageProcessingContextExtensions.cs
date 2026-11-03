@@ -67,10 +67,19 @@ public static class ImageProcessingContextExtensions
         context.Apply(new Super2xSaI());
 
     /// <summary>
-    /// Applies RotSprite-style pixel-art rotation (counterclockwise degrees).
+    /// Applies RotSprite-style pixel-art rotation (counterclockwise degrees; Scale2x pre-pass).
     /// </summary>
     public static IImageProcessingContext RotateSprite(
         this IImageProcessingContext context,
         float degrees
     ) => context.Apply(new RotateSprite(degrees));
+
+    /// <summary>
+    /// Applies RotSprite-style rotation using the chosen 2× upscaler for the 8× pre-pass.
+    /// </summary>
+    public static IImageProcessingContext RotateSprite(
+        this IImageProcessingContext context,
+        float degrees,
+        PixelArt2xAlgorithm upscale
+    ) => context.Apply(new RotateSprite(degrees, upscale));
 }

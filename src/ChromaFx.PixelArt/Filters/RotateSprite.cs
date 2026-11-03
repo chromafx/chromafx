@@ -22,22 +22,39 @@ using ChromaFx.Processing.Numerics;
 namespace ChromaFx.PixelArt.Filters;
 
 /// <summary>
-/// Pixel-art–friendly rotation (RotSprite-style): Scale2x to 8×, pick a sharp
+/// Pixel-art–friendly rotation (RotSprite-style): 2× upscale to 8×, pick a sharp
 /// sample offset, then nearest-neighbor rotate while scaling back to 1×.
-/// Does not introduce new colors. Positive <see cref="Degrees"/> is counterclockwise.
+/// Default <see cref="PixelArt2xAlgorithm.Scale2x"/> does not introduce new colors;
+/// SaI / SuperEagle upscales may blend. Positive <see cref="Degrees"/> is counterclockwise.
 /// </summary>
 /// <seealso cref="IFilter"/>
 /// <remarks>
-/// Initializes a new instance of the <see cref="RotateSprite"/> class.
+/// Initializes a new instance with a chosen 2× pre-pass algorithm.
 /// </remarks>
 /// <param name="degrees">Rotation angle in degrees (counterclockwise).</param>
+/// <param name="upscale">2× algorithm used three times for the 8× pre-pass.</param>
 /// <param name="emptyColor">Fill for pixels outside the rotated sprite.</param>
-public class RotateSprite(float degrees, Color emptyColor = default) : IFilter
+public class RotateSprite(
+    float degrees,
+    PixelArt2xAlgorithm upscale,
+    Color emptyColor = default
+    ) : IFilter
 {
     private const int ScaleFactor = 8;
 
+    /// <summary>
+    /// Initializes a new instance with a Scale2x pre-pass.
+    /// </summary>
+    /// <param name="degrees">Rotation angle in degrees (counterclockwise).</param>
+    /// <param name="emptyColor">Fill for pixels outside the rotated sprite.</param>
+    public RotateSprite(float degrees, Color emptyColor = default)
+        : this(degrees, PixelArt2xAlgorithm.Scale2x, emptyColor) { }
+
     /// <summary>Rotation angle in degrees (counterclockwise).</summary>
     public float Degrees { get; } = degrees;
+
+    /// <summary>2× upscaler used for the 8× pre-pass.</summary>
+    public PixelArt2xAlgorithm Upscale { get; } = upscale;
 
     /// <summary>Fill for uncovered pixels after rotation.</summary>
     public Color EmptyColor { get; } = emptyColor;
@@ -53,7 +70,7 @@ public class RotateSprite(float degrees, Color emptyColor = default) : IFilter
             return image;
 
         var work = image.Clone();
-        Scale2xHelpers.ApplyPasses(work, 3);
+        PixelArt2xHelpers.ApplyPasses(work, Upscale, passCount: 3);
 
         var scaled = CopyTight(work);
         var scaledW = work.Width;

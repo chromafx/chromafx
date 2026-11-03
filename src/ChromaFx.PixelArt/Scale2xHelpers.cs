@@ -15,7 +15,6 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.PixelArt.Filters;
 
 namespace ChromaFx.PixelArt;
 
@@ -24,21 +23,12 @@ namespace ChromaFx.PixelArt;
 /// </summary>
 public static class Scale2xHelpers
 {
-    private static readonly Scale2x Pass = new();
-
     /// <summary>
     /// Applies <see cref="Scale2x"/> <paramref name="passCount"/> times in place.
     /// </summary>
     /// <param name="image">The image.</param>
     /// <param name="passCount">Number of 2× passes (2 → 4×, 3 → 8×).</param>
     /// <returns>The image.</returns>
-    public static Image ApplyPasses(Image image, int passCount)
-    {
-        ArgumentOutOfRangeException.ThrowIfLessThan(passCount, 1);
-
-        for (var i = 0; i < passCount; ++i)
-            Pass.Apply(image);
-
-        return image;
-    }
+    public static Image ApplyPasses(Image image, int passCount) =>
+        PixelArt2xHelpers.ApplyPasses(image, PixelArt2xAlgorithm.Scale2x, passCount);
 }

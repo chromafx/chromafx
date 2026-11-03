@@ -6,7 +6,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Title>ChromaFx.PixelArt</Title>
     <Authors>Ho Tzin Mein</Authors>
-    <Description>Pixel-art upscaling and rotation for ChromaFx. Scale2x (EPX), Eagle/SaI families, Scale4x/Scale8x, and RotSprite-style RotateSprite.</Description>
+    <Description>Pixel-art upscaling and rotation for ChromaFx. Scale2x (EPX), Eagle/SaI families, Scale4x/Scale8x, and RotSprite-style RotateSprite with selectable 2× pre-pass.</Description>
     <Copyright>Copyright $([System.DateTime]::Now.Year) Ho Tzin Mein</Copyright>
     <RepositoryUrl>https://github.com/chromafx/chromafx</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
