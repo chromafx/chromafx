@@ -14,6 +14,8 @@ A lean, managed alternative for .NET apps that need image processing without nat
 - Explicit `Mutate` / `Clone` processing API
 - Typed encoders (`JpegEncoder`, `PngEncoder`, …) and a public `ImageFormats` registry for extensions
 - Pipeline-friendly fluent context for common filters
+- `Load` / `LoadAsync` from path, stream, `byte[]`, memory, or span; matching `Save` / `SaveAsync`
+- Terminal rendering (`ChromaFx.Processing.Terminal`) — ASCII/ANSI art plus Kitty and iTerm2 inline images
 
 ## Performance & Architecture
 
@@ -52,6 +54,12 @@ thumb.Save("output.jpg", new JpegEncoder { Quality = 85 });
 Image.Load("input.png")
     .Mutate(ctx => ctx.Resize(800, 600).Brightness(0.1f))
     .Save("output.png");
+```
+
+```csharp
+var fromBytes = Image.Load(pngBytes);                 // zero-copy when array-backed
+var image = await Image.LoadAsync("input.png");       // async read, sync decode
+Console.Write(image.ToAsciiArt(new AsciiArtOptions { MaxWidth = 40, Invert = true }));
 ```
 
 ### API notes

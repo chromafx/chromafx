@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0-beta]
+
+NuGet versions are `0.5.0-beta.{CI run}` from the packaging commit onward.
+
 ### Added
 - `Image` / `Animation` load from `ReadOnlyMemory<byte>`, `byte[]`, and `ReadOnlySpan<byte>` (zero-copy when array-backed; span uses one pooled copy).
 - `LoadAsync` / `SaveAsync` (async I/O around sync codecs) for images and animations.

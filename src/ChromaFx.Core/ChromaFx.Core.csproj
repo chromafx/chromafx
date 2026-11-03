@@ -6,7 +6,6 @@
 
     <Authors>Ho Tzin Mein</Authors>
     <Company />
-    <PackageProjectUrl>https://github.com/chromafx/chromafx</PackageProjectUrl>
     <PackageIcon>icon.png</PackageIcon>
     <Description>Core types, abstractions, and utilities for ChromaFx. Provides the foundational building blocks for image processing and drawing pipelines.</Description>
     <Copyright>Copyright $([System.DateTime]::Now.Year) Ho Tzin Mein</Copyright>
