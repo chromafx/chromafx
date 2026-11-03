@@ -1,0 +1,28 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path=".github/workflows/dotnet.yml" />
+    <File Path=".gitignore" />
+    <File Path="assets/banner.png" />
+    <File Path="assets/icon.png" />
+    <File Path="LICENSE" />
+    <File Path="NOTICE" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/TerminalArt/TerminalArt.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/ChromaFx/ChromaFx.csproj" />
+    <Project Path="src/ChromaFx.Core/ChromaFx.Core.csproj" />
+    <Project Path="src/ChromaFx.IO/ChromaFx.IO.csproj" />
+    <Project Path="src/ChromaFx.PixelArt/ChromaFx.PixelArt.csproj" />
+    <Project Path="src/ChromaFx.Processing/ChromaFx.Processing.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ChromaFx.Benchmarks/ChromaFx.Benchmarks.csproj" />
+    <Project Path="tests/ChromaFx.Tests/ChromaFx.Tests.csproj" />
+  </Folder>
+</Solution>
