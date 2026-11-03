@@ -1,7 +1,7 @@
 ﻿![ChromaFx — .NET image processing library](assets/banner.png)
 
 [![Build Status](https://github.com/chromafx/chromafx/actions/workflows/dotnet.yml/badge.svg)](https://github.com/chromafx/chromafx/actions) 
-[![NuGet](https://img.shields.io/nuget/vpre/ChromaFx.svg)](https://www.nuget.org/packages/ChromaFx/?includePrerelease=true) 
+[![NuGet](https://img.shields.io/nuget/v/ChromaFx.svg)](https://www.nuget.org/packages/ChromaFx/) 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 Modern .NET image processing library.
@@ -16,7 +16,7 @@ A lean, managed alternative for .NET apps that need image processing without nat
 - Pipeline-friendly fluent context for common filters
 - `Load` / `LoadAsync` from path, stream, `byte[]`, memory, or span; matching `Save` / `SaveAsync`
 - Terminal rendering (`ChromaFx.Processing.Terminal`) — ASCII/ANSI art plus Kitty and iTerm2 inline images
-- Opt-in [`ChromaFx.PixelArt`](https://www.nuget.org/packages/ChromaFx.PixelArt/?includePrerelease=true) — Scale2x / Scale3x / Hq2x–4x / CleanEdge / Eagle / SaI upscalers and `RotateSprite` / `CleanEdgeRotate` (not in the meta-package)
+- Opt-in [`ChromaFx.PixelArt`](https://www.nuget.org/packages/ChromaFx.PixelArt/) — Scale2x / Scale3x / Hq2x–4x / CleanEdge / Eagle / SaI upscalers and `RotateSprite` / `CleanEdgeRotate` (not in the meta-package)
 
 ## Performance & Architecture
 
@@ -26,11 +26,11 @@ Fully managed on .NET 10 — no native codec binaries for Docker/Lambda multi-ar
 
 | Package                | Description                                                                 | NuGet Link                                               |
 |------------------------|-----------------------------------------------------------------------------|----------------------------------------------------------|
-| `ChromaFx`             | Meta-package for .NET 10 (`Core` + `IO` + `Processing`).                    | [ChromaFx](https://www.nuget.org/packages/ChromaFx/?includePrerelease=true) |
-| `ChromaFx.Core`        | Core types and abstractions.                                                | [ChromaFx.Core](https://www.nuget.org/packages/ChromaFx.Core/?includePrerelease=true) |
-| `ChromaFx.IO`          | Image file IO, encoding/decoding support.                                   | [ChromaFx.IO](https://www.nuget.org/packages/ChromaFx.IO/?includePrerelease=true) |
-| `ChromaFx.Processing`  | Image processing algorithms and effects.                                    | [ChromaFx.Processing](https://www.nuget.org/packages/ChromaFx.Processing/?includePrerelease=true) |
-| `ChromaFx.PixelArt`    | Opt-in pixel-art upscaling (Scale2x / Scale3x, Hq2x–4x, CleanEdge, Eagle, SaI) and `RotateSprite` / `CleanEdgeRotate`. Not in the meta-package. | [ChromaFx.PixelArt](https://www.nuget.org/packages/ChromaFx.PixelArt/?includePrerelease=true) |
+| `ChromaFx`             | Meta-package for .NET 10 (`Core` + `IO` + `Processing`).                    | [ChromaFx](https://www.nuget.org/packages/ChromaFx/) |
+| `ChromaFx.Core`        | Core types and abstractions.                                                | [ChromaFx.Core](https://www.nuget.org/packages/ChromaFx.Core/) |
+| `ChromaFx.IO`          | Image file IO, encoding/decoding support.                                   | [ChromaFx.IO](https://www.nuget.org/packages/ChromaFx.IO/) |
+| `ChromaFx.Processing`  | Image processing algorithms and effects.                                    | [ChromaFx.Processing](https://www.nuget.org/packages/ChromaFx.Processing/) |
+| `ChromaFx.PixelArt`    | Opt-in pixel-art upscaling (Scale2x / Scale3x, Hq2x–4x, CleanEdge, Eagle, SaI) and `RotateSprite` / `CleanEdgeRotate`. Not in the meta-package. | [ChromaFx.PixelArt](https://www.nuget.org/packages/ChromaFx.PixelArt/) |
 
 - Use `ChromaFx` for new projects targeting .NET 10.
 - Use `ChromaFx.Core`, `ChromaFx.IO`, and `ChromaFx.Processing` for modular usage.
@@ -38,12 +38,12 @@ Fully managed on .NET 10 — no native codec binaries for Docker/Lambda multi-ar
 
 ## Installation
 
-Current NuGet line is **0.5.0-beta.\*** — include prereleases:
+Current NuGet line is **0.6.0** (tag-only releases; 0.x may still change before 1.0):
 
 ```bash
-dotnet add package ChromaFx --prerelease
+dotnet add package ChromaFx
 # optional:
-dotnet add package ChromaFx.PixelArt --prerelease
+dotnet add package ChromaFx.PixelArt
 ```
 
 ## Getting Started

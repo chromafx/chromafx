@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0]
+
+First tag-only NuGet release. Packages are published from `v*.*.*` tags only (no continuous publish on every `master` commit). The `0.5.0-beta.{CI run}` line ends here; 0.x has no `-beta` suffix (SemVer 0.x already signals pre-1.0).
+
 ### Added
 - `Scale3x` (EPX) — triples width/height; fluent `Scale3x()`.
 - `Hq2x` / `Hq3x` / `Hq4x` — Maxim Stepin HQX family (may blend); fluent helpers (adapted from FFmpeg ISC `vf_hqx`).
@@ -18,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `RotateSprite` follows Xenowhirl RotSprite: similarity Scale2x → 8×, center-pivot NN rotate+⅛ with offset search, detail restore; output sized to rotated AABB (cardinal 90/180/270 exact remap).
 - PixelArt hot paths: `CleanEdge` uses a tight source buffer, quadrant neighborhood reuse, and `Parallel.For`; HQX uses interior 3×3 sampling plus reused YUV for pattern/`Diff`.
+- CI packs and publishes NuGet only on version tags.
 
 ### Fixed
 - SaI-family blends (`Scale2xSaI`, `Super2xSaI`, `SuperEagle`) no longer produce semi-transparent edges (avoided `Color.Average` clamp-on-add).

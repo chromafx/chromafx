@@ -7,16 +7,14 @@
 
     <!--
       Single version line for all projects.
-      Local / unset CI: 0.5.0-beta.0
-      CI master: set /p:Version=0.5.0-beta.$GITHUB_RUN_NUMBER before build
-      Tags vX.Y.Z: set /p:Version=X.Y.Z (strip leading v) before build
+      Local / unset CI: 0.6.0
+      CI non-tag (master/PR): set /p:Version=0.6.0-ci.$GITHUB_RUN_NUMBER (not published)
+      Tags vX.Y.Z: set /p:Version=X.Y.Z (strip leading v) — only tags publish to nuget.org
     -->
-    <BuildNumber Condition="'$(GITHUB_RUN_NUMBER)' != ''">$(GITHUB_RUN_NUMBER)</BuildNumber>
-    <BuildNumber Condition="'$(BuildNumber)' == ''">0</BuildNumber>
-    <Version Condition="'$(Version)' == ''">0.5.0-beta.$(BuildNumber)</Version>
+    <Version Condition="'$(Version)' == ''">0.6.0</Version>
 
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://chromafx.net</PackageProjectUrl>
-    <PackageReleaseNotes>0.5.0-beta: async/memory Load and SaveAsync, Terminal ASCII/ANSI/Kitty/iTerm2, GIF loop fixes. See CHANGELOG.md. API may still change before 1.0.</PackageReleaseNotes>
+    <PackageReleaseNotes>0.6.0: PixelArt Scale3x, HQX, CleanEdge / CleanEdgeRotate; tag-only NuGet releases. See CHANGELOG.md. API may still change before 1.0 (0.x).</PackageReleaseNotes>
   </PropertyGroup>
 </Project>
