@@ -9,7 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- `ChromaFx.PixelArt` opt-in package with classic Scale2x (EPX) and Scale4x/Scale8x helpers (repeated 2× passes).
+- Opt-in **`ChromaFx.PixelArt`** package (not in the meta-package):
+  - Scale2x (EPX) plus Scale4x / Scale8x helpers
+  - Eagle / SuperEagle and Scale2xSaI / Super2xSaI (clean-room; SaI may blend edge colors)
+  - `RotateSprite` (RotSprite-style: Scale2x to 8×, sharp offset search, NN rotate+downscale)
 
 ### Fixed
 - BMP 24-bit encode wrote `biSizeImage` / file size as `PixelCount * 4` (RGBA) instead of padded BGR row bytes, so round-tripped BMPs failed to decode with `EndOfStreamException`.

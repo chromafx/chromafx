@@ -1,7 +1,7 @@
 ﻿![ChromaFx — .NET image processing library](assets/banner.png)
 
 [![Build Status](https://github.com/chromafx/chromafx/actions/workflows/dotnet.yml/badge.svg)](https://github.com/chromafx/chromafx/actions) 
-[![NuGet](https://img.shields.io/nuget/v/ChromaFx.svg)](https://www.nuget.org/packages/ChromaFx/) 
+[![NuGet](https://img.shields.io/nuget/vpre/ChromaFx.svg)](https://www.nuget.org/packages/ChromaFx/?includePrerelease=true) 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 Modern .NET image processing library.
@@ -16,6 +16,7 @@ A lean, managed alternative for .NET apps that need image processing without nat
 - Pipeline-friendly fluent context for common filters
 - `Load` / `LoadAsync` from path, stream, `byte[]`, memory, or span; matching `Save` / `SaveAsync`
 - Terminal rendering (`ChromaFx.Processing.Terminal`) — ASCII/ANSI art plus Kitty and iTerm2 inline images
+- Opt-in [`ChromaFx.PixelArt`](https://www.nuget.org/packages/ChromaFx.PixelArt/) — Scale2x / Eagle / SaI upscalers and `RotateSprite` (not in the meta-package)
 
 ## Performance & Architecture
 
@@ -25,20 +26,24 @@ Fully managed on .NET 10 — no native codec binaries for Docker/Lambda multi-ar
 
 | Package                | Description                                                                 | NuGet Link                                               |
 |------------------------|-----------------------------------------------------------------------------|----------------------------------------------------------|
-| `ChromaFx`             | Meta-package for .NET 10 (`Core` + `IO` + `Processing`).                    | [ChromaFx](https://www.nuget.org/packages/ChromaFx/)     |
-| `ChromaFx.Core`        | Core types and abstractions.                                                | [ChromaFx.Core](https://www.nuget.org/packages/ChromaFx.Core/) |
-| `ChromaFx.IO`          | Image file IO, encoding/decoding support.                                   | [ChromaFx.IO](https://www.nuget.org/packages/ChromaFx.IO/) |
-| `ChromaFx.Processing`  | Image processing algorithms and effects.                                    | [ChromaFx.Processing](https://www.nuget.org/packages/ChromaFx.Processing/) |
-| `ChromaFx.PixelArt`    | Opt-in pixel-art upscaling (Scale2x / Scale4x / Scale8x). Not in the meta-package. | [ChromaFx.PixelArt](https://www.nuget.org/packages/ChromaFx.PixelArt/) |
+| `ChromaFx`             | Meta-package for .NET 10 (`Core` + `IO` + `Processing`).                    | [ChromaFx](https://www.nuget.org/packages/ChromaFx/?includePrerelease=true) |
+| `ChromaFx.Core`        | Core types and abstractions.                                                | [ChromaFx.Core](https://www.nuget.org/packages/ChromaFx.Core/?includePrerelease=true) |
+| `ChromaFx.IO`          | Image file IO, encoding/decoding support.                                   | [ChromaFx.IO](https://www.nuget.org/packages/ChromaFx.IO/?includePrerelease=true) |
+| `ChromaFx.Processing`  | Image processing algorithms and effects.                                    | [ChromaFx.Processing](https://www.nuget.org/packages/ChromaFx.Processing/?includePrerelease=true) |
+| `ChromaFx.PixelArt`    | Opt-in pixel-art upscaling (Scale2x, Eagle, SaI) and `RotateSprite`. Not in the meta-package. | [ChromaFx.PixelArt](https://www.nuget.org/packages/ChromaFx.PixelArt/?includePrerelease=true) |
 
 - Use `ChromaFx` for new projects targeting .NET 10.
 - Use `ChromaFx.Core`, `ChromaFx.IO`, and `ChromaFx.Processing` for modular usage.
-- Add `ChromaFx.PixelArt` when you need Scale2x-style pixel-art upscaling.
+- Add `ChromaFx.PixelArt` for Scale2x / Eagle / SaI or `RotateSprite`.
 
 ## Installation
 
+Current NuGet line is **0.5.0-beta.\*** — include prereleases:
+
 ```bash
-dotnet add package ChromaFx
+dotnet add package ChromaFx --prerelease
+# optional:
+dotnet add package ChromaFx.PixelArt --prerelease
 ```
 
 ## Getting Started
@@ -66,7 +71,7 @@ Console.Write(image.ToAsciiArt(new AsciiArtOptions { MaxWidth = 40, Invert = tru
 
 ### API notes
 
-- Prefer the `ChromaFx` meta-package (`ChromaFx.Core` + `.IO` + `.Processing`).
+- Prefer the `ChromaFx` meta-package (`ChromaFx.Core` + `.IO` + `.Processing`). Add `ChromaFx.PixelArt` separately for pixel-art filters.
 - `Image.Load` / `Save` / `ImageFormats` live in **IO**; Mutate/Clone in **Processing**.
 - Fluent context: core ops on `IImageProcessingContext`, more via extensions (`BoxBlur`, `Saturation`, `Dilate`, `Grayscale`, …); escape hatch `Apply(IFilter)`.
 - Typed encoders: `ChromaFx.IO.Encoders` (`JpegEncoder`, `PngEncoder`, `GifEncoder` as `IAnimationEncoder`, …).
@@ -114,10 +119,10 @@ Modifications and ongoing maintenance by Ho Tzin Mein (2023–2026).
 ## Roadmap
 - ✅ **Modularization** – Core, IO, Processing packages split out.
 - ✅ **API modernization** – `Mutate`/`Clone`, typed encoders, `ImageFormats` registry.
+- ✅ **PixelArt** – opt-in `ChromaFx.PixelArt` (Scale2x / Eagle / SaI, `RotateSprite`).
 - ⏭ **Performance** – broaden `Span`/`ArrayPool`/SIMD coverage beyond current hot paths.
 - ⏭ **Extended formats** – optional native extension package (WebP/AVIF/…).
-- ⏭ **Extended features** – more pixel-art upscalers (RotSprite/…), more drawing/effects.
-- ✅ **PixelArt Scale2x** – opt-in `ChromaFx.PixelArt` (Scale2x / 4× / 8×).
+- ⏭ **Extended features** – more drawing/effects.
 
 ## Contributing
 Contributions, bug reports, and suggestions are welcome.

@@ -14,13 +14,18 @@ public class PixelArtFilters : FilterTestBaseClass
     /// <summary>
     /// Original CC0 128×128 pixel-art fixture (see TestImages/PixelArt/LICENSE.txt).
     /// Stepped/dithered gradients plus lines, junctions, diagonals, and curves for
-    /// Scale2x and future rotation goldens.
+    /// Scale2x / Eagle / SaI and RotateSprite goldens.
     /// </summary>
     private static readonly string[] PixelArtFiles = ["./TestImages/PixelArt/fixture128.bmp"];
 
     public static readonly TheoryData<string, IFilter, Rectangle> Filters = new()
     {
         { "Scale2x", new Scale2x(), default },
+        { "Eagle", new Eagle(), default },
+        { "SuperEagle", new SuperEagle(), default },
+        { "Scale2xSaI", new Scale2xSaI(), default },
+        { "Super2xSaI", new Super2xSaI(), default },
+        { "RotateSprite45", new RotateSprite(45f), default },
     };
 
     [Theory]
@@ -185,5 +190,118 @@ public class Scale2xSyntheticTests
             for (var x = 0; x < left.Width; ++x)
                 Assert.Equal(lr[x], rr[x]);
         }
+    }
+}
+
+public class EagleSaISyntheticTests
+{
+    private static readonly Color Bg = Color.Black;
+    private static readonly Color Fg = Color.White;
+
+    [Theory]
+    [InlineData(typeof(Eagle))]
+    [InlineData(typeof(SuperEagle))]
+    [InlineData(typeof(Scale2xSaI))]
+    [InlineData(typeof(Super2xSaI))]
+    public void DoublesDimensions(Type filterType)
+    {
+        var filter = (IFilter)Activator.CreateInstance(filterType)!;
+        var image = new Image(3, 2, [Bg, Bg, Bg, Bg, Bg, Bg]);
+        filter.Apply(image);
+        Assert.Equal(6, image.Width);
+        Assert.Equal(4, image.Height);
+    }
+
+    [Fact]
+    public void Eagle_IsolatedPixel_Disappears()
+    {
+        // Classic Eagle quirk: lone Fg on Bg vanishes.
+        var pixels = new Color[9];
+        Array.Fill(pixels, Bg);
+        pixels[4] = Fg;
+        var image = new Image(3, 3, pixels);
+        new Eagle().Apply(image);
+
+        for (var y = 2; y <= 3; ++y)
+        {
+            var row = image.GetRowSpan(y);
+            for (var x = 2; x <= 3; ++x)
+                Assert.Equal(Bg, row[x]);
+        }
+    }
+
+    [Fact]
+    public void Eagle_UniformFill_StaysUniform()
+    {
+        var image = new Image(2, 2, [Fg, Fg, Fg, Fg]);
+        new Eagle().Apply(image);
+        for (var y = 0; y < 4; ++y)
+        {
+            var row = image.GetRowSpan(y);
+            for (var x = 0; x < 4; ++x)
+                Assert.Equal(Fg, row[x]);
+        }
+    }
+
+    [Fact]
+    public void Scale2xSaI_UniformFill_StaysUniform()
+    {
+        var image = new Image(2, 2, [Fg, Fg, Fg, Fg]);
+        new Scale2xSaI().Apply(image);
+        for (var y = 0; y < 4; ++y)
+        {
+            var row = image.GetRowSpan(y);
+            for (var x = 0; x < 4; ++x)
+                Assert.Equal(Fg, row[x]);
+        }
+    }
+}
+
+public class RotateSpriteSyntheticTests
+{
+    private static readonly Color Bg = Color.Black;
+    private static readonly Color Fg = Color.White;
+
+    [Fact]
+    public void RotateSprite_ZeroDegrees_IsNoOp()
+    {
+        var pixels = new Color[] { Fg, Bg, Bg, Fg };
+        var image = new Image(2, 2, pixels);
+        image.Mutate(ctx => ctx.RotateSprite(0f));
+        Assert.Equal(2, image.Width);
+        Assert.Equal(2, image.Height);
+        Assert.Equal(Fg, image.GetRowSpan(0)[0]);
+        Assert.Equal(Bg, image.GetRowSpan(0)[1]);
+        Assert.Equal(Bg, image.GetRowSpan(1)[0]);
+        Assert.Equal(Fg, image.GetRowSpan(1)[1]);
+    }
+
+    [Fact]
+    public void RotateSprite_90_SwapsDimensions()
+    {
+        // 3×2 → 2×3
+        var image = new Image(
+            3,
+            2,
+            new int[] { 1, 2, 3, 4, 5, 6 }.Select(v => new Color((byte)v, 0, 0)).ToArray()
+        );
+        new RotateSprite(90f).Apply(image);
+        Assert.Equal(2, image.Width);
+        Assert.Equal(3, image.Height);
+        Assert.Equal(new Color(4, 0, 0), image.GetRowSpan(0)[0]);
+        Assert.Equal(new Color(1, 0, 0), image.GetRowSpan(0)[1]);
+        Assert.Equal(new Color(5, 0, 0), image.GetRowSpan(1)[0]);
+        Assert.Equal(new Color(2, 0, 0), image.GetRowSpan(1)[1]);
+        Assert.Equal(new Color(6, 0, 0), image.GetRowSpan(2)[0]);
+        Assert.Equal(new Color(3, 0, 0), image.GetRowSpan(2)[1]);
+    }
+
+    [Fact]
+    public void RotateSprite_45_GrowsCanvas()
+    {
+        var image = new Image(8, 8, Enumerable.Repeat(Fg, 64).ToArray());
+        new RotateSprite(45f).Apply(image);
+        Assert.True(image.Width >= 8);
+        Assert.True(image.Height >= 8);
     }
 }

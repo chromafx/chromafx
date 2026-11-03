@@ -20,7 +20,7 @@ using ChromaFx.Processing;
 namespace ChromaFx.PixelArt;
 
 /// <summary>
-/// Fluent Scale2x / Scale4x / Scale8x operations for <see cref="IImageProcessingContext"/>.
+/// Fluent pixel-art upscale and RotSprite operations for <see cref="IImageProcessingContext"/>.
 /// </summary>
 public static class ImageProcessingContextExtensions
 {
@@ -41,4 +41,36 @@ public static class ImageProcessingContextExtensions
     /// </summary>
     public static IImageProcessingContext Scale8x(this IImageProcessingContext context) =>
         context.Apply(new Scale8x());
+
+    /// <summary>
+    /// Applies classic Eagle 2× upscaling.
+    /// </summary>
+    public static IImageProcessingContext Eagle(this IImageProcessingContext context) =>
+        context.Apply(new Eagle());
+
+    /// <summary>
+    /// Applies SuperEagle 2× upscaling (may blend edge colors).
+    /// </summary>
+    public static IImageProcessingContext SuperEagle(this IImageProcessingContext context) =>
+        context.Apply(new SuperEagle());
+
+    /// <summary>
+    /// Applies classic 2×SaI upscaling (may blend edge colors).
+    /// </summary>
+    public static IImageProcessingContext Scale2xSaI(this IImageProcessingContext context) =>
+        context.Apply(new Scale2xSaI());
+
+    /// <summary>
+    /// Applies Super2xSaI upscaling (may blend edge colors).
+    /// </summary>
+    public static IImageProcessingContext Super2xSaI(this IImageProcessingContext context) =>
+        context.Apply(new Super2xSaI());
+
+    /// <summary>
+    /// Applies RotSprite-style pixel-art rotation (counterclockwise degrees).
+    /// </summary>
+    public static IImageProcessingContext RotateSprite(
+        this IImageProcessingContext context,
+        float degrees
+    ) => context.Apply(new RotateSprite(degrees));
 }
