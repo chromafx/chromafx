@@ -36,7 +36,7 @@ jobs:
             VERSION=${RAW#v}
           else
             # master / legacy / PRs — build identity only; never published
-            VERSION="0.6.0-ci.${GITHUB_RUN_NUMBER}"
+            VERSION="0.6.1-ci.${GITHUB_RUN_NUMBER}"
           fi
           echo "Version set to $VERSION"
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
