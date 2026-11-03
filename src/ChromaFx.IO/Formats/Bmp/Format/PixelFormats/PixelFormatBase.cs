@@ -62,9 +62,9 @@ internal abstract class PixelFormatBase : IPixelFormat
                 var width = header.Width;
                 var height = header.Height;
                 var alignment = (int)(4 - width * Bpp % 4) % 4;
+                // Use the stride-derived size. biSizeImage is often 0 or wrong (e.g. RGBA byte
+                // counts written for 24-bit files); inflating the read past EOF breaks decode.
                 var size = (int)(width * Bpp + alignment) * height;
-                if (size < header.ImageSize)
-                    size = header.ImageSize;
                 var data = new byte[size];
                 stream.ReadExactly(data);
                 return data;

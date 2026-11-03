@@ -18,7 +18,7 @@ public abstract class TestBaseClass
     {
         var expected = ReadBinary(File.OpenRead(expectedFilePath));
         var actual = ReadBinary(File.OpenRead(outputFilePath));
-        if (expected.SequenceEqual(actual))
+        if (BmpTestCompare.Equal(expected, actual))
             return true;
 
         var fileName = Path.GetFileName(expectedFilePath);
@@ -36,8 +36,7 @@ public abstract class TestBaseClass
     {
         if (expected.Length != actual.Length || expected.Length <= BmpHeaderSize)
             return false;
-
-        if (!expected.AsSpan(0, BmpHeaderSize).SequenceEqual(actual.AsSpan(0, BmpHeaderSize)))
+        if (!BmpTestCompare.HeadersCompatible(expected, actual))
             return false;
 
         var differentPixels = 0;

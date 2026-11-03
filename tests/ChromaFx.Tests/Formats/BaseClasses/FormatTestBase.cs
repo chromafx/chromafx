@@ -15,7 +15,9 @@ public abstract class FormatTestBase
     {
         using var outputStream = File.OpenRead(OutputDirectory + fileName);
         using var expectedStream = File.OpenRead(ExpectedDirectory + fileName);
-        return ReadBinary(outputStream).SequenceEqual(ReadBinary(expectedStream));
+        var output = ReadBinary(outputStream);
+        var expected = ReadBinary(expectedStream);
+        return Tests.BaseClasses.BmpTestCompare.Equal(expected, output);
     }
 
     protected bool CheckDecodedPngCorrect(string fileName)

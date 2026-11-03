@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,7 +110,10 @@ internal class File : FileBase
     /// <param name="image">The image.</param>
     private void LoadImage(Image image)
     {
-        var imageSize = image.PixelCount * 4;
+        // 24-bit BGR rows are padded to a 4-byte stride (not PixelCount * 4).
+        const int bytesPerPixel = 3;
+        var rowStride = (image.Width * bytesPerPixel + 3) & ~3;
+        var imageSize = rowStride * image.Height;
         FileHeader = new FileHeader(54 + imageSize, 54);
         Header = new Header(image.Width, image.Height, 24, imageSize, 0, 0, 0, 0, Compression.Rgb);
         Palette = new Palette(0, []);
