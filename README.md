@@ -41,12 +41,13 @@ Fully managed on .NET 10 — no native codec binaries for Docker/Lambda multi-ar
 
 ## Installation
 
-Current NuGet line is **0.6.0** (tag-only releases; 0.x may still change before 1.0):
+Current NuGet line is **0.6.1** (tag-only releases; 0.x may still change before 1.0):
 
 ```bash
 dotnet add package ChromaFx
 # optional:
 dotnet add package ChromaFx.PixelArt
+dotnet add package ChromaFx.Native   # WebP/AVIF stubs only for now
 ```
 
 ## Getting Started

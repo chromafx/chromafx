@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1]
+
+Bit-identical performance pass plus opt-in `ChromaFx.Native` stubs. Public API is additive only (`IHistogram.Load(ReadOnlySpan<Color>)`, `Distance.EuclideanSquared`); filter/codec internals cut allocations without changing goldens.
+
 ### Added
 - `ChromaFx.Native` opt-in stub package — registers WebP/AVIF format probes and typed encoders; Decode/Encode throw until native codecs ship (not in the meta-package).
 - `IHistogram.Load(ReadOnlySpan<Color>)` for zero-copy histogram loads.

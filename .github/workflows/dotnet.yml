@@ -6,7 +6,7 @@ on:
       - master
       - legacy
     tags:
-      - 'v*.*.*' # release tags (e.g. v0.6.0)
+      - 'v*.*.*' # release tags (e.g. v0.6.1)
   pull_request:
     branches:
       - master
@@ -31,7 +31,7 @@ jobs:
         id: vars
         run: |
           if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
-            # Tagged release: strip refs/tags/ and optional leading v (v0.6.0 → 0.6.0)
+            # Tagged release: strip refs/tags/ and optional leading v (v0.6.1 → 0.6.1)
             RAW=${GITHUB_REF#refs/tags/}
             VERSION=${RAW#v}
           else
