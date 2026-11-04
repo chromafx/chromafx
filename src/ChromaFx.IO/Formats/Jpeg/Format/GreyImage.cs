@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+using System.Runtime.InteropServices;
 using ChromaFx.Core;
 using ChromaFx.Core.Colors;
 using ChromaFx.IO.Formats.Jpeg.Format.Enums;
@@ -101,7 +102,7 @@ internal class GreyImage
             var pixelWidth = startFrameSegment.Width;
             var pixelHeight = startFrameSegment.Height;
 
-            var pixels = new Color[pixelWidth * pixelHeight];
+            image.ReCreate(pixelWidth, pixelHeight);
 
             Parallel.For(
                 0,
@@ -109,19 +110,14 @@ internal class GreyImage
                 y =>
                 {
                     var yoff = GetRowOffset(y);
+                    var row = MemoryMarshal.Cast<Color, uint>(image.GetRowSpan(y));
                     for (var x = 0; x < pixelWidth; x++)
                     {
-                        var offset = y * pixelWidth + x;
-
-                        pixels[offset].Red = Pixels[yoff + x];
-                        pixels[offset].Green = Pixels[yoff + x];
-                        pixels[offset].Blue = Pixels[yoff + x];
-                        pixels[offset].Alpha = 255;
+                        var v = Pixels[yoff + x];
+                        row[x] = v | ((uint)v << 8) | ((uint)v << 16) | 0xFF00_0000u;
                     }
                 }
             );
-
-            image.ReCreate(pixelWidth, pixelHeight, pixels);
         }
         return image;
     }

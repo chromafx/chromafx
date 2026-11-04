@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+using System.Runtime.InteropServices;
 using ChromaFx.Core;
 using ChromaFx.IO.Formats.Gif.Format.Enums;
 using ChromaFx.IO.Formats.Gif.Quantizers;
@@ -163,25 +164,19 @@ internal class Frame(
     {
         int imageWidth = screenDescriptor.Width;
         int imageHeight = screenDescriptor.Height;
-        byte[] currentFrame;
+        var currentFrame = new byte[imageWidth * imageHeight * 4];
         if (
             frames.Count > 0
             && graphicsControl != null
             && graphicsControl.DisposalMethod == DisposalMethod.RestoreToPrevious
         )
         {
-            currentFrame = new byte[imageWidth * imageHeight * 4];
             Array.Copy(frames[^1].Data, currentFrame, currentFrame.Length);
-            var lastFrame = new byte[imageWidth * imageHeight * 4];
-            Array.Copy(currentFrame, lastFrame, lastFrame.Length);
-        }
-        else
-        {
-            currentFrame = new byte[imageWidth * imageHeight * 4];
         }
 
-        int offset,
-            i = 0;
+        var currentFrameU32 = MemoryMarshal.Cast<byte, uint>(currentFrame.AsSpan());
+
+        int i = 0;
         var interlacePass = 0;
         var interlaceIncrement = 8;
         var interlaceY = 0;
@@ -223,7 +218,6 @@ internal class Frame(
 
             for (int x = descriptor.Left; x < descriptor.Left + descriptor.Width; x++)
             {
-                offset = (writeY * imageWidth + x) * 4;
                 int index = indices.Indices[i];
 
                 if (
@@ -233,10 +227,12 @@ internal class Frame(
                 )
                 {
                     var indexOffset = index * 3;
-                    currentFrame[offset + 0] = colorTable.Data[indexOffset];
-                    currentFrame[offset + 1] = colorTable.Data[indexOffset + 1];
-                    currentFrame[offset + 2] = colorTable.Data[indexOffset + 2];
-                    currentFrame[offset + 3] = 255;
+                    var r = colorTable.Data[indexOffset];
+                    var g = colorTable.Data[indexOffset + 1];
+                    var b = colorTable.Data[indexOffset + 2];
+                    // Packed RGBA little-endian (bit-identical to byte stores).
+                    currentFrameU32[writeY * imageWidth + x] =
+                        r | ((uint)g << 8) | ((uint)b << 16) | 0xFF00_0000u;
                 }
 
                 i++;

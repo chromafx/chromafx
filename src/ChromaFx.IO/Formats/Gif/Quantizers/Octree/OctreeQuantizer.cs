@@ -81,11 +81,10 @@ internal class OctreeQuantizer : QuantizerBase
             image.Height,
             y =>
             {
+                var row = image.GetRowSpan(y);
                 for (var x = 0; x < image.Width; x++)
                 {
-                    quantizedPixels[y * image.Width + x] = QuantizePixel(
-                        image.GetRowSpan(y)[x]
-                    );
+                    quantizedPixels[y * image.Width + x] = QuantizePixel(row[x]);
                 }
             }
         );

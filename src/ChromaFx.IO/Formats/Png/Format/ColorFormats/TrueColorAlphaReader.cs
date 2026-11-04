@@ -28,14 +28,14 @@ namespace ChromaFx.IO.Formats.Png.Format.ColorFormats;
 internal class TrueColorAlphaReader : IColorReader
 {
     /// <inheritdoc />
-    public void ReadScanline(byte[] scanline, Color[] pixels, Header header, int row)
+    public void ReadScanline(byte[] scanline, Span<Color> row, Header header)
     {
         scanline = scanline.ExpandArray(header.BitDepth);
 
         // 8-bit RGBA matches Color memory layout — bulk copy.
         if (header.BitDepth == 8)
         {
-            var dest = MemoryMarshal.AsBytes(pixels.AsSpan(row * header.Width, header.Width));
+            var dest = MemoryMarshal.AsBytes(row);
             scanline.AsSpan(0, header.Width * 4).CopyTo(dest);
             return;
         }
@@ -43,18 +43,18 @@ internal class TrueColorAlphaReader : IColorReader
         var bytesPerPixel = header.BitDepth * 4 / 8;
         var bytesPerChannel = header.BitDepth / 8;
 
-        int pixelIndex = row * header.Width;
+        int pixelIndex = 0;
         int scanlineIndex = 0;
 
         for (var x = 0; x < scanline.Length; x += bytesPerPixel)
         {
-            pixels[pixelIndex].Red = scanline[scanlineIndex];
+            row[pixelIndex].Red = scanline[scanlineIndex];
             scanlineIndex += bytesPerChannel;
-            pixels[pixelIndex].Green = scanline[scanlineIndex];
+            row[pixelIndex].Green = scanline[scanlineIndex];
             scanlineIndex += bytesPerChannel;
-            pixels[pixelIndex].Blue = scanline[scanlineIndex];
+            row[pixelIndex].Blue = scanline[scanlineIndex];
             scanlineIndex += bytesPerChannel;
-            pixels[pixelIndex].Alpha = scanline[scanlineIndex];
+            row[pixelIndex].Alpha = scanline[scanlineIndex];
             pixelIndex++;
             scanlineIndex += bytesPerChannel;
         }

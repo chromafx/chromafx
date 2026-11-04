@@ -12,16 +12,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ChromaFx.Native` opt-in stub package — registers WebP/AVIF format probes and typed encoders; Decode/Encode throw until native codecs ship (not in the meta-package).
 - `IHistogram.Load(ReadOnlySpan<Color>)` for zero-copy histogram loads.
 - `Distance.EuclideanSquared` for compare-without-sqrt paths.
-- Benchmarks: Gamma, Posterize, Blend, Median, Equalize; AdaptiveThreshold / Crop / BMP RGB24 setup moved out of timed path; BMP RGB24 encode bench.
+- Benchmarks: Gamma, Posterize, Blend, Median, Equalize, AdaptiveEqualize, GIF decode; AdaptiveThreshold / Crop / BMP RGB24 setup moved out of timed path; BMP RGB24 encode bench.
 
 ### Changed
 - `ImageFormats.CreateEncoder` / `CreateAnimationEncoder` resolve registered plugins for `FileFormats.WebP` / `Avif` (last registration wins).
 - `PixelSimd.ApplyRgbLut` uses a packed `uint` unrolled path (Gamma / Posterize); `ApplyChannelLuts` for per-channel tables.
-- AdaptiveThreshold, AdaptiveEqualize, Kuwahara, Blend, Median, Dilate, Constrict, SNNBlur, and SinWave cut snapshot / per-row heap allocations.
+- AdaptiveThreshold, AdaptiveEqualize, Kuwahara, Blend, Median, Dilate, Constrict, SNNBlur, SinWave, and Turbulence cut snapshot / per-row heap allocations.
+- Crop / ResizeCanvas use row `CopyTo` instead of per-pixel dest arrays.
 - Equalize, StretchContrast, and Logarithm apply via channel LUTs; `RgbHistogram.LoadImage` is row-major.
 - BMP RGB24/32 decode/encode packed shuffles; BMP encode skips intermediate RGBA buffer; `Image(byte[])` fills by row `CopyTo`.
-- JPEG YCbCr→RGB writes directly into `GetRowSpan` (IDCT unchanged).
-- PNG 8-bit RGB (no alpha) packs into RGBA with an unrolled path.
+- JPEG YCbCr→RGB and greyscale convert write directly into `GetRowSpan` (IDCT unchanged).
+- PNG decode writes scanlines into `GetRowSpan` (no intermediate full-image `Color[]`); 8-bit RGB packs with an unrolled path.
+- GIF LZW reuses a 256-byte block buffer; drops a dead RestoreToPrevious `lastFrame` copy; frame palette expands via packed `uint` writes; octree quantize hoists row spans.
 
 ### Fixed
 - `Color(byte, byte, byte, byte)` no longer allocates a temporary array on every construction.

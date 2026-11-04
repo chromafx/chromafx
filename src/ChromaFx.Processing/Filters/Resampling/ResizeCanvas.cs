@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.Core.Colors;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Filters.Resampling.Enums;
 using ChromaFx.Processing.Numerics;
@@ -62,7 +61,6 @@ public class ResizeCanvas(int width, int height, ResizeOptions options = ResizeO
     /// <returns>The image</returns>
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
-        var final = new Color[Width * Height];
         var xOffset = 0;
         var yOffset = 0;
 
@@ -72,26 +70,52 @@ public class ResizeCanvas(int width, int height, ResizeOptions options = ResizeO
             yOffset = (image.Height - Height) / 2;
         }
 
-        Parallel.For(
-            0,
-            Height,
-            y =>
-            {
-                if (y + yOffset >= image.Height || y + yOffset < 0)
-                    return;
-
-                for (var x = 0; x < Width; ++x)
+        var sourceWidth = image.Width;
+        var sourceHeight = image.Height;
+        var snapshot = FilterBufferPool.RentTightCopy(image);
+        try
+        {
+            image.ReCreate(Width, Height);
+            Parallel.For(
+                0,
+                Height,
+                y =>
                 {
-                    if (x + xOffset >= image.Width)
-                        break;
-                    if (x + xOffset < 0)
-                        continue;
+                    var srcY = y + yOffset;
+                    if (srcY < 0 || srcY >= sourceHeight)
+                        return;
 
-                    final[y * Width + x] = image.GetRowSpan(y + yOffset)[x + xOffset];
+                    var srcX = xOffset;
+                    var destX = 0;
+                    var copyWidth = Width;
+
+                    if (srcX < 0)
+                    {
+                        destX = -srcX;
+                        copyWidth += srcX;
+                        srcX = 0;
+                    }
+
+                    if (srcX + copyWidth > sourceWidth)
+                        copyWidth = sourceWidth - srcX;
+
+                    if (copyWidth <= 0 || destX >= Width)
+                        return;
+
+                    if (destX + copyWidth > Width)
+                        copyWidth = Width - destX;
+
+                    snapshot
+                        .AsSpan(srcY * sourceWidth + srcX, copyWidth)
+                        .CopyTo(image.GetRowSpan(y).Slice(destX, copyWidth));
                 }
-            }
-        );
+            );
+        }
+        finally
+        {
+            FilterBufferPool.Return(snapshot);
+        }
 
-        return image.ReCreate(Width, Height, final);
+        return image;
     }
 }

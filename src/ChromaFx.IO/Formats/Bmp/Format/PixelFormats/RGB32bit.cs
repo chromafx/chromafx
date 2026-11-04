@@ -99,15 +99,20 @@ internal class Rgb32Bit : PixelFormatBase
                     sourceY = height - 1;
                 var sourceRowOffset = sourceY * width * 4;
                 var destinationRowOffset = y * (width * (int)Bpp + alignment);
+                var src = MemoryMarshal.Cast<byte, uint>(
+                    data.AsSpan(sourceRowOffset, width * 4)
+                );
                 for (var x = 0; x < width; ++x)
                 {
-                    var sourceX = x * 4;
-                    var sourceOffset = sourceX + sourceRowOffset;
-                    var destinationX = x * (int)Bpp;
-                    var destinationOffset = destinationX + destinationRowOffset;
-                    returnValue[destinationOffset] = data[sourceOffset + 2];
-                    returnValue[destinationOffset + 1] = data[sourceOffset + 1];
-                    returnValue[destinationOffset + 2] = data[sourceOffset];
+                    // RGBA → BGRX (alpha discarded, same as prior encode).
+                    var pixel = src[x];
+                    var r = (byte)pixel;
+                    var g = (byte)(pixel >> 8);
+                    var b = (byte)(pixel >> 16);
+                    var destinationOffset = destinationRowOffset + x * 4;
+                    returnValue[destinationOffset] = b;
+                    returnValue[destinationOffset + 1] = g;
+                    returnValue[destinationOffset + 2] = r;
                 }
             }
         );

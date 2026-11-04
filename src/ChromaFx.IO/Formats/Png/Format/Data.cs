@@ -116,17 +116,17 @@ internal class Data
     /// <returns>The resulting image</returns>
     public Image Parse(Header header, Palette palette, Palette alphaPalette)
     {
-        var pixels = new Color[header.Width * header.Height];
+        var image = new Image(header.Width, header.Height);
         var colorTypeInfo = ColorTypes[header.ColorType];
 
         if (colorTypeInfo == null)
-            return new Image(header.Width, header.Height, pixels);
+            return image;
 
         var colorReader = colorTypeInfo.CreateColorReader(palette, alphaPalette);
         using var tempStream = new MemoryStream(ImageData);
-        ReadScanlines(tempStream, pixels, colorReader, colorTypeInfo, header);
+        ReadScanlines(tempStream, image, colorReader, colorTypeInfo, header);
 
-        return new Image(header.Width, header.Height, pixels);
+        return image;
     }
 
     /// <summary>
@@ -261,13 +261,13 @@ internal class Data
     /// Reads the scanlines.
     /// </summary>
     /// <param name="dataStream">The data stream.</param>
-    /// <param name="pixels">The pixels.</param>
+    /// <param name="image">The destination image.</param>
     /// <param name="colorReader">The color reader.</param>
     /// <param name="colorTypeInformation">The color type information.</param>
     /// <param name="header">The header.</param>
     private static void ReadScanlines(
         MemoryStream dataStream,
-        Color[] pixels,
+        Image image,
         IColorReader colorReader,
         ColorTypeInformation colorTypeInformation,
         Header header
@@ -306,7 +306,7 @@ internal class Data
                     break;
             }
 
-            colorReader.ReadScanline(currentScanLine, pixels, header, row);
+            colorReader.ReadScanline(currentScanLine, image.GetRowSpan(row), header);
             (lastScanLine, currentScanLine) = (currentScanLine, lastScanLine);
         }
     }

@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,11 +25,10 @@ namespace ChromaFx.IO.Formats.Png.Format.ColorFormats;
 internal interface IColorReader
 {
     /// <summary>
-    /// Reads a scan line and inserts it into the pixels array
+    /// Reads a scan line into the destination image row.
     /// </summary>
     /// <param name="scanline">Scanline</param>
-    /// <param name="pixels">Resulting pixels</param>
+    /// <param name="row">Destination row (length = header.Width)</param>
     /// <param name="header">Header information</param>
-    /// <param name="row">Current row</param>
-    void ReadScanline(byte[] scanline, Color[] pixels, Header header, int row);
+    void ReadScanline(byte[] scanline, Span<Color> row, Header header);
 }

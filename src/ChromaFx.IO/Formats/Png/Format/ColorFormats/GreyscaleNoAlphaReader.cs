@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+using System.Runtime.InteropServices;
 using ChromaFx.Core.Colors;
 using ChromaFx.Core.ExtensionMethods;
 
@@ -26,28 +27,15 @@ namespace ChromaFx.IO.Formats.Png.Format.ColorFormats;
 /// <seealso cref="IColorReader"/>
 internal class GreyscaleNoAlphaReader : IColorReader
 {
-    /// <summary>
-    /// Reads the scanline.
-    /// </summary>
-    /// <param name="scanline">The scanline.</param>
-    /// <param name="pixels">The pixels.</param>
-    /// <param name="header">The header.</param>
-    /// <param name="row">The row.</param>
-    public void ReadScanline(byte[] scanline, Color[] pixels, Header header, int row)
+    /// <inheritdoc />
+    public void ReadScanline(byte[] scanline, Span<Color> row, Header header)
     {
         scanline = scanline.ExpandArray(header.BitDepth);
-        Parallel.For(
-            0,
-            header.Width,
-            x =>
-            {
-                var offset = row * header.Width + x;
-
-                pixels[offset].Red = scanline[x];
-                pixels[offset].Green = scanline[x];
-                pixels[offset].Blue = scanline[x];
-                pixels[offset].Alpha = 255;
-            }
-        );
+        var dest = MemoryMarshal.Cast<Color, uint>(row);
+        for (var x = 0; x < header.Width; ++x)
+        {
+            var v = scanline[x];
+            dest[x] = v | ((uint)v << 8) | ((uint)v << 16) | 0xFF00_0000u;
+        }
     }
 }

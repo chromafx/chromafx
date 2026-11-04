@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+using System.Runtime.InteropServices;
 using ChromaFx.Core.Colors;
 using ChromaFx.Core.ExtensionMethods;
 using ChromaFx.IO.Formats.Png.Format.Enums;
@@ -44,43 +45,24 @@ internal class PaletteReader(Palette palette, Palette alphaPalette) : IColorRead
     /// <value>The palette.</value>
     public Palette Palette { get; set; } = palette ?? new Palette([], PaletteType.Color);
 
-    /// <summary>
-    /// Reads the scanline.
-    /// </summary>
-    /// <param name="scanline">The scanline.</param>
-    /// <param name="pixels">The pixels.</param>
-    /// <param name="header">The header.</param>
-    /// <param name="row">The row.</param>
-    public void ReadScanline(byte[] scanline, Color[] pixels, Header header, int row)
+    /// <inheritdoc />
+    public void ReadScanline(byte[] scanline, Span<Color> row, Header header)
     {
         scanline = scanline.ExpandArray(header.BitDepth);
+        var dest = MemoryMarshal.Cast<Color, uint>(row);
+        var hasAlpha = AlphaPalette.Data.Length > 0;
 
-        if (AlphaPalette.Data.Length > 0)
+        for (var x = 0; x < header.Width; ++x)
         {
-            for (var x = 0; x < header.Width; ++x)
-            {
-                var offset = row * header.Width + x;
-                var pixelOffset = scanline[x] * 3;
-                pixels[offset].Red = Palette.Data[pixelOffset];
-                pixels[offset].Green = Palette.Data[pixelOffset + 1];
-                pixels[offset].Blue = Palette.Data[pixelOffset + 2];
-                pixels[offset].Alpha = (byte)(
-                    AlphaPalette.Data.Length > scanline[x] ? AlphaPalette.Data[scanline[x]] : 255
-                );
-            }
-        }
-        else
-        {
-            for (var x = 0; x < header.Width; ++x)
-            {
-                var offset = row * header.Width + x;
-                var pixelOffset = scanline[x] * 3;
-
-                pixels[offset].Red = Palette.Data[pixelOffset];
-                pixels[offset].Green = Palette.Data[pixelOffset + 1];
-                pixels[offset].Blue = Palette.Data[pixelOffset + 2];
-                pixels[offset].Alpha = 255;
-            }
+            var index = scanline[x];
+            var pixelOffset = index * 3;
+            var r = Palette.Data[pixelOffset];
+            var g = Palette.Data[pixelOffset + 1];
+            var b = Palette.Data[pixelOffset + 2];
+            var a = hasAlpha && AlphaPalette.Data.Length > index
+                ? AlphaPalette.Data[index]
+                : (byte)255;
+            dest[x] = r | ((uint)g << 8) | ((uint)b << 16) | ((uint)a << 24);
         }
     }
 }

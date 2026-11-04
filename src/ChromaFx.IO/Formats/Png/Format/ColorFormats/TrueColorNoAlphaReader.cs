@@ -27,22 +27,14 @@ namespace ChromaFx.IO.Formats.Png.Format.ColorFormats;
 /// <seealso cref="IColorReader"/>
 internal class TrueColorNoAlphaReader : IColorReader
 {
-    /// <summary>
-    /// Reads the scanline.
-    /// </summary>
-    /// <param name="scanline">The scanline.</param>
-    /// <param name="pixels">The pixels.</param>
-    /// <param name="header">The header.</param>
-    /// <param name="row">The row.</param>
-    public void ReadScanline(byte[] scanline, Color[] pixels, Header header, int row)
+    /// <inheritdoc />
+    public void ReadScanline(byte[] scanline, Span<Color> row, Header header)
     {
         scanline = scanline.ExpandArray(header.BitDepth);
 
         if (header.BitDepth == 8)
         {
-            var dest = MemoryMarshal.Cast<Color, uint>(
-                pixels.AsSpan(row * header.Width, header.Width)
-            );
+            var dest = MemoryMarshal.Cast<Color, uint>(row);
             var src = scanline.AsSpan(0, header.Width * 3);
             var x = 0;
             for (; x <= header.Width - 4; x += 4)
@@ -62,18 +54,18 @@ internal class TrueColorNoAlphaReader : IColorReader
         var bytesPerPixel = header.BitDepth * 3 / 8;
         var bytesPerChannel = header.BitDepth / 8;
 
-        int pixelIndex = row * header.Width;
+        int pixelIndex = 0;
         int scanlineIndex = 0;
 
         for (int x = 0; x < scanline.Length; x += bytesPerPixel)
         {
-            pixels[pixelIndex].Red = scanline[scanlineIndex];
+            row[pixelIndex].Red = scanline[scanlineIndex];
             scanlineIndex += bytesPerChannel;
-            pixels[pixelIndex].Green = scanline[scanlineIndex];
+            row[pixelIndex].Green = scanline[scanlineIndex];
             scanlineIndex += bytesPerChannel;
-            pixels[pixelIndex].Blue = scanline[scanlineIndex];
+            row[pixelIndex].Blue = scanline[scanlineIndex];
             scanlineIndex += bytesPerChannel;
-            pixels[pixelIndex].Alpha = 255;
+            row[pixelIndex].Alpha = 255;
             pixelIndex++;
         }
     }

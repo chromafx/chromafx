@@ -56,62 +56,68 @@ public class AdaptiveEqualize(int radius, Func<IHistogram> histogram = null) : I
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        var tempValues = new Color[image.PixelCount];
-        image.CopyPixelsTo(tempValues);
-        var apertureMin = -Radius;
-        var apertureMax = Radius;
-        var apertureSide = Math.Max(Radius * 2, 1);
-        var maxColors = apertureSide * apertureSide;
+        var tempValues = FilterBufferPool.RentTightCopy(image);
+        try
+        {
+            var apertureMin = -Radius;
+            var apertureMax = Radius;
+            var apertureSide = Math.Max(Radius * 2, 1);
+            var maxColors = apertureSide * apertureSide;
 
-        Parallel.For(
-            targetLocation.Bottom,
-            targetLocation.Top,
-            () =>
-                (
-                    Histogram: Histogram(),
-                    Buffer: ArrayPool<Color>.Shared.Rent(maxColors)
-                ),
-            (y, _, local) =>
-            {
-                for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+            Parallel.For(
+                targetLocation.Bottom,
+                targetLocation.Top,
+                () =>
+                    (
+                        Histogram: Histogram(),
+                        Buffer: ArrayPool<Color>.Shared.Rent(maxColors)
+                    ),
+                (y, _, local) =>
                 {
-                    var count = 0;
-                    for (var y2 = apertureMin; y2 < apertureMax; ++y2)
+                    for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                     {
-                        var tempY = y + y2;
-                        var tempX = x + apertureMin;
-                        if (tempY < 0 || tempY >= image.Height)
-                            continue;
-                        var length = Radius * 2;
-                        if (tempX < 0)
+                        var count = 0;
+                        for (var y2 = apertureMin; y2 < apertureMax; ++y2)
                         {
-                            length += tempX;
-                            tempX = 0;
+                            var tempY = y + y2;
+                            var tempX = x + apertureMin;
+                            if (tempY < 0 || tempY >= image.Height)
+                                continue;
+                            var length = Radius * 2;
+                            if (tempX < 0)
+                            {
+                                length += tempX;
+                                tempX = 0;
+                            }
+                            var start = tempY * image.Width + tempX;
+                            for (var x2 = 0; x2 < length && tempX < image.Width; ++x2)
+                            {
+                                local.Buffer[count++] = tempValues[start];
+                                ++start;
+                                ++tempX;
+                            }
                         }
-                        var start = tempY * image.Width + tempX;
-                        for (var x2 = 0; x2 < length && tempX < image.Width; ++x2)
-                        {
-                            local.Buffer[count++] = tempValues[start];
-                            ++start;
-                            ++tempX;
-                        }
+
+                        var tempHistogram = local
+                            .Histogram.Load(local.Buffer.AsSpan(0, count))
+                            .Equalize();
+                        var row = image.GetRowSpan(y);
+                        var resultColor = tempHistogram.EqualizeColor(row[x]);
+
+                        row[x].Red = resultColor.Red;
+                        row[x].Green = resultColor.Green;
+                        row[x].Blue = resultColor.Blue;
                     }
 
-                    var tempHistogram = local
-                        .Histogram.Load(local.Buffer.AsSpan(0, count))
-                        .Equalize();
-                    var row = image.GetRowSpan(y);
-                    var resultColor = tempHistogram.EqualizeColor(row[x]);
-
-                    row[x].Red = resultColor.Red;
-                    row[x].Green = resultColor.Green;
-                    row[x].Blue = resultColor.Blue;
-                }
-
-                return local;
-            },
-            local => ArrayPool<Color>.Shared.Return(local.Buffer)
-        );
+                    return local;
+                },
+                local => ArrayPool<Color>.Shared.Return(local.Buffer)
+            );
+        }
+        finally
+        {
+            FilterBufferPool.Return(tempValues);
+        }
 
         return image;
     }

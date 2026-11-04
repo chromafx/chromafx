@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.Core.Colors;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
 
@@ -37,23 +36,33 @@ public class Crop : IFilter
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        var result = new Color[targetLocation.Width * targetLocation.Height];
+        var width = targetLocation.Width;
+        var height = targetLocation.Height;
+        var left = targetLocation.Left;
+        var bottom = targetLocation.Bottom;
+        var sourceWidth = image.Width;
 
-        Parallel.For(
-            targetLocation.Bottom,
-            targetLocation.Top,
-            y =>
-            {
-                for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+        // Snapshot before ReCreate replaces storage.
+        var snapshot = FilterBufferPool.RentTightCopy(image);
+        try
+        {
+            image.ReCreate(width, height);
+            Parallel.For(
+                0,
+                height,
+                y =>
                 {
-                    result[
-                        (y - targetLocation.Bottom) * targetLocation.Width
-                            + (x - targetLocation.Left)
-                    ] = image.GetRowSpan(y)[x];
+                    snapshot
+                        .AsSpan((bottom + y) * sourceWidth + left, width)
+                        .CopyTo(image.GetRowSpan(y));
                 }
-            }
-        );
+            );
+        }
+        finally
+        {
+            FilterBufferPool.Return(snapshot);
+        }
 
-        return image.ReCreate(targetLocation.Width, targetLocation.Height, result);
+        return image;
     }
 }

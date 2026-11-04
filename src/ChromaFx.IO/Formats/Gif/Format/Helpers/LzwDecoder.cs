@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-using ChromaFx.Core.ExtensionMethods;
-
 namespace ChromaFx.IO.Formats.Gif.Format.Helpers;
 
 /// <summary>
@@ -72,7 +70,7 @@ internal class LzwDecoder(Stream stream)
             suffix[x] = (byte)x;
         }
 
-        byte[] buffer = null;
+        var block = new byte[256];
         while (xyz < pixels.Length)
         {
             if (top == 0)
@@ -81,8 +79,7 @@ internal class LzwDecoder(Stream stream)
                 {
                     if (count == 0)
                     {
-                        buffer = ReadBlock();
-                        count = buffer.Length;
+                        count = ReadBlock(block);
                         if (count == 0)
                         {
                             break;
@@ -91,10 +88,7 @@ internal class LzwDecoder(Stream stream)
                         bi = 0;
                     }
 
-                    if (buffer != null)
-                    {
-                        data += buffer[bi] << bits;
-                    }
+                    data += block[bi] << bits;
 
                     bits += 8;
                     bi++;
@@ -167,12 +161,15 @@ internal class LzwDecoder(Stream stream)
     }
 
     /// <summary>
-    /// Reads the next block.
+    /// Reads the next LZW sub-block into <paramref name="dest"/> (max 255 bytes).
     /// </summary>
-    /// <returns>The next block</returns>
-    private byte[] ReadBlock()
+    /// <returns>Number of bytes read, or 0 at end.</returns>
+    private int ReadBlock(byte[] dest)
     {
         var size = Stream.ReadByte();
-        return Stream.ReadBytes(size);
+        if (size <= 0)
+            return 0;
+        Stream.ReadExactly(dest.AsSpan(0, size));
+        return size;
     }
 }

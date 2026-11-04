@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.Core.Colors;
 using ChromaFx.Core.ExtensionMethods;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
@@ -29,7 +28,7 @@ namespace ChromaFx.Processing.Filters.Effects;
 /// </summary>
 /// <seealso cref="IFilter"/>
 /// <remarks>
-/// Initializes a new instance of the <see cref="SinWave"/> class.
+/// Initializes a new instance of the <see cref="Turbulence"/> class.
 /// </remarks>
 /// <param name="roughness">The roughness.</param>
 /// <param name="power">The power.</param>
@@ -63,46 +62,55 @@ public class Turbulence(int roughness = 8, float power = 0.02f, int seed = 25123
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        var result = new Color[image.PixelCount];
-        image.CopyPixelsTo(result);
-        var xNoise = PerlinNoise.Generate(
-            image.Width,
-            image.Height,
-            255,
-            0,
-            0.0625f,
-            1.0f,
-            0.5f,
-            Roughness,
-            Seed
-        );
-        var yNoise = PerlinNoise.Generate(
-            image.Width,
-            image.Height,
-            255,
-            0,
-            0.0625f,
-            1.0f,
-            0.5f,
-            Roughness,
-            Seed * 2
-        );
-        Parallel.For(
-            targetLocation.Bottom,
-            targetLocation.Top,
-            y =>
-            {
-                for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+        var result = FilterBufferPool.RentTightCopy(image);
+        try
+        {
+            var xNoise = PerlinNoise.Generate(
+                image.Width,
+                image.Height,
+                255,
+                0,
+                0.0625f,
+                1.0f,
+                0.5f,
+                Roughness,
+                Seed
+            );
+            var yNoise = PerlinNoise.Generate(
+                image.Width,
+                image.Height,
+                255,
+                0,
+                0.0625f,
+                1.0f,
+                0.5f,
+                Roughness,
+                Seed * 2
+            );
+            Parallel.For(
+                targetLocation.Bottom,
+                targetLocation.Top,
+                y =>
                 {
-                    var xDistortion = x + xNoise.GetRowSpan(y)[x].Red * Power;
-                    var yDistortion = y + yNoise.GetRowSpan(y)[x].Red * Power;
-                    var x1 = (int)xDistortion.Clamp(0, image.Width - 1);
-                    var y1 = (int)yDistortion.Clamp(0, image.Height - 1);
-                    result[y * image.Width + x] = image.GetRowSpan(y1)[x1];
+                    for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+                    {
+                        var xDistortion = x + xNoise.GetRowSpan(y)[x].Red * Power;
+                        var yDistortion = y + yNoise.GetRowSpan(y)[x].Red * Power;
+                        var x1 = (int)xDistortion.Clamp(0, image.Width - 1);
+                        var y1 = (int)yDistortion.Clamp(0, image.Height - 1);
+                        result[y * image.Width + x] = image.GetRowSpan(y1)[x1];
+                    }
                 }
-            }
-        );
+            );
 
-        return image.ReCreate(image.Width, image.Height, result);
+            for (var y = 0; y < image.Height; ++y)
+                result.AsSpan(y * image.Width, image.Width).CopyTo(image.GetRowSpan(y));
+        }
+        finally
+        {
+            FilterBufferPool.Return(result);
+        }
+
+        return image;
     }
 }
