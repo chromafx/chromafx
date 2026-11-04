@@ -37,12 +37,8 @@ internal class Body(byte[] data)
     public Body(Image image, Header header)
         : this(EncodeImage(image, header)) { }
 
-    private static byte[] EncodeImage(Image image, Header header)
-    {
-        var rgba = new byte[image.PixelCount * 4];
-        image.CopyRgbaBytesTo(rgba);
-        return new Rgb24Bit().Encode(header, rgba, null);
-    }
+    private static byte[] EncodeImage(Image image, Header header) =>
+        new Rgb24Bit().Encode(header, image);
 
     /// <summary>
     /// Gets or sets the data.

@@ -18,6 +18,7 @@
 using ChromaFx.Core;
 using ChromaFx.Core.Colors;
 using ChromaFx.Core.Colors.ColorSpaces;
+using ChromaFx.Core.ExtensionMethods;
 using ChromaFx.IO.Formats.Jpeg.Format.Enums;
 using ChromaFx.IO.Formats.Jpeg.Format.Segments;
 
@@ -301,7 +302,7 @@ internal class YcbcrImg
         var cScale =
             startFrameSegment.Components[0].HorizontalSamplingFactor
             / startFrameSegment.Components[1].HorizontalSamplingFactor;
-        var pixels = new Color[width * height];
+        image.ReCreate(width, height);
 
         Parallel.For(
             0,
@@ -310,6 +311,7 @@ internal class YcbcrImg
             {
                 var yo = RowYOffset(y);
                 var co = RowCOffset(y);
+                var row = image.GetRowSpan(y);
 
                 for (var x = 0; x < width; x++)
                 {
@@ -317,12 +319,10 @@ internal class YcbcrImg
                     var green = CbPixels[co + x / cScale];
                     var blue = CrPixels[co + x / cScale];
 
-                    pixels[y * width + x] = new Bgra(red, green, blue);
+                    row[x] = new Bgra(red, green, blue);
                 }
             }
         );
-
-        image.ReCreate(width, height, pixels);
     }
 
     private void ConvertToRgb(int width, int height, Image image, IEnumerable<SegmentBase> segments)
@@ -332,7 +332,7 @@ internal class YcbcrImg
             startFrameSegment.Components[0].HorizontalSamplingFactor
             / startFrameSegment.Components[1].HorizontalSamplingFactor;
 
-        var pixels = new Color[width * height];
+        image.ReCreate(width, height);
 
         Parallel.For(
             0,
@@ -341,6 +341,7 @@ internal class YcbcrImg
             {
                 var yo = RowYOffset(y);
                 var co = RowCOffset(y);
+                var row = image.GetRowSpan(y);
 
                 for (var x = 0; x < width; x++)
                 {
@@ -348,11 +349,21 @@ internal class YcbcrImg
                     var cb = CbPixels[co + x / cScale];
                     var cr = CrPixels[co + x / cScale];
 
-                    pixels[y * width + x] = new YCbCr(yy, cb, cr);
+                    // Same math as implicit YCbCr → Color (AwayFromZero + ToByte).
+                    var yLum = (double)yy;
+                    var cbC = cb - 128.0;
+                    var crC = cr - 128.0;
+                    row[x] = new Color(
+                        Math.Round(yLum + 1.402 * crC, MidpointRounding.AwayFromZero).ToByte(),
+                        Math.Round(
+                                yLum - 0.344136 * cbC - 0.714136 * crC,
+                                MidpointRounding.AwayFromZero
+                            )
+                            .ToByte(),
+                        Math.Round(yLum + 1.772 * cbC, MidpointRounding.AwayFromZero).ToByte()
+                    );
                 }
             }
         );
-
-        image.ReCreate(width, height, pixels);
     }
 }

@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,46 +62,54 @@ public class SinWave(float amplitude, float frequency, Direction direction) : IF
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        var result = new Color[image.PixelCount];
-        image.CopyPixelsTo(result);
-
-        Parallel.For(
-            targetLocation.Bottom,
-            targetLocation.Top,
-            y =>
-            {
-                for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+        var result = FilterBufferPool.RentTightCopy(image);
+        try
+        {
+            Parallel.For(
+                targetLocation.Bottom,
+                targetLocation.Top,
+                y =>
                 {
-                    double value1 = 0;
-                    double value2 = 0;
-
-                    switch (Direction)
+                    for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                     {
-                        case Direction.RightToLeft or Direction.LeftToRight:
-                            value1 = Math.Sin(x * Frequency * Math.PI / 180.0d) * Amplitude;
-                            break;
-                        case Direction.BottomToTop or Direction.TopToBottom:
-                            value2 = Math.Sin(y * Frequency * Math.PI / 180.0d) * Amplitude;
-                            break;
+                        double value1 = 0;
+                        double value2 = 0;
+
+                        switch (Direction)
+                        {
+                            case Direction.RightToLeft or Direction.LeftToRight:
+                                value1 = Math.Sin(x * Frequency * Math.PI / 180.0d) * Amplitude;
+                                break;
+                            case Direction.BottomToTop or Direction.TopToBottom:
+                                value2 = Math.Sin(y * Frequency * Math.PI / 180.0d) * Amplitude;
+                                break;
+                        }
+
+                        value1 = y - (int)value1;
+                        value2 = x - (int)value2;
+
+                        while (value1 < 0)
+                            value1 += image.Height;
+                        while (value2 < 0)
+                            value2 += image.Width;
+                        while (value1 >= image.Height)
+                            value1 -= image.Height;
+                        while (value2 >= image.Width)
+                            value2 -= image.Width;
+
+                        result[y * image.Width + x] = image.GetRowSpan((int)value1)[(int)value2];
                     }
-
-                    value1 = y - (int)value1;
-                    value2 = x - (int)value2;
-
-                    while (value1 < 0)
-                        value1 += image.Height;
-                    while (value2 < 0)
-                        value2 += image.Width;
-                    while (value1 >= image.Height)
-                        value1 -= image.Height;
-                    while (value2 >= image.Width)
-                        value2 -= image.Width;
-
-                    result[y * image.Width + x] = image.GetRowSpan((int)value1)[(int)value2];
                 }
-            }
-        );
+            );
 
-        return image.ReCreate(image.Width, image.Height, result);
+            for (var y = 0; y < image.Height; ++y)
+                result.AsSpan(y * image.Width, image.Width).CopyTo(image.GetRowSpan(y));
+        }
+        finally
+        {
+            FilterBufferPool.Return(result);
+        }
+
+        return image;
     }
 }

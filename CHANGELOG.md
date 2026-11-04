@@ -11,12 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `ChromaFx.Native` opt-in stub package — registers WebP/AVIF format probes and typed encoders; Decode/Encode throw until native codecs ship (not in the meta-package).
 - `IHistogram.Load(ReadOnlySpan<Color>)` for zero-copy histogram loads.
-- Benchmarks: Gamma, Posterize, Blend; AdaptiveThreshold / Crop setup moved out of timed path.
+- `Distance.EuclideanSquared` for compare-without-sqrt paths.
+- Benchmarks: Gamma, Posterize, Blend, Median, Equalize; AdaptiveThreshold / Crop / BMP RGB24 setup moved out of timed path; BMP RGB24 encode bench.
 
 ### Changed
 - `ImageFormats.CreateEncoder` / `CreateAnimationEncoder` resolve registered plugins for `FileFormats.WebP` / `Avif` (last registration wins).
-- `PixelSimd.ApplyRgbLut` uses a packed `uint` unrolled path (Gamma / Posterize).
-- AdaptiveThreshold, AdaptiveEqualize, Kuwahara, and Blend cut per-pixel / per-row heap allocations.
+- `PixelSimd.ApplyRgbLut` uses a packed `uint` unrolled path (Gamma / Posterize); `ApplyChannelLuts` for per-channel tables.
+- AdaptiveThreshold, AdaptiveEqualize, Kuwahara, Blend, Median, Dilate, Constrict, SNNBlur, and SinWave cut snapshot / per-row heap allocations.
+- Equalize, StretchContrast, and Logarithm apply via channel LUTs; `RgbHistogram.LoadImage` is row-major.
+- BMP RGB24/32 decode/encode packed shuffles; BMP encode skips intermediate RGBA buffer; `Image(byte[])` fills by row `CopyTo`.
+- JPEG YCbCr→RGB writes directly into `GetRowSpan` (IDCT unchanged).
+- PNG 8-bit RGB (no alpha) packs into RGBA with an unrolled path.
 
 ### Fixed
 - `Color(byte, byte, byte, byte)` no longer allocates a temporary array on every construction.

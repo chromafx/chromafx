@@ -126,4 +126,44 @@ internal static class PixelSimd
         var b = lut[(byte)(pixel >> 16)];
         return (pixel & 0xFF000000u) | ((uint)b << 16) | ((uint)g << 8) | r;
     }
+
+    /// <summary>
+    /// Applies separate 256-entry LUTs to R, G, and B; alpha is unchanged.
+    /// </summary>
+    internal static void ApplyChannelLuts(
+        Span<Color> pixels,
+        ReadOnlySpan<byte> lutR,
+        ReadOnlySpan<byte> lutG,
+        ReadOnlySpan<byte> lutB
+    )
+    {
+        if (lutR.Length < 256 || lutG.Length < 256 || lutB.Length < 256)
+            throw new ArgumentException("Channel LUTs must each contain 256 entries.");
+
+        Span<uint> data = AsUInts(pixels);
+        int i = 0;
+        for (; i <= data.Length - 4; i += 4)
+        {
+            data[i] = ApplyChannelLutPacked(data[i], lutR, lutG, lutB);
+            data[i + 1] = ApplyChannelLutPacked(data[i + 1], lutR, lutG, lutB);
+            data[i + 2] = ApplyChannelLutPacked(data[i + 2], lutR, lutG, lutB);
+            data[i + 3] = ApplyChannelLutPacked(data[i + 3], lutR, lutG, lutB);
+        }
+
+        for (; i < data.Length; i++)
+            data[i] = ApplyChannelLutPacked(data[i], lutR, lutG, lutB);
+    }
+
+    private static uint ApplyChannelLutPacked(
+        uint pixel,
+        ReadOnlySpan<byte> lutR,
+        ReadOnlySpan<byte> lutG,
+        ReadOnlySpan<byte> lutB
+    )
+    {
+        var r = lutR[(byte)pixel];
+        var g = lutG[(byte)(pixel >> 8)];
+        var b = lutB[(byte)(pixel >> 16)];
+        return (pixel & 0xFF000000u) | ((uint)b << 16) | ((uint)g << 8) | r;
+    }
 }

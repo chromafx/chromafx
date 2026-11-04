@@ -146,11 +146,12 @@ public class RgbHistogram : IHistogram
         Array.Clear(G, 0, G.Length);
         Array.Clear(B, 0, B.Length);
 
-        for (var x = 0; x < image.Width; ++x)
+        for (var y = 0; y < image.Height; ++y)
         {
-            for (var y = 0; y < image.Height; ++y)
+            var row = image.GetRowSpan(y);
+            for (var x = 0; x < image.Width; ++x)
             {
-                var pixel = image.GetRowSpan(y)[x];
+                var pixel = row[x];
                 ++R[pixel.Red];
                 ++G[pixel.Green];
                 ++B[pixel.Blue];

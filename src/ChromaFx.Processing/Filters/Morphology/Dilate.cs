@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,63 +47,69 @@ public class Dilate(int apertureRadius) : IFilter
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        var tempValues = new Color[image.PixelCount];
-        image.CopyPixelsTo(tempValues);
-        var apertureMin = -ApertureRadius;
-        var apertureMax = ApertureRadius;
+        var tempValues = FilterBufferPool.RentTightCopy(image);
+        try
+        {
+            var apertureMin = -ApertureRadius;
+            var apertureMax = ApertureRadius;
 
-        Parallel.For(
-            targetLocation.Bottom,
-            targetLocation.Top,
-            y =>
-            {
-                for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+            Parallel.For(
+                targetLocation.Bottom,
+                targetLocation.Top,
+                y =>
                 {
-                    byte rValue = 0;
-                    byte gValue = 0;
-                    byte bValue = 0;
-
-                    for (var y2 = apertureMin; y2 < apertureMax; ++y2)
+                    for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                     {
-                        var tempY = y + y2;
-                        var tempX = x + apertureMin;
+                        byte rValue = 0;
+                        byte gValue = 0;
+                        byte bValue = 0;
 
-                        if (tempY >= 0 && tempY < image.Height)
+                        for (var y2 = apertureMin; y2 < apertureMax; ++y2)
                         {
-                            var length = ApertureRadius * 2;
+                            var tempY = y + y2;
+                            var tempX = x + apertureMin;
 
-                            if (tempX < 0)
+                            if (tempY >= 0 && tempY < image.Height)
                             {
-                                length += tempX;
-                                tempX = 0;
-                            }
+                                var length = ApertureRadius * 2;
 
-                            var start = tempY * image.Width + tempX;
+                                if (tempX < 0)
+                                {
+                                    length += tempX;
+                                    tempX = 0;
+                                }
 
-                            for (var x2 = 0; x2 < length; ++x2)
-                            {
-                                if (tempX >= image.Width)
-                                    break;
+                                var start = tempY * image.Width + tempX;
 
-                                var tempR = tempValues[start].Red;
-                                var tempG = tempValues[start].Green;
-                                var tempB = tempValues[start].Blue;
+                                for (var x2 = 0; x2 < length; ++x2)
+                                {
+                                    if (tempX >= image.Width)
+                                        break;
 
-                                ++start;
+                                    var tempR = tempValues[start].Red;
+                                    var tempG = tempValues[start].Green;
+                                    var tempB = tempValues[start].Blue;
 
-                                rValue = rValue > tempR ? rValue : tempR;
-                                gValue = gValue > tempG ? gValue : tempG;
-                                bValue = bValue > tempB ? bValue : tempB;
+                                    ++start;
 
-                                ++tempX;
+                                    rValue = rValue > tempR ? rValue : tempR;
+                                    gValue = gValue > tempG ? gValue : tempG;
+                                    bValue = bValue > tempB ? bValue : tempB;
+
+                                    ++tempX;
+                                }
                             }
                         }
-                    }
 
-                    image.GetRowSpan(y)[x] = new Color(rValue, gValue, bValue);
+                        image.GetRowSpan(y)[x] = new Color(rValue, gValue, bValue);
+                    }
                 }
-            }
-        );
+            );
+        }
+        finally
+        {
+            FilterBufferPool.Return(tempValues);
+        }
 
         return image;
     }

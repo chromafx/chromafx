@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,80 +47,89 @@ public class SnnBlur(int apertureRadius) : IFilter
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        var tempValues = new Color[image.PixelCount];
-        image.CopyPixelsTo(tempValues);
-        var apertureMin = -ApertureRadius;
-        var apertureMax = ApertureRadius;
-        Parallel.For(
-            targetLocation.Bottom,
-            targetLocation.Top,
-            y =>
-            {
-                for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+        var tempValues = FilterBufferPool.RentTightCopy(image);
+        try
+        {
+            var apertureMin = -ApertureRadius;
+            var apertureMax = ApertureRadius;
+            Parallel.For(
+                targetLocation.Bottom,
+                targetLocation.Top,
+                y =>
                 {
-                    uint rValue = 0;
-                    uint gValue = 0;
-                    uint bValue = 0;
-                    var numPixels = 0;
-
-                    for (var x2 = apertureMin; x2 < apertureMax; ++x2)
+                    for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                     {
-                        var tempX1 = x + x2;
-                        var tempX2 = x - x2;
+                        uint rValue = 0;
+                        uint gValue = 0;
+                        uint bValue = 0;
+                        var numPixels = 0;
 
-                        if (
-                            tempX1 < targetLocation.Left
-                            || tempX1 >= targetLocation.Right
-                            || tempX2 < targetLocation.Left
-                            || tempX2 >= targetLocation.Right
-                        )
-                            continue;
-
-                        for (var y2 = apertureMin; y2 < apertureMax; ++y2)
+                        for (var x2 = apertureMin; x2 < apertureMax; ++x2)
                         {
-                            var tempY1 = y + y2;
-                            var tempY2 = y - y2;
+                            var tempX1 = x + x2;
+                            var tempX2 = x - x2;
 
                             if (
-                                tempY1 < targetLocation.Bottom
-                                || tempY1 >= targetLocation.Top
-                                || tempY2 < targetLocation.Bottom
-                                || tempY2 >= targetLocation.Top
+                                tempX1 < targetLocation.Left
+                                || tempX1 >= targetLocation.Right
+                                || tempX2 < targetLocation.Left
+                                || tempX2 >= targetLocation.Right
                             )
                                 continue;
 
-                            var tempValue1 = image.GetRowSpan(y)[x];
-                            var tempValue2 = image.GetRowSpan(tempY1)[tempX1];
-                            var tempValue3 = image.GetRowSpan(tempY2)[tempX2];
-
-                            if (
-                                Distance.Euclidean(tempValue1, tempValue2)
-                                < Distance.Euclidean(tempValue1, tempValue3)
-                            )
+                            for (var y2 = apertureMin; y2 < apertureMax; ++y2)
                             {
-                                rValue += tempValue2.Red;
-                                gValue += tempValue2.Green;
-                                bValue += tempValue2.Blue;
-                            }
-                            else
-                            {
-                                rValue += tempValue3.Red;
-                                gValue += tempValue3.Green;
-                                bValue += tempValue3.Blue;
-                            }
+                                var tempY1 = y + y2;
+                                var tempY2 = y - y2;
 
-                            ++numPixels;
+                                if (
+                                    tempY1 < targetLocation.Bottom
+                                    || tempY1 >= targetLocation.Top
+                                    || tempY2 < targetLocation.Bottom
+                                    || tempY2 >= targetLocation.Top
+                                )
+                                    continue;
+
+                                var tempValue1 = image.GetRowSpan(y)[x];
+                                var tempValue2 = image.GetRowSpan(tempY1)[tempX1];
+                                var tempValue3 = image.GetRowSpan(tempY2)[tempX2];
+
+                                if (
+                                    Distance.EuclideanSquared(tempValue1, tempValue2)
+                                    < Distance.EuclideanSquared(tempValue1, tempValue3)
+                                )
+                                {
+                                    rValue += tempValue2.Red;
+                                    gValue += tempValue2.Green;
+                                    bValue += tempValue2.Blue;
+                                }
+                                else
+                                {
+                                    rValue += tempValue3.Red;
+                                    gValue += tempValue3.Green;
+                                    bValue += tempValue3.Blue;
+                                }
+
+                                ++numPixels;
+                            }
                         }
+
+                        tempValues[y * image.Width + x].Red = (byte)(rValue / numPixels);
+                        tempValues[y * image.Width + x].Green = (byte)(gValue / numPixels);
+                        tempValues[y * image.Width + x].Blue = (byte)(bValue / numPixels);
+                        tempValues[y * image.Width + x].Alpha = image.GetRowSpan(y)[x].Alpha;
                     }
-
-                    tempValues[y * image.Width + x].Red = (byte)(rValue / numPixels);
-                    tempValues[y * image.Width + x].Green = (byte)(gValue / numPixels);
-                    tempValues[y * image.Width + x].Blue = (byte)(bValue / numPixels);
-                    tempValues[y * image.Width + x].Alpha = image.GetRowSpan(y)[x].Alpha;
                 }
-            }
-        );
+            );
 
-        return image.ReCreate(image.Width, image.Height, tempValues);
+            for (var y = 0; y < image.Height; ++y)
+                tempValues.AsSpan(y * image.Width, image.Width).CopyTo(image.GetRowSpan(y));
+        }
+        finally
+        {
+            FilterBufferPool.Return(tempValues);
+        }
+
+        return image;
     }
 }

@@ -47,19 +47,36 @@ public class Median(int apertureRadius) : IFilter
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         targetLocation = targetLocation.Normalize(image);
-        var tempValues = new Color[image.PixelCount];
-        image.CopyPixelsTo(tempValues);
-        var apertureMin = -ApertureRadius;
-        var apertureMax = ApertureRadius;
-        var kernelSide = apertureMax - apertureMin;
-        var maxSamples = kernelSide * kernelSide;
-        FilterParallelism.ForRows(
-            targetLocation,
-            y =>
-                ApplyRow(image, tempValues, targetLocation, y, apertureMin, apertureMax, maxSamples)
-        );
+        var tempValues = FilterBufferPool.RentTightCopy(image);
+        try
+        {
+            var apertureMin = -ApertureRadius;
+            var apertureMax = ApertureRadius;
+            var kernelSide = apertureMax - apertureMin;
+            var maxSamples = kernelSide * kernelSide;
+            FilterParallelism.ForRows(
+                targetLocation,
+                y =>
+                    ApplyRow(
+                        image,
+                        tempValues,
+                        targetLocation,
+                        y,
+                        apertureMin,
+                        apertureMax,
+                        maxSamples
+                    )
+            );
 
-        return image.ReCreate(image.Width, image.Height, tempValues);
+            for (var y = 0; y < image.Height; ++y)
+                tempValues.AsSpan(y * image.Width, image.Width).CopyTo(image.GetRowSpan(y));
+        }
+        finally
+        {
+            FilterBufferPool.Return(tempValues);
+        }
+
+        return image;
     }
 
     private static void ApplyRow(

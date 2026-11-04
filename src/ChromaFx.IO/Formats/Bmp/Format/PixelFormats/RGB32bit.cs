@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+using System.Runtime.InteropServices;
 
 namespace ChromaFx.IO.Formats.Bmp.Format.PixelFormats;
 
@@ -54,17 +56,18 @@ internal class Rgb32Bit : PixelFormatBase
                     sourceY = height - 1;
                 var sourceRowOffset = sourceY * (width * (int)Bpp + alignment);
                 var destinationRowOffset = y * width * 4;
+                var dest = MemoryMarshal.Cast<byte, uint>(
+                    returnValue.AsSpan(destinationRowOffset, width * 4)
+                );
+                var opaque = header.AlphaMask == 0;
                 for (var x = 0; x < width; ++x)
                 {
-                    var sourceX = x * (int)Bpp;
-                    var sourceOffset = sourceX + sourceRowOffset;
-                    var destinationX = x * 4;
-                    var destinationOffset = destinationX + destinationRowOffset;
-                    returnValue[destinationOffset] = data[sourceOffset + 3];
-                    returnValue[destinationOffset + 1] = data[sourceOffset + 2];
-                    returnValue[destinationOffset + 2] = data[sourceOffset + 1];
-                    returnValue[destinationOffset + 3] =
-                        header.AlphaMask == 0 ? (byte)255 : data[sourceOffset];
+                    var sourceOffset = sourceRowOffset + x * 4;
+                    var r = data[sourceOffset + 3];
+                    var g = data[sourceOffset + 2];
+                    var b = data[sourceOffset + 1];
+                    var a = opaque ? (byte)255 : data[sourceOffset];
+                    dest[x] = r | ((uint)g << 8) | ((uint)b << 16) | ((uint)a << 24);
                 }
             }
         );

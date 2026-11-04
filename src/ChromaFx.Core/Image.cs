@@ -16,6 +16,7 @@
  */
 
 using System.Numerics;
+using System.Runtime.InteropServices;
 using ChromaFx.Core.Colors;
 
 namespace ChromaFx.Core;
@@ -66,15 +67,20 @@ public partial class Image
 
         ReCreate(width, height);
         var count = Math.Min(PixelCount, data.Length / 4);
-        for (var i = 0; i < count; ++i)
+        var fullRows = count / Width;
+        var rem = count % Width;
+        for (var y = 0; y < fullRows; ++y)
         {
-            var y = i / Width;
-            var x = i % Width;
-            ref var pixel = ref GetRowSpan(y)[x];
-            pixel.Red = data[i * 4];
-            pixel.Green = data[i * 4 + 1];
-            pixel.Blue = data[i * 4 + 2];
-            pixel.Alpha = data[i * 4 + 3];
+            var src = MemoryMarshal.Cast<byte, Color>(data.AsSpan(y * Width * 4, Width * 4));
+            src.CopyTo(GetRowSpan(y));
+        }
+
+        if (rem > 0)
+        {
+            var src = MemoryMarshal.Cast<byte, Color>(
+                data.AsSpan(fullRows * Width * 4, rem * 4)
+            );
+            src.CopyTo(GetRowSpan(fullRows)[..rem]);
         }
     }
 

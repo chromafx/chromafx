@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ using ChromaFx.Core;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
 using ChromaFx.Processing.Numerics.Interfaces;
+using ChromaFx.Processing.Simd;
 
 namespace ChromaFx.Processing.Filters.Normalization;
 
@@ -48,6 +49,32 @@ public class Equalize(IHistogram histogram = null) : IFilter
     {
         targetLocation = targetLocation.Normalize(image);
         Histogram.LoadImage(image).Equalize();
+
+        // RGB histograms map channels independently → LUT. HSV (and others) may couple channels.
+        if (Histogram is RgbHistogram rgb)
+        {
+            var lutR = new byte[256];
+            var lutG = new byte[256];
+            var lutB = new byte[256];
+            for (var i = 0; i < 256; ++i)
+            {
+                lutR[i] = (byte)rgb.R[i];
+                lutG[i] = (byte)rgb.G[i];
+                lutB[i] = (byte)rgb.B[i];
+            }
+
+            Parallel.For(
+                targetLocation.Bottom,
+                targetLocation.Top,
+                y =>
+                {
+                    var row = image.GetRowSpan(y).Slice(targetLocation.Left, targetLocation.Width);
+                    PixelSimd.ApplyChannelLuts(row, lutR, lutG, lutB);
+                }
+            );
+
+            return image;
+        }
 
         Parallel.For(
             targetLocation.Bottom,

@@ -2,9 +2,10 @@
 using ChromaFx.Core.ExtensionMethods;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
+using ChromaFx.Processing.Simd;
 
 /*
-Copyright 2025 Ho Tzin Mein
+Copyright 2025–2026 Ho Tzin Mein
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -40,19 +41,23 @@ public class StretchContrast : IFilter
         var maxValue = new byte[3];
         GetMinMaxPixel(minValue, maxValue, image);
 
+        var lutR = new byte[256];
+        var lutG = new byte[256];
+        var lutB = new byte[256];
+        for (var i = 0; i < 256; ++i)
+        {
+            lutR[i] = Map((byte)i, minValue[0], maxValue[0]);
+            lutG[i] = Map((byte)i, minValue[1], maxValue[1]);
+            lutB[i] = Map((byte)i, minValue[2], maxValue[2]);
+        }
+
         Parallel.For(
             targetLocation.Bottom,
             targetLocation.Top,
             y =>
             {
-                var row = image.GetRowSpan(y);
-                for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
-                {
-                    ref var pixel = ref row[x];
-                    pixel.Red = Map(pixel.Red, minValue[0], maxValue[0]);
-                    pixel.Green = Map(pixel.Green, minValue[1], maxValue[1]);
-                    pixel.Blue = Map(pixel.Blue, minValue[2], maxValue[2]);
-                }
+                var row = image.GetRowSpan(y).Slice(targetLocation.Left, targetLocation.Width);
+                PixelSimd.ApplyChannelLuts(row, lutR, lutG, lutB);
             }
         );
 

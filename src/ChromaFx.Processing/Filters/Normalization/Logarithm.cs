@@ -19,6 +19,7 @@ using ChromaFx.Core;
 using ChromaFx.Core.Colors;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
+using ChromaFx.Processing.Simd;
 
 namespace ChromaFx.Processing.Filters.Normalization;
 
@@ -38,25 +39,27 @@ public class Logarithm : IFilter
     {
         targetLocation = targetLocation.Normalize(image);
         var maxValue = GetMaxValue(image, targetLocation);
-        maxValue = new Color(
-            (byte)(255 / Math.Log(1f + maxValue.Red)),
-            (byte)(255 / Math.Log(1f + maxValue.Green)),
-            (byte)(255 / Math.Log(1f + maxValue.Blue)),
-            maxValue.Alpha
-        );
+        // Match prior truncation of scale factors to byte before multiplying Log.
+        var scaleR = (byte)(255 / Math.Log(1f + maxValue.Red));
+        var scaleG = (byte)(255 / Math.Log(1f + maxValue.Green));
+        var scaleB = (byte)(255 / Math.Log(1f + maxValue.Blue));
+
+        var lutR = new byte[256];
+        var lutG = new byte[256];
+        var lutB = new byte[256];
+        for (var i = 0; i < 256; ++i)
+        {
+            lutR[i] = (byte)(scaleR * Math.Log(1f + i));
+            lutG[i] = (byte)(scaleG * Math.Log(1f + i));
+            lutB[i] = (byte)(scaleB * Math.Log(1f + i));
+        }
 
         FilterParallelism.ForRows(
             targetLocation,
             y =>
             {
-                var row = image.GetRowSpan(y);
-                for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
-                {
-                    ref var pixel = ref row[x];
-                    pixel.Red = (byte)(maxValue.Red * Math.Log(1f + pixel.Red));
-                    pixel.Green = (byte)(maxValue.Green * Math.Log(1f + pixel.Green));
-                    pixel.Blue = (byte)(maxValue.Blue * Math.Log(1f + pixel.Blue));
-                }
+                var row = image.GetRowSpan(y).Slice(targetLocation.Left, targetLocation.Width);
+                PixelSimd.ApplyChannelLuts(row, lutR, lutG, lutB);
             }
         );
 

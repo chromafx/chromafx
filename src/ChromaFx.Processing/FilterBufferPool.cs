@@ -16,6 +16,7 @@
 
 using System.Buffers;
 using System.Numerics;
+using ChromaFx.Core;
 using ChromaFx.Core.Colors;
 
 namespace ChromaFx.Processing;
@@ -30,6 +31,14 @@ internal static class FilterBufferPool
     {
         var buffer = ArrayPool<Color>.Shared.Rent(source.Length);
         source.CopyTo(buffer.AsSpan(0, source.Length));
+        return buffer;
+    }
+
+    /// <summary>Rents a buffer and copies tightly packed logical pixels (<c>Width×Height</c>).</summary>
+    internal static Color[] RentTightCopy(Image image)
+    {
+        var buffer = ArrayPool<Color>.Shared.Rent(image.PixelCount);
+        image.CopyPixelsTo(buffer.AsSpan(0, image.PixelCount));
         return buffer;
     }
 
