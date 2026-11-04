@@ -98,15 +98,32 @@ internal static class PixelSimd
 
     /// <summary>
     /// Applies a 256-entry LUT to R, G, and B; alpha is unchanged.
+    /// Packed <see cref="uint"/> path with unrolled batches (LUT gathers are not portable SIMD).
     /// </summary>
     internal static void ApplyRgbLut(Span<Color> pixels, ReadOnlySpan<byte> lut)
     {
-        for (int i = 0; i < pixels.Length; i++)
+        if (lut.Length < 256)
+            throw new ArgumentException("RGB LUT must contain 256 entries.", nameof(lut));
+
+        Span<uint> data = AsUInts(pixels);
+        int i = 0;
+        for (; i <= data.Length - 4; i += 4)
         {
-            ref var p = ref pixels[i];
-            p.Red = lut[p.Red];
-            p.Green = lut[p.Green];
-            p.Blue = lut[p.Blue];
+            data[i] = ApplyLutPacked(data[i], lut);
+            data[i + 1] = ApplyLutPacked(data[i + 1], lut);
+            data[i + 2] = ApplyLutPacked(data[i + 2], lut);
+            data[i + 3] = ApplyLutPacked(data[i + 3], lut);
         }
+
+        for (; i < data.Length; i++)
+            data[i] = ApplyLutPacked(data[i], lut);
+    }
+
+    private static uint ApplyLutPacked(uint pixel, ReadOnlySpan<byte> lut)
+    {
+        var r = lut[(byte)pixel];
+        var g = lut[(byte)(pixel >> 8)];
+        var b = lut[(byte)(pixel >> 16)];
+        return (pixel & 0xFF000000u) | ((uint)b << 16) | ((uint)g << 8) | r;
     }
 }

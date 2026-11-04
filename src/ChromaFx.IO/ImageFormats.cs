@@ -301,28 +301,145 @@ public static class ImageFormats
         Encode(stream, animation, encoder);
     }
 
-    internal static IImageEncoder CreateEncoder(FileFormats format) =>
-        format switch
+    internal static IImageEncoder CreateEncoder(FileFormats format)
+    {
+        switch (format)
         {
-            FileFormats.Bmp => new BmpEncoder(),
-            FileFormats.Png => new PngEncoder(),
-            FileFormats.Jpeg => new JpegEncoder(),
-            FileFormats.Gif => new GifEncoder(),
-            FileFormats.WebP or FileFormats.Avif => throw new UnknownImageFormatException(
-                $"Format '{format}' requires a registered plugin encoder (or a future native package)."
-            ),
-            _ => throw new UnknownImageFormatException($"Unsupported format '{format}'."),
-        };
+            case FileFormats.Bmp:
+                return new BmpEncoder();
+            case FileFormats.Png:
+                return new PngEncoder();
+            case FileFormats.Jpeg:
+                return new JpegEncoder();
+            case FileFormats.Gif:
+                return new GifEncoder();
+        }
 
-    internal static IAnimationEncoder CreateAnimationEncoder(FileFormats format) =>
-        format switch
+        // Prefer last registered match so plugins can override stubs (e.g. ChromaFx.Native).
+        if (TryGetRegisteredImageFormat(format, preferLast: true, out var registered))
+            return new RegisteredFormatEncoder(registered);
+
+        if (format is FileFormats.WebP or FileFormats.Avif)
         {
-            FileFormats.Gif => new GifEncoder(),
-            FileFormats.WebP or FileFormats.Avif => throw new UnknownImageFormatException(
+            throw new UnknownImageFormatException(
                 $"Format '{format}' requires a registered plugin encoder (or a future native package)."
-            ),
-            _ => throw new UnknownImageFormatException(
-                $"Format '{format}' does not support animation encoding."
-            ),
-        };
+            );
+        }
+
+        throw new UnknownImageFormatException($"Unsupported format '{format}'.");
+    }
+
+    internal static IAnimationEncoder CreateAnimationEncoder(FileFormats format)
+    {
+        if (format == FileFormats.Gif)
+            return new GifEncoder();
+
+        if (
+            TryGetRegisteredAnimationFormat(format, preferLast: true, out var registered)
+        )
+            return new RegisteredAnimationEncoder(registered);
+
+        if (format is FileFormats.WebP or FileFormats.Avif)
+        {
+            throw new UnknownImageFormatException(
+                $"Format '{format}' requires a registered plugin encoder (or a future native package)."
+            );
+        }
+
+        throw new UnknownImageFormatException(
+            $"Format '{format}' does not support animation encoding."
+        );
+    }
+
+    private static bool TryGetRegisteredImageFormat(
+        FileFormats format,
+        bool preferLast,
+        out IImageFormat imageFormat
+    )
+    {
+        EnsureBuiltIns();
+        lock (Gate)
+        {
+            if (preferLast)
+            {
+                for (var i = Formats.Count - 1; i >= 0; i--)
+                {
+                    if (Formats[i].Format != format)
+                        continue;
+                    imageFormat = Formats[i];
+                    return true;
+                }
+
+                imageFormat = null!;
+                return false;
+            }
+
+            imageFormat = Formats.FirstOrDefault(f => f.Format == format)!;
+            return imageFormat is not null;
+        }
+    }
+
+    private static bool TryGetRegisteredAnimationFormat(
+        FileFormats format,
+        bool preferLast,
+        out IAnimationFormat animationFormat
+    )
+    {
+        EnsureBuiltIns();
+        lock (Gate)
+        {
+            if (preferLast)
+            {
+                for (var i = AnimationFormats.Count - 1; i >= 0; i--)
+                {
+                    if (AnimationFormats[i].Format != format)
+                        continue;
+                    animationFormat = AnimationFormats[i];
+                    return true;
+                }
+
+                animationFormat = null!;
+                return false;
+            }
+
+            animationFormat = AnimationFormats.FirstOrDefault(f => f.Format == format)!;
+            return animationFormat is not null;
+        }
+    }
+
+    private sealed class RegisteredFormatEncoder(IImageFormat format) : IImageEncoder
+    {
+        public FileFormats Format => format.Format;
+
+        public void Encode(Stream stream, Image image)
+        {
+            ArgumentNullException.ThrowIfNull(stream);
+            ArgumentNullException.ThrowIfNull(image);
+            using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
+            format.Encode(writer, image);
+        }
+    }
+
+    private sealed class RegisteredAnimationEncoder(IAnimationFormat format)
+        : IImageEncoder,
+            IAnimationEncoder
+    {
+        public FileFormats Format => format.Format;
+
+        public void Encode(Stream stream, Image image)
+        {
+            ArgumentNullException.ThrowIfNull(stream);
+            ArgumentNullException.ThrowIfNull(image);
+            using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
+            format.Encode(writer, image);
+        }
+
+        public void Encode(Stream stream, Animation animation)
+        {
+            ArgumentNullException.ThrowIfNull(stream);
+            ArgumentNullException.ThrowIfNull(animation);
+            using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
+            format.Encode(writer, animation);
+        }
+    }
 }

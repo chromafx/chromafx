@@ -18,6 +18,7 @@
     <Project Path="src/ChromaFx/ChromaFx.csproj" />
     <Project Path="src/ChromaFx.Core/ChromaFx.Core.csproj" />
     <Project Path="src/ChromaFx.IO/ChromaFx.IO.csproj" />
+    <Project Path="src/ChromaFx.Native/ChromaFx.Native.csproj" />
     <Project Path="src/ChromaFx.PixelArt/ChromaFx.PixelArt.csproj" />
     <Project Path="src/ChromaFx.Processing/ChromaFx.Processing.csproj" />
   </Folder>

@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,13 @@ public partial struct Color : IEquatable<Color>
     /// <param name="blue">The blue.</param>
     /// <param name="alpha">The alpha.</param>
     public Color(byte red, byte green = 0, byte blue = 0, byte alpha = 255)
-        : this(new[] { red, green, blue, alpha }) { }
+    {
+        IntData = 0;
+        Red = red;
+        Green = green;
+        Blue = blue;
+        Alpha = alpha;
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Color"/> struct.

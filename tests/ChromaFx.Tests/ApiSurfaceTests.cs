@@ -193,6 +193,23 @@ public class ApiSurfaceTests
     }
 
     [Fact]
+    public void RegisteredWebPPluginDrivesEnumSaveAndToByteArray()
+    {
+        var stub = new StubWebPFormat();
+        ImageFormats.Register(stub);
+
+        var image = new Image(1, 1, [new Color(255, 0, 0, 255)]);
+        using var stream = new MemoryStream();
+        image.Save(stream, FileFormats.WebP);
+        Assert.Equal(1, stub.EncodeCalls);
+        Assert.Equal("WEBPSTUB"u8.ToArray(), stream.ToArray());
+
+        var bytes = image.ToByteArray(FileFormats.WebP);
+        Assert.Equal(2, stub.EncodeCalls);
+        Assert.Equal("WEBPSTUB"u8.ToArray(), bytes);
+    }
+
+    [Fact]
     public void AnimationLoadReadsGifFrames()
     {
         var animation = Animation.Load("./TestImages/Formats/Gif/rings.gif");
@@ -311,6 +328,30 @@ public class ApiSurfaceTests
         {
             EncodeCalls++;
             writer.Write(Encoding.ASCII.GetBytes("STUB"));
+        }
+    }
+
+    private sealed class StubWebPFormat : IImageFormat
+    {
+        public int EncodeCalls { get; private set; }
+
+        public FileFormats Format => FileFormats.WebP;
+
+        public bool CanDecode(string fileName) => false;
+
+        public bool CanDecode(byte[] header) => false;
+
+        public bool CanDecode(Stream stream) => false;
+
+        public bool CanEncode(string fileName) =>
+            fileName.EndsWith(".webp", StringComparison.OrdinalIgnoreCase);
+
+        public Image Decode(Stream stream) => throw new NotSupportedException();
+
+        public void Encode(BinaryWriter writer, Image image)
+        {
+            EncodeCalls++;
+            writer.Write(Encoding.ASCII.GetBytes("WEBPSTUB"));
         }
     }
 }

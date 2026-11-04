@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,9 +82,8 @@ public class AdaptiveThreshold(int apertureRadius, Color color1, Color color2, f
                 for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                 {
                     var targetIndex = y * image.Width + x;
-                    var rValues = new List<byte>(
-                        (apertureMax - apertureMin) * (apertureMax - apertureMin)
-                    );
+                    long sum = 0;
+                    var count = 0;
 
                     for (var x2 = apertureMin; x2 < apertureMax; ++x2)
                     {
@@ -97,15 +96,15 @@ public class AdaptiveThreshold(int apertureRadius, Color color1, Color color2, f
                             var tempY = y + y2;
                             if (tempY >= targetLocation.Bottom && tempY < targetLocation.Top)
                             {
-                                rValues.Add(image.GetRowSpan(tempY)[tempX].Red);
+                                sum += image.GetRowSpan(tempY)[tempX].Red;
+                                ++count;
                             }
                         }
                     }
 
+                    // Same as Average(value => value / 255f) >= Threshold.
                     tempValues[targetIndex] =
-                        rValues.Count > 0 && rValues.Average(value => value / 255f) >= Threshold
-                            ? Color1
-                            : Color2;
+                        count > 0 && sum / (count * 255f) >= Threshold ? Color1 : Color2;
                 }
             }
         );

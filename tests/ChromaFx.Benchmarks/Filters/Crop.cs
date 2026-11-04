@@ -12,20 +12,25 @@ public class Crop
     private static int Height => 8000;
     private static int Width => 8000;
 
+    private Core.Image _image = null!;
+    private Processing.Filters.Resampling.Crop _cropFilter = null!;
+
+    [GlobalSetup]
+    public void Setup()
+    {
+        _cropFilter = new Processing.Filters.Resampling.Crop();
+    }
+
+    [IterationSetup]
+    public void CreateImage()
+    {
+        _image = new Core.Image(Width, Height);
+    }
+
     [Benchmark(Description = "ChromaFx Crop")]
     public void CropChromaFx()
     {
-        var testImage = new Core.Image(Width, Height, new byte[Width * Height * 4]);
-        var cropFilter = new Processing.Filters.Resampling.Crop();
-        cropFilter.Apply(testImage, new Processing.Numerics.Rectangle(0, 0, Count, Count));
-    }
-
-    [Benchmark(Description = "ChromaFx Test Crop")]
-    public void CropChromaFxTest()
-    {
-        var testImage = new Core.Image(Width, Height, new byte[Width * Height * 4]);
-        var testCropFilter = new Processing.Filters.Resampling.Crop();
-        testCropFilter.Apply(testImage, new Processing.Numerics.Rectangle(0, 0, Count, Count));
+        _cropFilter.Apply(_image, new Processing.Numerics.Rectangle(0, 0, Count, Count));
     }
 
     [SupportedOSPlatform("windows")]

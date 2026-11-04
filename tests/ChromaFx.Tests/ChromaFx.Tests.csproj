@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ChromaFx\ChromaFx.csproj" />
+    <ProjectReference Include="..\..\src\ChromaFx.Native\ChromaFx.Native.csproj" />
     <ProjectReference Include="..\..\src\ChromaFx.PixelArt\ChromaFx.PixelArt.csproj" />
   </ItemGroup>
 </Project>

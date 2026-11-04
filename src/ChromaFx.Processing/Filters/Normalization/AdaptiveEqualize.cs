@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+using System.Buffers;
 using ChromaFx.Core;
 using ChromaFx.Core.Colors;
 using ChromaFx.Processing.Filters.Interfaces;
@@ -59,15 +60,22 @@ public class AdaptiveEqualize(int radius, Func<IHistogram> histogram = null) : I
         image.CopyPixelsTo(tempValues);
         var apertureMin = -Radius;
         var apertureMax = Radius;
+        var apertureSide = Math.Max(Radius * 2, 1);
+        var maxColors = apertureSide * apertureSide;
 
         Parallel.For(
             targetLocation.Bottom,
             targetLocation.Top,
-            y =>
+            () =>
+                (
+                    Histogram: Histogram(),
+                    Buffer: ArrayPool<Color>.Shared.Rent(maxColors)
+                ),
+            (y, _, local) =>
             {
                 for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                 {
-                    var colorList = new List<Color>();
+                    var count = 0;
                     for (var y2 = apertureMin; y2 < apertureMax; ++y2)
                     {
                         var tempY = y + y2;
@@ -83,22 +91,26 @@ public class AdaptiveEqualize(int radius, Func<IHistogram> histogram = null) : I
                         var start = tempY * image.Width + tempX;
                         for (var x2 = 0; x2 < length && tempX < image.Width; ++x2)
                         {
-                            colorList.Add(tempValues[start]);
+                            local.Buffer[count++] = tempValues[start];
                             ++start;
                             ++tempX;
                         }
                     }
 
-                    var tempHistogram = Histogram().Load(colorList.ToArray()).Equalize();
-                    var resultColor = tempHistogram.EqualizeColor(
-                        image.GetRowSpan(y)[x]
-                    );
+                    var tempHistogram = local
+                        .Histogram.Load(local.Buffer.AsSpan(0, count))
+                        .Equalize();
+                    var row = image.GetRowSpan(y);
+                    var resultColor = tempHistogram.EqualizeColor(row[x]);
 
-                    image.GetRowSpan(y)[x].Red = resultColor.Red;
-                    image.GetRowSpan(y)[x].Green = resultColor.Green;
-                    image.GetRowSpan(y)[x].Blue = resultColor.Blue;
+                    row[x].Red = resultColor.Red;
+                    row[x].Green = resultColor.Green;
+                    row[x].Blue = resultColor.Blue;
                 }
-            }
+
+                return local;
+            },
+            local => ArrayPool<Color>.Shared.Return(local.Buffer)
         );
 
         return image;

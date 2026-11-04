@@ -29,6 +29,13 @@ public interface IHistogram
     IHistogram Load(params Color[] colors);
 
     /// <summary>
+    /// Loads the specified colors without requiring a params array copy.
+    /// </summary>
+    /// <param name="colors">The colors.</param>
+    /// <returns>This</returns>
+    IHistogram Load(ReadOnlySpan<Color> colors);
+
+    /// <summary>
     /// Loads an image
     /// </summary>
     /// <param name="image">Image to load</param>

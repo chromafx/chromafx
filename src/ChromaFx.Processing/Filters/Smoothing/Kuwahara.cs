@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,18 +68,29 @@ public class Kuwahara : IFilter
             targetLocation.Top,
             y =>
             {
+                Span<uint> rValues = stackalloc uint[4];
+                Span<uint> gValues = stackalloc uint[4];
+                Span<uint> bValues = stackalloc uint[4];
+                Span<uint> numPixels = stackalloc uint[4];
+                Span<uint> maxRValue = stackalloc uint[4];
+                Span<uint> maxGValue = stackalloc uint[4];
+                Span<uint> maxBValue = stackalloc uint[4];
+                Span<uint> minRValue = stackalloc uint[4];
+                Span<uint> minGValue = stackalloc uint[4];
+                Span<uint> minBValue = stackalloc uint[4];
+
                 for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                 {
-                    uint[] rValues = [0, 0, 0, 0];
-                    uint[] gValues = [0, 0, 0, 0];
-                    uint[] bValues = [0, 0, 0, 0];
-                    uint[] numPixels = [0, 0, 0, 0];
-                    uint[] maxRValue = [0, 0, 0, 0];
-                    uint[] maxGValue = [0, 0, 0, 0];
-                    uint[] maxBValue = [0, 0, 0, 0];
-                    uint[] minRValue = [255, 255, 255, 255];
-                    uint[] minGValue = [255, 255, 255, 255];
-                    uint[] minBValue = [255, 255, 255, 255];
+                    rValues.Clear();
+                    gValues.Clear();
+                    bValues.Clear();
+                    numPixels.Clear();
+                    maxRValue.Clear();
+                    maxGValue.Clear();
+                    maxBValue.Clear();
+                    minRValue.Fill(255);
+                    minGValue.Fill(255);
+                    minBValue.Fill(255);
 
                     for (var i = 0; i < 4; ++i)
                     {

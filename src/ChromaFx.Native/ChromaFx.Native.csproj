@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Title>ChromaFx.Native</Title>
+    <Authors>Ho Tzin Mein</Authors>
+    <Description>Optional native codec package for ChromaFx (WebP/AVIF). Stub registration only in this release — Decode/Encode throw until native libraries are packaged.</Description>
+    <Copyright>Copyright $([System.DateTime]::Now.Year) Ho Tzin Mein</Copyright>
+    <RepositoryUrl>https://github.com/chromafx/chromafx</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>image graphics webp avif codec native imageprocessing dotnet csharp chromafx</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\assets\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ChromaFx.IO\ChromaFx.IO.csproj" />
+  </ItemGroup>
+</Project>

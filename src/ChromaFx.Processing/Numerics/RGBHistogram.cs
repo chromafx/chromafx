@@ -114,7 +114,10 @@ public class RgbHistogram : IHistogram
     /// </summary>
     /// <param name="colors">The colors.</param>
     /// <returns>This</returns>
-    public IHistogram Load(params Color[] colors)
+    public IHistogram Load(params Color[] colors) => Load(colors.AsSpan());
+
+    /// <inheritdoc />
+    public IHistogram Load(ReadOnlySpan<Color> colors)
     {
         _width = colors.Length;
         _height = 1;

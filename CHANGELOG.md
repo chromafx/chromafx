@@ -8,6 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `ChromaFx.Native` opt-in stub package — registers WebP/AVIF format probes and typed encoders; Decode/Encode throw until native codecs ship (not in the meta-package).
+- `IHistogram.Load(ReadOnlySpan<Color>)` for zero-copy histogram loads.
+- Benchmarks: Gamma, Posterize, Blend; AdaptiveThreshold / Crop setup moved out of timed path.
+
+### Changed
+- `ImageFormats.CreateEncoder` / `CreateAnimationEncoder` resolve registered plugins for `FileFormats.WebP` / `Avif` (last registration wins).
+- `PixelSimd.ApplyRgbLut` uses a packed `uint` unrolled path (Gamma / Posterize).
+- AdaptiveThreshold, AdaptiveEqualize, Kuwahara, and Blend cut per-pixel / per-row heap allocations.
+
+### Fixed
+- `Color(byte, byte, byte, byte)` no longer allocates a temporary array on every construction.
+
 ## [0.6.0]
 
 First tag-only NuGet release. Packages are published from `v*.*.*` tags only (no continuous publish on every `master` commit). The `0.5.0-beta.{CI run}` line ends here; 0.x has no `-beta` suffix (SemVer 0.x already signals pre-1.0).

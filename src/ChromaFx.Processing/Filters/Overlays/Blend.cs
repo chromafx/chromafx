@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.Core.Colors;
 using ChromaFx.Processing.Filters.ColorMatrix;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
@@ -82,31 +81,19 @@ public class Blend : IFilter
             ++y1, ++y2
         )
         {
-            var targetRow = new Color[targetLocation.Width];
-            var sourceRow = new Color[SourceLocation.Width];
-
-            image
+            var targetRow = image
                 .GetRowSpan(y1)
-                .Slice(targetLocation.Left, targetLocation.Width)
-                .CopyTo(targetRow);
-            Image
+                .Slice(targetLocation.Left, targetLocation.Width);
+            var sourceRow = Image
                 .GetRowSpan(y2)
-                .Slice(SourceLocation.Left, SourceLocation.Width)
-                .CopyTo(sourceRow);
+                .Slice(SourceLocation.Left, SourceLocation.Width);
 
-            for (
-                int x1 = 0, x2 = 0;
-                x1 < targetLocation.Width && x2 < SourceLocation.Width;
-                ++x1, ++x2
-            )
+            var width = Math.Min(targetLocation.Width, SourceLocation.Width);
+            for (var x = 0; x < width; ++x)
             {
-                var tempAlpha = sourceRow[x2].Alpha / 255f;
-                targetRow[x1] = targetRow[x1] * (1f - tempAlpha) + sourceRow[x2] * tempAlpha;
+                var tempAlpha = sourceRow[x].Alpha / 255f;
+                targetRow[x] = targetRow[x] * (1f - tempAlpha) + sourceRow[x] * tempAlpha;
             }
-
-            targetRow
-                .AsSpan(0, targetLocation.Width)
-                .CopyTo(image.GetRowSpan(y1).Slice(targetLocation.Left, targetLocation.Width));
         }
 
         return image;
