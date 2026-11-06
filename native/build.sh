@@ -68,22 +68,106 @@ need() {
   fi
 }
 
+# bash 3.2 (macOS /bin/bash) errors on "${arr[@]}" when the array is empty and set -u.
+run_cmake() {
+  if [[ ${#CMAKE_EXTRA[@]} -gt 0 ]]; then
+    cmake "$@" "${CMAKE_EXTRA[@]}"
+  else
+    cmake "$@"
+  fi
+}
+
+cmake_build() {
+  cmake --build "$1" --config Release --parallel
+}
+
+cmake_install() {
+  cmake --install "$1" --config Release
+}
+
+# libaom rejects NASM 3: `nasm -hf` no longer documents -Ox multipass.
+ensure_nasm() {
+  case "$RID" in
+    *-x64) ;;
+    *) return 0 ;;
+  esac
+  if command -v nasm >/dev/null 2>&1 && nasm -hf 2>/dev/null | grep -q -- '-Ox'; then
+    echo "using $(nasm -v)"
+    return 0
+  fi
+
+  local version="2.16.03"
+  local prefix="$CACHE/nasm-$version"
+  local bin="$prefix/nasm"
+  if [[ "$RID" == win-* ]]; then
+    bin="$prefix/nasm.exe"
+  fi
+  if [[ ! -x "$bin" ]]; then
+    echo "building nasm $version (system nasm is missing or too new for libaom)"
+    mkdir -p "$prefix"
+    if [[ "$RID" == win-* ]]; then
+      local archive="$CACHE/nasm-$version-win64.zip"
+      curl -fsSL -o "$archive" "https://www.nasm.us/pub/nasm/releasebuilds/$version/win64/nasm-$version-win64.zip"
+      rm -rf "$CACHE/nasm-unpack"
+      python3 - "$archive" "$CACHE/nasm-unpack" <<'PY'
+import pathlib, sys, zipfile
+dest = pathlib.Path(sys.argv[2])
+dest.mkdir(parents=True, exist_ok=True)
+zipfile.ZipFile(sys.argv[1]).extractall(dest)
+PY
+      local exe
+      exe="$(find "$CACHE/nasm-unpack" -name nasm.exe -type f | head -n 1)"
+      if [[ -z "$exe" ]]; then
+        echo "nasm.exe not found in $archive" >&2
+        exit 1
+      fi
+      cp "$exe" "$bin"
+    else
+      need make
+      need cc
+      local archive="$CACHE/nasm-$version.tar.gz"
+      local src="$CACHE/nasm-$version-src"
+      curl -fsSL -o "$archive" "https://www.nasm.us/pub/nasm/releasebuilds/$version/nasm-$version.tar.gz"
+      rm -rf "$src"
+      mkdir -p "$src"
+      tar -xzf "$archive" -C "$src" --strip-components 1
+      local jobs
+      jobs="$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 4)"
+      (cd "$src" && ./configure --prefix="$prefix" && make -j"$jobs")
+      cp "$src/nasm" "$bin"
+      chmod +x "$bin"
+    fi
+  fi
+  export PATH="$prefix:$PATH"
+  hash -r 2>/dev/null || true
+  echo "using $($bin -v)"
+  if ! "$bin" -hf 2>/dev/null | grep -q -- '-Ox'; then
+    echo "nasm $version still lacks -Ox; libaom cannot use it" >&2
+    exit 1
+  fi
+}
+
 need git
 need cmake
 need meson
 need ninja
-case "$RID" in
-  *-x64) need nasm ;;
-esac
+need curl
+need python3
 
 mkdir -p "$CACHE" "$OUT"
+ensure_nasm
 
 clone() {
   local url="$1" tag="$2" dest="$3"
-  if [[ ! -d "$dest/.git" ]]; then
-    rm -rf "$dest"
-    git clone --depth 1 --branch "$tag" "$url" "$dest"
+  if [[ -d "$dest/.git" ]]; then
+    return 0
   fi
+  rm -rf "$dest"
+  git init "$dest"
+  git -C "$dest" remote add origin "$url"
+  # Peel annotated tags. `git clone --branch vX` warns "is not a commit" on a shallow fetch.
+  git -C "$dest" fetch --depth 1 origin "refs/tags/${tag}:refs/tags/${tag}"
+  git -C "$dest" checkout --detach "${tag}^{}"
 }
 
 copy_shared() {
@@ -126,7 +210,7 @@ path.write_text(text.replace(old, new, 1))
 PY
 fi
 rm -rf "$CACHE/libwebp-build"
-cmake -S "$CACHE/libwebp" -B "$CACHE/libwebp-build" \
+run_cmake -S "$CACHE/libwebp" -B "$CACHE/libwebp-build" \
   -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_SHARED_LIBS=ON \
   -DWEBP_LINK_STATIC=ON \
@@ -141,15 +225,14 @@ cmake -S "$CACHE/libwebp" -B "$CACHE/libwebp-build" \
   -DWEBP_BUILD_WEBPMUX=OFF \
   -DWEBP_BUILD_EXTRAS=OFF \
   -DWEBP_BUILD_WEBP_JS=OFF \
-  -DCMAKE_INSTALL_PREFIX="$CACHE/libwebp-install" \
-  "${CMAKE_EXTRA[@]}"
-cmake --build "$CACHE/libwebp-build" --parallel
-cmake --install "$CACHE/libwebp-build"
+  -DCMAKE_INSTALL_PREFIX="$CACHE/libwebp-install"
+cmake_build "$CACHE/libwebp-build"
+cmake_install "$CACHE/libwebp-build"
 copy_shared "$CACHE/libwebp-install" webp
 
 echo "building libavif $LIBAVIF_TAG (dav1d decode, libaom encode) for $RID"
 clone "https://github.com/AOMediaCodec/libavif.git" "$LIBAVIF_TAG" "$CACHE/libavif"
-cmake -S "$CACHE/libavif" -B "$CACHE/libavif-build" \
+run_cmake -S "$CACHE/libavif" -B "$CACHE/libavif-build" \
   -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_SHARED_LIBS=OFF \
   -DAVIF_CODEC_AOM=LOCAL \
@@ -160,10 +243,9 @@ cmake -S "$CACHE/libavif" -B "$CACHE/libavif-build" \
   -DAVIF_BUILD_EXAMPLES=OFF \
   -DAVIF_LIBYUV=OFF \
   -DAVIF_LIBSHARPYUV=OFF \
-  -DCMAKE_INSTALL_PREFIX="$CACHE/libavif-install" \
-  "${CMAKE_EXTRA[@]}"
-cmake --build "$CACHE/libavif-build" --parallel
-cmake --install "$CACHE/libavif-build"
+  -DCMAKE_INSTALL_PREFIX="$CACHE/libavif-install"
+cmake_build "$CACHE/libavif-build"
+cmake_install "$CACHE/libavif-build"
 
 AVIF_LIB="$(find "$CACHE/libavif-install" "$CACHE/libavif-build" \( -name 'libavif.a' -o -name 'avif.lib' \) -type f -print -quit)"
 DAV1D_LIB="$(find "$CACHE/libavif-build" \( -name 'libdav1d.a' -o -name 'dav1d.lib' \) -type f -print -quit)"
@@ -173,23 +255,19 @@ if [[ -z "$AVIF_LIB" || -z "$DAV1D_LIB" || -z "$AOM_LIB" ]]; then
   exit 1
 fi
 
-cmake -S "$ROOT/native/chroma_avif" -B "$CACHE/chromaavif-build" \
+run_cmake -S "$ROOT/native/chroma_avif" -B "$CACHE/chromaavif-build" \
   -DCMAKE_BUILD_TYPE=Release \
   -DAVIF_INCLUDE_DIR="$CACHE/libavif-install/include" \
   -DAVIF_LIBRARY="$AVIF_LIB" \
   -DDAV1D_LIBRARY="$DAV1D_LIB" \
-  -DAOM_LIBRARY="$AOM_LIB" \
-  "${CMAKE_EXTRA[@]}"
-cmake --build "$CACHE/chromaavif-build" --parallel
+  -DAOM_LIBRARY="$AOM_LIB"
+cmake_build "$CACHE/chromaavif-build"
 copy_shared "$CACHE/chromaavif-build" chromaavif
 
 echo "building libjxl $LIBJXL_TAG for $RID"
-if [[ ! -d "$CACHE/libjxl/.git" ]]; then
-  rm -rf "$CACHE/libjxl"
-  git clone --depth 1 --branch "$LIBJXL_TAG" "https://github.com/libjxl/libjxl.git" "$CACHE/libjxl"
-fi
+clone "https://github.com/libjxl/libjxl.git" "$LIBJXL_TAG" "$CACHE/libjxl"
 git -C "$CACHE/libjxl" submodule update --init --depth 1 -- third_party/highway third_party/brotli third_party/skcms
-cmake -S "$CACHE/libjxl" -B "$CACHE/libjxl-build" \
+run_cmake -S "$CACHE/libjxl" -B "$CACHE/libjxl-build" \
   -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_TESTING=OFF \
   -DBUILD_SHARED_LIBS=OFF \
@@ -209,10 +287,9 @@ cmake -S "$CACHE/libjxl" -B "$CACHE/libjxl-build" \
   -DJPEGXL_ENABLE_SKCMS=ON \
   -DJPEGXL_FORCE_SYSTEM_BROTLI=OFF \
   -DJPEGXL_FORCE_SYSTEM_HWY=OFF \
-  -DCMAKE_INSTALL_PREFIX="$CACHE/libjxl-install" \
-  "${CMAKE_EXTRA[@]}"
-cmake --build "$CACHE/libjxl-build" --parallel
-cmake --install "$CACHE/libjxl-build"
+  -DCMAKE_INSTALL_PREFIX="$CACHE/libjxl-install"
+cmake_build "$CACHE/libjxl-build"
+cmake_install "$CACHE/libjxl-build"
 
 find_static() {
   local name="$1"
@@ -234,7 +311,7 @@ BROTLIDEC_LIB="$(find_static brotlidec)"
 BROTLICOMMON_LIB="$(find_static brotlicommon)"
 SKCMS_LIB="$(find "$CACHE/libjxl-install" "$CACHE/libjxl-build" \( -name 'libskcms.a' -o -name 'skcms.lib' \) -type f -print -quit || true)"
 
-cmake -S "$ROOT/native/chroma_jxl" -B "$CACHE/chromajxl-build" \
+run_cmake -S "$ROOT/native/chroma_jxl" -B "$CACHE/chromajxl-build" \
   -DCMAKE_BUILD_TYPE=Release \
   -DJXL_INCLUDE_DIR="$CACHE/libjxl-install/include" \
   -DJXL_LIBRARY="$JXL_LIB" \
@@ -243,9 +320,8 @@ cmake -S "$ROOT/native/chroma_jxl" -B "$CACHE/chromajxl-build" \
   -DBROTLIENC_LIBRARY="$BROTLIENC_LIB" \
   -DBROTLIDEC_LIBRARY="$BROTLIDEC_LIB" \
   -DBROTLICOMMON_LIBRARY="$BROTLICOMMON_LIB" \
-  -DSKCMS_LIBRARY="$SKCMS_LIB" \
-  "${CMAKE_EXTRA[@]}"
-cmake --build "$CACHE/chromajxl-build" --parallel
+  -DSKCMS_LIBRARY="$SKCMS_LIB"
+cmake_build "$CACHE/chromajxl-build"
 copy_shared "$CACHE/chromajxl-build" chromajxl
 
 if [[ "$RID" == osx-* ]]; then
