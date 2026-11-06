@@ -54,7 +54,15 @@ esac
 
 if [[ "$RID" != "$HOST" ]]; then
   if [[ "$HOST" == "osx-arm64" && "$RID" == "osx-x64" ]]; then
-    CMAKE_EXTRA+=(-DCMAKE_SYSTEM_NAME=Darwin -DCMAKE_SYSTEM_PROCESSOR=x86_64 -DCMAKE_OSX_ARCHITECTURES=x86_64)
+    # libavif writes these into dav1d's meson cross file. An empty sysroot becomes -isysroot ''.
+    sdk="$(xcrun --sdk macosx --show-sdk-path)"
+    CMAKE_EXTRA+=(
+      -DCMAKE_SYSTEM_NAME=Darwin
+      -DCMAKE_SYSTEM_PROCESSOR=x86_64
+      -DCMAKE_OSX_ARCHITECTURES=x86_64
+      -DCMAKE_OSX_SYSROOT="$sdk"
+      -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
+    )
   else
     echo "Build $RID on a $RID machine (this host is $HOST)." >&2
     exit 1
@@ -77,8 +85,22 @@ run_cmake() {
   fi
 }
 
+# libjxl's C++ objects are large. Uncapped -j is killed with SIGTERM (exit 143) on CI.
+build_jobs() {
+  if [[ -n "${JOBS:-}" ]]; then
+    echo "$JOBS"
+    return 0
+  fi
+  local n
+  n="$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 2)"
+  if [[ "$n" -gt 2 ]]; then
+    n=2
+  fi
+  echo "$n"
+}
+
 cmake_build() {
-  cmake --build "$1" --config Release --parallel
+  cmake --build "$1" --config Release --parallel "$(build_jobs)"
 }
 
 cmake_install() {
@@ -147,6 +169,30 @@ PY
   fi
 }
 
+# Git for Windows ships usr/bin/link.exe, which is not a linker. dav1d's meson
+# setup rejects it. The MSVC developer shell sets VCToolsInstallDir.
+prefer_msvc_link() {
+  [[ "$RID" == win-* ]] || return 0
+  local raw="${VCToolsInstallDir:-}"
+  if [[ -z "$raw" ]]; then
+    echo "VCToolsInstallDir is unset. Start from an MSVC developer shell so dav1d uses the MSVC linker." >&2
+    exit 1
+  fi
+  raw="${raw//\\//}"
+  [[ "$raw" == */ ]] || raw="${raw}/"
+  local link_dir="${raw}bin/Hostx64/x64"
+  if [[ ! -e "$link_dir/link.exe" ]]; then
+    echo "MSVC link.exe not found at $link_dir" >&2
+    exit 1
+  fi
+  if command -v cygpath >/dev/null 2>&1; then
+    link_dir="$(cygpath -u "$link_dir")"
+  fi
+  export PATH="${link_dir}:$PATH"
+  hash -r 2>/dev/null || true
+  echo "preferring MSVC linker at $link_dir"
+}
+
 need git
 need cmake
 need meson
@@ -156,6 +202,7 @@ need python3
 
 mkdir -p "$CACHE" "$OUT"
 ensure_nasm
+prefer_msvc_link
 
 clone() {
   local url="$1" tag="$2" dest="$3"
