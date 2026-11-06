@@ -18,12 +18,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using ChromaFx.IO;
 using ChromaFx.Native.Formats.Avif;
+using ChromaFx.Native.Formats.Jxl;
 using ChromaFx.Native.Formats.WebP;
 
 namespace ChromaFx.Native;
 
 /// <summary>
-/// Registers stub WebP/AVIF formats when this package is referenced.
+/// Registers still WebP, AVIF, and JPEG XL formats when this package is referenced.
 /// </summary>
 internal static class NativeFormatsBootstrap
 {
@@ -38,5 +39,6 @@ internal static class NativeFormatsBootstrap
         ImageFormats.EnsureBuiltIns();
         ImageFormats.Register(new WebPFormat());
         ImageFormats.Register(new AvifFormat());
+        ImageFormats.Register(new JxlFormat());
     }
 }

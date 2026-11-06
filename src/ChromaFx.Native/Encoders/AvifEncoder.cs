@@ -23,10 +23,25 @@ using ChromaFx.Native.Formats.Avif;
 namespace ChromaFx.Native.Encoders;
 
 /// <summary>
-/// Typed AVIF encoder stub. Throws until native codecs ship.
+/// Typed still-AVIF encoder.
 /// </summary>
 public sealed class AvifEncoder : IImageEncoder
 {
+    /// <summary>
+    /// Default lossy quality (0–100).
+    /// </summary>
+    public const int DefaultQuality = 60;
+
+    /// <summary>
+    /// Gets or sets lossy quality (0–100). Ignored when <see cref="Lossless"/> is true.
+    /// </summary>
+    public int Quality { get; set; } = DefaultQuality;
+
+    /// <summary>
+    /// Gets or sets whether to write a full-range 4:4:4 identity AVIF (best-effort lossless).
+    /// </summary>
+    public bool Lossless { get; set; }
+
     /// <inheritdoc />
     public FileFormats Format => FileFormats.Avif;
 
@@ -36,6 +51,6 @@ public sealed class AvifEncoder : IImageEncoder
         ArgumentNullException.ThrowIfNull(stream);
         ArgumentNullException.ThrowIfNull(image);
         using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
-        new AvifFormat().Encode(writer, image);
+        new AvifFormat().Encode(writer, image, Quality, Lossless);
     }
 }

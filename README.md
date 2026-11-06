@@ -9,7 +9,7 @@ Modern .NET image processing library.
 A lean, managed alternative for .NET apps that need image processing without native codec DLLs.
 
 **Key points:**
-- Pure managed C# on .NET 10 — no third-party NuGet dependencies, no native codec binaries to deploy (BMP, PNG, JPEG, GIF)
+- Pure managed C# on .NET 10 — no third-party NuGet dependencies, no native codec binaries to deploy (BMP, PNG, JPEG, GIF, TGA, TIFF)
 - Uses `Span<T>`, `ArrayPool`, and SIMD on key paths
 - Explicit `Mutate` / `Clone` processing API
 - Typed encoders (`JpegEncoder`, `PngEncoder`, …) and a public `ImageFormats` registry for extensions
@@ -17,7 +17,7 @@ A lean, managed alternative for .NET apps that need image processing without nat
 - `Load` / `LoadAsync` from path, stream, `byte[]`, memory, or span; matching `Save` / `SaveAsync`
 - Terminal rendering (`ChromaFx.Processing.Terminal`) — ASCII/ANSI art plus Kitty and iTerm2 inline images
 - Opt-in [`ChromaFx.PixelArt`](https://www.nuget.org/packages/ChromaFx.PixelArt/) — Scale2x / Scale3x / Hq2x–4x / CleanEdge / Eagle / SaI upscalers and `RotateSprite` / `CleanEdgeRotate` (not in the meta-package)
-- Opt-in [`ChromaFx.Native`](https://www.nuget.org/packages/ChromaFx.Native/) — WebP/AVIF format registration stubs (Decode/Encode not functional yet; not in the meta-package)
+- Opt-in [`ChromaFx.Native`](https://www.nuget.org/packages/ChromaFx.Native/) — still WebP, AVIF, and JPEG XL (not in the meta-package; animated WebP/AVIF/JPEG XL are not supported)
 
 ## Performance & Architecture
 
@@ -32,12 +32,12 @@ Fully managed on .NET 10 — no native codec binaries for Docker/Lambda multi-ar
 | `ChromaFx.IO`          | Image file IO, encoding/decoding support.                                   | [ChromaFx.IO](https://www.nuget.org/packages/ChromaFx.IO/) |
 | `ChromaFx.Processing`  | Image processing algorithms and effects.                                    | [ChromaFx.Processing](https://www.nuget.org/packages/ChromaFx.Processing/) |
 | `ChromaFx.PixelArt`    | Opt-in pixel-art upscaling (Scale2x / Scale3x, Hq2x–4x, CleanEdge, Eagle, SaI) and `RotateSprite` / `CleanEdgeRotate`. Not in the meta-package. | [ChromaFx.PixelArt](https://www.nuget.org/packages/ChromaFx.PixelArt/) |
-| `ChromaFx.Native`      | Opt-in WebP/AVIF stubs (not yet functional codecs). Not in the meta-package. | [ChromaFx.Native](https://www.nuget.org/packages/ChromaFx.Native/) |
+| `ChromaFx.Native`      | Opt-in still WebP, AVIF, and JPEG XL. Not in the meta-package. | [ChromaFx.Native](https://www.nuget.org/packages/ChromaFx.Native/) |
 
 - Use `ChromaFx` for new projects targeting .NET 10.
 - Use `ChromaFx.Core`, `ChromaFx.IO`, and `ChromaFx.Processing` for modular usage.
 - Add `ChromaFx.PixelArt` for Scale2x / Scale3x / Hq2x–4x / CleanEdge / Eagle / SaI or `RotateSprite` / `CleanEdgeRotate`.
-- Add `ChromaFx.Native` when you want WebP/AVIF format IDs registered (codecs land in a later release).
+- Add `ChromaFx.Native` for still WebP, AVIF, and JPEG XL. Animated WebP/AVIF/JPEG XL are not supported.
 
 ## Installation
 
@@ -47,7 +47,7 @@ Current NuGet line is **0.6.1** (tag-only releases; 0.x may still change before 
 dotnet add package ChromaFx
 # optional:
 dotnet add package ChromaFx.PixelArt
-dotnet add package ChromaFx.Native   # WebP/AVIF stubs only for now
+dotnet add package ChromaFx.Native   # still WebP / AVIF / JPEG XL
 ```
 
 ## Getting Started
@@ -79,7 +79,7 @@ Console.Write(image.ToAsciiArt(new AsciiArtOptions { MaxWidth = 40, Invert = tru
 - `Image.Load` / `Save` / `ImageFormats` live in **IO**; Mutate/Clone in **Processing**.
 - Fluent context: core ops on `IImageProcessingContext`, more via extensions (`BoxBlur`, `Saturation`, `Dilate`, `Grayscale`, …); escape hatch `Apply(IFilter)`.
 - Typed encoders: `ChromaFx.IO.Encoders` (`JpegEncoder`, `PngEncoder`, `GifEncoder` as `IAnimationEncoder`, …).
-- Plugins: `IImageFormat` / `IAnimationFormat` (`Encode` throws on failure); `FileFormats.WebP` / `Avif` resolve via registered plugins (`ChromaFx.Native` stubs today; custom plugins override).
+- Plugins: `IImageFormat` / `IAnimationFormat` (`Encode` throws on failure); `FileFormats.WebP` / `Avif` / `JpegXl` resolve via registered plugins (`ChromaFx.Native` supplies still codecs; a later registration overrides). TGA and TIFF are built into `ChromaFx.IO`.
 - `Animation` supports per-frame delays (`GetFrameDelay` / `SetFrameDelay` / `FrameDelays`); `Delay` sets all frames.
 - Path `Save` / `SaveAsync` use the last registered format that accepts the extension (plugins can override built-ins). `ImageFormats.TryGetFormat` looks up by id and returns the first match.
 - Meta-package injects common usings via `buildTransitive/ChromaFx.props`.
@@ -125,7 +125,7 @@ Modifications and ongoing maintenance by Ho Tzin Mein (2023–2026).
 - ✅ **API modernization** – `Mutate`/`Clone`, typed encoders, `ImageFormats` registry.
 - ✅ **PixelArt** – opt-in `ChromaFx.PixelArt` (Scale2x / Scale3x / Hq2x–4x / CleanEdge / Eagle / SaI, `RotateSprite` / `CleanEdgeRotate`).
 - ✅ **Performance (pass)** – Color ctor alloc fix; faster `ApplyRgbLut`; AdaptiveThreshold / AdaptiveEqualize / Kuwahara / Blend alloc cuts.
-- ⏭ **Extended formats** – `ChromaFx.Native` scaffolded (WebP/AVIF stubs); real codecs next.
+- ✅ **Extended formats** – managed TGA and TIFF; opt-in `ChromaFx.Native` still WebP, AVIF, and JPEG XL (no animation).
 - ⏭ **Extended features** – more drawing/effects.
 - ⏭ **Performance** – more Span/ArrayPool/SIMD on codecs and remaining filters.
 

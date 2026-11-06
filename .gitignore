@@ -63,6 +63,10 @@ BenchmarkDotNet.Artifacts/
 # Filter / format golden-test outputs (do not commit)
 tests/**/TestOutput/
 
+# Native codec sources and RID binaries (build with native/build.sh; do not commit)
+native/.cache/
+src/ChromaFx.Native/runtimes/
+
 # .NET
 project.lock.json
 project.fragment.lock.json

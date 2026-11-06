@@ -23,6 +23,8 @@ using ChromaFx.IO.Formats.Bmp;
 using ChromaFx.IO.Formats.Gif;
 using ChromaFx.IO.Formats.Jpeg;
 using ChromaFx.IO.Formats.Png;
+using ChromaFx.IO.Formats.Tga;
+using ChromaFx.IO.Formats.Tiff;
 
 namespace ChromaFx.IO;
 
@@ -78,7 +80,7 @@ public static class ImageFormats
     }
 
     /// <summary>
-    /// Ensures built-in BMP/PNG/JPEG/GIF formats are registered.
+    /// Ensures built-in BMP/PNG/JPEG/GIF/TIFF/TGA formats are registered.
     /// </summary>
     public static void EnsureBuiltIns()
     {
@@ -94,6 +96,8 @@ public static class ImageFormats
             var gif = new GifFormat();
             Formats.Add(gif);
             AnimationFormats.Add(gif);
+            Formats.Add(new TiffFormat());
+            Formats.Add(new TgaFormat());
             _builtinsRegistered = true;
         }
     }
@@ -313,16 +317,20 @@ public static class ImageFormats
                 return new JpegEncoder();
             case FileFormats.Gif:
                 return new GifEncoder();
+            case FileFormats.Tga:
+                return new TgaEncoder();
+            case FileFormats.Tiff:
+                return new TiffEncoder();
         }
 
         // Prefer last registered match so plugins can override stubs (e.g. ChromaFx.Native).
         if (TryGetRegisteredImageFormat(format, preferLast: true, out var registered))
             return new RegisteredFormatEncoder(registered);
 
-        if (format is FileFormats.WebP or FileFormats.Avif)
+        if (format is FileFormats.WebP or FileFormats.Avif or FileFormats.JpegXl)
         {
             throw new UnknownImageFormatException(
-                $"Format '{format}' requires a registered plugin encoder (or a future native package)."
+                $"Format '{format}' requires a registered plugin encoder (for example ChromaFx.Native)."
             );
         }
 
@@ -339,10 +347,10 @@ public static class ImageFormats
         )
             return new RegisteredAnimationEncoder(registered);
 
-        if (format is FileFormats.WebP or FileFormats.Avif)
+        if (format is FileFormats.WebP or FileFormats.Avif or FileFormats.JpegXl)
         {
             throw new UnknownImageFormatException(
-                $"Format '{format}' requires a registered plugin encoder (or a future native package)."
+                $"Format '{format}' requires a registered plugin encoder (for example ChromaFx.Native)."
             );
         }
 

@@ -16,11 +16,13 @@
 
 using ChromaFx.Core;
 using ChromaFx.IO.Formats;
+using ChromaFx.Native.Codecs;
+using ChromaFx.Native.Encoders;
 
 namespace ChromaFx.Native.Formats.Avif;
 
 /// <summary>
-/// Stub AVIF format (ISO BMFF ftyp/avif brands and .avif extension). Codecs are not packaged yet.
+/// Still AVIF (ISO BMFF). Animated AVIF is rejected.
 /// </summary>
 public sealed class AvifFormat : IImageFormat
 {
@@ -59,10 +61,17 @@ public sealed class AvifFormat : IImageFormat
         fileName.EndsWith(".avif", StringComparison.OrdinalIgnoreCase);
 
     /// <inheritdoc />
-    public Image Decode(Stream stream) => throw NativeNotReady();
+    public Image Decode(Stream stream) => AvifCodec.Decode(stream);
 
     /// <inheritdoc />
-    public void Encode(BinaryWriter writer, Image image) => throw NativeNotReady();
+    public void Encode(BinaryWriter writer, Image image) =>
+        Encode(writer, image, AvifEncoder.DefaultQuality, lossless: false);
+
+    /// <summary>
+    /// Encodes a still AVIF image. <paramref name="lossless"/> uses full-range 4:4:4 identity and ignores <paramref name="quality"/>.
+    /// </summary>
+    public void Encode(BinaryWriter writer, Image image, int quality, bool lossless) =>
+        AvifCodec.Encode(writer, image, quality, lossless);
 
     private static bool LooksLikeAvif(ReadOnlySpan<byte> header)
     {
@@ -95,8 +104,4 @@ public sealed class AvifFormat : IImageFormat
         return false;
     }
 
-    private static NotSupportedException NativeNotReady() =>
-        new(
-            "ChromaFx.Native AVIF codecs are not packaged yet. Decode/Encode will be enabled in a later release."
-        );
 }

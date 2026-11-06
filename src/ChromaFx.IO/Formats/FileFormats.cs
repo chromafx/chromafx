@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,12 +43,27 @@ public enum FileFormats
     Gif = 3,
 
     /// <summary>
-    /// WebP file format (requires a registered plugin or a future native package).
+    /// WebP file format (requires a registered plugin, such as ChromaFx.Native).
     /// </summary>
     WebP = 4,
 
     /// <summary>
-    /// AVIF file format (requires a registered plugin or a future native package).
+    /// AVIF file format (requires a registered plugin, such as ChromaFx.Native).
     /// </summary>
     Avif = 5,
+
+    /// <summary>
+    /// TGA file format.
+    /// </summary>
+    Tga = 6,
+
+    /// <summary>
+    /// TIFF file format (baseline still image; the first page only).
+    /// </summary>
+    Tiff = 7,
+
+    /// <summary>
+    /// JPEG XL file format (requires a registered plugin, such as ChromaFx.Native).
+    /// </summary>
+    JpegXl = 8,
 }

@@ -12,7 +12,61 @@ on:
       - master
 
 jobs:
+  native:
+    name: native ${{ matrix.rid }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            rid: linux-x64
+          - os: ubuntu-24.04-arm
+            rid: linux-arm64
+          - os: macos-latest
+            rid: osx-arm64
+          - os: macos-latest
+            rid: osx-x64
+          - os: windows-latest
+            rid: win-x64
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install native build tools
+        shell: bash
+        run: |
+          case "${{ matrix.os }}" in
+            ubuntu*)
+              sudo apt-get update
+              sudo apt-get install -y cmake meson ninja-build nasm
+              ;;
+            macos*)
+              brew install cmake meson ninja nasm
+              ;;
+            windows*)
+              choco install nasm -y
+              py -3 -m pip install meson ninja
+              py -3 -c 'import sysconfig; print(sysconfig.get_path("scripts"))' >> "$GITHUB_PATH"
+              ;;
+          esac
+
+      - name: MSVC environment
+        if: matrix.os == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Build codecs
+        shell: bash
+        run: bash native/build.sh ${{ matrix.rid }}
+
+      - name: Upload native binaries
+        uses: actions/upload-artifact@v7
+        with:
+          name: native-${{ matrix.rid }}
+          path: src/ChromaFx.Native/runtimes
+
   build:
+    needs: native
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -20,6 +74,13 @@ jobs:
         with:
           # Full history for SourceLink / embedded commit metadata.
           fetch-depth: 0
+
+      - name: Download native codecs
+        uses: actions/download-artifact@v8
+        with:
+          pattern: native-*
+          path: src/ChromaFx.Native/runtimes
+          merge-multiple: true
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5

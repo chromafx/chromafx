@@ -15,6 +15,6 @@
 
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://chromafx.net</PackageProjectUrl>
-    <PackageReleaseNotes>0.6.1: bit-identical perf (filters/BMP/JPEG/PNG/GIF); ChromaFx.Native WebP/AVIF stubs; IHistogram.Load(span), Distance.EuclideanSquared. See CHANGELOG.md. API may still change before 1.0 (0.x).</PackageReleaseNotes>
+    <PackageReleaseNotes>Unreleased 0.6.2: managed TGA and TIFF, plus ChromaFx.Native still WebP, AVIF, and JPEG XL. See CHANGELOG.md. API may still change before 1.0 (0.x).</PackageReleaseNotes>
   </PropertyGroup>
 </Project>

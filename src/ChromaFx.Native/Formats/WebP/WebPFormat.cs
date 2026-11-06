@@ -16,11 +16,13 @@
 
 using ChromaFx.Core;
 using ChromaFx.IO.Formats;
+using ChromaFx.Native.Codecs;
+using ChromaFx.Native.Encoders;
 
 namespace ChromaFx.Native.Formats.WebP;
 
 /// <summary>
-/// Stub WebP format (RIFF/WEBP magic and .webp extension). Codecs are not packaged yet.
+/// Still WebP (RIFF/WEBP). Animated WebP is rejected.
 /// </summary>
 public sealed class WebPFormat : IImageFormat
 {
@@ -62,18 +64,21 @@ public sealed class WebPFormat : IImageFormat
         fileName.EndsWith(".webp", StringComparison.OrdinalIgnoreCase);
 
     /// <inheritdoc />
-    public Image Decode(Stream stream) => throw NativeNotReady();
+    public Image Decode(Stream stream) => WebPCodec.Decode(stream);
 
     /// <inheritdoc />
-    public void Encode(BinaryWriter writer, Image image) => throw NativeNotReady();
+    public void Encode(BinaryWriter writer, Image image) =>
+        Encode(writer, image, WebPEncoder.DefaultQuality, lossless: false);
+
+    /// <summary>
+    /// Encodes a still WebP image. <paramref name="lossless"/> ignores <paramref name="quality"/>.
+    /// </summary>
+    public void Encode(BinaryWriter writer, Image image, int quality, bool lossless) =>
+        WebPCodec.Encode(writer, image, quality, lossless);
 
     private static bool LooksLikeWebP(ReadOnlySpan<byte> header) =>
         header.Length >= 12
         && header[..4].SequenceEqual(Riff)
         && header[8..12].SequenceEqual(Webp);
 
-    private static NotSupportedException NativeNotReady() =>
-        new(
-            "ChromaFx.Native WebP codecs are not packaged yet. Decode/Encode will be enabled in a later release."
-        );
 }

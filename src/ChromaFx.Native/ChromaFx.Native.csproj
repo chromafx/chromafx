@@ -2,15 +2,16 @@
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Title>ChromaFx.Native</Title>
     <Authors>Ho Tzin Mein</Authors>
-    <Description>Optional native codec package for ChromaFx (WebP/AVIF). Stub registration only in this release — Decode/Encode throw until native libraries are packaged.</Description>
+    <Description>Optional native still-image WebP, AVIF, and JPEG XL codecs for ChromaFx. Not in the meta-package. Animated WebP/AVIF/JPEG XL are not supported.</Description>
     <Copyright>Copyright $([System.DateTime]::Now.Year) Ho Tzin Mein</Copyright>
     <RepositoryUrl>https://github.com/chromafx/chromafx</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>image graphics webp avif codec native imageprocessing dotnet csharp chromafx</PackageTags>
+    <PackageTags>image graphics webp avif jxl jpegxl codec native imageprocessing dotnet csharp chromafx</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,6 +23,11 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+    <None Include="THIRD-PARTY-NOTICES.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <Content Include="runtimes\**\*" Pack="true" PackagePath="runtimes\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" Link="runtimes\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>

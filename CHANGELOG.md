@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `ChromaFx.Native` still-image WebP and AVIF decode/encode (bundled `libwebp` 1.6.0 and `libavif` 1.3.0 with dav1d + libaom). `WebPEncoder` / `AvifEncoder` take `Quality` and `Lossless`. Animated WebP/AVIF are rejected. The meta-package stays free of native binaries.
+- Managed TGA (types 1/2/3/9/10/11, including RLE) and baseline TIFF (first IFD, strips or tiles, uncompressed / PackBits / LZW / Deflate, 1/4/8-bit bilevel, greyscale, palette, or RGB, optional alpha). Encoders write uncompressed 32-bit TGA and uncompressed 8-bit RGBA TIFF.
+- `ChromaFx.Native` still JPEG XL via bundled `libjxl` 0.12.0. `JxlEncoder` takes `Quality` (distance `(100 - quality) / 10`) and `Lossless`. Animated JPEG XL is rejected.
+
+### Changed
+- `FileFormats.WebP` / `Avif` / `JpegXl` docs and missing-plugin errors name `ChromaFx.Native`.
+
 ## [0.6.1]
 
 Bit-identical performance pass plus opt-in `ChromaFx.Native` stubs. Public API is additive only (`IHistogram.Load(ReadOnlySpan<Color>)`, `Distance.EuclideanSquared`); filter/codec internals cut allocations without changing goldens.
