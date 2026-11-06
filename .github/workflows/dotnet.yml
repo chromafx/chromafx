@@ -10,10 +10,111 @@ on:
   pull_request:
     branches:
       - master
+  workflow_dispatch:
 
 jobs:
+  # Codecs are cached by a hash of native/. Compile on a cache miss, a version tag,
+  # or a manual run. Tags always compile so the published package comes from that run.
+  prepare:
+    name: native cache
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+    outputs:
+      hash: ${{ steps.hash.outputs.hash }}
+      rebuild: ${{ steps.plan.outputs.rebuild }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Hash native inputs
+        id: hash
+        run: echo "hash=${{ hashFiles('native/**') }}" >> "$GITHUB_OUTPUT"
+
+      - name: Look up linux-x64
+        id: linux-x64
+        uses: actions/cache/restore@v5
+        with:
+          lookup-only: true
+          enableCrossOsArchive: true
+          path: src/ChromaFx.Native/runtimes/linux-x64
+          key: native-codecs-${{ steps.hash.outputs.hash }}-linux-x64
+
+      - name: Look up linux-arm64
+        id: linux-arm64
+        uses: actions/cache/restore@v5
+        with:
+          lookup-only: true
+          enableCrossOsArchive: true
+          path: src/ChromaFx.Native/runtimes/linux-arm64
+          key: native-codecs-${{ steps.hash.outputs.hash }}-linux-arm64
+
+      - name: Look up osx-arm64
+        id: osx-arm64
+        uses: actions/cache/restore@v5
+        with:
+          lookup-only: true
+          enableCrossOsArchive: true
+          path: src/ChromaFx.Native/runtimes/osx-arm64
+          key: native-codecs-${{ steps.hash.outputs.hash }}-osx-arm64
+
+      - name: Look up osx-x64
+        id: osx-x64
+        uses: actions/cache/restore@v5
+        with:
+          lookup-only: true
+          enableCrossOsArchive: true
+          path: src/ChromaFx.Native/runtimes/osx-x64
+          key: native-codecs-${{ steps.hash.outputs.hash }}-osx-x64
+
+      - name: Look up win-x64
+        id: win-x64
+        uses: actions/cache/restore@v5
+        with:
+          lookup-only: true
+          enableCrossOsArchive: true
+          path: src/ChromaFx.Native/runtimes/win-x64
+          key: native-codecs-${{ steps.hash.outputs.hash }}-win-x64
+
+      - name: Decide whether to compile
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HASH: ${{ steps.hash.outputs.hash }}
+          HIT_linux_x64: ${{ steps.linux-x64.outputs.cache-hit }}
+          HIT_linux_arm64: ${{ steps.linux-arm64.outputs.cache-hit }}
+          HIT_osx_arm64: ${{ steps.osx-arm64.outputs.cache-hit }}
+          HIT_osx_x64: ${{ steps.osx-x64.outputs.cache-hit }}
+          HIT_win_x64: ${{ steps.win-x64.outputs.cache-hit }}
+        run: |
+          set -euo pipefail
+          echo "Native input hash: ${HASH}"
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" || "${GITHUB_REF}" == refs/tags/* ]]; then
+            if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" && ( "${GITHUB_REF}" == "refs/heads/master" || "${GITHUB_REF}" == "refs/heads/legacy" ) ]]; then
+              for rid in linux-x64 linux-arm64 osx-arm64 osx-x64 win-x64; do
+                if ! gh api --method DELETE "/repos/${GITHUB_REPOSITORY}/actions/caches?key=native-codecs-${HASH}-${rid}"; then
+                  echo "Cache delete failed for ${rid}. This run still rebuilds."
+                fi
+              done
+            fi
+            echo "rebuild=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          rebuild=false
+          for rid in linux-x64 linux-arm64 osx-arm64 osx-x64 win-x64; do
+            hit="$(printenv "HIT_${rid//-/_}")"
+            echo "${rid}: cache-hit=${hit:-false}"
+            if [[ "${hit}" != "true" ]]; then
+              rebuild=true
+            fi
+          done
+          echo "rebuild=${rebuild}" >> "$GITHUB_OUTPUT"
+
   native:
     name: native ${{ matrix.rid }}
+    needs: prepare
+    if: needs.prepare.outputs.rebuild == 'true'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -65,8 +166,21 @@ jobs:
           name: native-${{ matrix.rid }}
           path: src/ChromaFx.Native/runtimes
 
+      - name: Cache native binaries
+        uses: actions/cache/save@v5
+        with:
+          enableCrossOsArchive: true
+          path: src/ChromaFx.Native/runtimes/${{ matrix.rid }}
+          key: native-codecs-${{ needs.prepare.outputs.hash }}-${{ matrix.rid }}
+
   build:
-    needs: native
+    needs: [prepare, native]
+    if: >-
+      ${{
+        !cancelled() &&
+        needs.prepare.result == 'success' &&
+        (needs.native.result == 'success' || needs.native.result == 'skipped')
+      }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -75,12 +189,58 @@ jobs:
           # Full history for SourceLink / embedded commit metadata.
           fetch-depth: 0
 
-      - name: Download native codecs
+      - name: Download rebuilt codecs
+        if: needs.native.result == 'success'
         uses: actions/download-artifact@v8
         with:
           pattern: native-*
           path: src/ChromaFx.Native/runtimes
           merge-multiple: true
+
+      - name: Restore cached linux-x64
+        if: needs.native.result == 'skipped'
+        uses: actions/cache/restore@v5
+        with:
+          fail-on-cache-miss: true
+          enableCrossOsArchive: true
+          path: src/ChromaFx.Native/runtimes/linux-x64
+          key: native-codecs-${{ needs.prepare.outputs.hash }}-linux-x64
+
+      - name: Restore cached linux-arm64
+        if: needs.native.result == 'skipped'
+        uses: actions/cache/restore@v5
+        with:
+          fail-on-cache-miss: true
+          enableCrossOsArchive: true
+          path: src/ChromaFx.Native/runtimes/linux-arm64
+          key: native-codecs-${{ needs.prepare.outputs.hash }}-linux-arm64
+
+      - name: Restore cached osx-arm64
+        if: needs.native.result == 'skipped'
+        uses: actions/cache/restore@v5
+        with:
+          fail-on-cache-miss: true
+          enableCrossOsArchive: true
+          path: src/ChromaFx.Native/runtimes/osx-arm64
+          key: native-codecs-${{ needs.prepare.outputs.hash }}-osx-arm64
+
+      - name: Restore cached osx-x64
+        if: needs.native.result == 'skipped'
+        uses: actions/cache/restore@v5
+        with:
+          fail-on-cache-miss: true
+          enableCrossOsArchive: true
+          path: src/ChromaFx.Native/runtimes/osx-x64
+          key: native-codecs-${{ needs.prepare.outputs.hash }}-osx-x64
+
+      - name: Restore cached win-x64
+        if: needs.native.result == 'skipped'
+        uses: actions/cache/restore@v5
+        with:
+          fail-on-cache-miss: true
+          enableCrossOsArchive: true
+          path: src/ChromaFx.Native/runtimes/win-x64
+          key: native-codecs-${{ needs.prepare.outputs.hash }}-win-x64
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5

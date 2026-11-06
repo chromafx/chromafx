@@ -33,7 +33,7 @@ dotnet run -c Release --project tests/ChromaFx.Benchmarks -- --filter '*'
 dotnet run -c Release --project tests/ChromaFx.Benchmarks -- --list flat
 ```
 
-Tests use **Microsoft Testing Platform** (`global.json` `test.runner` + xunit.v3). CI (`.github/workflows/dotnet.yml`): Ubuntu, .NET 10 SDK, `dotnet test`. Benchmarks are **not** in CI.
+Tests use **Microsoft Testing Platform** (`global.json` `test.runner` + xunit.v3). CI (`.github/workflows/dotnet.yml`): Ubuntu, .NET 10 SDK, `dotnet test`. Native codecs are cached by a hash of `native/`; CI compiles them on a cache miss, a version tag, or a manual run, and other runs restore those binaries. A manual run on `master` or `legacy` replaces that cache. Benchmarks are **not** in CI.
 
 ## Conventions agents must follow
 
