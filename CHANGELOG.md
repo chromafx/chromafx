@@ -8,13 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.2]
+
+Managed TGA and TIFF, plus still WebP, AVIF, and JPEG XL in `ChromaFx.Native`. The meta-package stays free of native binaries.
+
 ### Added
 - `ChromaFx.Native` still-image WebP and AVIF decode/encode (bundled `libwebp` 1.6.0 and `libavif` 1.3.0 with dav1d + libaom). `WebPEncoder` / `AvifEncoder` take `Quality` and `Lossless`. Animated WebP/AVIF are rejected. The meta-package stays free of native binaries.
 - Managed TGA (types 1/2/3/9/10/11, including RLE) and baseline TIFF (first IFD, strips or tiles, uncompressed / PackBits / LZW / Deflate, 1/4/8-bit bilevel, greyscale, palette, or RGB, optional alpha). Encoders write uncompressed 32-bit TGA and uncompressed 8-bit RGBA TIFF.
-- `ChromaFx.Native` still JPEG XL via bundled `libjxl` 0.12.0. `JxlEncoder` takes `Quality` (distance `(100 - quality) / 10`) and `Lossless`. Animated JPEG XL is rejected.
+- `ChromaFx.Native` still JPEG XL via bundled `libjxl` 0.12.0. `JxlEncoder` takes `Quality` (lossy distance `(100 - quality) / 10`; quality 100 is lossless) and `Lossless`. Animated JPEG XL is rejected.
 
 ### Changed
-- `FileFormats.WebP` / `Avif` / `JpegXl` docs and missing-plugin errors name `ChromaFx.Native`.
+- `FileFormats` is no longer an enum. It holds `ImageFormatKey` values for the managed codecs (`bmp`, `png`, `jpeg`, `gif`, `tga`, `tiff`). `Save`, `ToByteArray`, and `ToBase64String` take that key and use the last registered format's `CreateEncoder`.
+- WebP, AVIF, and JPEG XL ids live on `NativeFormats` in `ChromaFx.Native` (`webp`, `avif`, `jxl`). A key nothing has registered throws `UnknownImageFormatException`.
 
 ## [0.6.1]
 

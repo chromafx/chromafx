@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+using ChromaFx.IO.Encoders;
+
 namespace ChromaFx.IO.Formats.Gif;
 
 /// <summary>
@@ -29,7 +31,13 @@ public class GifFormat : AnimationFormatBase
     /// <value>
     /// The format.
     /// </value>
-    public override FileFormats Format => FileFormats.Gif;
+    public override ImageFormatKey Format => FileFormats.Gif;
+
+    /// <inheritdoc />
+    public override IImageEncoder CreateEncoder() => new GifEncoder();
+
+    /// <inheritdoc />
+    public override IAnimationEncoder CreateAnimationEncoder() => new GifEncoder();
 
     /// <summary>
     /// Gets the decoder.

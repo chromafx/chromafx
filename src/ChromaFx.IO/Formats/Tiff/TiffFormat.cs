@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+using ChromaFx.IO.Encoders;
+
 namespace ChromaFx.IO.Formats.Tiff;
 
 /// <summary>
@@ -23,7 +25,10 @@ namespace ChromaFx.IO.Formats.Tiff;
 public sealed class TiffFormat : FormatBase
 {
     /// <inheritdoc />
-    public override FileFormats Format => FileFormats.Tiff;
+    public override ImageFormatKey Format => FileFormats.Tiff;
+
+    /// <inheritdoc />
+    public override IImageEncoder CreateEncoder() => new TiffEncoder();
 
     /// <inheritdoc />
     private protected override IDecoder Decoder => new Decoder();

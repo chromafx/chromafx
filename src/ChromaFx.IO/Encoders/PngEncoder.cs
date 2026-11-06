@@ -27,7 +27,7 @@ namespace ChromaFx.IO.Encoders;
 public sealed class PngEncoder : IImageEncoder
 {
     /// <inheritdoc />
-    public FileFormats Format => FileFormats.Png;
+    public ImageFormatKey Format => FileFormats.Png;
 
     /// <inheritdoc />
     public void Encode(Stream stream, Image image)

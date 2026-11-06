@@ -41,7 +41,7 @@ Fully managed on .NET 10 — no native codec binaries for Docker/Lambda multi-ar
 
 ## Installation
 
-Current NuGet line is **0.6.1** (tag-only releases; 0.x may still change before 1.0):
+Current NuGet line is **0.6.2** (tag-only releases; 0.x may still change before 1.0):
 
 ```bash
 dotnet add package ChromaFx
@@ -78,8 +78,8 @@ Console.Write(image.ToAsciiArt(new AsciiArtOptions { MaxWidth = 40, Invert = tru
 - Prefer the `ChromaFx` meta-package (`ChromaFx.Core` + `.IO` + `.Processing`). Add `ChromaFx.PixelArt` separately for pixel-art filters.
 - `Image.Load` / `Save` / `ImageFormats` live in **IO**; Mutate/Clone in **Processing**.
 - Fluent context: core ops on `IImageProcessingContext`, more via extensions (`BoxBlur`, `Saturation`, `Dilate`, `Grayscale`, …); escape hatch `Apply(IFilter)`.
-- Typed encoders: `ChromaFx.IO.Encoders` (`JpegEncoder`, `PngEncoder`, `GifEncoder` as `IAnimationEncoder`, …).
-- Plugins: `IImageFormat` / `IAnimationFormat` (`Encode` throws on failure); `FileFormats.WebP` / `Avif` / `JpegXl` resolve via registered plugins (`ChromaFx.Native` supplies still codecs; a later registration overrides). TGA and TIFF are built into `ChromaFx.IO`.
+- Typed encoders: `ChromaFx.IO.Encoders` (`JpegEncoder`, `PngEncoder`, `BmpEncoder`, `GifEncoder` as `IAnimationEncoder`, `TgaEncoder`, `TiffEncoder`). Still WebP, AVIF, and JPEG XL encoders are in `ChromaFx.Native.Encoders`.
+- Format ids are `ImageFormatKey` values (the name, compared ordinal-ignore-case). `FileFormats` names the managed codecs. `NativeFormats` in `ChromaFx.Native` names still WebP, AVIF, and JPEG XL. `Save(stream, key)` uses the last registered format's encoder. A missing key throws.
 - `Animation` supports per-frame delays (`GetFrameDelay` / `SetFrameDelay` / `FrameDelays`); `Delay` sets all frames.
 - Path `Save` / `SaveAsync` use the last registered format that accepts the extension (plugins can override built-ins). `ImageFormats.TryGetFormat` looks up by id and returns the first match.
 - Meta-package injects common usings via `buildTransitive/ChromaFx.props`.
@@ -100,6 +100,7 @@ These older APIs are **removed** (not obsolete):
 | `LoadAnimation(path)` | `Animation.Load(path)` |
 | `FormatManager` / `Manager` | `ImageFormats.Register` |
 | `IFormat` | `IImageFormat` |
+| `FileFormats` enum (`WebP`, `Avif`, `JpegXl` included) | `ImageFormatKey`; managed ids stay on `FileFormats`, native ids are `NativeFormats` |
 | Public format types as the only API | Prefer `ImageFormats` / typed encoders (`BmpFormat` etc. remain public for advanced use) |
 
 ## Requirements

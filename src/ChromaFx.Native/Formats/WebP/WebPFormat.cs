@@ -15,6 +15,7 @@
  */
 
 using ChromaFx.Core;
+using ChromaFx.IO.Encoders;
 using ChromaFx.IO.Formats;
 using ChromaFx.Native.Codecs;
 using ChromaFx.Native.Encoders;
@@ -30,7 +31,10 @@ public sealed class WebPFormat : IImageFormat
     private static readonly byte[] Webp = "WEBP"u8.ToArray();
 
     /// <inheritdoc />
-    public FileFormats Format => FileFormats.WebP;
+    public ImageFormatKey Format => NativeFormats.WebP;
+
+    /// <inheritdoc />
+    public IImageEncoder CreateEncoder() => new WebPEncoder();
 
     /// <inheritdoc />
     public bool CanDecode(string fileName) =>

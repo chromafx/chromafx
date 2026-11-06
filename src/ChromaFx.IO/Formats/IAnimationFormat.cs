@@ -16,6 +16,7 @@
  */
 
 using ChromaFx.Core;
+using ChromaFx.IO.Encoders;
 
 namespace ChromaFx.IO.Formats;
 
@@ -33,4 +34,10 @@ public interface IAnimationFormat : IImageFormat
     /// Encodes an animation into the specified writer. Throws on failure.
     /// </summary>
     void Encode(BinaryWriter writer, Animation image);
+
+    /// <summary>
+    /// Creates the animation encoder used by <c>Save(stream, format)</c>.
+    /// The default calls <see cref="Encode(BinaryWriter, Animation)"/>.
+    /// </summary>
+    IAnimationEncoder CreateAnimationEncoder() => new PluginAnimationEncoder(this);
 }

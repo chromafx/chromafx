@@ -15,6 +15,7 @@
  */
 
 using ChromaFx.Core;
+using ChromaFx.IO.Encoders;
 using ChromaFx.IO.Formats;
 using ChromaFx.Native.Codecs;
 using ChromaFx.Native.Encoders;
@@ -27,7 +28,10 @@ namespace ChromaFx.Native.Formats.Avif;
 public sealed class AvifFormat : IImageFormat
 {
     /// <inheritdoc />
-    public FileFormats Format => FileFormats.Avif;
+    public ImageFormatKey Format => NativeFormats.Avif;
+
+    /// <inheritdoc />
+    public IImageEncoder CreateEncoder() => new AvifEncoder();
 
     /// <inheritdoc />
     public bool CanDecode(string fileName) =>

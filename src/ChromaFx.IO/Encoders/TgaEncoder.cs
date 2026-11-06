@@ -27,7 +27,7 @@ namespace ChromaFx.IO.Encoders;
 public sealed class TgaEncoder : IImageEncoder
 {
     /// <inheritdoc />
-    public FileFormats Format => FileFormats.Tga;
+    public ImageFormatKey Format => FileFormats.Tga;
 
     /// <inheritdoc />
     public void Encode(Stream stream, Image image)

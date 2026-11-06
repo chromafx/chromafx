@@ -16,6 +16,7 @@
 
 using System.Text;
 using ChromaFx.Core.Exceptions;
+using ChromaFx.Native;
 using Xunit;
 
 namespace ChromaFx.Tests;
@@ -193,20 +194,30 @@ public class ApiSurfaceTests
     }
 
     [Fact]
-    public void RegisteredWebPPluginDrivesEnumSaveAndToByteArray()
+    public void RegisteredWebPPluginDrivesKeySaveAndToByteArray()
     {
         var stub = new StubWebPFormat();
         ImageFormats.Register(stub);
 
         var image = new Image(1, 1, [new Color(255, 0, 0, 255)]);
         using var stream = new MemoryStream();
-        image.Save(stream, FileFormats.WebP);
+        image.Save(stream, NativeFormats.WebP);
         Assert.Equal(1, stub.EncodeCalls);
         Assert.Equal("WEBPSTUB"u8.ToArray(), stream.ToArray());
 
-        var bytes = image.ToByteArray(FileFormats.WebP);
+        var bytes = image.ToByteArray(new ImageFormatKey("WEBP"));
         Assert.Equal(2, stub.EncodeCalls);
         Assert.Equal("WEBPSTUB"u8.ToArray(), bytes);
+    }
+
+    [Fact]
+    public void SaveByUnknownKeyThrows()
+    {
+        var image = new Image(1, 1, [new Color(1, 2, 3, 255)]);
+        using var stream = new MemoryStream();
+        Assert.Throws<UnknownImageFormatException>(() =>
+            image.Save(stream, new ImageFormatKey("nope"))
+        );
     }
 
     [Fact]
@@ -311,7 +322,7 @@ public class ApiSurfaceTests
     {
         public int EncodeCalls { get; private set; }
 
-        public FileFormats Format => FileFormats.Png;
+        public ImageFormatKey Format => new("cfxstub");
 
         public bool CanDecode(string fileName) => false;
 
@@ -335,7 +346,7 @@ public class ApiSurfaceTests
     {
         public int EncodeCalls { get; private set; }
 
-        public FileFormats Format => FileFormats.WebP;
+        public ImageFormatKey Format => NativeFormats.WebP;
 
         public bool CanDecode(string fileName) => false;
 

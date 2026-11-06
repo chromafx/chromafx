@@ -60,9 +60,9 @@ public static class ImageIOExtensions
     }
 
     /// <summary>
-    /// Saves the image to a stream using a built-in format.
+    /// Saves the image to a stream using the last registered encoder for <paramref name="format"/>.
     /// </summary>
-    public static void Save(this Image image, Stream stream, FileFormats format)
+    public static void Save(this Image image, Stream stream, ImageFormatKey format)
     {
         ArgumentNullException.ThrowIfNull(image);
         ArgumentNullException.ThrowIfNull(stream);
@@ -127,13 +127,13 @@ public static class ImageIOExtensions
     }
 
     /// <summary>
-    /// Asynchronously saves the image to a stream using a built-in format
-    /// (sync encode, async write).
+    /// Asynchronously saves the image to a stream using the last registered encoder
+    /// for <paramref name="format"/> (sync encode, async write).
     /// </summary>
     public static async Task SaveAsync(
         this Image image,
         Stream stream,
-        FileFormats format,
+        ImageFormatKey format,
         CancellationToken cancellationToken = default
     )
     {
@@ -176,9 +176,9 @@ public static class ImageIOExtensions
     }
 
     /// <summary>
-    /// Encodes the image to a new byte array using a built-in format.
+    /// Encodes the image to a new byte array using the last registered encoder for <paramref name="format"/>.
     /// </summary>
-    public static byte[] ToByteArray(this Image image, FileFormats format)
+    public static byte[] ToByteArray(this Image image, ImageFormatKey format)
     {
         ArgumentNullException.ThrowIfNull(image);
         using var stream = new MemoryStream();
@@ -201,7 +201,7 @@ public static class ImageIOExtensions
     /// <summary>
     /// Encodes the image as a base-64 string.
     /// </summary>
-    public static string ToBase64String(this Image image, FileFormats desiredFormat) =>
+    public static string ToBase64String(this Image image, ImageFormatKey desiredFormat) =>
         Convert.ToBase64String(image.ToByteArray(desiredFormat));
 
     /// <summary>

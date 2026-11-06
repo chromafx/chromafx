@@ -18,52 +18,37 @@
 namespace ChromaFx.IO.Formats;
 
 /// <summary>
-/// File formats available
+/// Ids for the codecs shipped by ChromaFx.IO.
 /// </summary>
-public enum FileFormats
+public static class FileFormats
 {
     /// <summary>
-    /// BMP file format
+    /// BMP.
     /// </summary>
-    Bmp = 0,
+    public static readonly ImageFormatKey Bmp = new("bmp");
 
     /// <summary>
-    /// PNG file format
+    /// PNG.
     /// </summary>
-    Png = 1,
+    public static readonly ImageFormatKey Png = new("png");
 
     /// <summary>
-    /// JPEG file format
+    /// JPEG.
     /// </summary>
-    Jpeg = 2,
+    public static readonly ImageFormatKey Jpeg = new("jpeg");
 
     /// <summary>
-    /// GIF file format
+    /// GIF.
     /// </summary>
-    Gif = 3,
+    public static readonly ImageFormatKey Gif = new("gif");
 
     /// <summary>
-    /// WebP file format (requires a registered plugin, such as ChromaFx.Native).
+    /// TGA.
     /// </summary>
-    WebP = 4,
+    public static readonly ImageFormatKey Tga = new("tga");
 
     /// <summary>
-    /// AVIF file format (requires a registered plugin, such as ChromaFx.Native).
+    /// TIFF.
     /// </summary>
-    Avif = 5,
-
-    /// <summary>
-    /// TGA file format.
-    /// </summary>
-    Tga = 6,
-
-    /// <summary>
-    /// TIFF file format (baseline still image; the first page only).
-    /// </summary>
-    Tiff = 7,
-
-    /// <summary>
-    /// JPEG XL file format (requires a registered plugin, such as ChromaFx.Native).
-    /// </summary>
-    JpegXl = 8,
+    public static readonly ImageFormatKey Tiff = new("tiff");
 }

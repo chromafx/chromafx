@@ -43,7 +43,7 @@ public sealed class WebPEncoder : IImageEncoder
     public bool Lossless { get; set; }
 
     /// <inheritdoc />
-    public FileFormats Format => FileFormats.WebP;
+    public ImageFormatKey Format => NativeFormats.WebP;
 
     /// <inheritdoc />
     public void Encode(Stream stream, Image image)

@@ -16,6 +16,7 @@
  */
 
 using ChromaFx.Core;
+using ChromaFx.IO.Encoders;
 
 namespace ChromaFx.IO.Formats;
 
@@ -36,7 +37,12 @@ public abstract class FormatBase : IImageFormat
     /// <value>
     /// The format.
     /// </value>
-    public abstract FileFormats Format { get; }
+    public abstract ImageFormatKey Format { get; }
+
+    /// <summary>
+    /// Creates the typed encoder for this format.
+    /// </summary>
+    public abstract IImageEncoder CreateEncoder();
 
     /// <summary>
     /// Gets the decoder (same-assembly subclasses only).

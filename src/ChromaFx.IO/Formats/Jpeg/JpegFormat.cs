@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+using ChromaFx.IO.Encoders;
+
 namespace ChromaFx.IO.Formats.Jpeg;
 
 /// <summary>
@@ -29,7 +31,10 @@ public class JpegFormat : FormatBase
     /// <value>
     /// The format.
     /// </value>
-    public override FileFormats Format => FileFormats.Jpeg;
+    public override ImageFormatKey Format => FileFormats.Jpeg;
+
+    /// <inheritdoc />
+    public override IImageEncoder CreateEncoder() => new JpegEncoder();
 
     /// <summary>
     /// Gets the decoder.

@@ -15,6 +15,7 @@
  */
 
 using ChromaFx.Core;
+using ChromaFx.IO.Encoders;
 using ChromaFx.IO.Formats;
 using ChromaFx.Native.Codecs;
 using ChromaFx.Native.Encoders;
@@ -27,7 +28,10 @@ namespace ChromaFx.Native.Formats.Jxl;
 public sealed class JxlFormat : IImageFormat
 {
     /// <inheritdoc />
-    public FileFormats Format => FileFormats.JpegXl;
+    public ImageFormatKey Format => NativeFormats.JpegXl;
+
+    /// <inheritdoc />
+    public IImageEncoder CreateEncoder() => new JxlEncoder();
 
     /// <inheritdoc />
     public bool CanDecode(string fileName) =>

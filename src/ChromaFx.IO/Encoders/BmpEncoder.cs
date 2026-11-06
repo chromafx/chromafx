@@ -27,7 +27,7 @@ namespace ChromaFx.IO.Encoders;
 public sealed class BmpEncoder : IImageEncoder
 {
     /// <inheritdoc />
-    public FileFormats Format => FileFormats.Bmp;
+    public ImageFormatKey Format => FileFormats.Bmp;
 
     /// <inheritdoc />
     public void Encode(Stream stream, Image image)

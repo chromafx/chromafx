@@ -31,7 +31,7 @@ public sealed class JpegEncoder : IImageEncoder
     public int Quality { get; set; } = 90;
 
     /// <inheritdoc />
-    public FileFormats Format => FileFormats.Jpeg;
+    public ImageFormatKey Format => FileFormats.Jpeg;
 
     /// <inheritdoc />
     public void Encode(Stream stream, Image image)

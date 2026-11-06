@@ -61,9 +61,9 @@ public static class AnimationIOExtensions
     }
 
     /// <summary>
-    /// Saves the animation to a stream using a built-in animation format (currently GIF).
+    /// Saves the animation to a stream using the last registered animation encoder for <paramref name="format"/>.
     /// </summary>
-    public static void Save(this Animation animation, Stream stream, FileFormats format)
+    public static void Save(this Animation animation, Stream stream, ImageFormatKey format)
     {
         ArgumentNullException.ThrowIfNull(animation);
         ArgumentNullException.ThrowIfNull(stream);
@@ -129,13 +129,13 @@ public static class AnimationIOExtensions
     }
 
     /// <summary>
-    /// Asynchronously saves the animation to a stream using a built-in animation format
-    /// (sync encode, async write).
+    /// Asynchronously saves the animation to a stream using the last registered animation
+    /// encoder for <paramref name="format"/> (sync encode, async write).
     /// </summary>
     public static async Task SaveAsync(
         this Animation animation,
         Stream stream,
-        FileFormats format,
+        ImageFormatKey format,
         CancellationToken cancellationToken = default
     )
     {
@@ -169,9 +169,9 @@ public static class AnimationIOExtensions
     }
 
     /// <summary>
-    /// Encodes the animation to a new byte array using a built-in animation format.
+    /// Encodes the animation to a new byte array using the last registered animation encoder for <paramref name="format"/>.
     /// </summary>
-    public static byte[] ToByteArray(this Animation animation, FileFormats format)
+    public static byte[] ToByteArray(this Animation animation, ImageFormatKey format)
     {
         ArgumentNullException.ThrowIfNull(animation);
         using var stream = new MemoryStream();
@@ -194,7 +194,7 @@ public static class AnimationIOExtensions
     /// <summary>
     /// Encodes the animation as a base-64 string using a built-in animation format.
     /// </summary>
-    public static string ToBase64String(this Animation animation, FileFormats desiredFormat) =>
+    public static string ToBase64String(this Animation animation, ImageFormatKey desiredFormat) =>
         Convert.ToBase64String(animation.ToByteArray(desiredFormat));
 
     /// <summary>

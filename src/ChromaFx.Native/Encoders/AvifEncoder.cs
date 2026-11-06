@@ -43,7 +43,7 @@ public sealed class AvifEncoder : IImageEncoder
     public bool Lossless { get; set; }
 
     /// <inheritdoc />
-    public FileFormats Format => FileFormats.Avif;
+    public ImageFormatKey Format => NativeFormats.Avif;
 
     /// <inheritdoc />
     public void Encode(Stream stream, Image image)

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+using ChromaFx.IO.Encoders;
+
 namespace ChromaFx.IO.Formats.Tga;
 
 /// <summary>
@@ -23,7 +25,10 @@ namespace ChromaFx.IO.Formats.Tga;
 public sealed class TgaFormat : FormatBase
 {
     /// <inheritdoc />
-    public override FileFormats Format => FileFormats.Tga;
+    public override ImageFormatKey Format => FileFormats.Tga;
+
+    /// <inheritdoc />
+    public override IImageEncoder CreateEncoder() => new TgaEncoder();
 
     /// <inheritdoc />
     private protected override IDecoder Decoder => new Decoder();

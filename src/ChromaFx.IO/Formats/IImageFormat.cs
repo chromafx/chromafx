@@ -16,6 +16,7 @@
  */
 
 using ChromaFx.Core;
+using ChromaFx.IO.Encoders;
 
 namespace ChromaFx.IO.Formats;
 
@@ -25,9 +26,15 @@ namespace ChromaFx.IO.Formats;
 public interface IImageFormat
 {
     /// <summary>
-    /// Gets the format.
+    /// Gets the format id.
     /// </summary>
-    FileFormats Format { get; }
+    ImageFormatKey Format { get; }
+
+    /// <summary>
+    /// Creates the encoder used by <c>Save(stream, format)</c>.
+    /// The default calls <see cref="Encode"/>.
+    /// </summary>
+    IImageEncoder CreateEncoder() => new PluginImageEncoder(this);
 
     /// <summary>
     /// Determines whether this instance can decode the specified file name.

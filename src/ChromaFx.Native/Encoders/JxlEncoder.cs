@@ -44,7 +44,7 @@ public sealed class JxlEncoder : IImageEncoder
     public bool Lossless { get; set; }
 
     /// <inheritdoc />
-    public FileFormats Format => FileFormats.JpegXl;
+    public ImageFormatKey Format => NativeFormats.JpegXl;
 
     /// <inheritdoc />
     public void Encode(Stream stream, Image image)

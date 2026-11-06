@@ -27,7 +27,7 @@ namespace ChromaFx.IO.Encoders;
 public sealed class GifEncoder : IImageEncoder, IAnimationEncoder
 {
     /// <inheritdoc />
-    public FileFormats Format => FileFormats.Gif;
+    public ImageFormatKey Format => FileFormats.Gif;
 
     /// <inheritdoc />
     public void Encode(Stream stream, Image image)

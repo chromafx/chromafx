@@ -30,8 +30,8 @@ namespace ChromaFx.IO;
 
 /// <summary>
 /// Global registry of image and animation formats used by <see cref="Image.Load"/> / Save.
-/// Decode uses the first registered format that accepts the stream; encode-by-extension prefers
-/// the last registered match so plugins can override built-ins.
+/// Decode uses the first registered format that accepts the stream. Encode-by-extension and
+/// encode-by-key prefer the last registered match so plugins can override built-ins.
 /// </summary>
 public static class ImageFormats
 {
@@ -67,9 +67,10 @@ public static class ImageFormats
     }
 
     /// <summary>
-    /// Tries to get the first registered format with the given <see cref="FileFormats"/> id.
+    /// Tries to get the first registered format with the given id.
+    /// Encode-by-key uses the last registration.
     /// </summary>
-    public static bool TryGetFormat(FileFormats format, out IImageFormat imageFormat)
+    public static bool TryGetFormat(ImageFormatKey format, out IImageFormat imageFormat)
     {
         EnsureBuiltIns();
         lock (Gate)
@@ -293,74 +294,47 @@ public static class ImageFormats
         encoder.Encode(stream, animation);
     }
 
-    internal static void Encode(Stream stream, Image image, FileFormats format)
+    internal static void Encode(Stream stream, Image image, ImageFormatKey format)
     {
         var encoder = CreateEncoder(format);
         Encode(stream, image, encoder);
     }
 
-    internal static void Encode(Stream stream, Animation animation, FileFormats format)
+    internal static void Encode(Stream stream, Animation animation, ImageFormatKey format)
     {
         var encoder = CreateAnimationEncoder(format);
         Encode(stream, animation, encoder);
     }
 
-    internal static IImageEncoder CreateEncoder(FileFormats format)
+    internal static IImageEncoder CreateEncoder(ImageFormatKey format)
     {
-        switch (format)
-        {
-            case FileFormats.Bmp:
-                return new BmpEncoder();
-            case FileFormats.Png:
-                return new PngEncoder();
-            case FileFormats.Jpeg:
-                return new JpegEncoder();
-            case FileFormats.Gif:
-                return new GifEncoder();
-            case FileFormats.Tga:
-                return new TgaEncoder();
-            case FileFormats.Tiff:
-                return new TiffEncoder();
-        }
-
-        // Prefer last registered match so plugins can override stubs (e.g. ChromaFx.Native).
         if (TryGetRegisteredImageFormat(format, preferLast: true, out var registered))
-            return new RegisteredFormatEncoder(registered);
+            return registered.CreateEncoder();
 
-        if (format is FileFormats.WebP or FileFormats.Avif or FileFormats.JpegXl)
-        {
-            throw new UnknownImageFormatException(
-                $"Format '{format}' requires a registered plugin encoder (for example ChromaFx.Native)."
-            );
-        }
-
-        throw new UnknownImageFormatException($"Unsupported format '{format}'.");
+        throw new UnknownImageFormatException(
+            $"Format '{format}' requires a registered plugin encoder (for example ChromaFx.Native)."
+        );
     }
 
-    internal static IAnimationEncoder CreateAnimationEncoder(FileFormats format)
+    internal static IAnimationEncoder CreateAnimationEncoder(ImageFormatKey format)
     {
-        if (format == FileFormats.Gif)
-            return new GifEncoder();
+        if (TryGetRegisteredAnimationFormat(format, preferLast: true, out var registered))
+            return registered.CreateAnimationEncoder();
 
-        if (
-            TryGetRegisteredAnimationFormat(format, preferLast: true, out var registered)
-        )
-            return new RegisteredAnimationEncoder(registered);
-
-        if (format is FileFormats.WebP or FileFormats.Avif or FileFormats.JpegXl)
+        if (TryGetRegisteredImageFormat(format, preferLast: true, out _))
         {
             throw new UnknownImageFormatException(
-                $"Format '{format}' requires a registered plugin encoder (for example ChromaFx.Native)."
+                $"Format '{format}' does not support animation encoding."
             );
         }
 
         throw new UnknownImageFormatException(
-            $"Format '{format}' does not support animation encoding."
+            $"Format '{format}' requires a registered plugin encoder (for example ChromaFx.Native)."
         );
     }
 
     private static bool TryGetRegisteredImageFormat(
-        FileFormats format,
+        ImageFormatKey format,
         bool preferLast,
         out IImageFormat imageFormat
     )
@@ -388,7 +362,7 @@ public static class ImageFormats
     }
 
     private static bool TryGetRegisteredAnimationFormat(
-        FileFormats format,
+        ImageFormatKey format,
         bool preferLast,
         out IAnimationFormat animationFormat
     )
@@ -412,42 +386,6 @@ public static class ImageFormats
 
             animationFormat = AnimationFormats.FirstOrDefault(f => f.Format == format)!;
             return animationFormat is not null;
-        }
-    }
-
-    private sealed class RegisteredFormatEncoder(IImageFormat format) : IImageEncoder
-    {
-        public FileFormats Format => format.Format;
-
-        public void Encode(Stream stream, Image image)
-        {
-            ArgumentNullException.ThrowIfNull(stream);
-            ArgumentNullException.ThrowIfNull(image);
-            using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
-            format.Encode(writer, image);
-        }
-    }
-
-    private sealed class RegisteredAnimationEncoder(IAnimationFormat format)
-        : IImageEncoder,
-            IAnimationEncoder
-    {
-        public FileFormats Format => format.Format;
-
-        public void Encode(Stream stream, Image image)
-        {
-            ArgumentNullException.ThrowIfNull(stream);
-            ArgumentNullException.ThrowIfNull(image);
-            using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
-            format.Encode(writer, image);
-        }
-
-        public void Encode(Stream stream, Animation animation)
-        {
-            ArgumentNullException.ThrowIfNull(stream);
-            ArgumentNullException.ThrowIfNull(animation);
-            using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
-            format.Encode(writer, animation);
         }
     }
 }

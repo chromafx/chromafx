@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+using ChromaFx.IO.Encoders;
+
 namespace ChromaFx.IO.Formats.Png;
 
 /// <summary>
@@ -29,7 +31,10 @@ public class PngFormat : FormatBase
     /// <value>
     /// The format.
     /// </value>
-    public override FileFormats Format => FileFormats.Png;
+    public override ImageFormatKey Format => FileFormats.Png;
+
+    /// <inheritdoc />
+    public override IImageEncoder CreateEncoder() => new PngEncoder();
 
     /// <summary>
     /// Gets the decoder.

@@ -27,7 +27,7 @@ namespace ChromaFx.IO.Encoders;
 public sealed class TiffEncoder : IImageEncoder
 {
     /// <inheritdoc />
-    public FileFormats Format => FileFormats.Tiff;
+    public ImageFormatKey Format => FileFormats.Tiff;
 
     /// <inheritdoc />
     public void Encode(Stream stream, Image image)

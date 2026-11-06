@@ -16,6 +16,7 @@
  */
 
 using ChromaFx.Core;
+using ChromaFx.IO.Encoders;
 
 namespace ChromaFx.IO.Formats;
 
@@ -37,4 +38,7 @@ public abstract class AnimationFormatBase : FormatBase, IAnimationFormat
     {
         Encoder.Encode(writer, image);
     }
+
+    /// <inheritdoc />
+    public abstract IAnimationEncoder CreateAnimationEncoder();
 }

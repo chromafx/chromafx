@@ -27,7 +27,7 @@ public interface IImageEncoder
     /// <summary>
     /// Gets the file format this encoder produces.
     /// </summary>
-    FileFormats Format { get; }
+    ImageFormatKey Format { get; }
 
     /// <summary>
     /// Encodes <paramref name="image"/> into <paramref name="stream"/>.
