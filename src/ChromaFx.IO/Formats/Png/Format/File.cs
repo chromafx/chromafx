@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
  */
 
 using ChromaFx.Core;
+using ChromaFx.IO.Formats;
 using ChromaFx.IO.Formats.Png.Format.Helpers;
 
 namespace ChromaFx.IO.Formats.Png.Format;
@@ -56,6 +57,8 @@ internal class File : FileBase
     /// The data.
     /// </value>
     public Data Data { get; private set; }
+
+    private int _orientation = 1;
 
     /// <summary>
     /// Gets the file end.
@@ -114,6 +117,7 @@ internal class File : FileBase
     /// </returns>
     public override FileBase Decode(Stream stream)
     {
+        _orientation = ExifOrientation.ReadPng(stream);
         FileHeader = FileHeader.Read(stream);
         var chunks = ReadChunks(stream);
         ParseChunks(chunks);
@@ -166,7 +170,7 @@ internal class File : FileBase
     /// </returns>
     protected override Image ToImage()
     {
-        return Data.Parse(Header, Palette, AlphaPalette);
+        return ExifOrientation.Apply(Data.Parse(Header, Palette, AlphaPalette), _orientation);
     }
 
     /// <summary>

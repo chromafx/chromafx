@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Managed ICO. Decode uses the largest image in the file (PNG, or uncompressed 1/4/8/24/32-bit BMP plus the AND mask). `IcoEncoder` writes one PNG image, at most 256×256. `FileFormats.Ico` is `ico`.
+
+### Changed
+- JPEG, PNG, TIFF, and WebP decode bake EXIF/TIFF orientation (tag 274, values 1–8) into the pixels. TIFF no longer rejects orientations other than top-left. The saved file does not keep the orientation tag, so a later load does not rotate twice.
+
 ## [0.6.2]
 
 Managed TGA and TIFF, plus still WebP, AVIF, and JPEG XL in `ChromaFx.Native`. The meta-package stays free of native binaries.

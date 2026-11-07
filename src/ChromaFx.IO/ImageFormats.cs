@@ -21,6 +21,7 @@ using ChromaFx.IO.Encoders;
 using ChromaFx.IO.Formats;
 using ChromaFx.IO.Formats.Bmp;
 using ChromaFx.IO.Formats.Gif;
+using ChromaFx.IO.Formats.Ico;
 using ChromaFx.IO.Formats.Jpeg;
 using ChromaFx.IO.Formats.Png;
 using ChromaFx.IO.Formats.Tga;
@@ -81,7 +82,7 @@ public static class ImageFormats
     }
 
     /// <summary>
-    /// Ensures built-in BMP/PNG/JPEG/GIF/TIFF/TGA formats are registered.
+    /// Ensures built-in BMP/PNG/JPEG/GIF/TIFF/TGA/ICO formats are registered.
     /// </summary>
     public static void EnsureBuiltIns()
     {
@@ -99,6 +100,7 @@ public static class ImageFormats
             AnimationFormats.Add(gif);
             Formats.Add(new TiffFormat());
             Formats.Add(new TgaFormat());
+            Formats.Add(new IcoFormat());
             _builtinsRegistered = true;
         }
     }

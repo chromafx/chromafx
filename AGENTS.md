@@ -1,6 +1,6 @@
 # Agent guide — ChromaFx
 
-Pure C# image processing library (PNG, JPEG, GIF, BMP, TGA, TIFF). Targets **net10.0**.
+Pure C# image processing library (PNG, JPEG, GIF, BMP, TGA, TIFF, ICO). Targets **net10.0**.
 
 ## Layout
 

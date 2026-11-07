@@ -19,6 +19,7 @@ using System.IO.Compression;
 using ChromaFx.Core;
 using ChromaFx.Core.Colors;
 using ChromaFx.Core.Exceptions;
+using ChromaFx.IO.Formats;
 
 namespace ChromaFx.IO.Formats.Tiff;
 
@@ -193,8 +194,9 @@ internal static class TiffCodec
             _bits = ReadBits();
             if (Optional(284, 1) != 1)
                 throw new ImageException("TIFF planar configuration 2 is not supported.");
-            if (Optional(274, 1) != 1)
-                throw new ImageException("TIFF orientation other than top-left is not supported.");
+            var orientation = (int)Optional(274, 1);
+            if (orientation is < 1 or > 8)
+                orientation = 1;
             if (Optional(266, 1) != 1)
                 throw new ImageException("TIFF fill order 2 is not supported.");
             RejectSampleFormat();
@@ -230,7 +232,7 @@ internal static class TiffCodec
                 DecodeTiles(image, compression, predictor);
             else
                 DecodeStrips(image, compression, predictor);
-            return image;
+            return ExifOrientation.Apply(image, orientation);
         }
 
         private void DecodeStrips(Image image, int compression, int predictor)

@@ -51,4 +51,9 @@ public static class FileFormats
     /// TIFF.
     /// </summary>
     public static readonly ImageFormatKey Tiff = new("tiff");
+
+    /// <summary>
+    /// ICO.
+    /// </summary>
+    public static readonly ImageFormatKey Ico = new("ico");
 }

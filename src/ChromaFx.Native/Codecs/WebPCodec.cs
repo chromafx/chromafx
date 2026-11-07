@@ -17,6 +17,7 @@
 using System.Buffers;
 using ChromaFx.Core;
 using ChromaFx.Core.Exceptions;
+using ChromaFx.IO.Formats;
 
 namespace ChromaFx.Native.Codecs;
 
@@ -29,6 +30,7 @@ internal static class WebPCodec
         var bytes = NativePixels.ReadStream(stream);
         if (bytes.Length == 0)
             throw new ImageException("WebP data is empty.");
+        var orientation = ExifOrientation.ReadWebP(bytes);
 
         unsafe
         {
@@ -59,10 +61,13 @@ internal static class WebPCodec
                 try
                 {
                     var length = checked(width * height * 4);
-                    return NativePixels.ImageFromTight(
-                        new ReadOnlySpan<byte>(pixels, length),
-                        width,
-                        height
+                    return ExifOrientation.Apply(
+                        NativePixels.ImageFromTight(
+                            new ReadOnlySpan<byte>(pixels, length),
+                            width,
+                            height
+                        ),
+                        orientation
                     );
                 }
                 finally

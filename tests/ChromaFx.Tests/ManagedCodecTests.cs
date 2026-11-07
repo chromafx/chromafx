@@ -205,6 +205,16 @@ public class ManagedCodecTests
         Assert.Equal(new Color(40, 40, 40, 255), Image.Load(first)[0, 0]);
     }
 
+    [Fact]
+    public void TiffAppliesHorizontalOrientation()
+    {
+        var image = Image.Load(
+            Tiff(width: 2, height: 1, photometric: 1, strip: [10, 200], orientation: 2)
+        );
+        Assert.Equal(new Color(200, 200, 200, 255), image[0, 0]);
+        Assert.Equal(new Color(10, 10, 10, 255), image[1, 0]);
+    }
+
     private static Image Sample(int width, int height, bool alpha)
     {
         var image = new Image(width, height);
@@ -317,7 +327,8 @@ public class ManagedCodecTests
         ushort[] colorMap = null,
         int tileWidth = 0,
         int tileHeight = 0,
-        int nextIfd = 0
+        int nextIfd = 0,
+        int orientation = 1
     )
     {
         var blobs = new List<byte[]>();
@@ -345,6 +356,8 @@ public class ManagedCodecTests
 
         Add(259, 3, (uint)compression);
         Add(262, 3, (uint)photometric);
+        if (orientation != 1)
+            Add(274, 3, (uint)orientation);
         if (samples != 1)
             Add(277, 3, (uint)samples);
         if (predictor != 1)

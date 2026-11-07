@@ -9,7 +9,7 @@ Modern .NET image processing library.
 A lean, managed alternative for .NET apps that need image processing without native codec DLLs.
 
 **Key points:**
-- Pure managed C# on .NET 10 — no third-party NuGet dependencies, no native codec binaries to deploy (BMP, PNG, JPEG, GIF, TGA, TIFF)
+- Pure managed C# on .NET 10 — no third-party NuGet dependencies, no native codec binaries to deploy (BMP, PNG, JPEG, GIF, TGA, TIFF, ICO)
 - Uses `Span<T>`, `ArrayPool`, and SIMD on key paths
 - Explicit `Mutate` / `Clone` processing API
 - Typed encoders (`JpegEncoder`, `PngEncoder`, …) and a public `ImageFormats` registry for extensions
@@ -78,7 +78,8 @@ Console.Write(image.ToAsciiArt(new AsciiArtOptions { MaxWidth = 40, Invert = tru
 - Prefer the `ChromaFx` meta-package (`ChromaFx.Core` + `.IO` + `.Processing`). Add `ChromaFx.PixelArt` separately for pixel-art filters.
 - `Image.Load` / `Save` / `ImageFormats` live in **IO**; Mutate/Clone in **Processing**.
 - Fluent context: core ops on `IImageProcessingContext`, more via extensions (`BoxBlur`, `Saturation`, `Dilate`, `Grayscale`, …); escape hatch `Apply(IFilter)`.
-- Typed encoders: `ChromaFx.IO.Encoders` (`JpegEncoder`, `PngEncoder`, `BmpEncoder`, `GifEncoder` as `IAnimationEncoder`, `TgaEncoder`, `TiffEncoder`). Still WebP, AVIF, and JPEG XL encoders are in `ChromaFx.Native.Encoders`.
+- Typed encoders: `ChromaFx.IO.Encoders` (`JpegEncoder`, `PngEncoder`, `BmpEncoder`, `GifEncoder` as `IAnimationEncoder`, `TgaEncoder`, `TiffEncoder`, `IcoEncoder`). Still WebP, AVIF, and JPEG XL encoders are in `ChromaFx.Native.Encoders`.
+- JPEG, PNG, TIFF, and WebP decode apply EXIF orientation (tag 274) so phone photos load upright. The pixels are rotated in memory; the tag is not written back.
 - Format ids are `ImageFormatKey` values (the name, compared ordinal-ignore-case). `FileFormats` names the managed codecs. `NativeFormats` in `ChromaFx.Native` names still WebP, AVIF, and JPEG XL. `Save(stream, key)` uses the last registered format's encoder. A missing key throws.
 - `Animation` supports per-frame delays (`GetFrameDelay` / `SetFrameDelay` / `FrameDelays`); `Delay` sets all frames.
 - Path `Save` / `SaveAsync` use the last registered format that accepts the extension (plugins can override built-ins). `ImageFormats.TryGetFormat` looks up by id and returns the first match.
@@ -126,7 +127,7 @@ Modifications and ongoing maintenance by Ho Tzin Mein (2023–2026).
 - ✅ **API modernization** – `Mutate`/`Clone`, typed encoders, `ImageFormats` registry.
 - ✅ **PixelArt** – opt-in `ChromaFx.PixelArt` (Scale2x / Scale3x / Hq2x–4x / CleanEdge / Eagle / SaI, `RotateSprite` / `CleanEdgeRotate`).
 - ✅ **Performance (pass)** – Color ctor alloc fix; faster `ApplyRgbLut`; AdaptiveThreshold / AdaptiveEqualize / Kuwahara / Blend alloc cuts.
-- ✅ **Extended formats** – managed TGA and TIFF; opt-in `ChromaFx.Native` still WebP, AVIF, and JPEG XL (no animation).
+- ✅ **Extended formats** – managed TGA, TIFF, and ICO; opt-in `ChromaFx.Native` still WebP, AVIF, and JPEG XL (no animation). JPEG, PNG, TIFF, and WebP honor EXIF orientation.
 - ⏭ **Extended features** – more drawing/effects.
 - ⏭ **Performance** – more Span/ArrayPool/SIMD on codecs and remaining filters.
 

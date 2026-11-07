@@ -18,3 +18,4 @@ using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("ChromaFx.Tests")]
 [assembly: InternalsVisibleTo("ChromaFx.Benchmarks")]
+[assembly: InternalsVisibleTo("ChromaFx.Native")]

@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 
 using ChromaFx.Core;
 using ChromaFx.Core.Exceptions;
+using ChromaFx.IO.Formats;
 using ChromaFx.IO.Formats.Jpeg.Format.Segments;
 
 namespace ChromaFx.IO.Formats.Jpeg.Format;
@@ -62,7 +63,8 @@ internal class File : FileBase
     /// </returns>
     public override FileBase Decode(Stream stream)
     {
-        _returnValue = ReadSegments(stream);
+        var orientation = ExifOrientation.ReadJpeg(stream);
+        _returnValue = ExifOrientation.Apply(ReadSegments(stream), orientation);
         return this;
     }
 
