@@ -17,6 +17,7 @@
 
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
 
 namespace ChromaFx.IO.Formats.Jpeg.Format;
 
@@ -115,6 +116,13 @@ internal static class Idct
             Unsafe.Add(ref d, y8 + 7) = (x7 - x1) >> 8;
         }
 
+        if (Vector128.IsHardwareAccelerated)
+        {
+            TransformColumns(ref d, 0);
+            TransformColumns(ref d, 4);
+            return;
+        }
+
         for (var x = 0; x < 8; x++)
         {
             var y0 = (Unsafe.Add(ref d, x) << 8) + 8192;
@@ -159,5 +167,50 @@ internal static class Idct
             Unsafe.Add(ref d, 48 + x) = (y3 - y2) >> 14;
             Unsafe.Add(ref d, 56 + x) = (y7 - y1) >> 14;
         }
+    }
+
+    // Column pass for four columns at once; same integer arithmetic as the scalar loop.
+    private static void TransformColumns(ref int d, int x)
+    {
+        var o = (nuint)x;
+        var y0 = (Vector128.LoadUnsafe(ref d, o) << 8) + Vector128.Create(8192);
+        var y1 = Vector128.LoadUnsafe(ref d, o + 32) << 8;
+        var y2 = Vector128.LoadUnsafe(ref d, o + 48);
+        var y3 = Vector128.LoadUnsafe(ref d, o + 16);
+        var y4 = Vector128.LoadUnsafe(ref d, o + 8);
+        var y5 = Vector128.LoadUnsafe(ref d, o + 56);
+        var y6 = Vector128.LoadUnsafe(ref d, o + 40);
+        var y7 = Vector128.LoadUnsafe(ref d, o + 24);
+        var four = Vector128.Create(4);
+        var round = Vector128.Create(128);
+        var y8 = (y4 + y5) * W7 + four;
+        y4 = (y8 + y4 * W1Mw7) >> 3;
+        y5 = (y8 - y5 * W1Pw7) >> 3;
+        y8 = (y6 + y7) * W3 + four;
+        y6 = (y8 - y6 * W3Mw5) >> 3;
+        y7 = (y8 - y7 * W3Pw5) >> 3;
+        y8 = y0 + y1;
+        y0 -= y1;
+        y1 = (y3 + y2) * W6 + four;
+        y2 = (y1 - y2 * W2Pw6) >> 3;
+        y3 = (y1 + y3 * W2Mw6) >> 3;
+        y1 = y4 + y6;
+        y4 -= y6;
+        y6 = y5 + y7;
+        y5 -= y7;
+        y7 = y8 + y3;
+        y8 -= y3;
+        y3 = y0 + y2;
+        y0 -= y2;
+        y2 = ((y4 + y5) * R2 + round) >> 8;
+        y4 = ((y4 - y5) * R2 + round) >> 8;
+        ((y7 + y1) >> 14).StoreUnsafe(ref d, o);
+        ((y3 + y2) >> 14).StoreUnsafe(ref d, o + 8);
+        ((y0 + y4) >> 14).StoreUnsafe(ref d, o + 16);
+        ((y8 + y6) >> 14).StoreUnsafe(ref d, o + 24);
+        ((y8 - y6) >> 14).StoreUnsafe(ref d, o + 32);
+        ((y0 - y4) >> 14).StoreUnsafe(ref d, o + 40);
+        ((y3 - y2) >> 14).StoreUnsafe(ref d, o + 48);
+        ((y7 - y1) >> 14).StoreUnsafe(ref d, o + 56);
     }
 }

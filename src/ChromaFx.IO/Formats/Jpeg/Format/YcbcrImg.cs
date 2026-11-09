@@ -16,6 +16,8 @@
  */
 
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
 using ChromaFx.Core;
 using ChromaFx.Core.Colors;
 using ChromaFx.Core.Colors.ColorSpaces;
@@ -351,14 +353,16 @@ internal class YcbcrImg
                     var (cbRow, crRow, colSum) = buffers;
                     UpsampleRow(CbPixels, y, chromaWidth, chromaHeight, colSum, cbRow);
                     UpsampleRow(CrPixels, y, chromaWidth, chromaHeight, colSum, crRow);
-                    for (var x = 0; x < width; x++)
-                        row[x] = ToRgb(yRow[x], cbRow[x], crRow[x]);
+                    ConvertRow(yRow, cbRow, crRow, row);
                 }
                 else
                 {
                     var co = RowCOffset(y);
-                    for (var x = 0; x < width; x++)
-                        row[x] = ToRgb(yRow[x], CbPixels[co + x / cScale], CrPixels[co + x / cScale]);
+                    if (cScale == 1)
+                        ConvertRow(yRow, CbPixels.AsSpan(co, width), CrPixels.AsSpan(co, width), row);
+                    else
+                        for (var x = 0; x < width; x++)
+                            row[x] = ToRgb(yRow[x], CbPixels[co + x / cScale], CrPixels[co + x / cScale]);
                 }
                 return buffers;
             },
@@ -433,9 +437,79 @@ internal class YcbcrImg
     private static readonly int[] CrToG = BuildTable(-0.71414, 0, shift: false);
     private static readonly int[] CbToG = BuildTable(-0.34414, Half, shift: false);
 
+    private static readonly int FixedCrToR = Fixed(1.40200);
+    private static readonly int FixedCbToB = Fixed(1.77200);
+    private static readonly int FixedCrToG = Fixed(-0.71414);
+    private static readonly int FixedCbToG = Fixed(-0.34414);
+
+    private static int Fixed(double coefficient) =>
+        (int)(coefficient * (1 << ScaleBits) + (coefficient < 0 ? -0.5 : 0.5));
+
+    // Same fixed-point arithmetic as ToRgb, 16 pixels per iteration.
+    private static void ConvertRow(
+        ReadOnlySpan<byte> yRow,
+        ReadOnlySpan<byte> cbRow,
+        ReadOnlySpan<byte> crRow,
+        Span<Color> row
+    )
+    {
+        var width = row.Length;
+        var x = 0;
+        if (Vector128.IsHardwareAccelerated)
+        {
+            ref var yRef = ref MemoryMarshal.GetReference(yRow);
+            ref var cbRef = ref MemoryMarshal.GetReference(cbRow);
+            ref var crRef = ref MemoryMarshal.GetReference(crRow);
+            ref var dest = ref Unsafe.As<Color, uint>(ref MemoryMarshal.GetReference(row));
+            for (; x <= width - 16; x += 16)
+            {
+                var o = (nuint)x;
+                var (y0, y1) = Vector128.Widen(Vector128.LoadUnsafe(ref yRef, o));
+                var (cb0, cb1) = Vector128.Widen(Vector128.LoadUnsafe(ref cbRef, o));
+                var (cr0, cr1) = Vector128.Widen(Vector128.LoadUnsafe(ref crRef, o));
+                ConvertQuad(y0, cb0, cr0, ref dest, o);
+                ConvertQuad(y1, cb1, cr1, ref dest, o + 8);
+            }
+        }
+
+        for (; x < width; x++)
+            row[x] = ToRgb(yRow[x], cbRow[x], crRow[x]);
+    }
+
+    private static void ConvertQuad(
+        Vector128<ushort> y,
+        Vector128<ushort> cb,
+        Vector128<ushort> cr,
+        ref uint dest,
+        nuint offset
+    )
+    {
+        var (yLo, yHi) = Vector128.Widen(y);
+        var (cbLo, cbHi) = Vector128.Widen(cb);
+        var (crLo, crHi) = Vector128.Widen(cr);
+        Pack(yLo.AsInt32(), cbLo.AsInt32(), crLo.AsInt32()).StoreUnsafe(ref dest, offset);
+        Pack(yHi.AsInt32(), cbHi.AsInt32(), crHi.AsInt32()).StoreUnsafe(ref dest, offset + 4);
+    }
+
+    private static Vector128<uint> Pack(Vector128<int> y, Vector128<int> cb, Vector128<int> cr)
+    {
+        var bias = Vector128.Create(128);
+        var half = Vector128.Create(Half);
+        var max = Vector128.Create(255);
+        cb -= bias;
+        cr -= bias;
+        var r = y + ((cr * FixedCrToR + half) >> ScaleBits);
+        var g = y + ((cb * FixedCbToG + half + cr * FixedCrToG) >> ScaleBits);
+        var b = y + ((cb * FixedCbToB + half) >> ScaleBits);
+        r = Vector128.Min(Vector128.Max(r, Vector128<int>.Zero), max);
+        g = Vector128.Min(Vector128.Max(g, Vector128<int>.Zero), max);
+        b = Vector128.Min(Vector128.Max(b, Vector128<int>.Zero), max);
+        return (r | (g << 8) | (b << 16)).AsUInt32() | Vector128.Create(0xFF00_0000u);
+    }
+
     private static int[] BuildTable(double coefficient, int rounding, bool shift = true)
     {
-        var fixedCoefficient = (int)(coefficient * (1 << ScaleBits) + (coefficient < 0 ? -0.5 : 0.5));
+        var fixedCoefficient = Fixed(coefficient);
         var table = new int[256];
         for (var i = 0; i < 256; i++)
         {
