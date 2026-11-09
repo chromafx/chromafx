@@ -19,7 +19,6 @@ using System.IO.Compression;
 using ChromaFx.Core;
 using ChromaFx.Core.Colors;
 using ChromaFx.Core.Exceptions;
-using ChromaFx.IO.Formats;
 
 namespace ChromaFx.IO.Formats.Tiff;
 

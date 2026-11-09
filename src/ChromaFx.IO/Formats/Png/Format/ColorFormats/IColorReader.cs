@@ -30,5 +30,5 @@ internal interface IColorReader
     /// <param name="scanline">Scanline</param>
     /// <param name="row">Destination row (length = header.Width)</param>
     /// <param name="header">Header information</param>
-    void ReadScanline(byte[] scanline, Span<Color> row, Header header);
+    void ReadScanline(ReadOnlySpan<byte> scanline, Span<Color> row, Header header);
 }

@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
+using System.Buffers;
 using System.IO.Compression;
 using ChromaFx.Core;
-using ChromaFx.Core.Colors;
 using ChromaFx.Core.Simd;
 using ChromaFx.IO.Formats.Png.Format.ColorFormats;
 using ChromaFx.IO.Formats.Png.Format.Enums;
@@ -171,84 +171,83 @@ internal class Data
         var rowBytes = image.Width * 4;
 
         using var ms = new MemoryStream();
-        using (var compressor = new ZLibStream(ms, CompressionLevel.Optimal, leaveOpen: true))
+        var prevRow = ArrayPool<byte>.Shared.Rent(rowBytes);
+        var curRow = ArrayPool<byte>.Shared.Rent(rowBytes);
+        var filteredRow = ArrayPool<byte>.Shared.Rent(rowLength);
+        var bestRow = ArrayPool<byte>.Shared.Rent(rowLength);
+        try
         {
-            var prevRow = new byte[rowBytes];
-            var curRow = new byte[rowBytes];
-            var filteredRow = new byte[rowLength];
-            var bestRow = new byte[rowLength];
-
+            prevRow.AsSpan(0, rowBytes).Clear();
+            using var compressor = new ZLibStream(ms, CompressionLevel.Optimal, leaveOpen: true);
             for (int y = 0; y < image.Height; y++)
             {
                 // Row-wise: storage may include SIMD padding beyond Width.
                 System.Runtime.InteropServices.MemoryMarshal.AsBytes(image.GetRowSpan(y))
-                    .CopyTo(curRow);
+                    .CopyTo(curRow.AsSpan(0, rowBytes));
 
                 // Score None / Sub / Up only (Average/Paeth rarely win enough to offset cost).
                 int bestScore = int.MaxValue;
                 for (int filter = 0; filter <= 2; filter++)
                 {
-                    ApplyFilter(filter, curRow, prevRow, filteredRow);
-                    int score = Score(filteredRow);
+                    ApplyFilter(
+                        filter,
+                        curRow.AsSpan(0, rowBytes),
+                        prevRow.AsSpan(0, rowBytes),
+                        filteredRow.AsSpan(0, rowLength)
+                    );
+                    int score = Score(filteredRow.AsSpan(0, rowLength));
                     if (score < bestScore)
                     {
                         bestScore = score;
-                        Buffer.BlockCopy(filteredRow, 0, bestRow, 0, rowLength);
+                        filteredRow.AsSpan(0, rowLength).CopyTo(bestRow);
                     }
                 }
 
-                compressor.Write(bestRow, 0, bestRow.Length);
+                compressor.Write(bestRow, 0, rowLength);
                 (curRow, prevRow) = (prevRow, curRow);
             }
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(prevRow);
+            ArrayPool<byte>.Shared.Return(curRow);
+            ArrayPool<byte>.Shared.Return(filteredRow);
+            ArrayPool<byte>.Shared.Return(bestRow);
         }
 
         return ms.ToArray();
     }
 
-    private static void ApplyFilter(int filter, byte[] cur, byte[] prev, byte[] output)
+    private static void ApplyFilter(
+        int filter,
+        ReadOnlySpan<byte> cur,
+        ReadOnlySpan<byte> prev,
+        Span<byte> output
+    )
     {
         output[0] = (byte)filter;
+        var dst = output[1..];
         switch (filter)
         {
             case 0: // None
-                Buffer.BlockCopy(cur, 0, output, 1, cur.Length);
+                cur.CopyTo(dst);
                 break;
             case 1: // Sub
-                ApplySub(cur, output.AsSpan(1));
+                ByteSimd.SubPredictSubtract(cur, dst, bytesPerPixel: 4);
                 break;
             case 2: // Up
-                ApplyUp(cur, prev, output.AsSpan(1));
+                ByteSimd.SubtractWrapping(cur, prev, dst);
                 break;
             case 3: // Average
-                ApplyAverage(cur, prev, output.AsSpan(1));
+                ByteSimd.AveragePredictSubtract(cur, prev, dst, bytesPerPixel: 4);
                 break;
             case 4: // Paeth
-                ApplyPaeth(cur, prev, output.AsSpan(1));
+                ByteSimd.PaethPredictSubtract(cur, prev, dst, bytesPerPixel: 4);
                 break;
         }
     }
 
-    private static void ApplySub(byte[] cur, Span<byte> dst)
-    {
-        ByteSimd.SubPredictSubtract(cur, dst, bytesPerPixel: 4);
-    }
-
-    private static void ApplyUp(byte[] cur, byte[] prev, Span<byte> dst)
-    {
-        ByteSimd.SubtractWrapping(cur, prev.AsSpan(0, cur.Length), dst);
-    }
-
-    private static void ApplyAverage(byte[] cur, byte[] prev, Span<byte> dst)
-    {
-        ByteSimd.AveragePredictSubtract(cur, prev, dst, bytesPerPixel: 4);
-    }
-
-    private static void ApplyPaeth(byte[] cur, byte[] prev, Span<byte> dst)
-    {
-        ByteSimd.PaethPredictSubtract(cur, prev, dst, bytesPerPixel: 4);
-    }
-
-    private static int Score(byte[] row)
+    private static int Score(ReadOnlySpan<byte> row)
     {
         // Heuristic: sum of absolute values of filtered bytes
         int sum = 0;
@@ -278,36 +277,64 @@ internal class Data
         var scanLineLength = CalculateScanlineLength(colorTypeInformation, header);
         var scanLineStep = CalculateScanLineStep(colorTypeInformation, header);
 
-        var lastScanLine = new byte[scanLineLength];
-        var currentScanLine = new byte[scanLineLength];
-        var rowBuffer = new byte[1 + scanLineLength];
-
-        using var zlib = new ZLibStream(dataStream, CompressionMode.Decompress);
-
-        for (int row = 0; row < header.Height; row++)
+        var lastScanLine = ArrayPool<byte>.Shared.Rent(scanLineLength);
+        var currentScanLine = ArrayPool<byte>.Shared.Rent(scanLineLength);
+        var rowBuffer = ArrayPool<byte>.Shared.Rent(1 + scanLineLength);
+        try
         {
-            zlib.ReadExactly(rowBuffer);
-            int filter = rowBuffer[0];
-            rowBuffer.AsSpan(1).CopyTo(currentScanLine);
+            lastScanLine.AsSpan(0, scanLineLength).Clear();
+            using var zlib = new ZLibStream(dataStream, CompressionMode.Decompress);
 
-            switch (filter)
+            for (int row = 0; row < header.Height; row++)
             {
-                case 1:
-                    ByteSimd.SubPredictAddInPlace(currentScanLine, scanLineStep);
-                    break;
-                case 2:
-                    ByteSimd.AddWrapping(currentScanLine, lastScanLine, currentScanLine);
-                    break;
-                case 3:
-                    ByteSimd.AveragePredictAddInPlace(currentScanLine, lastScanLine, scanLineStep);
-                    break;
-                case 4:
-                    ByteSimd.PaethPredictAddInPlace(currentScanLine, lastScanLine, scanLineStep);
-                    break;
-            }
+                zlib.ReadExactly(rowBuffer.AsSpan(0, 1 + scanLineLength));
+                int filter = rowBuffer[0];
+                rowBuffer.AsSpan(1, scanLineLength).CopyTo(currentScanLine);
 
-            colorReader.ReadScanline(currentScanLine, image.GetRowSpan(row), header);
-            (lastScanLine, currentScanLine) = (currentScanLine, lastScanLine);
+                switch (filter)
+                {
+                    case 1:
+                        ByteSimd.SubPredictAddInPlace(
+                            currentScanLine.AsSpan(0, scanLineLength),
+                            scanLineStep
+                        );
+                        break;
+                    case 2:
+                        ByteSimd.AddWrapping(
+                            currentScanLine.AsSpan(0, scanLineLength),
+                            lastScanLine.AsSpan(0, scanLineLength),
+                            currentScanLine.AsSpan(0, scanLineLength)
+                        );
+                        break;
+                    case 3:
+                        ByteSimd.AveragePredictAddInPlace(
+                            currentScanLine.AsSpan(0, scanLineLength),
+                            lastScanLine.AsSpan(0, scanLineLength),
+                            scanLineStep
+                        );
+                        break;
+                    case 4:
+                        ByteSimd.PaethPredictAddInPlace(
+                            currentScanLine.AsSpan(0, scanLineLength),
+                            lastScanLine.AsSpan(0, scanLineLength),
+                            scanLineStep
+                        );
+                        break;
+                }
+
+                colorReader.ReadScanline(
+                    currentScanLine.AsSpan(0, scanLineLength),
+                    image.GetRowSpan(row),
+                    header
+                );
+                (lastScanLine, currentScanLine) = (currentScanLine, lastScanLine);
+            }
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(lastScanLine);
+            ArrayPool<byte>.Shared.Return(currentScanLine);
+            ArrayPool<byte>.Shared.Return(rowBuffer);
         }
     }
 }

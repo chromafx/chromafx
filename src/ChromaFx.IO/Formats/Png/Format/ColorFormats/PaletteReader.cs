@@ -46,9 +46,11 @@ internal class PaletteReader(Palette palette, Palette alphaPalette) : IColorRead
     public Palette Palette { get; set; } = palette ?? new Palette([], PaletteType.Color);
 
     /// <inheritdoc />
-    public void ReadScanline(byte[] scanline, Span<Color> row, Header header)
+    public void ReadScanline(ReadOnlySpan<byte> scanline, Span<Color> row, Header header)
     {
-        scanline = scanline.ExpandArray(header.BitDepth);
+        if (header.BitDepth < 8)
+            scanline = scanline.ExpandArray(header.BitDepth);
+
         var dest = MemoryMarshal.Cast<Color, uint>(row);
         var hasAlpha = AlphaPalette.Data.Length > 0;
 

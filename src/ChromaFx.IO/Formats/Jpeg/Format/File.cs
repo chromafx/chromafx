@@ -17,7 +17,6 @@
 
 using ChromaFx.Core;
 using ChromaFx.Core.Exceptions;
-using ChromaFx.IO.Formats;
 using ChromaFx.IO.Formats.Jpeg.Format.Segments;
 
 namespace ChromaFx.IO.Formats.Jpeg.Format;

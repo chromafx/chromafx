@@ -51,11 +51,12 @@ public static class PerlinNoise
         int seed
     )
     {
-        var returnValue = new Image(width, height, new Color[width * height]);
+        var returnValue = new Image(width, height);
         var noise = GenerateNoise(seed, width, height);
-        for (var x = 0; x < width; ++x)
+        for (var y = 0; y < height; ++y)
         {
-            for (var y = 0; y < height; ++y)
+            var row = returnValue.GetRowSpan(y);
+            for (var x = 0; x < width; ++x)
             {
                 var value = GetValue(
                     x,
@@ -71,10 +72,7 @@ public static class PerlinNoise
                 value = value * 0.5f + 0.5f;
                 value *= 255;
                 var rgbValue = (byte)value.Clamp(minRgbValue, maxRgbValue);
-                returnValue.GetRowSpan(y)[x].Red = rgbValue;
-                returnValue.GetRowSpan(y)[x].Green = rgbValue;
-                returnValue.GetRowSpan(y)[x].Blue = rgbValue;
-                returnValue.GetRowSpan(y)[x].Alpha = 255;
+                row[x] = new Color(rgbValue, rgbValue, rgbValue);
             }
         }
 

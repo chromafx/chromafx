@@ -28,9 +28,11 @@ namespace ChromaFx.IO.Formats.Png.Format.ColorFormats;
 internal class GreyscaleAlphaReader : IColorReader
 {
     /// <inheritdoc />
-    public void ReadScanline(byte[] scanline, Span<Color> row, Header header)
+    public void ReadScanline(ReadOnlySpan<byte> scanline, Span<Color> row, Header header)
     {
-        scanline = scanline.ExpandArray(header.BitDepth);
+        if (header.BitDepth < 8)
+            scanline = scanline.ExpandArray(header.BitDepth);
+
         var dest = MemoryMarshal.Cast<Color, uint>(row);
         for (var x = 0; x < header.Width; ++x)
         {

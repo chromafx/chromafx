@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,9 +33,19 @@ public static class ByteExtensions
         bytes ??= [];
         bits = Math.Clamp(bits, 0, int.MaxValue);
         if (bits >= 8)
-        {
             return bytes;
-        }
+
+        return ExpandArray((ReadOnlySpan<byte>)bytes, bits);
+    }
+
+    /// <summary>
+    /// Expands packed low-bit samples into one byte per sample.
+    /// </summary>
+    public static byte[] ExpandArray(this ReadOnlySpan<byte> bytes, int bits)
+    {
+        bits = Math.Clamp(bits, 0, int.MaxValue);
+        if (bits >= 8)
+            return bytes.ToArray();
 
         var result = new byte[bytes.Length * 8 / bits];
         var mask = 0xFF >> (8 - bits);

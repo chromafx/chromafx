@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+using System.Buffers;
 using System.Buffers.Binary;
 using ChromaFx.Core;
 using ChromaFx.Core.Colors;
@@ -95,57 +96,65 @@ internal static class TgaCodec
             throw new ImageException("Truncated TGA image.");
 
         var pixelCount = width * height;
-        var tight = new byte[pixelCount * 4];
-        var cursor = offset;
-        var written = 0;
-        while (written < pixelCount)
+        var tightBytes = pixelCount * 4;
+        var tight = ArrayPool<byte>.Shared.Rent(tightBytes);
+        try
         {
-            var count = 1;
-            var run = false;
-            if (rle)
+            var cursor = offset;
+            var written = 0;
+            while (written < pixelCount)
             {
-                if (cursor >= data.Length)
-                    throw new ImageException("Truncated TGA image.");
-                var packet = data[cursor++];
-                count = (packet & 0x7F) + 1;
-                run = (packet & 0x80) != 0;
-            }
+                var count = 1;
+                var run = false;
+                if (rle)
+                {
+                    if (cursor >= data.Length)
+                        throw new ImageException("Truncated TGA image.");
+                    var packet = data[cursor++];
+                    count = (packet & 0x7F) + 1;
+                    run = (packet & 0x80) != 0;
+                }
 
-            if (written + count > pixelCount)
-                throw new ImageException("TGA image data exceeds its dimensions.");
+                if (written + count > pixelCount)
+                    throw new ImageException("TGA image data exceeds its dimensions.");
 
-            if (run)
-            {
-                ReadPixel(data, ref cursor, depth, descriptor, mapped, mapStart, mapLength, mapDepth, out var r, out var g, out var b, out var a);
-                for (var i = 0; i < count; i++)
-                    WritePixel(tight, written++, r, g, b, a);
-            }
-            else
-            {
-                for (var i = 0; i < count; i++)
+                if (run)
                 {
                     ReadPixel(data, ref cursor, depth, descriptor, mapped, mapStart, mapLength, mapDepth, out var r, out var g, out var b, out var a);
-                    WritePixel(tight, written++, r, g, b, a);
+                    for (var i = 0; i < count; i++)
+                        WritePixel(tight, written++, r, g, b, a);
+                }
+                else
+                {
+                    for (var i = 0; i < count; i++)
+                    {
+                        ReadPixel(data, ref cursor, depth, descriptor, mapped, mapStart, mapLength, mapDepth, out var r, out var g, out var b, out var a);
+                        WritePixel(tight, written++, r, g, b, a);
+                    }
                 }
             }
-        }
 
-        var top = (descriptor & 0x20) != 0;
-        var right = (descriptor & 0x10) != 0;
-        var image = new Image(width, height);
-        for (var y = 0; y < height; y++)
-        {
-            var srcY = top ? y : height - 1 - y;
-            var row = image.GetRowSpan(y);
-            for (var x = 0; x < width; x++)
+            var top = (descriptor & 0x20) != 0;
+            var right = (descriptor & 0x10) != 0;
+            var image = new Image(width, height);
+            for (var y = 0; y < height; y++)
             {
-                var srcX = right ? width - 1 - x : x;
-                var i = (srcY * width + srcX) * 4;
-                row[x] = new Color(tight[i], tight[i + 1], tight[i + 2], tight[i + 3]);
+                var srcY = top ? y : height - 1 - y;
+                var row = image.GetRowSpan(y);
+                for (var x = 0; x < width; x++)
+                {
+                    var srcX = right ? width - 1 - x : x;
+                    var i = (srcY * width + srcX) * 4;
+                    row[x] = new Color(tight[i], tight[i + 1], tight[i + 2], tight[i + 3]);
+                }
             }
-        }
 
-        return image;
+            return image;
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(tight);
+        }
     }
 
     internal static void Encode(BinaryWriter writer, Image image)

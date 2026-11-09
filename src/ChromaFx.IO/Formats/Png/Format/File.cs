@@ -16,7 +16,6 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.IO.Formats;
 using ChromaFx.IO.Formats.Png.Format.Helpers;
 
 namespace ChromaFx.IO.Formats.Png.Format;
