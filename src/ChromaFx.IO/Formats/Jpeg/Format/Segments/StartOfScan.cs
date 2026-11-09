@@ -438,6 +438,8 @@ internal class StartOfScan : SegmentBase
     private uint _nBits;
     private readonly Block[][] _progressiveCoefficients;
 
+    private readonly Block _baselineBlock = new();
+
     /// <summary>
     /// Converts the scan information into an image
     /// </summary>
@@ -659,7 +661,10 @@ internal class StartOfScan : SegmentBase
                         if (startOfFrameSegment.Progressive)
                             b = _progressiveCoefficients[compIndex][by * mxx * hi + bx];
                         else
-                            b = new Block();
+                        {
+                            b = _baselineBlock;
+                            Array.Clear(b.Data);
+                        }
 
                         if (ah != 0)
                         {
@@ -740,8 +745,10 @@ internal class StartOfScan : SegmentBase
                                 continue;
                             }
                         }
+                        var coefficients = b.Data;
+                        var quant = qt.Data;
                         for (var zig = 0; zig < Block.BlockSize; zig++)
-                            b[Unzig[zig]] *= qt[zig];
+                            coefficients[Unzig[zig]] *= quant[zig];
 
                         Idct.Transform(b);
                         byte[] dst;
@@ -785,26 +792,10 @@ internal class StartOfScan : SegmentBase
 
                         for (var y = 0; y < 8; y++)
                         {
-                            var y8 = y * 8;
-                            var yStride = y * stride;
-
+                            var source = b.Data.AsSpan(y * 8, 8);
+                            var target = dst.AsSpan(offset + y * stride, 8);
                             for (var x = 0; x < 8; x++)
-                            {
-                                var c = b[y8 + x];
-                                if (c < -128)
-                                {
-                                    c = 0;
-                                }
-                                else if (c > 127)
-                                {
-                                    c = 255;
-                                }
-                                else
-                                {
-                                    c += 128;
-                                }
-                                dst[yStride + x + offset] = (byte)c;
-                            }
+                                target[x] = (byte)Math.Clamp(source[x] + 128, 0, 255);
                         }
                     }
                 }
