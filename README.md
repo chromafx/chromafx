@@ -126,10 +126,10 @@ Modifications and ongoing maintenance by Ho Tzin Mein (2023–2026).
 - ✅ **Modularization** – Core, IO, Processing packages split out.
 - ✅ **API modernization** – `Mutate`/`Clone`, typed encoders, `ImageFormats` registry.
 - ✅ **PixelArt** – opt-in `ChromaFx.PixelArt` (Scale2x / Scale3x / Hq2x–4x / CleanEdge / Eagle / SaI, `RotateSprite` / `CleanEdgeRotate`).
-- ✅ **Performance (pass)** – Color ctor alloc fix; faster `ApplyRgbLut`; AdaptiveThreshold / AdaptiveEqualize / Kuwahara / Blend alloc cuts.
+- ✅ **Performance (pass)** – Color ctor alloc fix; faster `ApplyRgbLut`; AdaptiveThreshold / AdaptiveEqualize / Kuwahara / Blend / Pointillism / Resize / NonMaximalSuppression pool reuse; PNG and TGA scanline pools.
 - ✅ **Extended formats** – managed TGA, TIFF, and ICO; opt-in `ChromaFx.Native` still WebP, AVIF, and JPEG XL (no animation). JPEG, PNG, TIFF, and WebP honor EXIF orientation.
+- ✅ **Correctness** – Pixellate; NMS hysteresis/races; Jitter; morphology/Kuwahara alpha; zero-size guards; Resize/Affine weights; classic Kuwahara; nearest-neighbor kernel; affine OOB transparency; drawing Plot composite; BoxBlur alpha.
 - ⏭ **Extended features** – more drawing/effects.
-- ⏭ **Performance** – more Span/ArrayPool/SIMD on codecs and remaining filters.
 
 ## Contributing
 Contributions, bug reports, and suggestions are welcome.

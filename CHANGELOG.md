@@ -13,6 +13,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - JPEG, PNG, TIFF, and WebP decode bake EXIF/TIFF orientation (tag 274, values 1–8) into the pixels. TIFF no longer rejects orientations other than top-left. The saved file does not keep the orientation tag, so a later load does not rotate twice.
+- Bit-identical performance pass: AdaptiveThreshold, Kuwahara, Pointillism, Resize, and NonMaximalSuppression reuse `FilterBufferPool`; PNG encode/decode scanlines and TGA decode reuse `ArrayPool<byte>`; PerlinNoise drops a redundant full-image `Color[]`.
+
+### Fixed
+- Pixellate averages the neighborhood pixels (was always sampling the block origin) and no longer divides by zero or hangs for `PixelSize <= 1`.
+- NonMaximalSuppression visits the top-right diagonal during hysteresis (`Right` bound was mistyped as `Left`); strong edges are marked before a serial flood (no parallel races); isolated strong pixels are kept.
+- Jitter gathers from a source snapshot (was a parallel in-place scramble with races).
+- Dilate, Constrict, and Kuwahara preserve alpha instead of forcing opaque.
+- Zero/negative aperture or point size is a no-op for Dilate, Constrict, Kuwahara, SnnBlur, Median, AdaptiveThreshold, AdaptiveEqualize, and Pointillism (avoids divide-by-zero / hangs).
+- Pointillism empty sample windows no longer divide by zero.
+- Resize and affine transforms index precomputed filter weights from `Weights.Left` (clipped windows no longer misalign coefficients).
+- Kuwahara uses classic overlapping `(radius+1)²` quadrants (center in all four) and picks by luminance variance instead of channel range.
+- `NearestNeighborFilter.GetValue(0)` is `1` (was `|value|`, so the center weight was always zero).
+- Affine transforms fill unmapped samples with transparent black `(0,0,0,0)` instead of opaque black.
+- Drawing `Plot` alpha-composites onto the destination (Xiaolin Wu coverage no longer overwrites).
+- BoxBlur vertical pass keeps alpha, matching the horizontal pass.
 
 ## [0.6.2]
 
