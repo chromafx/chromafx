@@ -23,6 +23,8 @@ public class OracleDecodeTests
         { "png_gray1.png", "png_gray1" },
         { "png_gray16.png", "png_gray16" },
         { "tif_lzw.tif", "tif_lzw" },
+        { "../Jpg/rgb.jpg", "jpg_rgb_9x3" },
+        { "jpg_420_7x5.jpg", "jpg_420_7x5" },
     };
 
     [Theory]

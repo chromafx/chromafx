@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+using System.Runtime.CompilerServices;
 using ChromaFx.Core;
 using ChromaFx.Core.Colors;
 using ChromaFx.Core.Colors.ColorSpaces;
@@ -331,39 +332,124 @@ internal class YcbcrImg
         var cScale =
             startFrameSegment.Components[0].HorizontalSamplingFactor
             / startFrameSegment.Components[1].HorizontalSamplingFactor;
+        var fancy = Ratio is YCbCrSubsampleRatio.YCbCrSubsampleRatio420 or YCbCrSubsampleRatio.YCbCrSubsampleRatio422;
+        var chromaWidth = (width + 1) / 2;
+        var chromaHeight = Ratio == YCbCrSubsampleRatio.YCbCrSubsampleRatio420 ? (height + 1) / 2 : height;
 
         image.ReCreate(width, height);
 
         Parallel.For(
             0,
             height,
-            y =>
+            () => (new byte[chromaWidth * 2], new byte[chromaWidth * 2], new int[chromaWidth]),
+            (y, _, buffers) =>
             {
-                var yo = RowYOffset(y);
-                var co = RowCOffset(y);
+                var yRow = YPixels.AsSpan(RowYOffset(y), width);
                 var row = image.GetRowSpan(y);
-
-                for (var x = 0; x < width; x++)
+                if (fancy)
                 {
-                    var yy = YPixels[yo + x];
-                    var cb = CbPixels[co + x / cScale];
-                    var cr = CrPixels[co + x / cScale];
-
-                    // Same math as implicit YCbCr → Color (AwayFromZero + ToByte).
-                    var yLum = (double)yy;
-                    var cbC = cb - 128.0;
-                    var crC = cr - 128.0;
-                    row[x] = new Color(
-                        Math.Round(yLum + 1.402 * crC, MidpointRounding.AwayFromZero).ToByte(),
-                        Math.Round(
-                                yLum - 0.344136 * cbC - 0.714136 * crC,
-                                MidpointRounding.AwayFromZero
-                            )
-                            .ToByte(),
-                        Math.Round(yLum + 1.772 * cbC, MidpointRounding.AwayFromZero).ToByte()
-                    );
+                    var (cbRow, crRow, colSum) = buffers;
+                    UpsampleRow(CbPixels, y, chromaWidth, chromaHeight, colSum, cbRow);
+                    UpsampleRow(CrPixels, y, chromaWidth, chromaHeight, colSum, crRow);
+                    for (var x = 0; x < width; x++)
+                        row[x] = ToRgb(yRow[x], cbRow[x], crRow[x]);
                 }
-            }
+                else
+                {
+                    var co = RowCOffset(y);
+                    for (var x = 0; x < width; x++)
+                        row[x] = ToRgb(yRow[x], CbPixels[co + x / cScale], CrPixels[co + x / cScale]);
+                }
+                return buffers;
+            },
+            _ => { }
         );
     }
+
+    // Triangle-filter ("fancy") chroma upsampling for 2x horizontal (4:2:2) and 2x2 (4:2:0)
+    // subsampling, as described for the IJG reference decoder. Edge samples are replicated.
+    private void UpsampleRow(
+        byte[] plane,
+        int y,
+        int chromaWidth,
+        int chromaHeight,
+        int[] colSum,
+        byte[] output
+    )
+    {
+        if (Ratio == YCbCrSubsampleRatio.YCbCrSubsampleRatio422)
+        {
+            var src = plane.AsSpan(COffset + y * CStride, chromaWidth);
+            if (chromaWidth == 1)
+            {
+                output[0] = output[1] = src[0];
+                return;
+            }
+            output[0] = src[0];
+            output[1] = (byte)((src[0] * 3 + src[1] + 2) >> 2);
+            for (var i = 1; i < chromaWidth - 1; i++)
+            {
+                var v = src[i] * 3;
+                output[2 * i] = (byte)((v + src[i - 1] + 1) >> 2);
+                output[2 * i + 1] = (byte)((v + src[i + 1] + 2) >> 2);
+            }
+            var last = chromaWidth - 1;
+            output[2 * last] = (byte)((src[last] * 3 + src[last - 1] + 1) >> 2);
+            output[2 * last + 1] = src[last];
+            return;
+        }
+
+        var cy = y >> 1;
+        var farY = (y & 1) == 0 ? Math.Max(cy - 1, 0) : Math.Min(cy + 1, chromaHeight - 1);
+        var near = plane.AsSpan(COffset + cy * CStride, chromaWidth);
+        var far = plane.AsSpan(COffset + farY * CStride, chromaWidth);
+        for (var i = 0; i < chromaWidth; i++)
+            colSum[i] = near[i] * 3 + far[i];
+
+        if (chromaWidth == 1)
+        {
+            output[0] = (byte)((colSum[0] * 4 + 8) >> 4);
+            output[1] = (byte)((colSum[0] * 4 + 7) >> 4);
+            return;
+        }
+        output[0] = (byte)((colSum[0] * 4 + 8) >> 4);
+        output[1] = (byte)((colSum[0] * 3 + colSum[1] + 7) >> 4);
+        for (var i = 1; i < chromaWidth - 1; i++)
+        {
+            var v = colSum[i] * 3;
+            output[2 * i] = (byte)((v + colSum[i - 1] + 8) >> 4);
+            output[2 * i + 1] = (byte)((v + colSum[i + 1] + 7) >> 4);
+        }
+        var end = chromaWidth - 1;
+        output[2 * end] = (byte)((colSum[end] * 3 + colSum[end - 1] + 8) >> 4);
+        output[2 * end + 1] = (byte)((colSum[end] * 4 + 7) >> 4);
+    }
+
+    // JFIF YCbCr -> RGB in 16-bit fixed point (same coefficients as before, integer rounding).
+    private const int ScaleBits = 16;
+    private const int Half = 1 << (ScaleBits - 1);
+    private static readonly int[] CrToR = BuildTable(1.40200, Half);
+    private static readonly int[] CbToB = BuildTable(1.77200, Half);
+    private static readonly int[] CrToG = BuildTable(-0.71414, 0, shift: false);
+    private static readonly int[] CbToG = BuildTable(-0.34414, Half, shift: false);
+
+    private static int[] BuildTable(double coefficient, int rounding, bool shift = true)
+    {
+        var fixedCoefficient = (int)(coefficient * (1 << ScaleBits) + (coefficient < 0 ? -0.5 : 0.5));
+        var table = new int[256];
+        for (var i = 0; i < 256; i++)
+        {
+            var value = fixedCoefficient * (i - 128) + rounding;
+            table[i] = shift ? value >> ScaleBits : value;
+        }
+        return table;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static Color ToRgb(int y, int cb, int cr) =>
+        new(
+            (byte)Math.Clamp(y + CrToR[cr], 0, 255),
+            (byte)Math.Clamp(y + ((CbToG[cb] + CrToG[cr]) >> ScaleBits), 0, 255),
+            (byte)Math.Clamp(y + CbToB[cb], 0, 255)
+        );
 }

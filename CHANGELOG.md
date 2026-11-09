@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - BoxBlur vertical pass keeps alpha, matching the horizontal pass.
 - BMP: palette images (1/4/8-bit, RLE8) are opaque (the palette's reserved byte was read as alpha); 1-bit decode uses the palette and the correct 4-byte row stride (rows were truncated); 4-bit keeps the last column on odd widths; 32-bit BI_RGB reads BGRX and BITFIELDS honours the masks; 16-bit BI_RGB defaults to 5-5-5; RLE8 handles end-of-line, delta and absolute runs, and RLE4 is supported; top-down (negative height) files decode upright; BITFIELDS masks after a 40-byte header and gaps before the pixel data are skipped.
 - PNG: 1/2/4-bit greyscale scales samples to 0–255 (was 0–1/3/15); 16-bit greyscale and greyscale+alpha read the high byte of each sample.
+- JPEG: 4:2:0 and 4:2:2 chroma is upsampled with the standard triangle filter instead of pixel replication, and YCbCr→RGB uses 16-bit fixed point. Small or sharp-edged images no longer show blocky colour (the 9×3 `rgb.jpg` was off by up to 94 levels; decoded pixels are now within 3 levels of libjpeg).
 - TIFF: LZW switches code width one code early, as the TIFF spec requires ("early change"); LZW files from libtiff/Pillow no longer fail as corrupt.
 
 ## [0.6.2]
