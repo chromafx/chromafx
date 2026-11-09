@@ -15,6 +15,9 @@
  * limitations under the License.
  */
 
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
 namespace ChromaFx.IO.Formats.Jpeg.Format;
 
 /// <summary>
@@ -42,40 +45,41 @@ internal static class Idct
     /// <param name="src">The source.</param>
     public static void Transform(Block src)
     {
+        ref var d = ref MemoryMarshal.GetArrayDataReference(src.Data);
         for (var y = 0; y < 8; y++)
         {
             var y8 = y * 8;
 
             if (
-                src[y8 + 1] == 0
-                && src[y8 + 2] == 0
-                && src[y8 + 3] == 0
-                && src[y8 + 4] == 0
-                && src[y8 + 5] == 0
-                && src[y8 + 6] == 0
-                && src[y8 + 7] == 0
+                Unsafe.Add(ref d, y8 + 1) == 0
+                && Unsafe.Add(ref d, y8 + 2) == 0
+                && Unsafe.Add(ref d, y8 + 3) == 0
+                && Unsafe.Add(ref d, y8 + 4) == 0
+                && Unsafe.Add(ref d, y8 + 5) == 0
+                && Unsafe.Add(ref d, y8 + 6) == 0
+                && Unsafe.Add(ref d, y8 + 7) == 0
             )
             {
-                var dc = src[y8 + 0] << 3;
-                src[y8 + 0] = dc;
-                src[y8 + 1] = dc;
-                src[y8 + 2] = dc;
-                src[y8 + 3] = dc;
-                src[y8 + 4] = dc;
-                src[y8 + 5] = dc;
-                src[y8 + 6] = dc;
-                src[y8 + 7] = dc;
+                var dc = Unsafe.Add(ref d, y8 + 0) << 3;
+                Unsafe.Add(ref d, y8 + 0) = dc;
+                Unsafe.Add(ref d, y8 + 1) = dc;
+                Unsafe.Add(ref d, y8 + 2) = dc;
+                Unsafe.Add(ref d, y8 + 3) = dc;
+                Unsafe.Add(ref d, y8 + 4) = dc;
+                Unsafe.Add(ref d, y8 + 5) = dc;
+                Unsafe.Add(ref d, y8 + 6) = dc;
+                Unsafe.Add(ref d, y8 + 7) = dc;
                 continue;
             }
 
-            var x0 = (src[y8 + 0] << 11) + 128;
-            var x1 = src[y8 + 4] << 11;
-            var x2 = src[y8 + 6];
-            var x3 = src[y8 + 2];
-            var x4 = src[y8 + 1];
-            var x5 = src[y8 + 7];
-            var x6 = src[y8 + 5];
-            var x7 = src[y8 + 3];
+            var x0 = (Unsafe.Add(ref d, y8 + 0) << 11) + 128;
+            var x1 = Unsafe.Add(ref d, y8 + 4) << 11;
+            var x2 = Unsafe.Add(ref d, y8 + 6);
+            var x3 = Unsafe.Add(ref d, y8 + 2);
+            var x4 = Unsafe.Add(ref d, y8 + 1);
+            var x5 = Unsafe.Add(ref d, y8 + 7);
+            var x6 = Unsafe.Add(ref d, y8 + 5);
+            var x7 = Unsafe.Add(ref d, y8 + 3);
 
             var x8 = W7 * (x4 + x5);
             x4 = x8 + W1Mw7 * x4;
@@ -101,26 +105,26 @@ internal static class Idct
             x2 = (R2 * (x4 + x5) + 128) >> 8;
             x4 = (R2 * (x4 - x5) + 128) >> 8;
 
-            src[y8 + 0] = (x7 + x1) >> 8;
-            src[y8 + 1] = (x3 + x2) >> 8;
-            src[y8 + 2] = (x0 + x4) >> 8;
-            src[y8 + 3] = (x8 + x6) >> 8;
-            src[y8 + 4] = (x8 - x6) >> 8;
-            src[y8 + 5] = (x0 - x4) >> 8;
-            src[y8 + 6] = (x3 - x2) >> 8;
-            src[y8 + 7] = (x7 - x1) >> 8;
+            Unsafe.Add(ref d, y8 + 0) = (x7 + x1) >> 8;
+            Unsafe.Add(ref d, y8 + 1) = (x3 + x2) >> 8;
+            Unsafe.Add(ref d, y8 + 2) = (x0 + x4) >> 8;
+            Unsafe.Add(ref d, y8 + 3) = (x8 + x6) >> 8;
+            Unsafe.Add(ref d, y8 + 4) = (x8 - x6) >> 8;
+            Unsafe.Add(ref d, y8 + 5) = (x0 - x4) >> 8;
+            Unsafe.Add(ref d, y8 + 6) = (x3 - x2) >> 8;
+            Unsafe.Add(ref d, y8 + 7) = (x7 - x1) >> 8;
         }
 
         for (var x = 0; x < 8; x++)
         {
-            var y0 = (src[x] << 8) + 8192;
-            var y1 = src[32 + x] << 8;
-            var y2 = src[48 + x];
-            var y3 = src[16 + x];
-            var y4 = src[8 + x];
-            var y5 = src[56 + x];
-            var y6 = src[40 + x];
-            var y7 = src[24 + x];
+            var y0 = (Unsafe.Add(ref d, x) << 8) + 8192;
+            var y1 = Unsafe.Add(ref d, 32 + x) << 8;
+            var y2 = Unsafe.Add(ref d, 48 + x);
+            var y3 = Unsafe.Add(ref d, 16 + x);
+            var y4 = Unsafe.Add(ref d, 8 + x);
+            var y5 = Unsafe.Add(ref d, 56 + x);
+            var y6 = Unsafe.Add(ref d, 40 + x);
+            var y7 = Unsafe.Add(ref d, 24 + x);
 
             var y8 = W7 * (y4 + y5) + 4;
             y4 = (y8 + W1Mw7 * y4) >> 3;
@@ -146,14 +150,14 @@ internal static class Idct
             y2 = (R2 * (y4 + y5) + 128) >> 8;
             y4 = (R2 * (y4 - y5) + 128) >> 8;
 
-            src[x] = (y7 + y1) >> 14;
-            src[8 + x] = (y3 + y2) >> 14;
-            src[16 + x] = (y0 + y4) >> 14;
-            src[24 + x] = (y8 + y6) >> 14;
-            src[32 + x] = (y8 - y6) >> 14;
-            src[40 + x] = (y0 - y4) >> 14;
-            src[48 + x] = (y3 - y2) >> 14;
-            src[56 + x] = (y7 - y1) >> 14;
+            Unsafe.Add(ref d, x) = (y7 + y1) >> 14;
+            Unsafe.Add(ref d, 8 + x) = (y3 + y2) >> 14;
+            Unsafe.Add(ref d, 16 + x) = (y0 + y4) >> 14;
+            Unsafe.Add(ref d, 24 + x) = (y8 + y6) >> 14;
+            Unsafe.Add(ref d, 32 + x) = (y8 - y6) >> 14;
+            Unsafe.Add(ref d, 40 + x) = (y0 - y4) >> 14;
+            Unsafe.Add(ref d, 48 + x) = (y3 - y2) >> 14;
+            Unsafe.Add(ref d, 56 + x) = (y7 - y1) >> 14;
         }
     }
 }
