@@ -71,124 +71,99 @@ public class NonMaximalSuppression(Color color1, Color color2, float threshold1,
     {
         targetLocation = targetLocation.Normalize(image);
         new Greyscale709().Apply(image, targetLocation);
-        var result = new Image(image.Width, image.Height);
-        image.PixelSpan.CopyTo(result.PixelSpan);
-        new Drawing.Rectangle(Color2, true, targetLocation).Apply(result);
-        Parallel.For(
-            targetLocation.Bottom,
-            targetLocation.Top,
-            y =>
+        var result = FilterBufferPool.RentTightCopy(image);
+        try
+        {
+            for (var y = targetLocation.Bottom; y < targetLocation.Top; ++y)
+                result
+                    .AsSpan(
+                        y * image.Width + targetLocation.Left,
+                        targetLocation.Right - targetLocation.Left
+                    )
+                    .Fill(Color2);
+
+            // Mark strong edges first (parallel-safe: each pixel written once).
+            Parallel.For(
+                targetLocation.Bottom,
+                targetLocation.Top,
+                y =>
+                {
+                    var row = image.GetRowSpan(y);
+                    var resultRow = y * image.Width;
+                    for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+                    {
+                        if (row[x].Red >= Threshold1)
+                            result[resultRow + x] = Color1;
+                    }
+                }
+            );
+
+            // Hysteresis flood from strong edges — serial to avoid races on result.
+            for (var y = targetLocation.Bottom; y < targetLocation.Top; ++y)
             {
-                var row = image.GetRowSpan(y);
+                var resultRow = y * image.Width;
                 for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                 {
-                    if (row[x].Red >= Threshold1)
+                    if (result[resultRow + x] == Color1)
                         FillPixels(result, image, x, y, targetLocation);
                 }
             }
-        );
-        return image.ReCreate(image.Width, image.Height, result.PixelSpan);
+
+            for (var y = 0; y < image.Height; ++y)
+                result.AsSpan(y * image.Width, image.Width).CopyTo(image.GetRowSpan(y));
+        }
+        finally
+        {
+            FilterBufferPool.Return(result);
+        }
+
+        return image;
     }
 
-    private void FillPixels(Image result, Image image, int x, int y, Rectangle targetLocation)
+    private void FillPixels(Color[] result, Image image, int x, int y, Rectangle targetLocation)
     {
-        var tempPixels = new Stack<Tuple<int, int>>();
-        tempPixels.Push(new Tuple<int, int>(x, y));
+        var width = image.Width;
+        var tempPixels = new Stack<(int X, int Y)>();
+        tempPixels.Push((x, y));
         while (tempPixels.Count > 0)
         {
             var currentPixel = tempPixels.Pop();
-            var left = currentPixel.Item1 - 1;
-            if (left >= targetLocation.Left)
-            {
-                if (
-                    image.GetRowSpan(currentPixel.Item2)[left].Red > Threshold2
-                    && result.GetRowSpan(currentPixel.Item2)[left] != Color1
-                )
-                {
-                    result.GetRowSpan(currentPixel.Item2)[left] = Color1;
-                    tempPixels.Push(new Tuple<int, int>(left, currentPixel.Item2));
-                }
-            }
-            var right = currentPixel.Item1 + 1;
-            if (right < targetLocation.Right)
-            {
-                if (
-                    image.GetRowSpan(currentPixel.Item2)[right].Red > Threshold2
-                    && result.GetRowSpan(currentPixel.Item2)[right] != Color1
-                )
-                {
-                    result.GetRowSpan(currentPixel.Item2)[right] = Color1;
-                    tempPixels.Push(new Tuple<int, int>(right, currentPixel.Item2));
-                }
-            }
-            var bottom = currentPixel.Item2 - 1;
-            if (bottom >= targetLocation.Bottom)
-            {
-                if (
-                    image.GetRowSpan(bottom)[currentPixel.Item1].Red > Threshold2
-                    && result.GetRowSpan(bottom)[currentPixel.Item1] != Color1
-                )
-                {
-                    result.GetRowSpan(bottom)[currentPixel.Item1] = Color1;
-                    tempPixels.Push(new Tuple<int, int>(currentPixel.Item1, bottom));
-                }
-            }
-            var top = currentPixel.Item2 + 1;
-            if (top < targetLocation.Top)
-            {
-                if (
-                    image.GetRowSpan(top)[currentPixel.Item1].Red > Threshold2
-                    && result.GetRowSpan(top)[currentPixel.Item1] != Color1
-                )
-                {
-                    result.GetRowSpan(top)[currentPixel.Item1] = Color1;
-                    tempPixels.Push(new Tuple<int, int>(currentPixel.Item1, top));
-                }
-            }
-            if (left >= targetLocation.Left && bottom >= targetLocation.Bottom)
-            {
-                if (
-                    image.GetRowSpan(bottom)[left].Red > Threshold2
-                    && result.GetRowSpan(bottom)[left] != Color1
-                )
-                {
-                    result.GetRowSpan(bottom)[left] = Color1;
-                    tempPixels.Push(new Tuple<int, int>(left, bottom));
-                }
-            }
-            if (left >= targetLocation.Left && top < targetLocation.Top)
-            {
-                if (
-                    image.GetRowSpan(top)[left].Red > Threshold2
-                    && result.GetRowSpan(top)[left] != Color1
-                )
-                {
-                    result.GetRowSpan(top)[left] = Color1;
-                    tempPixels.Push(new Tuple<int, int>(left, top));
-                }
-            }
-            if (right < targetLocation.Right && bottom >= targetLocation.Bottom)
-            {
-                if (
-                    image.GetRowSpan(bottom)[right].Red > Threshold2
-                    && result.GetRowSpan(bottom)[right] != Color1
-                )
-                {
-                    result.GetRowSpan(bottom)[right] = Color1;
-                    tempPixels.Push(new Tuple<int, int>(right, bottom));
-                }
-            }
-            if (right < targetLocation.Left && top < targetLocation.Top)
-            {
-                if (
-                    image.GetRowSpan(top)[right].Red > Threshold2
-                    && result.GetRowSpan(top)[right] != Color1
-                )
-                {
-                    result.GetRowSpan(top)[right] = Color1;
-                    tempPixels.Push(new Tuple<int, int>(right, top));
-                }
-            }
+            TryVisit(result, image, width, targetLocation, tempPixels, currentPixel.X - 1, currentPixel.Y);
+            TryVisit(result, image, width, targetLocation, tempPixels, currentPixel.X + 1, currentPixel.Y);
+            TryVisit(result, image, width, targetLocation, tempPixels, currentPixel.X, currentPixel.Y - 1);
+            TryVisit(result, image, width, targetLocation, tempPixels, currentPixel.X, currentPixel.Y + 1);
+            TryVisit(result, image, width, targetLocation, tempPixels, currentPixel.X - 1, currentPixel.Y - 1);
+            TryVisit(result, image, width, targetLocation, tempPixels, currentPixel.X - 1, currentPixel.Y + 1);
+            TryVisit(result, image, width, targetLocation, tempPixels, currentPixel.X + 1, currentPixel.Y - 1);
+            TryVisit(result, image, width, targetLocation, tempPixels, currentPixel.X + 1, currentPixel.Y + 1);
         }
+    }
+
+    private void TryVisit(
+        Color[] result,
+        Image image,
+        int width,
+        Rectangle targetLocation,
+        Stack<(int X, int Y)> stack,
+        int x,
+        int y
+    )
+    {
+        if (
+            x < targetLocation.Left
+            || x >= targetLocation.Right
+            || y < targetLocation.Bottom
+            || y >= targetLocation.Top
+        )
+            return;
+
+        var index = y * width + x;
+        if (result[index] == Color1)
+            return;
+        if (image.GetRowSpan(y)[x].Red <= Threshold2)
+            return;
+
+        result[index] = Color1;
+        stack.Push((x, y));
     }
 }

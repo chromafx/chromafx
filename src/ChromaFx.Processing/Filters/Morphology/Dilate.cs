@@ -46,6 +46,9 @@ public class Dilate(int apertureRadius) : IFilter
     /// <returns>The image</returns>
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
+        if (ApertureRadius <= 0)
+            return image;
+
         targetLocation = targetLocation.Normalize(image);
         var tempValues = FilterBufferPool.RentTightCopy(image);
         try
@@ -63,6 +66,7 @@ public class Dilate(int apertureRadius) : IFilter
                         byte rValue = 0;
                         byte gValue = 0;
                         byte bValue = 0;
+                        var alpha = tempValues[y * image.Width + x].Alpha;
 
                         for (var y2 = apertureMin; y2 < apertureMax; ++y2)
                         {
@@ -101,7 +105,7 @@ public class Dilate(int apertureRadius) : IFilter
                             }
                         }
 
-                        image.GetRowSpan(y)[x] = new Color(rValue, gValue, bValue);
+                        image.GetRowSpan(y)[x] = new Color(rValue, gValue, bValue, alpha);
                     }
                 }
             );

@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,32 +45,41 @@ public class Jitter(int amount) : IFilter
     /// <returns>The image</returns>
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
+        if (Amount == 0)
+            return image;
+
         targetLocation = targetLocation.Normalize(image);
-
-        Parallel.For(
-            targetLocation.Bottom,
-            targetLocation.Top,
-            y =>
-            {
-                for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+        var source = FilterBufferPool.RentTightCopy(image);
+        try
+        {
+            Parallel.For(
+                targetLocation.Bottom,
+                targetLocation.Top,
+                y =>
                 {
-                    var newX = Numerics.Random.ThreadSafeNext(-Amount, Amount);
-                    var newY = Numerics.Random.ThreadSafeNext(-Amount, Amount);
-                    newX += x;
-                    newY += y;
-                    newX =
-                        newX < targetLocation.Left ? targetLocation.Left
-                        : newX >= targetLocation.Right ? targetLocation.Right - 1
-                        : newX;
-                    newY =
-                        newY < targetLocation.Bottom ? targetLocation.Bottom
-                        : newY >= targetLocation.Top ? targetLocation.Top - 1
-                        : newY;
+                    var destRow = image.GetRowSpan(y);
+                    for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+                    {
+                        var newX = Numerics.Random.ThreadSafeNext(-Amount, Amount) + x;
+                        var newY = Numerics.Random.ThreadSafeNext(-Amount, Amount) + y;
+                        newX =
+                            newX < targetLocation.Left ? targetLocation.Left
+                            : newX >= targetLocation.Right ? targetLocation.Right - 1
+                            : newX;
+                        newY =
+                            newY < targetLocation.Bottom ? targetLocation.Bottom
+                            : newY >= targetLocation.Top ? targetLocation.Top - 1
+                            : newY;
 
-                    image.GetRowSpan(newY)[newX] = image.GetRowSpan(y)[x];
+                        destRow[x] = source[newY * image.Width + newX];
+                    }
                 }
-            }
-        );
+            );
+        }
+        finally
+        {
+            FilterBufferPool.Return(source);
+        }
 
         return image;
     }

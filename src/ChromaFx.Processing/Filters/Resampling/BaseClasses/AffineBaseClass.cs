@@ -80,18 +80,6 @@ public abstract class AffineBaseClass : IFilter
     private Matrix3x2 TransformationMatrix { get; set; }
 
     /// <summary>
-    /// Gets or sets the x radius for the sampling filter.
-    /// </summary>
-    /// <value>The x radius.</value>
-    private double XRadius { get; set; }
-
-    /// <summary>
-    /// Gets or sets the y radius for the sampling filter.
-    /// </summary>
-    /// <value>The y radius.</value>
-    private double YRadius { get; set; }
-
-    /// <summary>
     /// Applies the filter to the specified image.
     /// </summary>
     /// <param name="image">The image.</param>
@@ -105,12 +93,6 @@ public abstract class AffineBaseClass : IFilter
         try
         {
             TransformationMatrix = GetMatrix(image, targetLocation);
-            double tempWidth = Width < 0 ? image.Width : Width;
-            double tempHeight = Height < 0 ? image.Height : Height;
-            var xScale = tempWidth / image.Width;
-            var yScale = tempHeight / image.Height;
-            YRadius = yScale < 1f ? Filter.FilterRadius / yScale : Filter.FilterRadius;
-            XRadius = xScale < 1f ? Filter.FilterRadius / xScale : Filter.FilterRadius;
 
             FilterParallelism.For(
                 targetLocation.Bottom,
@@ -122,7 +104,6 @@ public abstract class AffineBaseClass : IFilter
                     for (int x = targetLocation.Left; x < targetLocation.Right; x++)
                     {
                         var values = new Vector4(0, 0, 0, 0);
-                        float weight = 0;
 
                         var rotated = Vector2.Transform(new Vector2(x, y), TransformationMatrix);
                         var rotatedY = (int)rotated.Y;
@@ -134,59 +115,45 @@ public abstract class AffineBaseClass : IFilter
                             || rotatedX < 0
                         )
                         {
-                            image.GetRowSpan(y)[x] = new Color(0, 0, 0, 255);
+                            image.GetRowSpan(y)[x] = new Color(0, 0, 0, 0);
                             continue;
                         }
-                        var left = (int)(rotatedX - XRadius);
-                        var right = (int)(rotatedX + XRadius);
-                        var top = (int)(rotatedY - YRadius);
-                        var bottom = (int)(rotatedY + YRadius);
-                        if (top < 0)
-                            top = 0;
-                        if (bottom >= image.Height)
-                            bottom = image.Height - 1;
-                        if (left < 0)
-                            left = 0;
-                        if (right >= image.Width)
-                            right = image.Width - 1;
-                        for (int i = top, yCount = 0; i <= bottom; i++, yCount++)
+
+                        var xWeights = Filter.XWeights[rotatedX];
+                        var yWeights = Filter.YWeights[rotatedY];
+                        for (var yCount = 0; yCount < yWeights.Values.Length; ++yCount)
                         {
-                            for (int j = left, xCount = 0; j <= right; j++, xCount++)
+                            var tempYWeight = yWeights.Values[yCount];
+                            if (tempYWeight == 0)
+                                continue;
+
+                            var srcY = yWeights.Left + yCount;
+                            var rowOffset = srcY * image.Stride;
+                            for (var xCount = 0; xCount < xWeights.Values.Length; ++xCount)
                             {
-                                var tempYWeight = Filter.YWeights[rotatedY].Values[yCount];
-                                var tempXWeight = Filter.XWeights[rotatedX].Values[xCount];
-                                var tempWeight = tempYWeight * tempXWeight;
-
-                                if (YRadius == 0 && XRadius == 0)
-                                    tempWeight = 1;
-
+                                var tempWeight = (float)(tempYWeight * xWeights.Values[xCount]);
                                 if (tempWeight == 0)
                                     continue;
 
-                                var pixel = copy[i * image.Stride + j];
-                                values.X += pixel.Red * (float)tempWeight;
-                                values.Y += pixel.Green * (float)tempWeight;
-                                values.Z += pixel.Blue * (float)tempWeight;
-                                values.W += pixel.Alpha * (float)tempWeight;
-                                weight += (float)tempWeight;
+                                var pixel = copy[rowOffset + xWeights.Left + xCount];
+                                values.X += pixel.Red * tempWeight;
+                                values.Y += pixel.Green * tempWeight;
+                                values.Z += pixel.Blue * tempWeight;
+                                values.W += pixel.Alpha * tempWeight;
                             }
                         }
-                        if (weight == 0)
-                            weight = 1;
-                        if (weight > 0)
-                        {
-                            values = Vector4.Clamp(
-                                values,
-                                Vector4.Zero,
-                                new Vector4(255, 255, 255, 255)
-                            );
-                            image.GetRowSpan(y)[x] = new Color(
-                                (byte)values.X,
-                                (byte)values.Y,
-                                (byte)values.Z,
-                                (byte)values.W
-                            );
-                        }
+
+                        values = Vector4.Clamp(
+                            values,
+                            Vector4.Zero,
+                            new Vector4(255, 255, 255, 255)
+                        );
+                        image.GetRowSpan(y)[x] = new Color(
+                            (byte)values.X,
+                            (byte)values.Y,
+                            (byte)values.Z,
+                            (byte)values.W
+                        );
                     }
                 }
             );

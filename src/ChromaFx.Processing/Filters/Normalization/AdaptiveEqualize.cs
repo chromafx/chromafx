@@ -55,6 +55,9 @@ public class AdaptiveEqualize(int radius, Func<IHistogram> histogram = null) : I
     /// <returns>The image</returns>
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
+        if (Radius <= 0)
+            return image;
+
         targetLocation = targetLocation.Normalize(image);
         var tempValues = FilterBufferPool.RentTightCopy(image);
         try

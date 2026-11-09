@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,69 +45,66 @@ public class Pixellate(int pixelSize) : IFilter
     /// <returns>The image</returns>
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
+        if (PixelSize <= 0)
+            return image;
+
         targetLocation = targetLocation.Normalize(image);
-
-        for (var y = targetLocation.Bottom; y < targetLocation.Top; y += PixelSize)
+        var half = PixelSize / 2;
+        var source = FilterBufferPool.RentTightCopy(image);
+        try
         {
-            var minY = Math.Clamp(
-                (y - PixelSize / 2),
-                targetLocation.Bottom,
-                targetLocation.Top - 1
-            );
-            var maxY = Math.Clamp(
-                (y + PixelSize / 2),
-                targetLocation.Bottom,
-                targetLocation.Top - 1
-            );
-
-            for (var x = targetLocation.Left; x < targetLocation.Right; x += PixelSize)
+            for (var y = targetLocation.Bottom; y < targetLocation.Top; y += PixelSize)
             {
-                uint rValue = 0;
-                uint gValue = 0;
-                uint bValue = 0;
+                var minY = Math.Clamp(y - half, targetLocation.Bottom, targetLocation.Top - 1);
+                var maxY = Math.Clamp(y + half, targetLocation.Bottom, targetLocation.Top);
+                if (maxY <= minY)
+                    maxY = minY + 1;
 
-                var minX = Math.Clamp(
-                    (x - PixelSize / 2),
-                    targetLocation.Left,
-                    targetLocation.Right - 1
-                );
-                var maxX = Math.Clamp(
-                    (x + PixelSize / 2),
-                    targetLocation.Left,
-                    targetLocation.Right - 1
-                );
-                var numberPixels = 0;
-
-                for (var x2 = minX; x2 < maxX; ++x2)
+                for (var x = targetLocation.Left; x < targetLocation.Right; x += PixelSize)
                 {
+                    var minX = Math.Clamp(x - half, targetLocation.Left, targetLocation.Right - 1);
+                    var maxX = Math.Clamp(x + half, targetLocation.Left, targetLocation.Right);
+                    if (maxX <= minX)
+                        maxX = minX + 1;
+
+                    uint rValue = 0;
+                    uint gValue = 0;
+                    uint bValue = 0;
+                    var numberPixels = 0;
+
                     for (var y2 = minY; y2 < maxY; ++y2)
                     {
-                        var tempPixel = image.GetRowSpan(y)[x];
-                        rValue += tempPixel.Red;
-                        gValue += tempPixel.Green;
-                        bValue += tempPixel.Blue;
-                        ++numberPixels;
-                    }
-                }
-
-                rValue /= (uint)numberPixels;
-                gValue /= (uint)numberPixels;
-                bValue /= (uint)numberPixels;
-
-                Parallel.For(
-                    minX,
-                    maxX,
-                    x2 =>
-                    {
-                        for (var y2 = minY; y2 < maxY; ++y2)
+                        var rowStart = y2 * image.Width;
+                        for (var x2 = minX; x2 < maxX; ++x2)
                         {
-                            image.GetRowSpan(y2)[x2].Red = (byte)rValue;
-                            image.GetRowSpan(y2)[x2].Green = (byte)gValue;
-                            image.GetRowSpan(y2)[x2].Blue = (byte)bValue;
+                            var tempPixel = source[rowStart + x2];
+                            rValue += tempPixel.Red;
+                            gValue += tempPixel.Green;
+                            bValue += tempPixel.Blue;
+                            ++numberPixels;
                         }
                     }
-                );
+
+                    rValue /= (uint)numberPixels;
+                    gValue /= (uint)numberPixels;
+                    bValue /= (uint)numberPixels;
+
+                    for (var y2 = minY; y2 < maxY; ++y2)
+                    {
+                        var row = image.GetRowSpan(y2);
+                        for (var x2 = minX; x2 < maxX; ++x2)
+                        {
+                            row[x2].Red = (byte)rValue;
+                            row[x2].Green = (byte)gValue;
+                            row[x2].Blue = (byte)bValue;
+                        }
+                    }
+                }
             }
+        }
+        finally
+        {
+            FilterBufferPool.Return(source);
         }
 
         return image;

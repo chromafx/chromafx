@@ -111,6 +111,8 @@ public class BoxBlur : ConvolutionBaseClass
                         outPx.Red = (byte)(sumR / count);
                         outPx.Green = (byte)(sumG / count);
                         outPx.Blue = (byte)(sumB / count);
+                        // Match horizontal pass: keep the destination alpha (not blurred).
+                        outPx.Alpha = temp[y * stride + x].Alpha;
                     }
                 }
             );

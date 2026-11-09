@@ -65,50 +65,61 @@ public class AdaptiveThreshold(int apertureRadius, Color color1, Color color2, f
     /// <returns>The image</returns>
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
+        if (ApertureRadius <= 0)
+            return image;
+
         targetLocation = targetLocation.Normalize(image);
         new Greyscale709().Apply(image, targetLocation);
 
-        var tempValues = new Color[image.Width * image.Height];
-        image.CopyPixelsTo(tempValues);
+        var tempValues = FilterBufferPool.RentTightCopy(image);
+        try
+        {
+            var apertureMin = -ApertureRadius;
+            var apertureMax = ApertureRadius;
 
-        var apertureMin = -ApertureRadius;
-        var apertureMax = ApertureRadius;
-
-        Parallel.For(
-            targetLocation.Bottom,
-            targetLocation.Top,
-            y =>
-            {
-                for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+            Parallel.For(
+                targetLocation.Bottom,
+                targetLocation.Top,
+                y =>
                 {
-                    var targetIndex = y * image.Width + x;
-                    long sum = 0;
-                    var count = 0;
-
-                    for (var x2 = apertureMin; x2 < apertureMax; ++x2)
+                    for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                     {
-                        var tempX = x + x2;
-                        if (tempX < targetLocation.Left || tempX >= targetLocation.Right)
-                            continue;
+                        var targetIndex = y * image.Width + x;
+                        long sum = 0;
+                        var count = 0;
 
-                        for (var y2 = apertureMin; y2 < apertureMax; ++y2)
+                        for (var x2 = apertureMin; x2 < apertureMax; ++x2)
                         {
-                            var tempY = y + y2;
-                            if (tempY >= targetLocation.Bottom && tempY < targetLocation.Top)
+                            var tempX = x + x2;
+                            if (tempX < targetLocation.Left || tempX >= targetLocation.Right)
+                                continue;
+
+                            for (var y2 = apertureMin; y2 < apertureMax; ++y2)
                             {
-                                sum += image.GetRowSpan(tempY)[tempX].Red;
-                                ++count;
+                                var tempY = y + y2;
+                                if (tempY >= targetLocation.Bottom && tempY < targetLocation.Top)
+                                {
+                                    sum += image.GetRowSpan(tempY)[tempX].Red;
+                                    ++count;
+                                }
                             }
                         }
+
+                        // Same as Average(value => value / 255f) >= Threshold.
+                        tempValues[targetIndex] =
+                            count > 0 && sum / (count * 255f) >= Threshold ? Color1 : Color2;
                     }
-
-                    // Same as Average(value => value / 255f) >= Threshold.
-                    tempValues[targetIndex] =
-                        count > 0 && sum / (count * 255f) >= Threshold ? Color1 : Color2;
                 }
-            }
-        );
+            );
 
-        return image.ReCreate(image.Width, image.Height, tempValues);
+            for (var y = 0; y < image.Height; ++y)
+                tempValues.AsSpan(y * image.Width, image.Width).CopyTo(image.GetRowSpan(y));
+        }
+        finally
+        {
+            FilterBufferPool.Return(tempValues);
+        }
+
+        return image;
     }
 }

@@ -19,7 +19,6 @@ using ChromaFx.Processing.Filters.Convolution;
 using ChromaFx.Processing.Filters.Effects;
 using ChromaFx.Processing.Filters.Morphology;
 using ChromaFx.Processing.Filters.Normalization;
-using ChromaFx.Processing.Numerics;
 
 namespace ChromaFx.Processing;
 

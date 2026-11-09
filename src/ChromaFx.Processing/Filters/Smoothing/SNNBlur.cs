@@ -16,7 +16,6 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.Core.Colors;
 using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
 
@@ -46,6 +45,9 @@ public class SnnBlur(int apertureRadius) : IFilter
     /// <returns>The image</returns>
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
+        if (ApertureRadius <= 0)
+            return image;
+
         targetLocation = targetLocation.Normalize(image);
         var tempValues = FilterBufferPool.RentTightCopy(image);
         try

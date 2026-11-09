@@ -46,6 +46,9 @@ public class Median(int apertureRadius) : IFilter
     /// <returns>The image</returns>
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
+        if (ApertureRadius <= 0)
+            return image;
+
         targetLocation = targetLocation.Normalize(image);
         var tempValues = FilterBufferPool.RentTightCopy(image);
         try

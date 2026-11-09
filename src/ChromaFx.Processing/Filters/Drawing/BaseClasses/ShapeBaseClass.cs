@@ -56,8 +56,10 @@ public abstract class ShapeBaseClass(Color color) : IShape
     {
         if (!targetLocation.Contains(x, y))
             return;
-        var tempColor = Color * brightness;
-        image.GetRowSpan(y)[x] = tempColor;
+        var src = Color * brightness;
+        var alpha = src.Alpha / 255f;
+        ref var dest = ref image.GetRowSpan(y)[x];
+        dest = dest * (1f - alpha) + src * alpha;
     }
 
     /// <summary>

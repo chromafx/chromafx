@@ -23,34 +23,22 @@ using ChromaFx.Processing.Numerics;
 namespace ChromaFx.Processing.Filters.Smoothing;
 
 /// <summary>
-/// Does smoothing using Kuwahara filter on an image
+/// Classic Kuwahara smoother: four overlapping <c>(radius+1)×(radius+1)</c> quadrants
+/// that each include the center pixel; the quadrant with the lowest luminance variance
+/// supplies the output mean.
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class Kuwahara : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="Kuwahara"/> class.
+/// </remarks>
+/// <param name="apertureRadius">The aperture radius.</param>
+public class Kuwahara(int apertureRadius) : IFilter
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Kuwahara"/> class.
-    /// </summary>
-    /// <param name="apertureRadius">The aperture radius.</param>
-    public Kuwahara(int apertureRadius)
-    {
-        ApertureRadius = apertureRadius;
-        _apertureMinX = [-ApertureRadius, 0, -ApertureRadius, 0];
-        _apertureMaxX = [0, ApertureRadius, 0, ApertureRadius];
-        _apertureMinY = [-ApertureRadius, -ApertureRadius, 0, 0];
-        _apertureMaxY = [0, 0, ApertureRadius, ApertureRadius];
-    }
-
     /// <summary>
     /// Gets or sets the aperture radius.
     /// </summary>
     /// <value>The aperture radius.</value>
-    public int ApertureRadius { get; set; }
-
-    private readonly int[] _apertureMaxX;
-    private readonly int[] _apertureMaxY;
-    private readonly int[] _apertureMinX;
-    private readonly int[] _apertureMinY;
+    public int ApertureRadius { get; set; } = apertureRadius;
 
     /// <summary>
     /// Applies the filter to the specified image.
@@ -60,103 +48,108 @@ public class Kuwahara : IFilter
     /// <returns>The image</returns>
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
+        if (ApertureRadius <= 0)
+            return image;
+
         targetLocation = targetLocation.Normalize(image);
-        var result = new Color[image.PixelCount];
-        image.CopyPixelsTo(result);
-        Parallel.For(
-            targetLocation.Bottom,
-            targetLocation.Top,
-            y =>
-            {
-                Span<uint> rValues = stackalloc uint[4];
-                Span<uint> gValues = stackalloc uint[4];
-                Span<uint> bValues = stackalloc uint[4];
-                Span<uint> numPixels = stackalloc uint[4];
-                Span<uint> maxRValue = stackalloc uint[4];
-                Span<uint> maxGValue = stackalloc uint[4];
-                Span<uint> maxBValue = stackalloc uint[4];
-                Span<uint> minRValue = stackalloc uint[4];
-                Span<uint> minGValue = stackalloc uint[4];
-                Span<uint> minBValue = stackalloc uint[4];
+        var radius = ApertureRadius;
+        // Inclusive classic quadrants, stored as half-open [min, max).
+        int[] minX = [-radius, 0, -radius, 0];
+        int[] maxX = [1, radius + 1, 1, radius + 1];
+        int[] minY = [-radius, -radius, 0, 0];
+        int[] maxY = [1, 1, radius + 1, radius + 1];
 
-                for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+        var result = FilterBufferPool.RentTightCopy(image);
+        try
+        {
+            Parallel.For(
+                targetLocation.Bottom,
+                targetLocation.Top,
+                y =>
                 {
-                    rValues.Clear();
-                    gValues.Clear();
-                    bValues.Clear();
-                    numPixels.Clear();
-                    maxRValue.Clear();
-                    maxGValue.Clear();
-                    maxBValue.Clear();
-                    minRValue.Fill(255);
-                    minGValue.Fill(255);
-                    minBValue.Fill(255);
+                    Span<uint> sumR = stackalloc uint[4];
+                    Span<uint> sumG = stackalloc uint[4];
+                    Span<uint> sumB = stackalloc uint[4];
+                    Span<uint> count = stackalloc uint[4];
+                    Span<ulong> sumLum = stackalloc ulong[4];
+                    Span<ulong> sumLumSq = stackalloc ulong[4];
 
-                    for (var i = 0; i < 4; ++i)
+                    for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
                     {
-                        for (var x2 = _apertureMinX[i]; x2 < _apertureMaxX[i]; ++x2)
+                        sumR.Clear();
+                        sumG.Clear();
+                        sumB.Clear();
+                        count.Clear();
+                        sumLum.Clear();
+                        sumLumSq.Clear();
+
+                        for (var i = 0; i < 4; ++i)
                         {
-                            var tempX = x + x2;
-                            if (tempX < 0 || tempX >= image.Width)
-                                continue;
-                            for (var y2 = _apertureMinY[i]; y2 < _apertureMaxY[i]; ++y2)
+                            for (var x2 = minX[i]; x2 < maxX[i]; ++x2)
                             {
-                                var tempY = y + y2;
-                                if (tempY < 0 || tempY >= image.Height)
+                                var tempX = x + x2;
+                                if ((uint)tempX >= (uint)image.Width)
                                     continue;
-                                var sample = image.GetRowSpan(tempY)[tempX];
-                                rValues[i] += sample.Red;
-                                gValues[i] += sample.Green;
-                                bValues[i] += sample.Blue;
+                                for (var y2 = minY[i]; y2 < maxY[i]; ++y2)
+                                {
+                                    var tempY = y + y2;
+                                    if ((uint)tempY >= (uint)image.Height)
+                                        continue;
 
-                                if (sample.Red > maxRValue[i])
-                                    maxRValue[i] = sample.Red;
-                                else if (sample.Red < minRValue[i])
-                                    minRValue[i] = sample.Red;
+                                    var sample = image.GetRowSpan(tempY)[tempX];
+                                    sumR[i] += sample.Red;
+                                    sumG[i] += sample.Green;
+                                    sumB[i] += sample.Blue;
 
-                                if (sample.Green > maxGValue[i])
-                                    maxGValue[i] = sample.Green;
-                                else if (sample.Green < minGValue[i])
-                                    minGValue[i] = sample.Green;
-
-                                if (sample.Blue > maxBValue[i])
-                                    maxBValue[i] = sample.Blue;
-                                else if (sample.Blue < minBValue[i])
-                                    minBValue[i] = sample.Blue;
-
-                                ++numPixels[i];
+                                    // Rec. 709-ish integer luminance in 0..255.
+                                    var lum = (uint)((77 * sample.Red + 150 * sample.Green + 29 * sample.Blue) >> 8);
+                                    sumLum[i] += lum;
+                                    sumLumSq[i] += lum * lum;
+                                    ++count[i];
+                                }
                             }
                         }
-                    }
 
-                    var j = 0;
-                    var minDifference = uint.MaxValue;
-                    for (var i = 0; i < 4; ++i)
-                    {
-                        var currentDifference =
-                            maxRValue[i]
-                            - minRValue[i]
-                            + (maxGValue[i] - minGValue[i])
-                            + (maxBValue[i] - minBValue[i]);
-                        if (currentDifference >= minDifference || numPixels[i] <= 0)
+                        var best = -1;
+                        var bestVariance = double.MaxValue;
+                        for (var i = 0; i < 4; ++i)
+                        {
+                            if (count[i] == 0)
+                                continue;
+
+                            var n = (double)count[i];
+                            var mean = sumLum[i] / n;
+                            var variance = sumLumSq[i] / n - mean * mean;
+                            if (variance >= bestVariance)
+                                continue;
+
+                            bestVariance = variance;
+                            best = i;
+                        }
+
+                        if (best < 0)
                             continue;
-                        j = i;
-                        minDifference = currentDifference;
+
+                        var nBest = count[best];
+                        var alpha = image.GetRowSpan(y)[x].Alpha;
+                        result[y * image.Width + x] = new Color(
+                            (byte)(sumR[best] / nBest),
+                            (byte)(sumG[best] / nBest),
+                            (byte)(sumB[best] / nBest),
+                            alpha
+                        );
                     }
-
-                    rValues[j] /= numPixels[j];
-                    gValues[j] /= numPixels[j];
-                    bValues[j] /= numPixels[j];
-
-                    result[y * image.Width + x] = new Color(
-                        (byte)rValues[j],
-                        (byte)gValues[j],
-                        (byte)bValues[j]
-                    );
                 }
-            }
-        );
+            );
 
-        return image.ReCreate(image.Width, image.Height, result);
+            for (var y = 0; y < image.Height; ++y)
+                result.AsSpan(y * image.Width, image.Width).CopyTo(image.GetRowSpan(y));
+        }
+        finally
+        {
+            FilterBufferPool.Return(result);
+        }
+
+        return image;
     }
 }

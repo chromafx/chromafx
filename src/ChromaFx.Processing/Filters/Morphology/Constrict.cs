@@ -46,6 +46,9 @@ public class Constrict(int apertureRadius) : IFilter
     /// <returns>The image</returns>
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
+        if (ApertureRadius <= 0)
+            return image;
+
         targetLocation = targetLocation.Normalize(image);
         var tempValues = FilterBufferPool.RentTightCopy(image);
         try
@@ -63,6 +66,7 @@ public class Constrict(int apertureRadius) : IFilter
                         var rValue = byte.MaxValue;
                         var gValue = byte.MaxValue;
                         var bValue = byte.MaxValue;
+                        var alpha = tempValues[y * image.Width + x].Alpha;
 
                         for (var y2 = apertureMin; y2 < apertureMax; ++y2)
                         {
@@ -101,7 +105,7 @@ public class Constrict(int apertureRadius) : IFilter
                             }
                         }
 
-                        image.GetRowSpan(y)[x] = new Color(rValue, gValue, bValue);
+                        image.GetRowSpan(y)[x] = new Color(rValue, gValue, bValue, alpha);
                     }
                 }
             );
