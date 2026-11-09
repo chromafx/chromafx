@@ -98,45 +98,18 @@ internal class Huffman
         if (NumberOfCodes == 0)
             throw new Exception("uninitialized Huffman table");
 
-        if (bytes.Bits.NumberOfUnreadBits < 8)
-        {
-            try
-            {
-                bytes.EnsureNBits(8);
-            }
-            catch (MissingFf00)
-            {
-                if (bytes.UnreadableBytes != 0)
-                    bytes.UnreadByteStuffedByte();
-                goto slowPath;
-            }
-            catch (ShortHuffmanData)
-            {
-                if (bytes.UnreadableBytes != 0)
-                    bytes.UnreadByteStuffedByte();
-                goto slowPath;
-            }
-        }
-
-        var v = LookUpTable[(bytes.Bits.Accumulator >> (bytes.Bits.NumberOfUnreadBits - 8)) & 0xff];
+        var v = LookUpTable[bytes.PeekByte()];
         if (v != 0)
         {
-            var n = (byte)((v & 0xff) - 1);
-            bytes.Bits.NumberOfUnreadBits -= n;
-            bytes.Bits.Mask >>= n;
+            bytes.SkipBits((v & 0xff) - 1);
             return (byte)(v >> 8);
         }
 
-        slowPath:
         var code = 0;
         for (var i = 0; i < 16; i++)
         {
-            if (bytes.Bits.NumberOfUnreadBits == 0)
-                bytes.EnsureNBits(1);
-            if ((bytes.Bits.Accumulator & bytes.Bits.Mask) != 0)
+            if (bytes.DecodeBit())
                 code |= 1;
-            bytes.Bits.NumberOfUnreadBits--;
-            bytes.Bits.Mask >>= 1;
             if (code <= MaximumCode[i])
                 return DecodedValues[ValueIndices[i] + code - MinimumCode[i]];
             code <<= 1;

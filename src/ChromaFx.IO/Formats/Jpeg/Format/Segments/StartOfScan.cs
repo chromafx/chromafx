@@ -614,7 +614,7 @@ internal class StartOfScan : SegmentBase
             }
         }
 
-        Bytes.Bits = new BitsBuffer();
+        Bytes.ResetBits();
 
         var mcu = 0;
         byte expectedRst = SegmentTypes.Restart0;
@@ -829,7 +829,7 @@ internal class StartOfScan : SegmentBase
                     {
                         expectedRst = SegmentTypes.Restart0;
                     }
-                    Bytes.Bits = new BitsBuffer();
+                    Bytes.ResetBits();
                     dc = new int[MaximumNumberComponents];
                     _endOfBlockRun = 0;
                 }
