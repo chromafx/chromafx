@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - JPEG baseline decode reuses one coefficient block and dequantizes/stores through spans (no per-block allocation); the IDCT indexes coefficients without bounds checks (bit-identical output).
 
 ### Fixed
+- JPEG: progressive files with restart intervals decode (non-interleaved scans counted restart intervals per interleaved MCU instead of per block and failed with `MissingFf00`).
 - Pixellate averages the neighborhood pixels (was always sampling the block origin) and no longer divides by zero or hangs for `PixelSize <= 1`.
 - NonMaximalSuppression visits the top-right diagonal during hysteresis (`Right` bound was mistyped as `Left`); strong edges are marked before a serial flood (no parallel races); isolated strong pixels are kept.
 - Jitter gathers from a source snapshot (was a parallel in-place scramble with races).

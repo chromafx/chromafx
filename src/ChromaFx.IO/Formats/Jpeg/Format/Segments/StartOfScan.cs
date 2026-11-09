@@ -623,12 +623,28 @@ internal class StartOfScan : SegmentBase
         var dc = new int[MaximumNumberComponents];
 
         int bx,
-            by,
-            blockCount = 0;
+            by;
 
-        for (var my = 0; my < myy; my++)
+        // A non-interleaved scan codes one block per MCU over the component's own block grid.
+        var scanComponent = startOfFrameSegment.Components[scan[0].ComponentIndex];
+        var scanCols =
+            lnComp == 1
+                ? Math.Min(
+                    mxx * scanComponent.HorizontalSamplingFactor,
+                    (startOfFrameSegment.Width + 7) / 8
+                )
+                : mxx;
+        var scanRows =
+            lnComp == 1
+                ? Math.Min(
+                    myy * scanComponent.VerticalSamplingFactor,
+                    (startOfFrameSegment.Height + 7) / 8
+                )
+                : myy;
+
+        for (var my = 0; my < scanRows; my++)
         {
-            for (var mx = 0; mx < mxx; mx++)
+            for (var mx = 0; mx < scanCols; mx++)
             {
                 for (var i = 0; i < lnComp; i++)
                 {
@@ -639,7 +655,8 @@ internal class StartOfScan : SegmentBase
                         startOfFrameSegment.Components[compIndex].QuatizationTableDestSelector
                     ];
 
-                    for (var j = 0; j < hi * vi; j++)
+                    var blocksPerMcu = lnComp == 1 ? 1 : hi * vi;
+                    for (var j = 0; j < blocksPerMcu; j++)
                     {
                         if (lnComp != 1)
                         {
@@ -648,15 +665,8 @@ internal class StartOfScan : SegmentBase
                         }
                         else
                         {
-                            var q = mxx * hi;
-                            bx = blockCount % q;
-                            by = blockCount / q;
-                            blockCount++;
-                            if (
-                                bx * 8 >= startOfFrameSegment.Width
-                                || by * 8 >= startOfFrameSegment.Height
-                            )
-                                continue;
+                            bx = mx;
+                            by = my;
                         }
                         if (startOfFrameSegment.Progressive)
                             b = _progressiveCoefficients[compIndex][by * mxx * hi + bx];
@@ -805,7 +815,7 @@ internal class StartOfScan : SegmentBase
                 if (
                     defineRestartIntervalSegment.RestartInterval > 0
                     && mcu % defineRestartIntervalSegment.RestartInterval == 0
-                    && mcu < mxx * myy
+                    && mcu < scanCols * scanRows
                 )
                 {
                     Bytes.ReadFull(TempData, 0, 2);
