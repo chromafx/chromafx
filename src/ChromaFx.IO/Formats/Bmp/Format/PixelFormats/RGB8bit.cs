@@ -36,35 +36,8 @@ internal class Rgb8Bit : PixelFormatBase
     /// <param name="data">The data.</param>
     /// <param name="palette">The palette.</param>
     /// <returns>The decoded data</returns>
-    public override byte[] Decode(Header header, byte[] data, Palette palette)
-    {
-        var width = header.Width;
-        var height = header.Height;
-        var alignment = (4 - width % 4) % 4;
-        var returnValue = new byte[width * height * 4];
-        Parallel.For(
-            0,
-            height,
-            y =>
-            {
-                var sourceY = y * (width + alignment);
-                var destinationY = height - y - 1;
-                var sourceOffset = sourceY;
-                var destinationOffset = destinationY * width * 4;
-                for (var x = 0; x < width; ++x)
-                {
-                    var colorIndex = data[sourceOffset] * 4;
-                    returnValue[destinationOffset] = palette.Data[colorIndex + 2];
-                    returnValue[destinationOffset + 1] = palette.Data[colorIndex + 1];
-                    returnValue[destinationOffset + 2] = palette.Data[colorIndex];
-                    returnValue[destinationOffset + 3] = palette.Data[colorIndex + 3];
-                    destinationOffset += 4;
-                    ++sourceOffset;
-                }
-            }
-        );
-        return returnValue;
-    }
+    public override byte[] Decode(Header header, byte[] data, Palette palette) =>
+        DecodeIndexed(header, data, palette, 8);
 
     /// <summary>
     /// Encodes the specified data.

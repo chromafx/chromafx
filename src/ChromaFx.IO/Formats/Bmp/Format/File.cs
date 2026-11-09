@@ -59,6 +59,18 @@ internal class File : FileBase
         FileHeader = FileHeader.Read(stream);
         Header = Header.Read(stream);
         Palette = Palette.Read(Header, stream);
+        var consumed = 14 + Header.BytesRead + Palette.NumberOfColors * 4;
+        var gap = FileHeader.Offset - consumed;
+        if (gap > 0)
+        {
+            Span<byte> skip = stackalloc byte[256];
+            while (gap > 0)
+            {
+                var chunk = Math.Min(gap, skip.Length);
+                stream.ReadExactly(skip[..chunk]);
+                gap -= chunk;
+            }
+        }
         Body = Body.Read(Header, Palette, stream);
         return this;
     }

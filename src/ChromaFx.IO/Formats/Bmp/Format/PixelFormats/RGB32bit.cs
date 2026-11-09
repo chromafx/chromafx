@@ -38,41 +38,8 @@ internal class Rgb32Bit : PixelFormatBase
     /// <param name="data">The data.</param>
     /// <param name="palette">The palette.</param>
     /// <returns>The decoded data</returns>
-    public override byte[] Decode(Header header, byte[] data, Palette palette)
-    {
-        var width = header.Width;
-        var height = header.Height;
-        var alignment = (4 - width * (int)Bpp % 4) % 4;
-        var returnValue = new byte[width * height * 4];
-        Parallel.For(
-            0,
-            height,
-            y =>
-            {
-                var sourceY = height - y - 1;
-                if (sourceY < 0)
-                    sourceY = 0;
-                if (sourceY >= height)
-                    sourceY = height - 1;
-                var sourceRowOffset = sourceY * (width * (int)Bpp + alignment);
-                var destinationRowOffset = y * width * 4;
-                var dest = MemoryMarshal.Cast<byte, uint>(
-                    returnValue.AsSpan(destinationRowOffset, width * 4)
-                );
-                var opaque = header.AlphaMask == 0;
-                for (var x = 0; x < width; ++x)
-                {
-                    var sourceOffset = sourceRowOffset + x * 4;
-                    var r = data[sourceOffset + 3];
-                    var g = data[sourceOffset + 2];
-                    var b = data[sourceOffset + 1];
-                    var a = opaque ? (byte)255 : data[sourceOffset];
-                    dest[x] = r | ((uint)g << 8) | ((uint)b << 16) | ((uint)a << 24);
-                }
-            }
-        );
-        return returnValue;
-    }
+    public override byte[] Decode(Header header, byte[] data, Palette palette) =>
+        DecodeMasked(header, data, 32, 0x00FF_0000, 0x0000_FF00, 0x0000_00FF);
 
     /// <summary>
     /// Encodes the specified data.

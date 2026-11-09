@@ -38,54 +38,8 @@ internal class Rgb16Bit : PixelFormatBase
     /// <param name="data">The data.</param>
     /// <param name="palette">The palette.</param>
     /// <returns>The decoded data</returns>
-    public override byte[] Decode(Header header, byte[] data, Palette palette)
-    {
-        var width = header.Width;
-        var height = header.Height;
-        var alignment = (4 - width * (int)Bpp % 4) % 4;
-        var returnValue = new byte[width * height * 4];
-        Parallel.For(
-            0,
-            height,
-            y =>
-            {
-                var rowOffset = y * (width * (int)Bpp + alignment);
-                var currentY = height - y - 1;
-                if (currentY < 0)
-                    currentY = 0;
-                if (currentY >= height)
-                    currentY = height - 1;
-                for (var x = 0; x < width; ++x)
-                {
-                    var offset = rowOffset + x * (int)Bpp;
-                    var tempValue = BitConverter.ToInt16(data, offset);
-                    var r = (int)(
-                        ((tempValue & header.RedMask) >> header.RedOffset) * header.RedMultiplier
-                    );
-                    var g = (int)(
-                        ((tempValue & header.GreenMask) >> header.GreenOffset)
-                        * header.GreenMultiplier
-                    );
-                    var b = (int)(
-                        ((tempValue & header.BlueMask) >> header.BlueOffset) * header.BlueMultiplier
-                    );
-                    var a = (int)(
-                        header.AlphaMask == 0
-                            ? 255
-                            : ((tempValue & header.AlphaMask) >> header.AlphaOffset)
-                                * header.AlphaMultiplier
-                    );
-
-                    var arrayOffset = (currentY * width + x) * 4;
-                    returnValue[arrayOffset] = r.ToByte();
-                    returnValue[arrayOffset + 1] = g.ToByte();
-                    returnValue[arrayOffset + 2] = b.ToByte();
-                    returnValue[arrayOffset + 3] = a.ToByte();
-                }
-            }
-        );
-        return returnValue;
-    }
+    public override byte[] Decode(Header header, byte[] data, Palette palette) =>
+        DecodeMasked(header, data, 16, 0x7C00, 0x03E0, 0x001F);
 
     /// <summary>
     /// Encodes the specified data.

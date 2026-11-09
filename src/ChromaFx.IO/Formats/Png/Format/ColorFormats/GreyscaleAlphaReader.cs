@@ -33,11 +33,13 @@ internal class GreyscaleAlphaReader : IColorReader
         if (header.BitDepth < 8)
             scanline = scanline.ExpandArray(header.BitDepth);
 
+        // 16-bit samples keep the high byte of each channel.
+        var channelBytes = header.BitDepth == 16 ? 2 : 1;
         var dest = MemoryMarshal.Cast<Color, uint>(row);
         for (var x = 0; x < header.Width; ++x)
         {
-            var v = scanline[x * 2];
-            var a = scanline[x * 2 + 1];
+            var v = scanline[x * 2 * channelBytes];
+            var a = scanline[(x * 2 + 1) * channelBytes];
             dest[x] = v | ((uint)v << 8) | ((uint)v << 16) | ((uint)a << 24);
         }
     }

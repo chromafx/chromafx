@@ -467,7 +467,7 @@ internal static class TiffCodec
                     prefix[next] = old;
                     suffix[next] = first;
                     next++;
-                    if (codeSize < 12 && next > (1 << codeSize) - 1)
+                    if (codeSize < 12 && next >= (1 << codeSize) - 1)
                         codeSize++;
                 }
 

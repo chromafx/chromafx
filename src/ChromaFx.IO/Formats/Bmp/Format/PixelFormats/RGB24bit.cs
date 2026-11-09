@@ -43,20 +43,15 @@ internal class Rgb24Bit : PixelFormatBase
     {
         var width = header.Width;
         var height = header.Height;
-        var alignment = (4 - width * (int)Bpp % 4) % 4;
         var returnValue = new byte[width * height * 4];
-        var rowBytes = width * (int)Bpp + alignment;
+        var rowBytes = Stride(width, 24);
 
         Parallel.For(
             0,
             height,
             y =>
             {
-                var sourceY = height - y - 1;
-                if (sourceY < 0)
-                    sourceY = 0;
-                if (sourceY >= height)
-                    sourceY = height - 1;
+                var sourceY = SourceRow(header, y);
 
                 var sourceRowOffset = sourceY * rowBytes;
                 var destinationRowOffset = y * width * 4;

@@ -56,44 +56,8 @@ internal class Rgb1Bit : PixelFormatBase
     /// <param name="data">The data.</param>
     /// <param name="palette">The palette.</param>
     /// <returns>The decoded data</returns>
-    public override byte[] Decode(Header header, byte[] data, Palette palette)
-    {
-        var width = header.Width;
-        var height = header.Height;
-        var alignment = (int)((4d - width / 8.0d % 4d) % 4d * 8);
-        var returnValue = new byte[width * height * 4];
-        using (var bitStream = new BitReader(data))
-        {
-            for (var y = 0; y < height; ++y)
-            {
-                var destinationY = height - y - 1;
-                var destinationOffset = destinationY * width * 4;
-                for (var x = 0; x < width; ++x)
-                {
-                    var currentBit = bitStream.ReadBit();
-                    if (currentBit == null)
-                        return returnValue;
-                    if (currentBit.Value)
-                    {
-                        returnValue[destinationOffset] = 255;
-                        returnValue[destinationOffset + 1] = 255;
-                        returnValue[destinationOffset + 2] = 255;
-                        returnValue[destinationOffset + 3] = 255;
-                    }
-                    else
-                    {
-                        returnValue[destinationOffset] = 0;
-                        returnValue[destinationOffset + 1] = 0;
-                        returnValue[destinationOffset + 2] = 0;
-                        returnValue[destinationOffset + 3] = 255;
-                    }
-                    destinationOffset += 4;
-                }
-                bitStream.Skip(alignment);
-            }
-        }
-        return returnValue;
-    }
+    public override byte[] Decode(Header header, byte[] data, Palette palette) =>
+        DecodeIndexed(header, data, palette, 1);
 
     /// <summary>
     /// Encodes the specified data.

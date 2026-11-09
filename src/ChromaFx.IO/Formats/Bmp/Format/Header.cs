@@ -29,7 +29,7 @@ internal class Header
     public Header(byte[] data)
         : this(
             BitConverter.ToInt32(data, 4),
-            BitConverter.ToInt32(data, 8),
+            Math.Abs(BitConverter.ToInt32(data, 8)),
             BitConverter.ToInt16(data, 14),
             BitConverter.ToInt32(data, 20),
             BitConverter.ToInt32(data, 24),
@@ -38,11 +38,30 @@ internal class Header
             BitConverter.ToInt32(data, 36),
             (Compression)BitConverter.ToInt32(data, 16),
             BitConverter.ToInt32(data, 0),
-            BitConverter.ToInt32(data, 16) == 3 ? BitConverter.ToInt32(data, 40) : 0,
-            BitConverter.ToInt32(data, 16) == 3 ? BitConverter.ToInt32(data, 44) : 0,
-            BitConverter.ToInt32(data, 16) == 3 ? BitConverter.ToInt32(data, 48) : 0,
-            BitConverter.ToInt32(data, 16) == 3 ? BitConverter.ToInt32(data, 52) : 0
-        ) { }
+            ReadMask(data, 40),
+            ReadMask(data, 44),
+            ReadMask(data, 48),
+            ReadMask(data, 52)
+        )
+    {
+        TopDown = BitConverter.ToInt32(data, 8) < 0;
+        BytesRead = data.Length;
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether rows are stored top-down (negative height).
+    /// </summary>
+    public bool TopDown { get; }
+
+    /// <summary>
+    /// Gets the number of header bytes consumed from the stream, including trailing bitfield masks.
+    /// </summary>
+    public int BytesRead { get; }
+
+    private static int ReadMask(byte[] data, int offset) =>
+        BitConverter.ToInt32(data, 16) is 3 or 6 && data.Length >= offset + 4
+            ? BitConverter.ToInt32(data, offset)
+            : 0;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Header" /> class.
@@ -280,6 +299,21 @@ internal class Header
         var size = BitConverter.ToInt32(headerSize, 0);
         var data = new byte[size];
         stream.ReadExactly(data, 4, size - 4);
+        if (size == 40)
+        {
+            // BITFIELDS / ALPHABITFIELDS with a BITMAPINFOHEADER store the masks after the header.
+            var maskBytes = BitConverter.ToInt32(data, 16) switch
+            {
+                3 => 12,
+                6 => 16,
+                _ => 0,
+            };
+            if (maskBytes > 0)
+            {
+                Array.Resize(ref data, size + maskBytes);
+                stream.ReadExactly(data, size, maskBytes);
+            }
+        }
         data[0] = headerSize[0];
         data[1] = headerSize[1];
         data[2] = headerSize[2];
