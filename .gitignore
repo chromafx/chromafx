@@ -485,3 +485,7 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Local agent/editor rules (not tracked)
+.cursor/
+.devin/

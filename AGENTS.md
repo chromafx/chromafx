@@ -52,7 +52,7 @@ Tests use **Microsoft Testing Platform** (`global.json` `test.runner` + xunit.v3
 
 ## Where to look
 
-- Cursor rules: `.cursor/rules/`
+- Path-scoped agent rules (local only, gitignored): `.devin/rules/`
 - Filter harness: `tests/ChromaFx.Tests/BaseClasses/FilterTestBaseClass.cs`
 - Golden compare / tolerance: `tests/ChromaFx.Tests/BaseClasses/TestBaseClass.cs`
 - Parallelism: `tests/ChromaFx.Tests/BaseClasses/FilterCollection.cs`
