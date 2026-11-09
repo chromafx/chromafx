@@ -74,44 +74,18 @@ public class AdaptiveThreshold(int apertureRadius, Color color1, Color color2, f
         var tempValues = FilterBufferPool.RentTightCopy(image);
         try
         {
-            var apertureMin = -ApertureRadius;
-            var apertureMax = ApertureRadius;
-
+            var radius = ApertureRadius;
             Parallel.For(
                 targetLocation.Bottom,
                 targetLocation.Top,
-                y =>
+                () => new long[image.Width],
+                (y, _, columns) =>
                 {
-                    for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
-                    {
-                        var targetIndex = y * image.Width + x;
-                        long sum = 0;
-                        var count = 0;
-
-                        for (var x2 = apertureMin; x2 < apertureMax; ++x2)
-                        {
-                            var tempX = x + x2;
-                            if (tempX < targetLocation.Left || tempX >= targetLocation.Right)
-                                continue;
-
-                            for (var y2 = apertureMin; y2 < apertureMax; ++y2)
-                            {
-                                var tempY = y + y2;
-                                if (tempY >= targetLocation.Bottom && tempY < targetLocation.Top)
-                                {
-                                    sum += image.GetRowSpan(tempY)[tempX].Red;
-                                    ++count;
-                                }
-                            }
-                        }
-
-                        // Same as Average(value => value / 255f) >= Threshold.
-                        tempValues[targetIndex] =
-                            count > 0 && sum / (count * 255f) >= Threshold ? Color1 : Color2;
-                    }
-                }
+                    ThresholdRow(image, tempValues, targetLocation, y, radius, columns);
+                    return columns;
+                },
+                _ => { }
             );
-
             for (var y = 0; y < image.Height; ++y)
                 tempValues.AsSpan(y * image.Width, image.Width).CopyTo(image.GetRowSpan(y));
         }
@@ -121,5 +95,52 @@ public class AdaptiveThreshold(int apertureRadius, Color color1, Color color2, f
         }
 
         return image;
+    }
+
+    // Window sum over [x-r, x+r) x [y-r, y+r) clipped to the target, from column sums slid along the row.
+    private void ThresholdRow(
+        Image image,
+        Color[] tempValues,
+        Rectangle targetLocation,
+        int y,
+        int radius,
+        long[] columns
+    )
+    {
+        var left = targetLocation.Left;
+        var right = targetLocation.Right;
+        var rowStart = Math.Max(y - radius, targetLocation.Bottom);
+        var rowEnd = Math.Min(y + radius, targetLocation.Top);
+        var rows = rowEnd - rowStart;
+        Array.Clear(columns);
+        for (var row = rowStart; row < rowEnd; ++row)
+        {
+            var span = image.GetRowSpan(row);
+            for (var x = left; x < right; ++x)
+                columns[x] += span[x].Red;
+        }
+
+        long sum = 0;
+        var end = Math.Min(left + radius, right);
+        for (var x = left; x < end; ++x)
+            sum += columns[x];
+
+        for (var x = left; x < right; ++x)
+        {
+            if (x > left)
+            {
+                var removed = x - 1 - radius;
+                if (removed >= left)
+                    sum -= columns[removed];
+                var added = x + radius - 1;
+                if (added < right)
+                    sum += columns[added];
+            }
+
+            var count = (Math.Min(x + radius, right) - Math.Max(x - radius, left)) * rows;
+            // Same as Average(value => value / 255f) >= Threshold.
+            tempValues[y * image.Width + x] =
+                count > 0 && sum / (count * 255f) >= Threshold ? Color1 : Color2;
+        }
     }
 }

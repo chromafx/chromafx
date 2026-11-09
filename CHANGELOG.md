@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - JPEG, PNG, TIFF, and WebP decode bake EXIF/TIFF orientation (tag 274, values 1–8) into the pixels. TIFF no longer rejects orientations other than top-left. The saved file does not keep the orientation tag, so a later load does not rotate twice.
 - Bit-identical performance pass: AdaptiveThreshold, Kuwahara, Pointillism, Resize, and NonMaximalSuppression reuse `FilterBufferPool`; PNG encode/decode scanlines and TGA decode reuse `ArrayPool<byte>`; PerlinNoise drops a redundant full-image `Color[]`.
 - JPEG baseline decode reuses one coefficient block and dequantizes/stores through spans (no per-block allocation); the IDCT indexes coefficients without bounds checks; the entropy bit reader refills up to 64 bits from buffered bytes and stops at markers instead of reading one byte at a time and unreading; the IDCT column pass and YCbCr→RGB conversion use `Vector128` SIMD with the same integer arithmetic (bit-identical output).
+- Filters: `Median` and `AdaptiveEqualize` slide per-channel histograms instead of sorting/rebuilding per pixel; `Kuwahara` and `AdaptiveThreshold` use column sums; `Dilate`/`Constrict` are separable; `PerlinNoise`/`Turbulence` generate rows in parallel; TGA encodes whole rows and decodes uncompressed 24/32-bit directly (bit-identical output).
 
 ### Fixed
 - JPEG: progressive files with restart intervals decode (non-interleaved scans counted restart intervals per interleaved MCU instead of per block and failed with `MissingFf00`).

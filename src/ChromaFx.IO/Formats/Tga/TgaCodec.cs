@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -95,6 +95,9 @@ internal static class TgaCodec
         if (offset > data.Length)
             throw new ImageException("Truncated TGA image.");
 
+        if (!rle && !mapped && depth is 24 or 32)
+            return DecodeUncompressed(data, offset, width, height, depth, descriptor);
+
         var pixelCount = width * height;
         var tightBytes = pixelCount * 4;
         var tight = ArrayPool<byte>.Shared.Rent(tightBytes);
@@ -172,24 +175,58 @@ internal static class TgaCodec
         header[17] = 0x28;
         writer.Write(header);
 
-        Span<byte> pixel = stackalloc byte[4];
+        var rowBytes = new byte[image.Width * 4];
         for (var y = 0; y < image.Height; y++)
         {
             var row = image.GetRowSpan(y);
-            for (var x = 0; x < image.Width; x++)
+            for (var x = 0; x < row.Length; x++)
             {
                 var color = row[x];
-                pixel[0] = color.Blue;
-                pixel[1] = color.Green;
-                pixel[2] = color.Red;
-                pixel[3] = color.Alpha;
-                writer.Write(pixel);
+                var o = x * 4;
+                rowBytes[o] = color.Blue;
+                rowBytes[o + 1] = color.Green;
+                rowBytes[o + 2] = color.Red;
+                rowBytes[o + 3] = color.Alpha;
             }
+
+            writer.Write(rowBytes);
         }
 
         Span<byte> footer = stackalloc byte[26];
         "TRUEVISION-XFILE.\0"u8.CopyTo(footer[8..]);
         writer.Write(footer);
+    }
+
+    private static Image DecodeUncompressed(
+        byte[] data,
+        int offset,
+        int width,
+        int height,
+        int depth,
+        int descriptor
+    )
+    {
+        var size = depth / 8;
+        var rowBytes = width * size;
+        if ((long)offset + (long)rowBytes * height > data.Length)
+            throw new ImageException("Truncated TGA image.");
+
+        var top = (descriptor & 0x20) != 0;
+        var right = (descriptor & 0x10) != 0;
+        var image = new Image(width, height);
+        for (var y = 0; y < height; y++)
+        {
+            var srcY = top ? y : height - 1 - y;
+            var src = data.AsSpan(offset + srcY * rowBytes, rowBytes);
+            var row = image.GetRowSpan(y);
+            for (var x = 0; x < width; x++)
+            {
+                var i = (right ? width - 1 - x : x) * size;
+                row[x] = new Color(src[i + 2], src[i + 1], src[i], size == 4 ? src[i + 3] : (byte)255);
+            }
+        }
+
+        return image;
     }
 
     private static void ReadPixel(

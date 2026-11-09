@@ -53,7 +53,11 @@ public static class PerlinNoise
     {
         var returnValue = new Image(width, height);
         var noise = GenerateNoise(seed, width, height);
-        for (var y = 0; y < height; ++y)
+        FilterParallelism.For(
+            0,
+            height,
+            width * height,
+            y =>
         {
             var row = returnValue.GetRowSpan(y);
             for (var x = 0; x < width; ++x)
@@ -74,7 +78,7 @@ public static class PerlinNoise
                 var rgbValue = (byte)value.Clamp(minRgbValue, maxRgbValue);
                 row[x] = new Color(rgbValue, rgbValue, rgbValue);
             }
-        }
+        });
 
         return returnValue;
     }

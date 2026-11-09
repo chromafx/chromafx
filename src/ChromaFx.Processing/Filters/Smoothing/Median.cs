@@ -53,22 +53,10 @@ public class Median(int apertureRadius) : IFilter
         var tempValues = FilterBufferPool.RentTightCopy(image);
         try
         {
-            var apertureMin = -ApertureRadius;
-            var apertureMax = ApertureRadius;
-            var kernelSide = apertureMax - apertureMin;
-            var maxSamples = kernelSide * kernelSide;
+            var radius = ApertureRadius;
             FilterParallelism.ForRows(
                 targetLocation,
-                y =>
-                    ApplyRow(
-                        image,
-                        tempValues,
-                        targetLocation,
-                        y,
-                        apertureMin,
-                        apertureMax,
-                        maxSamples
-                    )
+                y => ApplyRow(image, tempValues, targetLocation, y, radius)
             );
 
             for (var y = 0; y < image.Height; ++y)
@@ -82,55 +70,96 @@ public class Median(int apertureRadius) : IFilter
         return image;
     }
 
+    // Sliding per-channel histograms over the [x-r, x+r) x [y-r, y+r) window; each median is tracked incrementally.
     private static void ApplyRow(
         Image image,
         Color[] tempValues,
         Rectangle targetLocation,
         int y,
-        int apertureMin,
-        int apertureMax,
-        int maxSamples
+        int radius
     )
     {
-        Span<byte> rBuffer = stackalloc byte[maxSamples];
-        Span<byte> gBuffer = stackalloc byte[maxSamples];
-        Span<byte> bBuffer = stackalloc byte[maxSamples];
+        Span<int> histogram = stackalloc int[768];
+        Span<int> median = stackalloc int[3];
+        Span<int> below = stackalloc int[3];
+        histogram.Clear();
+        median.Clear();
+        below.Clear();
+        var rowStart = Math.Max(y - radius, targetLocation.Bottom);
+        var rowEnd = Math.Min(y + radius, targetLocation.Top);
+        var left = targetLocation.Left;
+        var right = targetLocation.Right;
+        var end = Math.Min(left + radius, right);
+        for (var column = left; column < end; ++column)
+            UpdateColumn(image, histogram, median, below, column, rowStart, rowEnd, 1);
 
-        for (var x = targetLocation.Left; x < targetLocation.Right; ++x)
+        for (var x = left; x < right; ++x)
         {
-            var count = 0;
-            for (var x2 = apertureMin; x2 < apertureMax; ++x2)
+            if (x > left)
             {
-                var tempX = x + x2;
-                if (tempX < targetLocation.Left || tempX >= targetLocation.Right)
-                    continue;
-
-                for (var y2 = apertureMin; y2 < apertureMax; ++y2)
-                {
-                    var tempY = y + y2;
-                    if (tempY < targetLocation.Bottom || tempY >= targetLocation.Top)
-                        continue;
-
-                    var pixel = image.GetRowSpan(tempY)[tempX];
-                    rBuffer[count] = pixel.Red;
-                    gBuffer[count] = pixel.Green;
-                    bBuffer[count] = pixel.Blue;
-                    ++count;
-                }
+                var removed = x - 1 - radius;
+                if (removed >= left)
+                    UpdateColumn(image, histogram, median, below, removed, rowStart, rowEnd, -1);
+                var added = x + radius - 1;
+                if (added < right)
+                    UpdateColumn(image, histogram, median, below, added, rowStart, rowEnd, 1);
             }
 
-            var rValues = rBuffer[..count];
-            var gValues = gBuffer[..count];
-            var bValues = bBuffer[..count];
-            rValues.Sort();
-            gValues.Sort();
-            bValues.Sort();
-
-            var index = y * image.Width + x;
-            tempValues[index].Red = rValues[count / 2];
-            tempValues[index].Green = gValues[count / 2];
-            tempValues[index].Blue = bValues[count / 2];
-            tempValues[index].Alpha = image.GetRowSpan(y)[x].Alpha;
+            var columns = Math.Min(x + radius, right) - Math.Max(x - radius, left);
+            var k = columns * (rowEnd - rowStart) / 2;
+            ref var target = ref tempValues[y * image.Width + x];
+            target.Red = Select(histogram[..256], ref median[0], ref below[0], k);
+            target.Green = Select(histogram.Slice(256, 256), ref median[1], ref below[1], k);
+            target.Blue = Select(histogram.Slice(512, 256), ref median[2], ref below[2], k);
+            target.Alpha = image.GetRowSpan(y)[x].Alpha;
         }
+    }
+
+    private static void UpdateColumn(
+        Image image,
+        Span<int> histogram,
+        Span<int> median,
+        Span<int> below,
+        int x,
+        int rowStart,
+        int rowEnd,
+        int delta
+    )
+    {
+        for (var y = rowStart; y < rowEnd; ++y)
+        {
+            var pixel = image.GetRowSpan(y)[x];
+            histogram[pixel.Red] += delta;
+            histogram[256 + pixel.Green] += delta;
+            histogram[512 + pixel.Blue] += delta;
+            if (pixel.Red < median[0])
+                below[0] += delta;
+            if (pixel.Green < median[1])
+                below[1] += delta;
+            if (pixel.Blue < median[2])
+                below[2] += delta;
+        }
+    }
+
+    // Moves the median to the k-th smallest value (0-based); below counts values under the median.
+    private static byte Select(Span<int> histogram, ref int median, ref int below, int k)
+    {
+        var value = median;
+        var count = below;
+        while (count > k)
+        {
+            --value;
+            count -= histogram[value];
+        }
+
+        while (count + histogram[value] <= k)
+        {
+            count += histogram[value];
+            ++value;
+        }
+
+        median = value;
+        below = count;
+        return (byte)value;
     }
 }
