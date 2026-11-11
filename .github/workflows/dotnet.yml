@@ -34,7 +34,7 @@ jobs:
 
       - name: Look up linux-x64
         id: linux-x64
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           lookup-only: true
           enableCrossOsArchive: true
@@ -43,7 +43,7 @@ jobs:
 
       - name: Look up linux-arm64
         id: linux-arm64
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           lookup-only: true
           enableCrossOsArchive: true
@@ -52,7 +52,7 @@ jobs:
 
       - name: Look up osx-arm64
         id: osx-arm64
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           lookup-only: true
           enableCrossOsArchive: true
@@ -61,7 +61,7 @@ jobs:
 
       - name: Look up osx-x64
         id: osx-x64
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           lookup-only: true
           enableCrossOsArchive: true
@@ -70,7 +70,7 @@ jobs:
 
       - name: Look up win-x64
         id: win-x64
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           lookup-only: true
           enableCrossOsArchive: true
@@ -167,7 +167,7 @@ jobs:
           path: src/ChromaFx.Native/runtimes
 
       - name: Cache native binaries
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v6
         with:
           enableCrossOsArchive: true
           path: src/ChromaFx.Native/runtimes/${{ matrix.rid }}
@@ -199,7 +199,7 @@ jobs:
 
       - name: Restore cached linux-x64
         if: needs.native.result == 'skipped'
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           fail-on-cache-miss: true
           enableCrossOsArchive: true
@@ -208,7 +208,7 @@ jobs:
 
       - name: Restore cached linux-arm64
         if: needs.native.result == 'skipped'
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           fail-on-cache-miss: true
           enableCrossOsArchive: true
@@ -217,7 +217,7 @@ jobs:
 
       - name: Restore cached osx-arm64
         if: needs.native.result == 'skipped'
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           fail-on-cache-miss: true
           enableCrossOsArchive: true
@@ -226,7 +226,7 @@ jobs:
 
       - name: Restore cached osx-x64
         if: needs.native.result == 'skipped'
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           fail-on-cache-miss: true
           enableCrossOsArchive: true
@@ -235,7 +235,7 @@ jobs:
 
       - name: Restore cached win-x64
         if: needs.native.result == 'skipped'
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           fail-on-cache-miss: true
           enableCrossOsArchive: true
