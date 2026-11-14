@@ -37,6 +37,7 @@ internal class File : FileBase
             [ChunkTypes.Palette] = ReadPalette,
             [ChunkTypes.TransparencyInfo] = ReadAlphaPalette,
             [ChunkTypes.Text] = ReadText,
+            [ChunkTypes.IsoText] = ReadText,
             [ChunkTypes.End] = _ => { },
             [ChunkTypes.Data] = ReadData,
         };
@@ -97,7 +98,7 @@ internal class File : FileBase
     /// <value>
     /// The properties.
     /// </value>
-    public List<Property> Properties { get; }
+    public List<Property> Properties { get; } = [];
 
     /// <summary>
     /// Gets or sets the chunk actions.
