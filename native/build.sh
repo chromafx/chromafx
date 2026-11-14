@@ -177,6 +177,38 @@ PY
   fi
 }
 
+# dav1d on MSVC aarch64 requires gas-preprocessor.pl (and armasm64) for ASM.
+# Git Bash's uname may look like x64; we still need this whenever RID is win-arm64.
+ensure_gas_preprocessor() {
+  [[ "$RID" == win-arm64 ]] || return 0
+  if command -v gas-preprocessor.pl >/dev/null 2>&1; then
+    echo "using $(command -v gas-preprocessor.pl)"
+  else
+    if ! command -v perl >/dev/null 2>&1; then
+      echo "perl is required for dav1d ASM on win-arm64 (gas-preprocessor.pl). Git Bash usually provides it." >&2
+      exit 1
+    fi
+    local dest="$CACHE/bin"
+    mkdir -p "$dest"
+    curl -fsSL -o "$dest/gas-preprocessor.pl" \
+      "https://raw.githubusercontent.com/FFmpeg/gas-preprocessor/master/gas-preprocessor.pl"
+    chmod +x "$dest/gas-preprocessor.pl"
+    # Meson on Windows often resolves the tool via a .bat shim.
+    cat >"$dest/gas-preprocessor.pl.bat" <<'EOF'
+@echo off
+perl "%~dp0gas-preprocessor.pl" %*
+EOF
+    export PATH="$dest:$PATH"
+    hash -r 2>/dev/null || true
+    echo "installed gas-preprocessor.pl for win-arm64 dav1d ASM"
+  fi
+  if ! command -v armasm64 >/dev/null 2>&1; then
+    echo "armasm64 not on PATH. Use an MSVC arm64 developer shell (ilammy/msvc-dev-cmd arch=arm64)." >&2
+    exit 1
+  fi
+  echo "using $(command -v armasm64)"
+}
+
 # Git for Windows ships usr/bin/link.exe, which is not a linker. dav1d's meson
 # setup rejects it. The MSVC developer shell sets VCToolsInstallDir.
 prefer_msvc_link() {
@@ -215,6 +247,7 @@ need python3
 mkdir -p "$CACHE" "$OUT"
 ensure_nasm
 prefer_msvc_link
+ensure_gas_preprocessor
 
 clone() {
   local url="$1" tag="$2" dest="$3"
