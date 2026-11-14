@@ -259,6 +259,62 @@ public class ImageTests : FilterTestBaseClass
     }
 
     [Fact]
+    public void ToHtmlArt_HalfBlock_MergesTrueColorSpans()
+    {
+        var image = new Image(1, 2, [new Color(255, 0, 0), new Color(0, 0, 255)]);
+        var art = image.ToHtmlArt(
+            new HtmlArtOptions
+            {
+                MaxWidth = 1,
+                MaxHeight = 1,
+                WrapInPre = false,
+            }
+        );
+        Assert.Equal(
+            "<span style=\"color:#ff0000;background-color:#0000ff\">\u2580</span>"
+                + Environment.NewLine,
+            art
+        );
+    }
+
+    [Fact]
+    public void ToHtmlArt_FullBlock_WrapsInPre()
+    {
+        var image = new Image(1, 1, [new Color(10, 20, 30)]);
+        var art = image.ToHtmlArt(
+            new HtmlArtOptions
+            {
+                MaxWidth = 1,
+                MaxHeight = 1,
+                UseHalfBlocks = false,
+            }
+        );
+        Assert.StartsWith("<pre style=\"", art);
+        Assert.Contains("<span style=\"color:#0a141e\">\u2588</span>", art);
+        Assert.EndsWith("</pre>", art);
+    }
+
+    [Fact]
+    public void ToHtmlArt_TransparentUsesBackgroundColor()
+    {
+        var image = new Image(1, 1, [new Color(0, 0, 0, 0)]);
+        var art = image.ToHtmlArt(
+            new HtmlArtOptions
+            {
+                MaxWidth = 1,
+                MaxHeight = 1,
+                UseHalfBlocks = false,
+                BackgroundColor = new Color(1, 2, 3),
+                WrapInPre = false,
+            }
+        );
+        Assert.Equal(
+            "<span style=\"color:#010203\">\u2588</span>" + Environment.NewLine,
+            art
+        );
+    }
+
+    [Fact]
     public void ToAnsiArt_FitsMaxWidthAndMaxHeight()
     {
         var pixels = new Color[16];
@@ -299,6 +355,26 @@ public class ImageTests : FilterTestBaseClass
         // Auto CharacterAspect = 2 → 2×1 inside the max box.
         Assert.Single(lines);
         Assert.Equal("\u001b[38;2;255;0;0m\u2588\u2588\u001b[0m", lines[0]);
+    }
+
+    [Fact]
+    public void ToAnsiArt_HalfBlock_AutoAspectIsTwo()
+    {
+        var pixels = new Color[16];
+        Array.Fill(pixels, new Color(255, 0, 0));
+        var image = new Image(4, 4, pixels);
+        var art = image.ToAnsiArt(
+            new AnsiArtOptions
+            {
+                MaxWidth = 2,
+                MaxHeight = 2,
+                UseHalfBlocks = true,
+            }
+        );
+        var lines = art.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+        // Half-blocks still auto CharacterAspect = 2 → 2×1 (not 2×2).
+        Assert.Single(lines);
+        Assert.Contains("\u2580\u2580", lines[0]);
     }
 
     [Fact]

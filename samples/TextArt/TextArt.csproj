@@ -3,8 +3,9 @@
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>ChromaFx.Samples.TerminalArt</RootNamespace>
+    <RootNamespace>ChromaFx.Samples.TextArt</RootNamespace>
     <IsPackable>false</IsPackable>
+    <RollForward>Major</RollForward>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\ChromaFx\ChromaFx.csproj" />

@@ -1,6 +1,5 @@
 /*
- * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2026 Ho Tzin Mein
+ * Copyright 2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -152,8 +151,8 @@ public static class TerminalArtExtensions
     /// By default uses upper half blocks (<c>▀</c>) with 24-bit foreground and
     /// background colors so each character covers two vertical samples — suited
     /// to album-art thumbnails and other TUI image panels. Automatic
-    /// <see cref="TerminalArtOptions.CharacterAspect"/> is 1 for half-blocks and
-    /// 2 for full blocks. Set <see cref="AnsiArtOptions.ColorMode"/> to
+    /// <see cref="TerminalArtOptions.CharacterAspect"/> defaults to 2 for both
+    /// half-blocks and full blocks. Set <see cref="AnsiArtOptions.ColorMode"/> to
     /// <see cref="AnsiColorMode.Ansi256"/> for broader terminal compatibility.
     /// Prefer <see cref="AppendAnsiArt"/> when redrawing into a reused buffer.
     /// </remarks>
@@ -180,7 +179,7 @@ public static class TerminalArtExtensions
             return;
 
         var useHalfBlocks = options.UseHalfBlocks;
-        var characterAspect = TerminalArtLayout.ResolveCharacterAspect(options);
+        var characterAspect = TerminalArtLayout.ResolveCharacterAspect(options, useHalfBlocks);
 
         var layout = TerminalArtLayout.Compute(
             image.Width,

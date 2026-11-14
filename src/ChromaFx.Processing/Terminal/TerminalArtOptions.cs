@@ -17,7 +17,7 @@
 namespace ChromaFx.Processing.Terminal;
 
 /// <summary>
-/// Shared sizing options for ASCII and ANSI terminal art.
+/// Shared sizing options for fixed-width character art (terminal ASCII/ANSI and HTML).
 /// </summary>
 public abstract class TerminalArtOptions
 {
@@ -43,8 +43,9 @@ public abstract class TerminalArtOptions
 
     /// <summary>
     /// Approximate height-to-width ratio of a terminal glyph. When zero (default),
-    /// a sensible value is chosen: 2 for ASCII / full-block ANSI, 1 for half-block
-    /// ANSI. Set explicitly to override.
+    /// uses 2 (typical monospace cells are ~twice as tall as wide). Half-block
+    /// ANSI/HTML still use 2 — two vertical samples share one tall cell. Set
+    /// explicitly to override.
     /// </summary>
     public float CharacterAspect { get; set; }
 }

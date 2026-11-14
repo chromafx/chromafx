@@ -36,7 +36,7 @@ internal readonly struct TerminalArtLayout
         return options.CharacterAspect > 0f ? options.CharacterAspect : 2f;
     }
 
-    public static float ResolveCharacterAspect(AnsiArtOptions options)
+    public static float ResolveCharacterAspect(TerminalArtOptions options, bool useHalfBlocks)
     {
         if (options.CharacterAspect < 0f)
             throw new ArgumentOutOfRangeException(
@@ -46,7 +46,11 @@ internal readonly struct TerminalArtLayout
             );
         if (options.CharacterAspect > 0f)
             return options.CharacterAspect;
-        return options.UseHalfBlocks ? 1f : 2f;
+        // Terminal/monospace cells are ~2× taller than wide. Half-blocks pack two
+        // vertical samples into one cell but do not change the cell's physical
+        // aspect, so the default stays 2 (same as ASCII / full-block).
+        _ = useHalfBlocks;
+        return 2f;
     }
 
     public static TerminalArtLayout Compute(
