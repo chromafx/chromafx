@@ -16,6 +16,8 @@
 
 using ChromaFx.Core;
 using ChromaFx.Core.Colors;
+using System.Numerics;
+using ChromaFx.Processing.Filters;
 using ChromaFx.Processing.Filters.Binary;
 using ChromaFx.Processing.Filters.ColorMatrix;
 using ChromaFx.Processing.Filters.Convolution;
@@ -25,7 +27,6 @@ using ChromaFx.Processing.Filters.Normalization;
 using ChromaFx.Processing.Filters.Overlays;
 using ChromaFx.Processing.Filters.Pipelines;
 using ChromaFx.Processing.Filters.Resampling;
-using ChromaFx.Processing.Filters.Resampling.Enums;
 using ChromaFx.Processing.Filters.Sharpening;
 using ChromaFx.Processing.Filters.Smoothing;
 using ChromaFx.Processing.Numerics;
@@ -273,7 +274,7 @@ public static class ImageProcessingContextExtensions
     ) => context.Apply(new Vignette(color, xRadius, yRadius));
 
     /// <summary>
-    /// Alpha-blend another image.
+    /// Blend another image (normal alpha composite by default).
     /// </summary>
     public static IImageProcessingContext Blend(
         this IImageProcessingContext context,
@@ -281,6 +282,109 @@ public static class ImageProcessingContextExtensions
         float alpha,
         Rectangle sourceLocation = default
     ) => context.Apply(new Blend(overlay, alpha, sourceLocation));
+
+    /// <summary>
+    /// Blend another image with a Photoshop-style mode (Multiply / Screen / Overlay / SoftLight).
+    /// </summary>
+    public static IImageProcessingContext Blend(
+        this IImageProcessingContext context,
+        Image overlay,
+        float alpha,
+        BlendMode mode,
+        Rectangle sourceLocation = default
+    ) => context.Apply(new Blend(overlay, alpha, mode, sourceLocation));
+
+    /// <summary>
+    /// Remap tonal levels (input/output black–white + midtone gamma). Parameters are 0–1.
+    /// </summary>
+    public static IImageProcessingContext Levels(
+        this IImageProcessingContext context,
+        float inBlack = 0f,
+        float inWhite = 1f,
+        float gamma = 1f,
+        float outBlack = 0f,
+        float outWhite = 1f
+    ) => context.Apply(new Levels(inBlack, inWhite, gamma, outBlack, outWhite));
+
+    /// <summary>
+    /// Greyscale + Laplace edge detect preset.
+    /// </summary>
+    public static IImageProcessingContext EdgeDetect(this IImageProcessingContext context) =>
+        context.Apply(new EdgeDetect());
+
+    /// <summary>
+    /// Morphological opening (erode then dilate).
+    /// </summary>
+    public static IImageProcessingContext MorphOpen(
+        this IImageProcessingContext context,
+        int apertureRadius = 1
+    ) => context.Apply(new MorphOpen(apertureRadius));
+
+    /// <summary>
+    /// Morphological closing (dilate then erode).
+    /// </summary>
+    public static IImageProcessingContext MorphClose(
+        this IImageProcessingContext context,
+        int apertureRadius = 1
+    ) => context.Apply(new MorphClose(apertureRadius));
+
+    /// <summary>
+    /// Maps luminance onto a two-color gradient. Defaults to a classic cool→warm look.
+    /// </summary>
+    public static IImageProcessingContext Duotone(
+        this IImageProcessingContext context,
+        Color? shadow = null,
+        Color? highlight = null
+    ) =>
+        context.Apply(
+            new Duotone(shadow ?? new Color(20, 40, 90), highlight ?? new Color(245, 210, 150))
+        );
+
+    /// <summary>
+    /// Tints toward a color while keeping luminance.
+    /// </summary>
+    public static IImageProcessingContext Colorize(
+        this IImageProcessingContext context,
+        Color tint,
+        float amount = 1f
+    ) => context.Apply(new Colorize(tint, amount));
+
+    /// <summary>
+    /// Directional motion blur.
+    /// </summary>
+    public static IImageProcessingContext MotionBlur(
+        this IImageProcessingContext context,
+        int length = 9,
+        float angleDegrees = 0f
+    ) => context.Apply(new MotionBlur(length, angleDegrees));
+
+    /// <summary>
+    /// Lift shadows / compress highlights (−1…1 amounts).
+    /// </summary>
+    public static IImageProcessingContext ShadowsHighlights(
+        this IImageProcessingContext context,
+        float shadows = 0.25f,
+        float highlights = -0.25f
+    ) => context.Apply(new ShadowsHighlights(shadows, highlights));
+
+    /// <summary>
+    /// Classic oil-paint look.
+    /// </summary>
+    public static IImageProcessingContext OilPaint(
+        this IImageProcessingContext context,
+        int radius = 3,
+        int levels = 20
+    ) => context.Apply(new OilPaint(radius, levels));
+
+    /// <summary>
+    /// Octree palette quantization (2–256 colors) with optional dither. Alpha preserved.
+    /// </summary>
+    public static IImageProcessingContext Quantize(
+        this IImageProcessingContext context,
+        int maxColors = 256,
+        DitherMethod dither = DitherMethod.None,
+        float strength = 0.5f
+    ) => context.Apply(new Quantize(maxColors, dither, strength));
 
     /// <summary>
     /// Adaptive threshold.
@@ -333,13 +437,67 @@ public static class ImageProcessingContextExtensions
     ) => context.Apply(new Filters.Drawing.Line(color, x1, y1, x2, y2));
 
     /// <summary>
+    /// Draws an open polyline. <paramref name="strokeWidth"/> 1 is anti-aliased; larger widths use an opaque square brush.
+    /// </summary>
+    public static IImageProcessingContext DrawPolyline(
+        this IImageProcessingContext context,
+        Color color,
+        int strokeWidth,
+        params Vector2[] points
+    ) =>
+        context.Apply(new Filters.Drawing.Polyline(color, points) { StrokeWidth = strokeWidth });
+
+    /// <summary>
+    /// Draws an open polyline with stroke width 1.
+    /// </summary>
+    public static IImageProcessingContext DrawPolyline(
+        this IImageProcessingContext context,
+        Color color,
+        params Vector2[] points
+    ) => context.DrawPolyline(color, 1, points);
+
+    /// <summary>
+    /// Draws a closed polygon (filled or stroked).
+    /// </summary>
+    public static IImageProcessingContext DrawPolygon(
+        this IImageProcessingContext context,
+        Color color,
+        bool filled,
+        params Vector2[] points
+    ) => context.Apply(new Filters.Drawing.Polygon(color, filled, points));
+
+    /// <summary>
+    /// Draws a closed polygon outline with the given stroke width.
+    /// </summary>
+    public static IImageProcessingContext DrawPolygon(
+        this IImageProcessingContext context,
+        Color color,
+        bool filled,
+        int strokeWidth,
+        params Vector2[] points
+    ) =>
+        context.Apply(
+            new Filters.Drawing.Polygon(color, filled, points) { StrokeWidth = strokeWidth }
+        );
+
+    /// <summary>
+    /// 4-connected flood fill from a seed pixel (exact color match).
+    /// </summary>
+    public static IImageProcessingContext FloodFill(
+        this IImageProcessingContext context,
+        Color color,
+        int x,
+        int y
+    ) => context.Apply(new Filters.Drawing.FloodFill(color, x, y));
+
+    /// <summary>
     /// Skews by X/Y angles in degrees.
     /// </summary>
     public static IImageProcessingContext Skew(
         this IImageProcessingContext context,
         float xAngle,
         float yAngle,
-        ResamplingFiltersAvailable filter = ResamplingFiltersAvailable.NearestNeighbor
+        ResamplingFilter filter = ResamplingFilter.NearestNeighbor
     ) => context.Apply(new Skew(xAngle, yAngle, filter));
 
     /// <summary>

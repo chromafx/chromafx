@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,9 +34,6 @@ public abstract class FormatBase : IImageFormat
     /// <summary>
     /// Gets the format.
     /// </summary>
-    /// <value>
-    /// The format.
-    /// </value>
     public abstract ImageFormatKey Format { get; }
 
     /// <summary>
@@ -45,84 +42,52 @@ public abstract class FormatBase : IImageFormat
     public abstract IImageEncoder CreateEncoder();
 
     /// <summary>
-    /// Gets the decoder (same-assembly subclasses only).
+    /// Gets the decoder (classic File-based formats). Codec formats override the public Decode/CanDecode methods instead.
     /// </summary>
-    private protected abstract IDecoder Decoder { get; }
+    private protected virtual IDecoder Decoder =>
+        throw new NotSupportedException($"{GetType().Name} does not use an IDecoder.");
 
     /// <summary>
-    /// Gets the encoder (same-assembly subclasses only).
+    /// Gets the encoder (classic File-based formats). Codec formats override the public Encode/CanEncode methods instead.
     /// </summary>
-    private protected abstract IEncoder Encoder { get; }
+    private protected virtual IEncoder Encoder =>
+        throw new NotSupportedException($"{GetType().Name} does not use an IEncoder.");
 
-    /// <summary>
-    /// Determines whether this instance can decode the specified stream.
-    /// </summary>
-    /// <param name="stream">The stream.</param>
-    /// <returns>
-    /// True if it can, false otherwise
-    /// </returns>
-    public bool CanDecode(Stream stream)
+    /// <inheritdoc />
+    public virtual bool CanDecode(Stream stream)
     {
         if (stream == null)
             return false;
         return Decoder.CanDecode(stream);
     }
 
-    /// <summary>
-    /// Determines whether this instance can decode the specified header.
-    /// </summary>
-    /// <param name="header">The header data</param>
-    /// <returns>True if it can, false otherwise</returns>
-    public bool CanDecode(byte[] header)
+    /// <inheritdoc />
+    public virtual bool CanDecode(byte[] header)
     {
         if (header == null)
             return false;
         return Decoder.CanDecode(header);
     }
 
-    /// <summary>
-    /// Determines whether this instance can decode the specified file name.
-    /// </summary>
-    /// <param name="fileName">Name of the file.</param>
-    /// <returns>True if it can, false otherwise</returns>
-    public bool CanDecode(string fileName)
+    /// <inheritdoc />
+    public virtual bool CanDecode(string fileName)
     {
         if (string.IsNullOrEmpty(fileName))
             return false;
         return Decoder.CanDecode(fileName);
     }
 
-    /// <summary>
-    /// Determines whether this instance can encode the specified file name.
-    /// </summary>
-    /// <param name="fileName">Name of the file.</param>
-    /// <returns>
-    /// True if it can, false otherwise
-    /// </returns>
-    public bool CanEncode(string fileName)
+    /// <inheritdoc />
+    public virtual bool CanEncode(string fileName)
     {
         if (string.IsNullOrEmpty(fileName))
             return false;
         return Encoder.CanEncode(fileName);
     }
 
-    /// <summary>
-    /// Decodes the specified stream and returns an image
-    /// </summary>
-    /// <param name="stream">The stream containing the image data.</param>
-    /// <returns>The resulting image</returns>
-    public Image Decode(Stream stream)
-    {
-        return Decoder.Decode(stream);
-    }
+    /// <inheritdoc />
+    public virtual Image Decode(Stream stream) => Decoder.Decode(stream);
 
-    /// <summary>
-    /// Encodes an image and places it in the specified writer.
-    /// </summary>
-    /// <param name="writer">The binary writer.</param>
-    /// <param name="image">The image to encode.</param>
-    public void Encode(BinaryWriter writer, Image image)
-    {
-        Encoder.Encode(writer, image);
-    }
+    /// <inheritdoc />
+    public virtual void Encode(BinaryWriter writer, Image image) => Encoder.Encode(writer, image);
 }

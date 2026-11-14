@@ -83,7 +83,24 @@ public class IcoAndExifTests
     public void IcoEncodeRejectsImagesLargerThan256()
     {
         var image = new Image(257, 1);
-        Assert.Throws<ImageException>(() => image.Save(new MemoryStream(), FileFormats.Ico));
+        Assert.Throws<ImageException>(() => image.Save(new MemoryStream(), ManagedFormats.Ico));
+    }
+
+    [Fact]
+    public void IcoEncodeMultiSize_DecodeUsesLargest()
+    {
+        var small = new Image(8, 8);
+        small.GetRowSpan(0)[0] = new Color(255, 0, 0, 255);
+        var large = new Image(16, 16);
+        large.GetRowSpan(0)[0] = new Color(0, 255, 0, 255);
+        using var stream = new MemoryStream();
+        new IcoEncoder().Encode(stream, [small, large]);
+        var bytes = stream.ToArray();
+        Assert.Equal(2, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(4)));
+        var decoded = Image.Load(bytes);
+        Assert.Equal(16, decoded.Width);
+        Assert.Equal(16, decoded.Height);
+        Assert.Equal(new Color(0, 255, 0, 255), decoded[0, 0]);
     }
 
     [Fact]
@@ -112,7 +129,7 @@ public class IcoAndExifTests
         src[0, 0] = new Color(255, 0, 0);
         src[1, 0] = new Color(0, 0, 255);
         using var encoded = new MemoryStream();
-        src.Save(encoded, FileFormats.Png);
+        src.Save(encoded, ManagedFormats.Png);
         var image = Image.Load(InsertPngExif(encoded.ToArray(), 6));
         Assert.Equal(1, image.Width);
         Assert.Equal(2, image.Height);

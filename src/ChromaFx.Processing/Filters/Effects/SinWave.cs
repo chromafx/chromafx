@@ -16,8 +16,7 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.Processing.Filters.Convolution.Enums;
-using ChromaFx.Processing.Filters.Interfaces;
+using ChromaFx.Processing.Filters.Convolution;
 using ChromaFx.Processing.Numerics;
 
 namespace ChromaFx.Processing.Filters.Effects;

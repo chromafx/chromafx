@@ -31,7 +31,7 @@ public class PngFormat : FormatBase
     /// <value>
     /// The format.
     /// </value>
-    public override ImageFormatKey Format => FileFormats.Png;
+    public override ImageFormatKey Format => ManagedFormats.Png;
 
     /// <inheritdoc />
     public override IImageEncoder CreateEncoder() => new PngEncoder();

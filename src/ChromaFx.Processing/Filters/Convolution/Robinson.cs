@@ -15,14 +15,12 @@
  * limitations under the License.
  */
 
-using ChromaFx.Processing.Filters.Convolution.BaseClasses;
-
 namespace ChromaFx.Processing.Filters.Convolution;
 
 /// <summary>
 /// Robinson edge detection
 /// </summary>
-/// <seealso cref="Pipelines.BaseClasses.ProcessingPipelineBaseClass"/>
+/// <seealso cref="Pipelines.ProcessingPipelineBaseClass"/>
 public class Robinson : Convolution2DBaseClass
 {
     /// <summary>

@@ -14,26 +14,40 @@
  * limitations under the License.
  */
 
+using ChromaFx.Core;
 using ChromaFx.IO.Encoders;
 
 namespace ChromaFx.IO.Formats.Ico;
 
 /// <summary>
 /// Windows ICO. Decode uses the largest image (PNG, or uncompressed 1/4/8/24/32-bit BMP with its AND mask).
-/// Encode writes one PNG image, at most 256×256.
+/// Encode writes PNG image(s), each at most 256×256 (use <see cref="IcoEncoder"/> multi-image overload for multi-size).
 /// </summary>
 /// <seealso cref="FormatBase"/>
 public sealed class IcoFormat : FormatBase
 {
     /// <inheritdoc />
-    public override ImageFormatKey Format => FileFormats.Ico;
+    public override ImageFormatKey Format => ManagedFormats.Ico;
 
     /// <inheritdoc />
     public override IImageEncoder CreateEncoder() => new IcoEncoder();
 
     /// <inheritdoc />
-    private protected override IDecoder Decoder => new Decoder();
+    public override bool CanEncode(string fileName) => FormatProbe.HasExtension(fileName, ".ico");
 
     /// <inheritdoc />
-    private protected override IEncoder Encoder => new Encoder();
+    public override void Encode(BinaryWriter writer, Image image) => IcoCodec.Encode(writer, image);
+
+    /// <inheritdoc />
+    public override bool CanDecode(string fileName) => CanEncode(fileName);
+
+    /// <inheritdoc />
+    public override bool CanDecode(byte[] header) => header != null && IcoCodec.LooksLike(header);
+
+    /// <inheritdoc />
+    public override bool CanDecode(Stream stream) =>
+        FormatProbe.LooksLikeAtStart(stream, 22, IcoCodec.LooksLike);
+
+    /// <inheritdoc />
+    public override Image Decode(Stream stream) => IcoCodec.Decode(stream);
 }

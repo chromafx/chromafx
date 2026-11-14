@@ -18,9 +18,7 @@
 using System.Buffers;
 using ChromaFx.Core;
 using ChromaFx.Core.Colors;
-using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
-using ChromaFx.Processing.Numerics.Interfaces;
 
 namespace ChromaFx.Processing.Filters.Normalization;
 
@@ -171,7 +169,7 @@ public class AdaptiveEqualize(int radius, Func<IHistogram> histogram = null) : I
                     UpdateColumn(source, width, histogram, added, rowStart, rowEnd, 1);
             }
 
-            float total =
+            var total =
                 (Math.Min(width, x + radius) - Math.Max(0, x - radius)) * (rowEnd - rowStart);
             var color = source[y * width + x];
             row[x].Red = EqualizeValue(histogram[..256], color.Red, total);
@@ -199,26 +197,42 @@ public class AdaptiveEqualize(int radius, Func<IHistogram> histogram = null) : I
         }
     }
 
-    private static byte EqualizeValue(ReadOnlySpan<int> histogram, int value, float total)
+    /// <summary>
+    /// Integer CDF remap (truncating division). Same structure as the old float path, but
+    /// cross-platform bit-identical — no float divide near byte boundaries.
+    /// </summary>
+    private static byte EqualizeValue(ReadOnlySpan<int> histogram, int value, int total)
     {
+        if (total <= 0)
+            return (byte)value;
+
         var min = 0;
         while (histogram[min] == 0)
             ++min;
-        float cumulative = histogram[0];
+        var cumulative = histogram[0];
         for (var i = 1; i <= value; ++i)
             cumulative += histogram[i];
+
         if (min == 0)
         {
-            var first = histogram[0] * 256f / total;
-            return value == 0 ? (byte)first : (byte)((cumulative - first) / (total - first) * 255);
+            var first = histogram[0] * 256 / total;
+            if (value == 0)
+                return (byte)Math.Clamp(first, 0, 255);
+            var denom = total - first;
+            if (denom <= 0)
+                return 0;
+            return (byte)Math.Clamp((cumulative - first) * 255 / denom, 0, 255);
         }
 
         if (value == min)
         {
-            float count = histogram[min];
-            return (byte)((cumulative - count) / (total - count) * 255);
+            var count = histogram[min];
+            var denom = total - count;
+            if (denom <= 0)
+                return 0;
+            return (byte)Math.Clamp((cumulative - count) * 255 / denom, 0, 255);
         }
 
-        return (byte)(cumulative / total * 255);
+        return (byte)Math.Clamp(cumulative * 255 / total, 0, 255);
     }
 }

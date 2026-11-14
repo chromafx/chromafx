@@ -17,7 +17,7 @@
 
 using System.Runtime.InteropServices;
 using ChromaFx.Core.Colors;
-using ChromaFx.Core.ExtensionMethods;
+using ChromaFx.Core;
 
 namespace ChromaFx.IO.Formats.Png.Format.ColorFormats;
 

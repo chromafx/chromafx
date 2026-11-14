@@ -18,7 +18,7 @@ namespace ChromaFx.IO.Formats;
 
 /// <summary>
 /// Open format id. Equality is the name compared ordinal-ignore-case.
-/// Well-known managed ids live on <see cref="FileFormats"/>; other packages
+/// Well-known managed ids live on <see cref="ManagedFormats"/>; other packages
 /// declare their own <see cref="ImageFormatKey"/> values.
 /// </summary>
 public readonly struct ImageFormatKey : IEquatable<ImageFormatKey>

@@ -16,8 +16,6 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.Core.ExtensionMethods;
-using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
 using ChromaFx.Processing.Procedural;
 

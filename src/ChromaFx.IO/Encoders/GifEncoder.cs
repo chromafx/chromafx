@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-using System.Text;
 using ChromaFx.Core;
 using ChromaFx.IO.Formats;
 using ChromaFx.IO.Formats.Gif;
@@ -27,23 +26,13 @@ namespace ChromaFx.IO.Encoders;
 public sealed class GifEncoder : IImageEncoder, IAnimationEncoder
 {
     /// <inheritdoc />
-    public ImageFormatKey Format => FileFormats.Gif;
+    public ImageFormatKey Format => ManagedFormats.Gif;
 
     /// <inheritdoc />
-    public void Encode(Stream stream, Image image)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        ArgumentNullException.ThrowIfNull(image);
-        using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
-        new GifFormat().Encode(writer, image);
-    }
+    public void Encode(Stream stream, Image image) =>
+        EncoderIO.Write(stream, image, (w, img) => new GifFormat().Encode(w, img));
 
     /// <inheritdoc />
-    public void Encode(Stream stream, Animation animation)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        ArgumentNullException.ThrowIfNull(animation);
-        using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
-        new GifFormat().Encode(writer, animation);
-    }
+    public void Encode(Stream stream, Animation animation) =>
+        EncoderIO.Write(stream, animation, (w, anim) => new GifFormat().Encode(w, anim));
 }

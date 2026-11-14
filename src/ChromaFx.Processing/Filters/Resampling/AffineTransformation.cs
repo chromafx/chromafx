@@ -17,8 +17,6 @@
 
 using System.Numerics;
 using ChromaFx.Core;
-using ChromaFx.Processing.Filters.Resampling.BaseClasses;
-using ChromaFx.Processing.Filters.Resampling.Enums;
 using ChromaFx.Processing.Numerics;
 
 namespace ChromaFx.Processing.Filters.Resampling;
@@ -38,7 +36,7 @@ public class AffineTransformation(
     Matrix3x2 matrix,
     int width = -1,
     int height = -1,
-    ResamplingFiltersAvailable filter = ResamplingFiltersAvailable.NearestNeighbor
+    ResamplingFilter filter = ResamplingFilter.NearestNeighbor
 ) : AffineBaseClass(width, height, filter)
 {
     /// <summary>

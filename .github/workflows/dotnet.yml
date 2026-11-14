@@ -77,6 +77,15 @@ jobs:
           path: src/ChromaFx.Native/runtimes/win-x64
           key: native-codecs-${{ steps.hash.outputs.hash }}-win-x64
 
+      - name: Look up win-arm64
+        id: win-arm64
+        uses: actions/cache/restore@v6
+        with:
+          lookup-only: true
+          enableCrossOsArchive: true
+          path: src/ChromaFx.Native/runtimes/win-arm64
+          key: native-codecs-${{ steps.hash.outputs.hash }}-win-arm64
+
       - name: Decide whether to compile
         id: plan
         env:
@@ -87,12 +96,13 @@ jobs:
           HIT_osx_arm64: ${{ steps.osx-arm64.outputs.cache-hit }}
           HIT_osx_x64: ${{ steps.osx-x64.outputs.cache-hit }}
           HIT_win_x64: ${{ steps.win-x64.outputs.cache-hit }}
+          HIT_win_arm64: ${{ steps.win-arm64.outputs.cache-hit }}
         run: |
           set -euo pipefail
           echo "Native input hash: ${HASH}"
           if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" || "${GITHUB_REF}" == refs/tags/* ]]; then
             if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" && ( "${GITHUB_REF}" == "refs/heads/master" || "${GITHUB_REF}" == "refs/heads/legacy" ) ]]; then
-              for rid in linux-x64 linux-arm64 osx-arm64 osx-x64 win-x64; do
+              for rid in linux-x64 linux-arm64 osx-arm64 osx-x64 win-x64 win-arm64; do
                 if ! gh api --method DELETE "/repos/${GITHUB_REPOSITORY}/actions/caches?key=native-codecs-${HASH}-${rid}"; then
                   echo "Cache delete failed for ${rid}. This run still rebuilds."
                 fi
@@ -102,7 +112,7 @@ jobs:
             exit 0
           fi
           rebuild=false
-          for rid in linux-x64 linux-arm64 osx-arm64 osx-x64 win-x64; do
+          for rid in linux-x64 linux-arm64 osx-arm64 osx-x64 win-x64 win-arm64; do
             hit="$(printenv "HIT_${rid//-/_}")"
             echo "${rid}: cache-hit=${hit:-false}"
             if [[ "${hit}" != "true" ]]; then
@@ -130,6 +140,8 @@ jobs:
             rid: osx-x64
           - os: windows-latest
             rid: win-x64
+          - os: windows-11-arm
+            rid: win-arm64
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -153,7 +165,7 @@ jobs:
           esac
 
       - name: MSVC environment
-        if: matrix.os == 'windows-latest'
+        if: startsWith(matrix.os, 'windows')
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Build codecs
@@ -242,6 +254,15 @@ jobs:
           path: src/ChromaFx.Native/runtimes/win-x64
           key: native-codecs-${{ needs.prepare.outputs.hash }}-win-x64
 
+      - name: Restore cached win-arm64
+        if: needs.native.result == 'skipped'
+        uses: actions/cache/restore@v6
+        with:
+          fail-on-cache-miss: true
+          enableCrossOsArchive: true
+          path: src/ChromaFx.Native/runtimes/win-arm64
+          key: native-codecs-${{ needs.prepare.outputs.hash }}-win-arm64
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
         with:
@@ -257,7 +278,7 @@ jobs:
             VERSION=${RAW#v}
           else
             # master / legacy / PRs — build identity only; never published
-            VERSION="0.6.3-ci.${GITHUB_RUN_NUMBER}"
+            VERSION="0.6.4-ci.${GITHUB_RUN_NUMBER}"
           fi
           echo "Version set to $VERSION"
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"

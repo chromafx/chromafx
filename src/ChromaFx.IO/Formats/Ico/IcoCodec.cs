@@ -105,30 +105,51 @@ internal static class IcoCodec
         return DecodeDib(payload);
     }
 
-    internal static void Encode(BinaryWriter writer, Image image)
+    internal static void Encode(BinaryWriter writer, Image image) =>
+        Encode(writer, (IReadOnlyList<Image>)[image]);
+
+    internal static void Encode(BinaryWriter writer, IReadOnlyList<Image> images)
     {
         ArgumentNullException.ThrowIfNull(writer);
-        ArgumentNullException.ThrowIfNull(image);
-        if (image.Width is < 1 or > 256 || image.Height is < 1 or > 256)
-            throw new ImageException("ICO images must be between 1×1 and 256×256.");
+        ArgumentNullException.ThrowIfNull(images);
+        if (images.Count is < 1 or > 256)
+            throw new ImageException("ICO must contain between 1 and 256 images.");
 
-        using var png = new MemoryStream();
-        using (var pngWriter = new BinaryWriter(png, Encoding.UTF8, leaveOpen: true))
-            new PngFormat().Encode(pngWriter, image);
-        var bytes = png.ToArray();
+        var pngs = new byte[images.Count][];
+        for (var i = 0; i < images.Count; i++)
+        {
+            var image =
+                images[i]
+                ?? throw new ArgumentNullException(nameof(images), $"ICO image at index {i} is null.");
+            if (image.Width is < 1 or > 256 || image.Height is < 1 or > 256)
+                throw new ImageException("ICO images must be between 1×1 and 256×256.");
+
+            using var png = new MemoryStream();
+            using (var pngWriter = new BinaryWriter(png, Encoding.UTF8, leaveOpen: true))
+                new PngFormat().Encode(pngWriter, image);
+            pngs[i] = png.ToArray();
+        }
 
         writer.Write((ushort)0);
         writer.Write((ushort)1);
-        writer.Write((ushort)1);
-        writer.Write((byte)(image.Width == 256 ? 0 : image.Width));
-        writer.Write((byte)(image.Height == 256 ? 0 : image.Height));
-        writer.Write((byte)0);
-        writer.Write((byte)0);
-        writer.Write((ushort)1);
-        writer.Write((ushort)32);
-        writer.Write(bytes.Length);
-        writer.Write(22);
-        writer.Write(bytes);
+        writer.Write((ushort)images.Count);
+        var offset = 6 + images.Count * 16;
+        for (var i = 0; i < images.Count; i++)
+        {
+            var image = images[i];
+            writer.Write((byte)(image.Width == 256 ? 0 : image.Width));
+            writer.Write((byte)(image.Height == 256 ? 0 : image.Height));
+            writer.Write((byte)0);
+            writer.Write((byte)0);
+            writer.Write((ushort)1);
+            writer.Write((ushort)32);
+            writer.Write(pngs[i].Length);
+            writer.Write(offset);
+            offset += pngs[i].Length;
+        }
+
+        for (var i = 0; i < pngs.Length; i++)
+            writer.Write(pngs[i]);
     }
 
     private static Image DecodeDib(ReadOnlySpan<byte> payload)

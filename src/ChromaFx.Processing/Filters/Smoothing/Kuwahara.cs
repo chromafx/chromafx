@@ -17,7 +17,6 @@
 
 using ChromaFx.Core;
 using ChromaFx.Core.Colors;
-using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
 
 namespace ChromaFx.Processing.Filters.Smoothing;

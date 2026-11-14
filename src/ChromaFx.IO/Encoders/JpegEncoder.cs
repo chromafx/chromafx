@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-using System.Text;
 using ChromaFx.Core;
 using ChromaFx.IO.Formats;
 
@@ -31,15 +30,16 @@ public sealed class JpegEncoder : IImageEncoder
     public int Quality { get; set; } = 90;
 
     /// <inheritdoc />
-    public ImageFormatKey Format => FileFormats.Jpeg;
+    public ImageFormatKey Format => ManagedFormats.Jpeg;
 
     /// <inheritdoc />
     public void Encode(Stream stream, Image image)
     {
-        ArgumentNullException.ThrowIfNull(stream);
-        ArgumentNullException.ThrowIfNull(image);
         var quality = Math.Clamp(Quality, 1, 100);
-        using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
-        new ChromaFx.IO.Formats.Jpeg.Format.File().Write(writer, image, quality);
+        EncoderIO.Write(
+            stream,
+            image,
+            (w, img) => new Formats.Jpeg.Format.File().Write(w, img, quality)
+        );
     }
 }

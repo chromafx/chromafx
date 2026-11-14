@@ -162,7 +162,7 @@ public class ApiSurfaceTests
         var red = new Image(4, 4);
         red.Buffer.Fill(Color.RedColor);
         var animation = new Animation([red], [20]) { RepeatCount = 1 };
-        var bytes = animation.ToByteArray(FileFormats.Gif);
+        var bytes = animation.ToByteArray(ManagedFormats.Gif);
         Assert.True(bytes.Length > 6);
         Assert.Equal((byte)'G', bytes[0]);
 
@@ -259,7 +259,7 @@ public class ApiSurfaceTests
         blue.Buffer.Fill(Color.BlueColor);
 
         var animation = new Animation([red, blue], [5, 5]) { RepeatCount = 0 };
-        var bytes = animation.ToByteArray(FileFormats.Gif);
+        var bytes = animation.ToByteArray(ManagedFormats.Gif);
         var loaded = Animation.Load(bytes);
         Assert.Equal((ushort)0, loaded.RepeatCount);
     }
@@ -289,7 +289,7 @@ public class ApiSurfaceTests
         var red = new Image(2, 2);
         red.Buffer.Fill(Color.RedColor);
         var animation = new Animation([red], [10]) { RepeatCount = 1 };
-        var b64 = animation.ToBase64String(FileFormats.Gif);
+        var b64 = animation.ToBase64String(ManagedFormats.Gif);
         var bytes = Convert.FromBase64String(b64);
         Assert.Equal((byte)'G', bytes[0]);
         Assert.Equal((byte)'I', bytes[1]);
@@ -306,8 +306,8 @@ public class ApiSurfaceTests
     [Fact]
     public void TryGetFormatFindsBuiltInPng()
     {
-        Assert.True(ImageFormats.TryGetFormat(FileFormats.Png, out var format));
-        Assert.Equal(FileFormats.Png, format!.Format);
+        Assert.True(ImageFormats.TryGetFormat(ManagedFormats.Png, out var format));
+        Assert.Equal(ManagedFormats.Png, format!.Format);
     }
 
     [Fact]

@@ -18,7 +18,6 @@
 using ChromaFx.Core.Colors;
 using ChromaFx.Processing.Filters.ColorMatrix;
 using ChromaFx.Processing.Filters.Overlays;
-using ChromaFx.Processing.Filters.Pipelines.BaseClasses;
 
 namespace ChromaFx.Processing.Filters.Pipelines;
 

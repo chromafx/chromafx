@@ -18,10 +18,6 @@
 using System.Numerics;
 using ChromaFx.Core;
 using ChromaFx.Core.Colors;
-using ChromaFx.Processing.Filters.Interfaces;
-using ChromaFx.Processing.Filters.Resampling.Enums;
-using ChromaFx.Processing.Filters.Resampling.ResamplingFilters;
-using ChromaFx.Processing.Filters.Resampling.ResamplingFilters.Interfaces;
 using ChromaFx.Processing.Numerics;
 
 namespace ChromaFx.Processing.Filters.Resampling;
@@ -36,13 +32,13 @@ namespace ChromaFx.Processing.Filters.Resampling;
 /// <param name="height">The new height.</param>
 /// <param name="width">The new width.</param>
 /// <param name="filter">The filter.</param>
-public class Resize(int width, int height, ResamplingFiltersAvailable filter) : IFilter
+public class Resize(int width, int height, ResamplingFilter filter) : IFilter
 {
     /// <summary>
     /// Gets or sets the filter.
     /// </summary>
     /// <value>The filter.</value>
-    public IResamplingFilter Filter { get; set; } = FilterList.Filters[filter];
+    public IResamplingFilter Filter { get; set; } = ResamplingKernels.Create(filter);
 
     /// <summary>
     /// Gets or sets the height.

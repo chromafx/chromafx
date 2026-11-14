@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-using ChromaFx.IO.Formats.Jpeg.Format.Exceptions;
-
 namespace ChromaFx.IO.Formats.Jpeg.Format;
 
 /// <summary>

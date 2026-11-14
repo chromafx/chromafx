@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+using ChromaFx.Core;
 using ChromaFx.IO.Encoders;
 
 namespace ChromaFx.IO.Formats.Tga;
@@ -25,14 +26,28 @@ namespace ChromaFx.IO.Formats.Tga;
 public sealed class TgaFormat : FormatBase
 {
     /// <inheritdoc />
-    public override ImageFormatKey Format => FileFormats.Tga;
+    public override ImageFormatKey Format => ManagedFormats.Tga;
 
     /// <inheritdoc />
     public override IImageEncoder CreateEncoder() => new TgaEncoder();
 
     /// <inheritdoc />
-    private protected override IDecoder Decoder => new Decoder();
+    public override bool CanEncode(string fileName) =>
+        FormatProbe.HasExtension(fileName, ".tga", ".targa");
 
     /// <inheritdoc />
-    private protected override IEncoder Encoder => new Encoder();
+    public override void Encode(BinaryWriter writer, Image image) => TgaCodec.Encode(writer, image);
+
+    /// <inheritdoc />
+    public override bool CanDecode(string fileName) => CanEncode(fileName);
+
+    /// <inheritdoc />
+    public override bool CanDecode(byte[] header) => header != null && TgaCodec.LooksLike(header);
+
+    /// <inheritdoc />
+    public override bool CanDecode(Stream stream) =>
+        FormatProbe.LooksLikeAtStart(stream, 18, TgaCodec.LooksLike);
+
+    /// <inheritdoc />
+    public override Image Decode(Stream stream) => TgaCodec.Decode(stream);
 }

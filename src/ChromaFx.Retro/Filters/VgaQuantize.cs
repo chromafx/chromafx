@@ -15,69 +15,44 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.Processing.Filters.Interfaces;
+using ChromaFx.Core.Quantization;
+using ChromaFx.Processing.Filters;
 using ChromaFx.Processing.Numerics;
 
 namespace ChromaFx.Retro.Filters;
 
 /// <summary>
-/// Snaps each RGB channel to 6-bit VGA color levels (64 levels per channel, 
+/// Snaps each RGB channel to 6-bit VGA color levels (64 levels per channel,
 /// multiples of 4). Alpha is preserved.
+/// Optional ordered dither biases channels before the LUT snap.
 /// </summary>
-public sealed class VgaQuantize : IFilter
+/// <param name="dither">Ordered dither method; default is none.</param>
+/// <param name="strength">Dither strength (0 = none; ~0.25–0.5 typical for subtle VGA looks).</param>
+public sealed class VgaQuantize(
+    OrderedDitherMethod dither = OrderedDitherMethod.None,
+    float strength = 0.5f
+) : IFilter
 {
-    private const int ParallelPixelThreshold = 65536;
     private static readonly byte[] Lut = CreateLut();
 
-    public Image Apply(Image image, Rectangle targetLocation = default)
-    {
-        targetLocation = targetLocation.Normalize(image);
-        int left = targetLocation.Left;
-        int right = targetLocation.Right;
-        int bottom = targetLocation.Bottom;
-        int top = targetLocation.Top;
-        int pixelCount = (top - bottom) * (right - left);
-        var lut = Lut;
+    /// <summary>Gets the dither method.</summary>
+    public OrderedDitherMethod Dither { get; } = dither;
 
-        void ProcessRow(int y)
-        {
-            var row = image.GetRowSpan(y);
-            for (var x = left; x < right; ++x)
-            {
-                ref var pixel = ref row[x];
-                pixel.Red = lut[pixel.Red];
-                pixel.Green = lut[pixel.Green];
-                pixel.Blue = lut[pixel.Blue];
-            }
-        }
+    /// <summary>Gets the dither strength.</summary>
+    public float Strength { get; } = strength;
 
-        if (pixelCount < ParallelPixelThreshold || top - bottom <= 1)
-        {
-            for (var y = bottom; y < top; ++y)
-                ProcessRow(y);
-        }
-        else
-        {
-            Parallel.For(bottom, top, ProcessRow);
-        }
+    /// <inheritdoc />
+    public Image Apply(Image image, Rectangle targetLocation = default) =>
+        ChannelLutFilter.Apply(image, targetLocation, Lut, Dither, Strength);
 
-        return image;
-    }
-
-    /// <summary>
-    /// Maps a single channel to the nearest 6-bit VGA DAC level (0..252 step 4).
-    /// </summary>
+    /// <summary>Maps a single channel to the nearest 6-bit VGA DAC level (0..252 step 4).</summary>
     internal static byte SnapChannel(byte value) => Lut[value];
 
     private static byte[] CreateLut()
     {
         var lut = new byte[256];
         for (var i = 0; i < 256; ++i)
-        {
-            // Nearest of 0, 4, …, 252 (6-bit DAC expanded as v << 2). Clamp so 254/255
-            // do not overflow to 0 via (byte)256.
             lut[i] = (byte)(Math.Min(252, (i + 2) / 4 * 4));
-        }
         return lut;
     }
 }

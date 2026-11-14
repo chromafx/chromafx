@@ -18,7 +18,6 @@
 using ChromaFx.Core;
 using ChromaFx.Processing.Filters.Arithmetic;
 using ChromaFx.Processing.Filters.Convolution;
-using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
 
 namespace ChromaFx.Processing.Filters.Sharpening;

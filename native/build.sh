@@ -45,7 +45,7 @@ OUT="$ROOT/src/ChromaFx.Native/runtimes/$RID/native"
 CMAKE_EXTRA=()
 
 case "$RID" in
-  linux-x64 | linux-arm64 | osx-arm64 | osx-x64 | win-x64) ;;
+  linux-x64 | linux-arm64 | osx-arm64 | osx-x64 | win-x64 | win-arm64) ;;
   *)
     echo "unsupported rid: $RID" >&2
     exit 1

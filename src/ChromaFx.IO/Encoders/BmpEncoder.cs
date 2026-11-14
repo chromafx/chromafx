@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-using System.Text;
 using ChromaFx.Core;
 using ChromaFx.IO.Formats;
 using ChromaFx.IO.Formats.Bmp;
@@ -27,14 +26,9 @@ namespace ChromaFx.IO.Encoders;
 public sealed class BmpEncoder : IImageEncoder
 {
     /// <inheritdoc />
-    public ImageFormatKey Format => FileFormats.Bmp;
+    public ImageFormatKey Format => ManagedFormats.Bmp;
 
     /// <inheritdoc />
-    public void Encode(Stream stream, Image image)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        ArgumentNullException.ThrowIfNull(image);
-        using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
-        new BmpFormat().Encode(writer, image);
-    }
+    public void Encode(Stream stream, Image image) =>
+        EncoderIO.Write(stream, image, (w, img) => new BmpFormat().Encode(w, img));
 }

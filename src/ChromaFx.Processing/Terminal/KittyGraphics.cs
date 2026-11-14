@@ -20,7 +20,7 @@ namespace ChromaFx.Processing.Terminal;
 
 /// <summary>
 /// Kitty graphics protocol (PNG over APC). Pure managed; no shared memory.
-/// Encode with <c>image.ToByteArray(FileFormats.Png)</c> (ChromaFx.IO), then call
+/// Encode with <c>image.ToByteArray(ManagedFormats.Png)</c> (ChromaFx.IO), then call
 /// <see cref="FromPng"/>.
 /// </summary>
 public static class KittyGraphics

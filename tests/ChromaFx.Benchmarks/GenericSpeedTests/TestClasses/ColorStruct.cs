@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
-using ChromaFx.Core.ExtensionMethods;
+using ChromaFx.Core;
 
 namespace ChromaFx.Benchmarks.GenericSpeedTests.TestClasses;
 

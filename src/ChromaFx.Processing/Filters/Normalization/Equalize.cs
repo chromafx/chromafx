@@ -16,9 +16,7 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.Processing.Filters.Interfaces;
 using ChromaFx.Processing.Numerics;
-using ChromaFx.Processing.Numerics.Interfaces;
 using ChromaFx.Processing.Simd;
 
 namespace ChromaFx.Processing.Filters.Normalization;

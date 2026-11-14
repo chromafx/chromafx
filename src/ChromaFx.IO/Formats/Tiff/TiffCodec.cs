@@ -51,17 +51,48 @@ internal static class TiffCodec
         return new Reader(ReadAll(stream)).Decode();
     }
 
-    internal static void Encode(BinaryWriter writer, Image image)
+    internal static void Encode(
+        BinaryWriter writer,
+        Image image,
+        TiffCompression compression = TiffCompression.None
+    )
     {
         ArgumentNullException.ThrowIfNull(writer);
         ArgumentNullException.ThrowIfNull(image);
         if (image.Width <= 0 || image.Height <= 0 || (long)image.Width * image.Height > MaxPixels)
             throw new ImageException("TIFF image is too large.");
+        if (compression is not (TiffCompression.None or TiffCompression.Deflate))
+            throw new ImageException($"TIFF compression {(int)compression} is not supported for encode.");
+
+        var raw = new byte[checked(image.Width * image.Height * 4)];
+        var o = 0;
+        for (var y = 0; y < image.Height; y++)
+        {
+            var row = image.GetRowSpan(y);
+            for (var x = 0; x < image.Width; x++)
+            {
+                var color = row[x];
+                raw[o++] = color.Red;
+                raw[o++] = color.Green;
+                raw[o++] = color.Blue;
+                raw[o++] = color.Alpha;
+            }
+        }
+
+        byte[] strip = raw;
+        ushort compressionTag = CompressionNone;
+        if (compression == TiffCompression.Deflate)
+        {
+            using var compressed = new MemoryStream();
+            using (var zlib = new ZLibStream(compressed, CompressionLevel.Optimal, leaveOpen: true))
+                zlib.Write(raw);
+            strip = compressed.ToArray();
+            compressionTag = CompressionDeflate;
+        }
 
         const int tagCount = 11;
         var bitsAt = 8 + 2 + tagCount * 12 + 4;
         var dataAt = bitsAt + 8;
-        var byteCount = image.Width * image.Height * 4;
 
         Span<byte> header = stackalloc byte[8];
         header[0] = (byte)'I';
@@ -73,12 +104,12 @@ internal static class TiffCodec
         WriteLong(writer, 256, image.Width);
         WriteLong(writer, 257, image.Height);
         WriteField(writer, 258, 3, 4, bitsAt);
-        WriteShort(writer, 259, 1);
+        WriteShort(writer, 259, compressionTag);
         WriteShort(writer, 262, 2);
         WriteLong(writer, 273, dataAt);
         WriteShort(writer, 277, 4);
         WriteLong(writer, 278, image.Height);
-        WriteLong(writer, 279, byteCount);
+        WriteLong(writer, 279, strip.Length);
         WriteShort(writer, 284, 1);
         WriteShort(writer, 338, 2);
         writer.Write(0);
@@ -86,21 +117,7 @@ internal static class TiffCodec
         writer.Write((ushort)8);
         writer.Write((ushort)8);
         writer.Write((ushort)8);
-
-        Span<byte> pixel = stackalloc byte[4];
-        for (var y = 0; y < image.Height; y++)
-        {
-            var row = image.GetRowSpan(y);
-            for (var x = 0; x < image.Width; x++)
-            {
-                var color = row[x];
-                pixel[0] = color.Red;
-                pixel[1] = color.Green;
-                pixel[2] = color.Blue;
-                pixel[3] = color.Alpha;
-                writer.Write(pixel);
-            }
-        }
+        writer.Write(strip);
     }
 
     private static void WriteShort(BinaryWriter writer, ushort tag, ushort value)

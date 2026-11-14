@@ -17,9 +17,6 @@
 
 using System.Numerics;
 using ChromaFx.Core;
-using ChromaFx.Processing.Filters.Interfaces;
-using ChromaFx.Processing.Filters.Resampling.BaseClasses;
-using ChromaFx.Processing.Filters.Resampling.Enums;
 using ChromaFx.Processing.Numerics;
 
 namespace ChromaFx.Processing.Filters.Resampling;
@@ -38,7 +35,7 @@ namespace ChromaFx.Processing.Filters.Resampling;
 public class Skew(
     float xAngle,
     float yAngle,
-    ResamplingFiltersAvailable filter = ResamplingFiltersAvailable.NearestNeighbor
+    ResamplingFilter filter = ResamplingFilter.NearestNeighbor
 ) : AffineBaseClass(filter: filter)
 {
     /// <summary>

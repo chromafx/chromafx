@@ -19,7 +19,6 @@ using System.Text;
 using ChromaFx.Core;
 using ChromaFx.IO.Converters;
 using ChromaFx.IO.Formats.Gif.Quantizers;
-using ChromaFx.IO.Formats.Gif.Quantizers.Octree;
 
 namespace ChromaFx.IO.Formats.Gif.Format;
 
@@ -85,7 +84,7 @@ internal class File : FileBase
     /// Gets or sets the quantizer.
     /// </summary>
     /// <value>The quantizer.</value>
-    public IQuantizer Quantizer { get; set; }
+    public OctreeQuantizer Quantizer { get; private set; }
 
     /// <summary>
     /// Gets the screen descriptor.

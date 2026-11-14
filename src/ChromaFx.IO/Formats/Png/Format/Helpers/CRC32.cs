@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-using ChromaFx.Core.ExtensionMethods;
+using ChromaFx.Core;
 
 namespace ChromaFx.IO.Formats.Png.Format.Helpers;
 

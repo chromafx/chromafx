@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-using ChromaFx.Processing.Filters.ColorMatrix.BaseClasses;
 using ChromaFx.Processing.Numerics;
 
 namespace ChromaFx.Processing.Filters.ColorMatrix;

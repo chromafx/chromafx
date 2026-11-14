@@ -19,6 +19,7 @@ public class NormalizationFilters : FilterTestBaseClass
         { "HSVEqualize", new Equalize(new HsvHistogram()), default },
         { "Equalize", new Equalize(), default },
         { "StretchContrast", new StretchContrast(), default },
+        { "Levels", new Levels(0.1f, 0.9f, 1.2f), default },
         { "Logarithm-Partial", new Logarithm(), new Rectangle(100, 100, 500, 500) },
         { "Gamma-Partial", new Gamma(.2f), new Rectangle(100, 100, 500, 500) },
         { "AdaptiveEqualize-Partial", new AdaptiveEqualize(5), new Rectangle(100, 100, 500, 500) },

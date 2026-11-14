@@ -1,7 +1,5 @@
 ﻿using ChromaFx.Core;
 using ChromaFx.Core.Colors;
-using ChromaFx.Core.Colors.ColorSpaces;
-using ChromaFx.Processing.Numerics.Interfaces;
 
 namespace ChromaFx.Processing.Numerics;
 

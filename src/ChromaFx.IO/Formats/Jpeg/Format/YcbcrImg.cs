@@ -20,8 +20,6 @@ using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using ChromaFx.Core;
 using ChromaFx.Core.Colors;
-using ChromaFx.Core.Colors.ColorSpaces;
-using ChromaFx.Core.ExtensionMethods;
 using ChromaFx.IO.Formats.Jpeg.Format.Enums;
 using ChromaFx.IO.Formats.Jpeg.Format.Segments;
 

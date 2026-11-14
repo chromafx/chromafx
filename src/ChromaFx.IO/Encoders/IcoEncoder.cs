@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-using System.Text;
 using ChromaFx.Core;
 using ChromaFx.IO.Formats;
 using ChromaFx.IO.Formats.Ico;
@@ -22,19 +21,22 @@ using ChromaFx.IO.Formats.Ico;
 namespace ChromaFx.IO.Encoders;
 
 /// <summary>
-/// ICO encoder (one PNG image, at most 256×256).
+/// ICO encoder. Each image is stored as PNG, at most 256×256.
+/// Use the multi-image <c>Encode</c> overload for multi-size icons.
 /// </summary>
 public sealed class IcoEncoder : IImageEncoder
 {
     /// <inheritdoc />
-    public ImageFormatKey Format => FileFormats.Ico;
+    public ImageFormatKey Format => ManagedFormats.Ico;
 
     /// <inheritdoc />
-    public void Encode(Stream stream, Image image)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        ArgumentNullException.ThrowIfNull(image);
-        using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
-        new IcoFormat().Encode(writer, image);
-    }
+    public void Encode(Stream stream, Image image) =>
+        EncoderIO.Write(stream, image, (w, img) => new IcoFormat().Encode(w, img));
+
+    /// <summary>
+    /// Encodes one or more PNG images into a single ICO (1–256 entries, each ≤256×256).
+    /// Decode still returns the largest directory entry.
+    /// </summary>
+    public void Encode(Stream stream, IReadOnlyList<Image> images) =>
+        EncoderIO.Write(stream, images, IcoCodec.Encode);
 }

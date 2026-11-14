@@ -31,7 +31,7 @@ public class GifFormat : AnimationFormatBase
     /// <value>
     /// The format.
     /// </value>
-    public override ImageFormatKey Format => FileFormats.Gif;
+    public override ImageFormatKey Format => ManagedFormats.Gif;
 
     /// <inheritdoc />
     public override IImageEncoder CreateEncoder() => new GifEncoder();

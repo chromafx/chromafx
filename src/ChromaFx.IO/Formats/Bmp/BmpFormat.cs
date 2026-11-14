@@ -31,7 +31,7 @@ public class BmpFormat : FormatBase
     /// <value>
     /// The format.
     /// </value>
-    public override ImageFormatKey Format => FileFormats.Bmp;
+    public override ImageFormatKey Format => ManagedFormats.Bmp;
 
     /// <inheritdoc />
     public override IImageEncoder CreateEncoder() => new BmpEncoder();

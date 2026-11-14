@@ -8,6 +8,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Samples: `samples/PixelArt` (upscalers → PNG) and `samples/NativeCodecs` (still WebP/AVIF/JXL round-trip; needs `native/build.sh`).
+- Drawing: `Polygon` / `Polyline` (optional stroke width; width 1 is AA, wider uses an opaque square brush), `FloodFill` (4-connected exact-color). Fluent: `DrawPolygon`, `DrawPolyline`, `FloodFill`.
+- **`ChromaFx.Retro`**: optional ordered dither on quantizers via `OrderedDitherMethod` (`None`, `Bayer4x4`, `Bayer8x8`) and `strength`. Default `None` keeps undithered snaps bit-identical. Fluent: `WebSafeQuantize(dither, strength)`, same pattern on `CgaQuantize` / `EgaQuantize` / `VgaQuantize`.
+- **`ChromaFx.Retro`**: `BadWebScale` — nearest-neighbor downsample then upsample (optional web-safe on the small image). Fluent: `BadWebScale(factor, webSafe, dither, strength)`.
+- **`ChromaFx.Retro`**: `Bevel` — soft lighten/darken edge bevels (raised/pressed, optional expand + strength); `RetroMode` (nearest-neighbor resolution snap, default 320×200). Fluent: `Bevel(...)`, `RetroMode(w, h)`.
+- **Blend modes**: `BlendMode` (`Normal`, `Multiply`, `Screen`, `Overlay`, `SoftLight`) on `Blend`; fluent overload `Blend(overlay, alpha, mode)`.
+- **`Levels`** — input/output black–white + midtone gamma (0–1). Fluent: `Levels(...)`.
+- **`EdgeDetect`** — greyscale + Laplace preset. Fluent: `EdgeDetect()`.
+- **`MorphOpen` / `MorphClose`** — erode↔dilate. Fluent: `MorphOpen(r)`, `MorphClose(r)`.
+- **Effects P2b**: `Duotone`, `Colorize`, `MotionBlur`, `ShadowsHighlights`, `OilPaint` (+ fluent helpers).
+- **`Quantize`** — octree palette reduction (2–256 colors; shared Core octree with GIF) with `DitherMethod` (`None`, `Bayer4x4`, `Bayer8x8`, `FloydSteinberg`). Alpha preserved. Fluent: `Quantize(maxColors, dither, strength)`.
+- **ICO multi-size encode**: `IcoEncoder.Encode(stream, images)` writes 1–256 PNG entries (each ≤256×256). Decode still returns the largest.
+- **`TiffEncoder.Compression`**: `TiffCompression.None` (default) or `Deflate`.
+- **Native**: `win-arm64` RID in `native/build.sh` and CI (`windows-11-arm`).
+- **`ChromaFx.Core.Quantization`**: shared `Octree` / `OrderedDither` / `OrderedDitherMethod` / `Palette.NearestRgb` used by GIF encode, Processing `Quantize`, and Retro.
+
+### Changed
+- **Breaking**: `QuantizeDitherMethod` → `DitherMethod`; Retro `RetroDitherMethod` → Core `OrderedDitherMethod`. Bayer strength scales unchanged (Quantize ~±32, Retro ~±127.5 at strength 1).
+- **Breaking**: `Quantize` / `DitherMethod` live in `ChromaFx.Processing.Filters` (not `…Filters.Quantize`).
+- **Breaking**: Mechanical Processing namespaces flattened — `IFilter` is `ChromaFx.Processing.Filters.IFilter` (was `…Filters.Interfaces`); resampling kernels live in `…Filters.Resampling` (was nested `ResamplingFilters` / `BaseClasses` / `HelperClasses`); `ResamplingFiltersAvailable` → `ResamplingFilter`. Filter **category** namespaces (`Effects`, `Convolution`, …) unchanged. Source folders match those namespaces (no `BaseClasses` / `Enums` / `Interfaces` / `ResamplingFilters` nesting under Processing filters; Core color spaces under `Colors/`; extensions at Core project root).
+- **Breaking**: Format id holder renamed `FileFormats` → `ManagedFormats` (parallel to `NativeFormats`; registry remains `ImageFormats`).
+- **Breaking**: Core float helpers are `FloatExtensions` in `ChromaFx.Core` (was public class `Extensions` under `…ExtensionMethods`); color-space types are `ChromaFx.Core.Colors` (was `…Colors.ColorSpaces`).
+- GIF octree quantizer uses Core `Octree` under `Gif.Quantizers` (dropped nested `…Quantizers.Octree` namespace).
+- Typed IO encoders share `EncoderIO` stream→`BinaryWriter` helper (byte-identical encode paths).
+- TGA / ICO / TIFF formats call codecs directly (thin internal `Encoder`/`Decoder` wrappers removed). Classic PNG/BMP/GIF/JPEG still use `IEncoder`/`IDecoder`.
+- **Breaking**: `FilterList` → `ResamplingKernels.Create(ResamplingFilter)` (fresh kernel instances; no shared mutable dictionary).
+- Managed TGA/ICO/TIFF sniff via shared `FormatProbe`; Robidoux/Mitchell share Keys-cubic math; Lanczos3/8 share kernel helper; `Octree.BitsNeeded` shared by Quantize and GIF encode.
+- Bit-identical perf: `Octree.TryGetPaletteIndex` (no exception storm on ordered dither), Bayer `BuildBiasTable`, Quantize Floyd error buffers via `FilterBufferPool`, OilPaint histogram `ArrayPool`, MotionBlur precomputed deltas, Affine row hoist.
+- **`AdaptiveEqualize`** (default RGB sliding path): integer CDF remap so Mac/Ubuntu goldens match. Custom `IHistogram` / HSV adaptive path unchanged (still float).
+
+### Removed
+- Unused Core `StreamExtensions` and `FloatExtensions.ToVector4`.
+- GIF `IQuantizer` / `QuantizerBase` (internal `OctreeQuantizer` is sealed and self-contained).
+- Retro `RetroOrderedDither` thin wrap (call sites use `OrderedDither` with `RetroBiasScale`).
+- Public `FilterList` (use `ResamplingKernels.Create`).
+
 ## [0.6.3]
 
 Managed ICO, EXIF orientation, KelvinTint/Tint/WhiteBalance, HtmlArt, Retro quantize, plus filter correctness and perf.
@@ -18,7 +55,7 @@ Managed ICO, EXIF orientation, KelvinTint/Tint/WhiteBalance, HtmlArt, Retro quan
 - Many Processing fluent helpers: `Median`, `Unsharp`, `Posterize`, `Solarize`, `Jitter`, `Glow`, `Vignette`, `Blend`, `AdaptiveThreshold`, `Canny`, `DrawLine`, `Skew`, `Translate`, `ResizeCanvas`, `AdaptiveEqualize`, `Logarithm`, `Alpha`, `Kodachrome`, `Polaroid`, `Lomograph`, `Kuwahara`, `SnnBlur`, …
 - **`ChromaFx.Processing.HtmlArt`** — `ToHtmlArt` / `AppendHtmlArt` / `WriteHtmlArt` with `HtmlArtOptions` (fixed-width colored HTML; half-block / full-block sampling shared with terminal ANSI). Split from `Terminal` ASCII/ANSI/Kitty/iTerm2 APIs. Sample renamed `samples/TextArt`.
 - Opt-in **`ChromaFx.Retro`** (not in the meta-package): `WebSafeQuantize` (Netscape 6×6×6), `CgaQuantize` (Mode 4 / RGBI / mono palettes), `EgaQuantize` (64-color `00/55/AA/FF` approximation), `VgaQuantize` (6-bit DAC levels). Alpha preserved.
-- Managed ICO. Decode uses the largest image in the file (PNG, or uncompressed 1/4/8/24/32-bit BMP plus the AND mask). `IcoEncoder` writes one PNG image, at most 256×256. `FileFormats.Ico` is `ico`.
+- Managed ICO. Decode uses the largest image in the file (PNG, or uncompressed 1/4/8/24/32-bit BMP plus the AND mask). `IcoEncoder` writes PNG image(s), at most 256×256 each. `ManagedFormats.Ico` is `ico`.
 
 ### Removed
 - **`Temperature`** — use `KelvinTint` (same Helland math; illuminant tint, not white balance).
@@ -60,7 +97,7 @@ Managed TGA and TIFF, plus still WebP, AVIF, and JPEG XL in `ChromaFx.Native`. T
 - `ChromaFx.Native` still JPEG XL via bundled `libjxl` 0.12.0. `JxlEncoder` takes `Quality` (lossy distance `(100 - quality) / 10`; quality 100 is lossless) and `Lossless`. Animated JPEG XL is rejected.
 
 ### Changed
-- `FileFormats` is no longer an enum. It holds `ImageFormatKey` values for the managed codecs (`bmp`, `png`, `jpeg`, `gif`, `tga`, `tiff`). `Save`, `ToByteArray`, and `ToBase64String` take that key and use the last registered format's `CreateEncoder`.
+- `ManagedFormats` is no longer an enum. It holds `ImageFormatKey` values for the managed codecs (`bmp`, `png`, `jpeg`, `gif`, `tga`, `tiff`). `Save`, `ToByteArray`, and `ToBase64String` take that key and use the last registered format's `CreateEncoder`.
 - WebP, AVIF, and JPEG XL ids live on `NativeFormats` in `ChromaFx.Native` (`webp`, `avif`, `jxl`). A key nothing has registered throws `UnknownImageFormatException`.
 
 ## [0.6.1]
@@ -74,7 +111,7 @@ Bit-identical performance pass plus opt-in `ChromaFx.Native` stubs. Public API i
 - Benchmarks: Gamma, Posterize, Blend, Median, Equalize, AdaptiveEqualize, GIF decode; AdaptiveThreshold / Crop / BMP RGB24 setup moved out of timed path; BMP RGB24 encode bench.
 
 ### Changed
-- `ImageFormats.CreateEncoder` / `CreateAnimationEncoder` resolve registered plugins for `FileFormats.WebP` / `Avif` (last registration wins).
+- `ImageFormats.CreateEncoder` / `CreateAnimationEncoder` resolve registered plugins for `ManagedFormats.WebP` / `Avif` (last registration wins).
 - `PixelSimd.ApplyRgbLut` uses a packed `uint` unrolled path (Gamma / Posterize); `ApplyChannelLuts` for per-channel tables.
 - AdaptiveThreshold, AdaptiveEqualize, Kuwahara, Blend, Median, Dilate, Constrict, SNNBlur, SinWave, and Turbulence cut snapshot / per-row heap allocations.
 - Crop / ResizeCanvas use row `CopyTo` instead of per-pixel dest arrays.

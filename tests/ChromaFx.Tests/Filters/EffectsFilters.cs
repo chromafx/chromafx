@@ -1,4 +1,4 @@
-﻿using ChromaFx.Processing.Filters.Convolution.Enums;
+﻿using ChromaFx.Processing.Filters.Convolution;
 using ChromaFx.Processing.Filters.Effects;
 using ChromaFx.Tests.BaseClasses;
 using Xunit;
@@ -21,6 +21,15 @@ public class EffectsFilters : FilterTestBaseClass
         { "Turbulence", new Turbulence(), default },
         { "Pixellate-10", new Pixellate(10), default },
         { "SinWave", new SinWave(10f, 10f, Direction.LeftToRight), default },
+        {
+            "Duotone",
+            new Duotone(new Color(20, 40, 90), new Color(245, 210, 150)),
+            default
+        },
+        { "Colorize", new Colorize(new Color(40, 120, 200), 0.85f), default },
+        { "MotionBlur", new MotionBlur(11, 25f), default },
+        { "ShadowsHighlights", new ShadowsHighlights(0.35f, -0.3f), default },
+        { "OilPaint", new OilPaint(2, 12), default },
         { "Posterize-Partial", new Posterize(10), new Rectangle(100, 100, 500, 500) },
         { "Solarize-Partial", new Solarize(1f), new Rectangle(100, 100, 500, 500) },
         {

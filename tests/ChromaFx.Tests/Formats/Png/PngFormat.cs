@@ -65,7 +65,7 @@ public class PngFormat : FormatTestBase
     [Fact]
     public void Decode_WithTextChunks_DoesNotThrow()
     {
-        var png = new Image(1, 1, [new Color(10, 20, 30)]).ToByteArray(FileFormats.Png);
+        var png = new Image(1, 1, [new Color(10, 20, 30)]).ToByteArray(ManagedFormats.Png);
         png = InsertChunkBeforeIend(png, "tEXt", BuildTextPayload("Comment", "hello"));
         png = InsertChunkBeforeIend(png, "iTXt", BuildInternationalTextPayload("Author", "ChromaFx"));
 

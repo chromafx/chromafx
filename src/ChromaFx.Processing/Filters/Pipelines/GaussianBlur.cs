@@ -16,7 +16,6 @@
  */
 
 using ChromaFx.Processing.Filters.Convolution;
-using ChromaFx.Processing.Filters.Pipelines.BaseClasses;
 
 namespace ChromaFx.Processing.Filters.Pipelines;
 

@@ -7,11 +7,11 @@
 
     <!--
       Single version line for all projects.
-      Local / unset CI: 0.6.3-local (after last tagged 0.6.2; never publish this)
-      CI non-tag (master/PR): set /p:Version=0.6.3-ci.$GITHUB_RUN_NUMBER (not published)
+      Local / unset CI: 0.6.4-local (after last tagged 0.6.3; never publish this)
+      CI non-tag (master/PR): set /p:Version=0.6.4-ci.$GITHUB_RUN_NUMBER (not published)
       Tags vX.Y.Z: set /p:Version=X.Y.Z (strip leading v) — only tags publish to nuget.org
     -->
-    <Version Condition="'$(Version)' == ''">0.6.3-local</Version>
+    <Version Condition="'$(Version)' == ''">0.6.4-local</Version>
 
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://chromafx.net</PackageProjectUrl>

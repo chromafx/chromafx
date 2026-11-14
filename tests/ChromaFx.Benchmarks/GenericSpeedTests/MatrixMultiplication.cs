@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 using BenchmarkDotNet.Attributes;
-using ChromaFx.Core.ExtensionMethods;
+using ChromaFx.Core;
 using ChromaFx.Processing.Numerics;
 
 namespace ChromaFx.Benchmarks.GenericSpeedTests;

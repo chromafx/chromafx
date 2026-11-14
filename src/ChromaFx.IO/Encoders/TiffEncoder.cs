@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-using System.Text;
 using ChromaFx.Core;
 using ChromaFx.IO.Formats;
 using ChromaFx.IO.Formats.Tiff;
@@ -22,19 +21,20 @@ using ChromaFx.IO.Formats.Tiff;
 namespace ChromaFx.IO.Encoders;
 
 /// <summary>
-/// TIFF encoder (little-endian classic TIFF, uncompressed 8-bit RGBA).
+/// TIFF encoder (little-endian classic TIFF, 8-bit RGBA).
+/// Default <see cref="Compression"/> is <see cref="TiffCompression.None"/>.
 /// </summary>
 public sealed class TiffEncoder : IImageEncoder
 {
     /// <inheritdoc />
-    public ImageFormatKey Format => FileFormats.Tiff;
+    public ImageFormatKey Format => ManagedFormats.Tiff;
+
+    /// <summary>
+    /// Strip compression. Default <see cref="TiffCompression.None"/>.
+    /// </summary>
+    public TiffCompression Compression { get; set; } = TiffCompression.None;
 
     /// <inheritdoc />
-    public void Encode(Stream stream, Image image)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        ArgumentNullException.ThrowIfNull(image);
-        using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
-        new TiffFormat().Encode(writer, image);
-    }
+    public void Encode(Stream stream, Image image) =>
+        EncoderIO.Write(stream, image, (w, img) => TiffCodec.Encode(w, img, Compression));
 }

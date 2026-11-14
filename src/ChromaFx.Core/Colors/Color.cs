@@ -17,7 +17,6 @@
 
 using System.Numerics;
 using System.Runtime.InteropServices;
-using ChromaFx.Core.ExtensionMethods;
 
 namespace ChromaFx.Core.Colors;
 
@@ -178,7 +177,7 @@ public partial struct Color : IEquatable<Color>
     }
 
     /// <summary>
-    /// Performs an implicit conversion from <see cref="ColorSpaces.Bgra"/> to <see cref="int"/>.
+    /// Performs an implicit conversion from <see cref="uint"/> to <see cref="Color"/>.
     /// </summary>
     /// <param name="color">The color.</param>
     /// <returns>The result of the conversion.</returns>
@@ -188,7 +187,7 @@ public partial struct Color : IEquatable<Color>
     }
 
     /// <summary>
-    /// Performs an implicit conversion from <see cref="ColorSpaces.Bgra"/> to <see cref="int"/>.
+    /// Performs an implicit conversion from <see cref="Color"/> to <see cref="uint"/>.
     /// </summary>
     /// <param name="color">The color.</param>
     /// <returns>The result of the conversion.</returns>

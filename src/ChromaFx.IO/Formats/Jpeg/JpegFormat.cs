@@ -31,7 +31,7 @@ public class JpegFormat : FormatBase
     /// <value>
     /// The format.
     /// </value>
-    public override ImageFormatKey Format => FileFormats.Jpeg;
+    public override ImageFormatKey Format => ManagedFormats.Jpeg;
 
     /// <inheritdoc />
     public override IImageEncoder CreateEncoder() => new JpegEncoder();

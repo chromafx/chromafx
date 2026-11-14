@@ -20,11 +20,10 @@ using ChromaFx.Processing.Filters.Binary;
 using ChromaFx.Processing.Filters.ColorMatrix;
 using ChromaFx.Processing.Filters.Convolution;
 using ChromaFx.Processing.Filters.Effects;
-using ChromaFx.Processing.Filters.Interfaces;
+using ChromaFx.Processing.Filters;
 using ChromaFx.Processing.Filters.Normalization;
 using ChromaFx.Processing.Filters.Pipelines;
 using ChromaFx.Processing.Filters.Resampling;
-using ChromaFx.Processing.Filters.Resampling.Enums;
 using ChromaFx.Processing.Numerics;
 
 namespace ChromaFx.Processing;
@@ -46,7 +45,7 @@ internal sealed class ImageProcessingContext(Image image, Rectangle region)
     public IImageProcessingContext Resize(
         int width,
         int height,
-        ResamplingFiltersAvailable filter = ResamplingFiltersAvailable.Bilinear
+        ResamplingFilter filter = ResamplingFilter.Bilinear
     ) => Apply(new Resize(width, height, filter));
 
     public IImageProcessingContext Rotate(float degrees) => Apply(new Rotate(degrees));

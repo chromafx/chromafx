@@ -20,7 +20,7 @@ namespace ChromaFx.Processing.Terminal;
 
 /// <summary>
 /// iTerm2 inline image protocol (OSC 1337). Also used by WezTerm.
-/// Encode with <c>image.ToByteArray(FileFormats.Png)</c> (ChromaFx.IO), then call
+/// Encode with <c>image.ToByteArray(ManagedFormats.Png)</c> (ChromaFx.IO), then call
 /// <see cref="FromPng"/>.
 /// </summary>
 public static class ITerm2InlineImage

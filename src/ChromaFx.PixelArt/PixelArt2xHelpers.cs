@@ -16,7 +16,7 @@
 
 using ChromaFx.Core;
 using ChromaFx.PixelArt.Filters;
-using ChromaFx.Processing.Filters.Interfaces;
+using ChromaFx.Processing.Filters;
 
 namespace ChromaFx.PixelArt;
 

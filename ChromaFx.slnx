@@ -12,6 +12,8 @@
     <File Path="README.md" />
   </Folder>
   <Folder Name="/samples/">
+    <Project Path="samples/NativeCodecs/NativeCodecs.csproj" />
+    <Project Path="samples/PixelArt/PixelArt.csproj" />
     <Project Path="samples/TextArt/TextArt.csproj" />
   </Folder>
   <Folder Name="/src/">

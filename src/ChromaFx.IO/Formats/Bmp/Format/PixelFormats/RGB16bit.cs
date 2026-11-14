@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-using ChromaFx.Core.ExtensionMethods;
-
 namespace ChromaFx.IO.Formats.Bmp.Format.PixelFormats;
 
 /// <summary>

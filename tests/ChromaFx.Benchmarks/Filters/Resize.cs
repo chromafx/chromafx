@@ -2,7 +2,7 @@
 using System.Drawing.Drawing2D;
 using System.Runtime.Versioning;
 using BenchmarkDotNet.Attributes;
-using ChromaFx.Processing.Filters.Resampling.Enums;
+using ChromaFx.Processing.Filters.Resampling;
 
 namespace ChromaFx.Benchmarks.Filters;
 
@@ -18,7 +18,7 @@ public class Resize
         _filter = new Processing.Filters.Resampling.Resize(
             400,
             400,
-            ResamplingFiltersAvailable.NearestNeighbor
+            ResamplingFilter.NearestNeighbor
         );
     }
 

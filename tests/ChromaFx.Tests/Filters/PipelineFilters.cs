@@ -1,6 +1,5 @@
 ﻿using ChromaFx.Processing.Filters.ColorMatrix;
 using ChromaFx.Processing.Filters.Convolution;
-using ChromaFx.Processing.Filters.Convolution.Enums;
 using ChromaFx.Processing.Filters.Pipelines;
 using ChromaFx.Tests.BaseClasses;
 using Xunit;
@@ -51,6 +50,7 @@ public class PipelineFilters : FilterTestBaseClass
         { "NormalMap", new NormalMap(XDirection.LeftToRight, YDirection.BottomToTop), default },
         { "BumpMap", new BumpMap(Direction.LeftToRight), default },
         { "GaussianBlur-7", new GaussianBlur(7), default },
+        { "EdgeDetect", new EdgeDetect(), default },
         { "Poloroid", new Polaroid(), default },
         { "Lomograph", new Lomograph(), default },
         {

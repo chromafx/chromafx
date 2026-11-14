@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+using ChromaFx.Core;
 using ChromaFx.IO.Encoders;
 
 namespace ChromaFx.IO.Formats.Tiff;
@@ -25,14 +26,28 @@ namespace ChromaFx.IO.Formats.Tiff;
 public sealed class TiffFormat : FormatBase
 {
     /// <inheritdoc />
-    public override ImageFormatKey Format => FileFormats.Tiff;
+    public override ImageFormatKey Format => ManagedFormats.Tiff;
 
     /// <inheritdoc />
     public override IImageEncoder CreateEncoder() => new TiffEncoder();
 
     /// <inheritdoc />
-    private protected override IDecoder Decoder => new Decoder();
+    public override bool CanEncode(string fileName) =>
+        FormatProbe.HasExtension(fileName, ".tif", ".tiff");
 
     /// <inheritdoc />
-    private protected override IEncoder Encoder => new Encoder();
+    public override void Encode(BinaryWriter writer, Image image) => TiffCodec.Encode(writer, image);
+
+    /// <inheritdoc />
+    public override bool CanDecode(string fileName) => CanEncode(fileName);
+
+    /// <inheritdoc />
+    public override bool CanDecode(byte[] header) => header != null && TiffCodec.LooksLike(header);
+
+    /// <inheritdoc />
+    public override bool CanDecode(Stream stream) =>
+        FormatProbe.LooksLikeAtStart(stream, 4, TiffCodec.LooksLike);
+
+    /// <inheritdoc />
+    public override Image Decode(Stream stream) => TiffCodec.Decode(stream);
 }

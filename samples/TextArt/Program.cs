@@ -85,7 +85,7 @@ Console.Write(ansi);
 
 Console.WriteLine();
 Console.WriteLine($"Preferred protocol ({caps.Preferred}):");
-var png = image.ToByteArray(FileFormats.Png);
+var png = image.ToByteArray(ManagedFormats.Png);
 switch (caps.Preferred)
 {
     case TerminalImageProtocol.Kitty:

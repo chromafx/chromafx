@@ -17,7 +17,6 @@
 
 using ChromaFx.Core;
 using ChromaFx.Core.Colors;
-using ChromaFx.Core.ExtensionMethods;
 
 namespace ChromaFx.Processing.Procedural;
 

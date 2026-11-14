@@ -485,7 +485,7 @@ public class ImageTests : FilterTestBaseClass
     public void ToByteArray_RoundTripsPngPixels()
     {
         var source = new Image(2, 1, [new Color(1, 2, 3), new Color(4, 5, 6)]);
-        var bytes = source.ToByteArray(FileFormats.Png);
+        var bytes = source.ToByteArray(ManagedFormats.Png);
         Assert.True(bytes.Length > 8);
         Assert.Equal(0x89, bytes[0]); // PNG signature
 
@@ -549,7 +549,7 @@ public class ImageTests : FilterTestBaseClass
         );
         Assert.Equal(
             "Qk1eAAAAAAAAADYAAAAoAAAAAQAAAAoAAAABABgAAAAAACgAAAAAAAAAAAAAAAAAAAAAAAAA5cyyAH9mTAAZ/+UAspl/AEwzGQDlzLIAf2ZMABn/5QCymX8ATDMZAA==",
-            testImage.ToBase64String(FileFormats.Bmp)
+            testImage.ToBase64String(ManagedFormats.Bmp)
         );
     }
 }

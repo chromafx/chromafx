@@ -17,7 +17,6 @@
 
 using ChromaFx.Core;
 using ChromaFx.Core.Colors;
-using ChromaFx.Processing.Filters.Drawing.BaseClasses;
 
 namespace ChromaFx.Processing.Filters.Drawing;
 

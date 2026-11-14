@@ -15,9 +15,7 @@
  * limitations under the License.
  */
 
-using ChromaFx.Core;
 using ChromaFx.Core.Colors;
-using ChromaFx.Core.Colors.ColorSpaces;
 
 namespace ChromaFx.IO.Formats.Gif.Quantizers;
 
@@ -82,26 +80,4 @@ internal class QuantizedImage
     /// </summary>
     /// <value>The width.</value>
     public int Width { get; }
-
-    /// <summary>
-    /// Performs an implicit conversion from <see cref="QuantizedImage"/> to <see cref="Image"/>.
-    /// </summary>
-    /// <param name="quantizedImage">The quantized image.</param>
-    /// <returns>The result of the conversion.</returns>
-    public static implicit operator Image(QuantizedImage quantizedImage)
-    {
-        var palletCount = quantizedImage.Palette.Length - 1;
-        var pixels = new Color[quantizedImage.Pixels.Length];
-
-        Parallel.For(
-            0,
-            quantizedImage.Pixels.Length,
-            x =>
-            {
-                pixels[x] = quantizedImage.Palette[Math.Min(palletCount, quantizedImage.Pixels[x])];
-            }
-        );
-
-        return new Image(quantizedImage.Width, quantizedImage.Height, pixels);
-    }
 }

@@ -15,68 +15,44 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.Processing.Filters.Interfaces;
+using ChromaFx.Core.Quantization;
+using ChromaFx.Processing.Filters;
 using ChromaFx.Processing.Numerics;
 
 namespace ChromaFx.Retro.Filters;
 
 /// <summary>
-/// Snaps each RGB channel to the 4-level EGA palette 
+/// Snaps each RGB channel to the 4-level EGA palette
 /// (<c>00</c>, <c>55</c>, <c>AA</c>, <c>FF</c> — 64 colors total). Alpha is preserved.
+/// Optional ordered dither biases channels before the LUT snap.
 /// </summary>
-public sealed class EgaQuantize : IFilter
+/// <param name="dither">Ordered dither method; default is none.</param>
+/// <param name="strength">Dither strength (0 = none; ~0.3–0.6 typical).</param>
+public sealed class EgaQuantize(
+    OrderedDitherMethod dither = OrderedDitherMethod.None,
+    float strength = 0.5f
+) : IFilter
 {
-    private const int ParallelPixelThreshold = 65536;
     private static readonly byte[] Lut = CreateLut();
 
-    public Image Apply(Image image, Rectangle targetLocation = default)
-    {
-        targetLocation = targetLocation.Normalize(image);
-        int left = targetLocation.Left;
-        int right = targetLocation.Right;
-        int bottom = targetLocation.Bottom;
-        int top = targetLocation.Top;
-        int pixelCount = (top - bottom) * (right - left);
-        var lut = Lut;
+    /// <summary>Gets the dither method.</summary>
+    public OrderedDitherMethod Dither { get; } = dither;
 
-        void ProcessRow(int y)
-        {
-            var row = image.GetRowSpan(y);
-            for (var x = left; x < right; ++x)
-            {
-                ref var pixel = ref row[x];
-                pixel.Red = lut[pixel.Red];
-                pixel.Green = lut[pixel.Green];
-                pixel.Blue = lut[pixel.Blue];
-            }
-        }
+    /// <summary>Gets the dither strength.</summary>
+    public float Strength { get; } = strength;
 
-        if (pixelCount < ParallelPixelThreshold || top - bottom <= 1)
-        {
-            for (var y = bottom; y < top; ++y)
-                ProcessRow(y);
-        }
-        else
-        {
-            Parallel.For(bottom, top, ProcessRow);
-        }
+    /// <inheritdoc />
+    public Image Apply(Image image, Rectangle targetLocation = default) =>
+        ChannelLutFilter.Apply(image, targetLocation, Lut, Dither, Strength);
 
-        return image;
-    }
-
-    /// <summary>
-    /// Maps a single channel to the nearest EGA level.
-    /// </summary>
+    /// <summary>Maps a single channel to the nearest EGA level.</summary>
     internal static byte SnapChannel(byte value) => Lut[value];
 
     private static byte[] CreateLut()
     {
         var lut = new byte[256];
         for (var i = 0; i < 256; ++i)
-        {
-            // Nearest of 0, 85, 170, 255
             lut[i] = (byte)(((i + 42) / 85) * 85);
-        }
         return lut;
     }
 }

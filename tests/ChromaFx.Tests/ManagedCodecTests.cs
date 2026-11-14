@@ -18,6 +18,7 @@ using System.Buffers.Binary;
 using System.IO.Compression;
 using ChromaFx.Core.Exceptions;
 using ChromaFx.IO.Formats.Tga;
+using ChromaFx.IO.Formats.Tiff;
 using Xunit;
 
 namespace ChromaFx.Tests;
@@ -113,7 +114,17 @@ public class ManagedCodecTests
     {
         var src = Sample(17, 3, alpha: true);
         using var stream = new MemoryStream();
-        src.Save(stream, FileFormats.Tiff);
+        src.Save(stream, ManagedFormats.Tiff);
+        var decoded = Image.Load(stream.ToArray());
+        AssertPixels(src, decoded);
+    }
+
+    [Fact]
+    public void TiffDeflateRoundTrip_PreservesOddWidthAndAlpha()
+    {
+        var src = Sample(17, 3, alpha: true);
+        using var stream = new MemoryStream();
+        src.Save(stream, new TiffEncoder { Compression = TiffCompression.Deflate });
         var decoded = Image.Load(stream.ToArray());
         AssertPixels(src, decoded);
     }

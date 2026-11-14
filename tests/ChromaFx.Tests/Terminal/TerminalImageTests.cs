@@ -90,7 +90,7 @@ public class TerminalImageTests
     public void EncodePng_ThenKitty_RoundTripPattern()
     {
         var image = new Image(1, 1, [new Color(10, 20, 30)]);
-        var sequence = KittyGraphics.FromPng(image.ToByteArray(FileFormats.Png), columns: 4, rows: 2);
+        var sequence = KittyGraphics.FromPng(image.ToByteArray(ManagedFormats.Png), columns: 4, rows: 2);
         Assert.Contains(",c=4,r=2,", sequence);
         Assert.StartsWith("\u001b_Ga=T,f=100,", sequence);
     }
@@ -115,7 +115,7 @@ public class TerminalImageTests
     }
 
     private static byte[] EncodeTinyPng() =>
-        new Image(1, 1, [new Color(10, 20, 30)]).ToByteArray(FileFormats.Png);
+        new Image(1, 1, [new Color(10, 20, 30)]).ToByteArray(ManagedFormats.Png);
 
     private static int CountOccurrences(string haystack, string needle)
     {

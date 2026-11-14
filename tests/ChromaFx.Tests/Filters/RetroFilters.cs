@@ -1,3 +1,4 @@
+using ChromaFx.Core.Quantization;
 using ChromaFx.Retro;
 using ChromaFx.Retro.Filters;
 using ChromaFx.Tests.BaseClasses;
@@ -33,6 +34,21 @@ public class RetroFilters : FilterTestBaseClass
             new VgaQuantize(),
             new Rectangle(100, 100, 500, 500)
         },
+        {
+            "WebSafeQuantize-Bayer4x4",
+            new WebSafeQuantize(OrderedDitherMethod.Bayer4x4, 0.4f),
+            default
+        },
+        {
+            "CgaQuantize-Bayer8x8",
+            new CgaQuantize(CgaPaletteMode.Palette1High, OrderedDitherMethod.Bayer8x8, 0.5f),
+            default
+        },
+        { "BadWebScale", new BadWebScale(0.25f), default },
+        { "BadWebScale-WebSafe", new BadWebScale(0.25f, webSafe: true), default },
+        { "Bevel", new Bevel(2, BevelStyle.Raised), default },
+        { "Bevel-Pressed", new Bevel(3, BevelStyle.Pressed), default },
+        { "RetroMode-320x200", new RetroMode(320, 200), default },
     };
 
     [Theory]
@@ -40,6 +56,52 @@ public class RetroFilters : FilterTestBaseClass
     public void Run(string name, IFilter filter, Rectangle target)
     {
         CheckCorrect(name, filter, target);
+    }
+}
+
+public class RetroOrderedDitherSyntheticTests
+{
+    [Fact]
+    public void NoneOrZeroStrength_YieldsZeroBias()
+    {
+        Assert.Equal(
+            0,
+            OrderedDither.ChannelBias(
+                3,
+                5,
+                OrderedDitherMethod.None,
+                0.5f,
+                OrderedDither.RetroBiasScale,
+                round: true
+            )
+        );
+        Assert.Equal(
+            0,
+            OrderedDither.ChannelBias(
+                3,
+                5,
+                OrderedDitherMethod.Bayer4x4,
+                0f,
+                OrderedDither.RetroBiasScale,
+                round: true
+            )
+        );
+    }
+
+    [Fact]
+    public void Bayer4x4_OriginIsStronglyNegative()
+    {
+        // Cell 0 → threshold below 0.5 → negative bias at strength 0.5.
+        Assert.True(
+            OrderedDither.ChannelBias(
+                0,
+                0,
+                OrderedDitherMethod.Bayer4x4,
+                0.5f,
+                OrderedDither.RetroBiasScale,
+                round: true
+            ) < 0
+        );
     }
 }
 
@@ -96,6 +158,51 @@ public class WebSafeQuantizeSyntheticTests
         Assert.Equal(0x00, b.Green);
         Assert.Equal(0x33, b.Blue);
         Assert.Equal(255, b.Alpha);
+    }
+
+    [Fact]
+    public void Bayer4x4_CanChangeSnapNearThreshold()
+    {
+        // Mid-grey near a web-safe boundary; Bayer bias at (0,0) is strongly negative.
+        var image = new Image(1, 1);
+        image.GetRowSpan(0)[0] = new Color(26, 26, 26, 200);
+
+        image.Mutate(ctx => ctx.WebSafeQuantize(OrderedDitherMethod.Bayer4x4, 0.5f));
+
+        var p = image.GetRowSpan(0)[0];
+        Assert.Equal(0x00, p.Red);
+        Assert.Equal(0x00, p.Green);
+        Assert.Equal(0x00, p.Blue);
+        Assert.Equal(200, p.Alpha);
+    }
+
+    [Fact]
+    public void None_MatchesDefaultConstructorPath()
+    {
+        var a = new Image(2, 2);
+        var b = new Image(2, 2);
+        for (var y = 0; y < 2; y++)
+        {
+            var ra = a.GetRowSpan(y);
+            var rb = b.GetRowSpan(y);
+            for (var x = 0; x < 2; x++)
+            {
+                var c = new Color((byte)(x * 80), (byte)(y * 90), 40, 255);
+                ra[x] = c;
+                rb[x] = c;
+            }
+        }
+
+        a.Mutate(ctx => ctx.Apply(new WebSafeQuantize()));
+        b.Mutate(ctx => ctx.WebSafeQuantize(OrderedDitherMethod.None, 0.5f));
+
+        for (var y = 0; y < 2; y++)
+        {
+            var ra = a.GetRowSpan(y);
+            var rb = b.GetRowSpan(y);
+            for (var x = 0; x < 2; x++)
+                Assert.Equal(ra[x], rb[x]);
+        }
     }
 }
 
@@ -227,5 +334,122 @@ public class VgaQuantizeSyntheticTests
         Assert.Equal(4, p.Green);
         Assert.Equal(8, p.Blue);
         Assert.Equal(77, p.Alpha);
+    }
+}
+
+public class BadWebScaleSyntheticTests
+{
+    [Fact]
+    public void RestoresOriginalDimensions()
+    {
+        var image = new Image(40, 20);
+        image.Mutate(ctx => ctx.BadWebScale(0.25f));
+        Assert.Equal(40, image.Width);
+        Assert.Equal(20, image.Height);
+    }
+
+    [Fact]
+    public void InvalidFactor_IsNoOp()
+    {
+        var image = new Image(4, 4);
+        image.GetRowSpan(0)[0] = new Color(12, 34, 56, 78);
+        image.Mutate(ctx => ctx.BadWebScale(1f));
+        Assert.Equal(new Color(12, 34, 56, 78), image.GetRowSpan(0)[0]);
+    }
+
+    [Fact]
+    public void DownUp_MakesBlockyFromFineDetail()
+    {
+        var image = new Image(4, 4);
+        for (var y = 0; y < 4; y++)
+        {
+            var row = image.GetRowSpan(y);
+            for (var x = 0; x < 4; x++)
+                row[x] = ((x + y) & 1) == 0 ? Color.White : Color.Black;
+        }
+
+        image.Mutate(ctx => ctx.BadWebScale(0.5f));
+
+        // After 2×2 NN down + up, each 2×2 block is uniform.
+        Assert.Equal(image.GetRowSpan(0)[0], image.GetRowSpan(0)[1]);
+        Assert.Equal(image.GetRowSpan(0)[0], image.GetRowSpan(1)[0]);
+        Assert.Equal(image.GetRowSpan(0)[0], image.GetRowSpan(1)[1]);
+    }
+}
+
+public class BevelSyntheticTests
+{
+    [Fact]
+    public void Raised_ExpandsAndLightensTopLeft()
+    {
+        var image = new Image(4, 4);
+        image.GetRowSpan(0).Fill(new Color(100, 100, 100));
+        for (var y = 1; y < 4; y++)
+            image.GetRowSpan(y).Fill(new Color(100, 100, 100));
+
+        image.Mutate(ctx => ctx.Bevel(2, BevelStyle.Raised, strength: 1f));
+
+        Assert.Equal(8, image.Width);
+        Assert.Equal(8, image.Height);
+        // Top-left lightened toward white; bottom-right darkened.
+        Assert.True(image.GetRowSpan(0)[0].Red > 100);
+        Assert.True(image.GetRowSpan(7)[7].Red < 100);
+    }
+
+    [Fact]
+    public void Pressed_DarkensTopLeft()
+    {
+        var image = new Image(6, 6);
+        for (var y = 0; y < 6; y++)
+            image.GetRowSpan(y).Fill(new Color(128, 128, 128));
+
+        image.Mutate(ctx =>
+            ctx.Bevel(1, BevelStyle.Pressed, expandCanvas: false, strength: 1f)
+        );
+
+        Assert.True(image.GetRowSpan(0)[0].Red < 128);
+        Assert.True(image.GetRowSpan(5)[5].Red > 128);
+    }
+
+    [Fact]
+    public void ZeroDepth_IsNoOp()
+    {
+        var image = new Image(3, 3);
+        image.GetRowSpan(1)[1] = new Color(1, 2, 3, 4);
+        image.Mutate(ctx => ctx.Bevel(0));
+        Assert.Equal(3, image.Width);
+        Assert.Equal(new Color(1, 2, 3, 4), image.GetRowSpan(1)[1]);
+    }
+
+    [Fact]
+    public void PreservesAlpha()
+    {
+        var image = new Image(4, 4);
+        for (var y = 0; y < 4; y++)
+            image.GetRowSpan(y).Fill(new Color(80, 80, 80, 200));
+
+        image.Mutate(ctx => ctx.Bevel(1, expandCanvas: false, strength: 0.5f));
+        Assert.Equal(200, image.GetRowSpan(0)[0].Alpha);
+    }
+}
+
+public class RetroModeSyntheticTests
+{
+    [Fact]
+    public void ResizesWithNearestNeighbor()
+    {
+        var image = new Image(10, 10);
+        image.Mutate(ctx => ctx.RetroMode(320, 200));
+        Assert.Equal(320, image.Width);
+        Assert.Equal(200, image.Height);
+    }
+
+    [Fact]
+    public void SameSize_IsNoOp()
+    {
+        var image = new Image(32, 24);
+        image.GetRowSpan(0)[0] = new Color(9, 8, 7, 6);
+        image.Mutate(ctx => ctx.RetroMode(32, 24));
+        Assert.Equal(new Color(9, 8, 7, 6), image.GetRowSpan(0)[0]);
     }
 }

@@ -16,8 +16,8 @@
 
 using ChromaFx.Core;
 using ChromaFx.Core.Colors;
-using ChromaFx.Processing.Filters.Interfaces;
-using ChromaFx.Processing.Filters.Resampling.Enums;
+using ChromaFx.Processing.Filters;
+using ChromaFx.Processing.Filters.Resampling;
 using ChromaFx.Processing.Numerics;
 
 namespace ChromaFx.Processing;
@@ -43,7 +43,7 @@ public interface IImageProcessingContext
     IImageProcessingContext Resize(
         int width,
         int height,
-        ResamplingFiltersAvailable filter = ResamplingFiltersAvailable.Bilinear
+        ResamplingFilter filter = ResamplingFilter.Bilinear
     );
 
     /// <summary>

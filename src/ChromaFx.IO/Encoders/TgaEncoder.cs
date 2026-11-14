@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-using System.Text;
 using ChromaFx.Core;
 using ChromaFx.IO.Formats;
 using ChromaFx.IO.Formats.Tga;
@@ -22,19 +21,14 @@ using ChromaFx.IO.Formats.Tga;
 namespace ChromaFx.IO.Encoders;
 
 /// <summary>
-/// TGA encoder (uncompressed 32-bit BGRA, top-left origin).
+/// TGA encoder (uncompressed 32-bit top-left).
 /// </summary>
 public sealed class TgaEncoder : IImageEncoder
 {
     /// <inheritdoc />
-    public ImageFormatKey Format => FileFormats.Tga;
+    public ImageFormatKey Format => ManagedFormats.Tga;
 
     /// <inheritdoc />
-    public void Encode(Stream stream, Image image)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        ArgumentNullException.ThrowIfNull(image);
-        using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
-        new TgaFormat().Encode(writer, image);
-    }
+    public void Encode(Stream stream, Image image) =>
+        EncoderIO.Write(stream, image, (w, img) => new TgaFormat().Encode(w, img));
 }

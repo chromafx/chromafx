@@ -1,4 +1,3 @@
-using ChromaFx.Core;
 using Xunit;
 
 namespace ChromaFx.Tests.Formats;

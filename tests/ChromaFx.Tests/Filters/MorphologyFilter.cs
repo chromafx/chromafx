@@ -14,6 +14,8 @@ public class MorphologyFilters : FilterTestBaseClass
     {
         { "Dilate", new Dilate(1), default },
         { "Constrict", new Constrict(1), default },
+        { "MorphOpen", new MorphOpen(1), default },
+        { "MorphClose", new MorphClose(1), default },
         { "Dilate-Partial", new Dilate(1), new Rectangle(100, 100, 500, 500) },
         { "Constrict-Partial", new Constrict(1), new Rectangle(100, 100, 500, 500) },
     };

@@ -15,9 +15,6 @@
  * limitations under the License.
  */
 
-using ChromaFx.Processing.Filters.Convolution.BaseClasses;
-using ChromaFx.Processing.Filters.Convolution.Enums;
-
 namespace ChromaFx.Processing.Filters.Convolution;
 
 /// <summary>

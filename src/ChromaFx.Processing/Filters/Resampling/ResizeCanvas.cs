@@ -16,8 +16,6 @@
  */
 
 using ChromaFx.Core;
-using ChromaFx.Processing.Filters.Interfaces;
-using ChromaFx.Processing.Filters.Resampling.Enums;
 using ChromaFx.Processing.Numerics;
 
 namespace ChromaFx.Processing.Filters.Resampling;

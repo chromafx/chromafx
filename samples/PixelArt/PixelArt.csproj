@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>ChromaFx.Samples.PixelArt</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <RollForward>Major</RollForward>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ChromaFx\ChromaFx.csproj" />
+    <ProjectReference Include="..\..\src\ChromaFx.PixelArt\ChromaFx.PixelArt.csproj" />
+  </ItemGroup>
+</Project>

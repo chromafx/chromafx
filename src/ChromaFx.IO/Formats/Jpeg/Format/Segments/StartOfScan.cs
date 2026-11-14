@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 using ChromaFx.Core;
-using ChromaFx.Core.Colors.ColorSpaces;
+using ChromaFx.Core.Colors;
 using ChromaFx.IO.Formats.Jpeg.Format.Enums;
 
 namespace ChromaFx.IO.Formats.Jpeg.Format.Segments;

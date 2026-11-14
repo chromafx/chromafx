@@ -18,7 +18,6 @@
 using ChromaFx.Core.Colors;
 using ChromaFx.Processing.Filters.Binary;
 using ChromaFx.Processing.Filters.Convolution;
-using ChromaFx.Processing.Filters.Pipelines.BaseClasses;
 
 namespace ChromaFx.Processing.Filters.Pipelines;
 

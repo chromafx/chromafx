@@ -1,5 +1,4 @@
 ﻿using ChromaFx.Processing.Filters.Resampling;
-using ChromaFx.Processing.Filters.Resampling.Enums;
 using ChromaFx.Tests.BaseClasses;
 using Xunit;
 
@@ -13,14 +12,14 @@ public class ResamplingFilters : FilterTestBaseClass
 
     public static readonly TheoryData<string, IFilter, Rectangle> Filters = new()
     {
-        { "Scale", new Scale(2000, 2000, ResamplingFiltersAvailable.Hermite), default },
+        { "Scale", new Scale(2000, 2000, ResamplingFilter.Hermite), default },
         { "Translate", new Translate(50, 50), default },
         { "Crop", new Crop(), new Rectangle(100, 100, 500, 500) },
         { "Flip-Vertical", new Flip(FlipDirection.Vertical), default },
         { "Flip-Horizontal", new Flip(FlipDirection.Horizontal), default },
         { "Flip-Both", new Flip(FlipDirection.Horizontal | FlipDirection.Vertical), default },
         { "Rotate-45", new Rotate(45f), default },
-        { "Skew-45-80", new Skew(45f, 80f, ResamplingFiltersAvailable.Hermite), default },
+        { "Skew-45-80", new Skew(45f, 80f, ResamplingFilter.Hermite), default },
         { "ResizeCanvas-UpperLeft-100x100", new ResizeCanvas(100, 100), default },
         {
             "ResizeCanvas-Center-100x100",
@@ -54,180 +53,180 @@ public class ResamplingFilters : FilterTestBaseClass
         { "Skew-45-80-Partial", new Skew(45f, 80f), new Rectangle(100, 100, 500, 500) },
         {
             "Resize-Bilinear-100x100",
-            new Resize(100, 100, ResamplingFiltersAvailable.Bilinear),
+            new Resize(100, 100, ResamplingFilter.Bilinear),
             default
         },
         {
             "Resize-Bilinear-2000x2000",
-            new Resize(2000, 2000, ResamplingFiltersAvailable.Bilinear),
+            new Resize(2000, 2000, ResamplingFilter.Bilinear),
             default
         },
         {
             "Resize-NearestNeighbor-2000x2000",
-            new Resize(2000, 2000, ResamplingFiltersAvailable.NearestNeighbor),
+            new Resize(2000, 2000, ResamplingFilter.NearestNeighbor),
             default
         },
         {
             "Resize-NearestNeighbor-100x100",
-            new Resize(100, 100, ResamplingFiltersAvailable.NearestNeighbor),
+            new Resize(100, 100, ResamplingFilter.NearestNeighbor),
             default
         },
-        { "Resize-Box-100x100", new Resize(100, 100, ResamplingFiltersAvailable.Box), default },
-        { "Resize-Box-2000x2000", new Resize(2000, 2000, ResamplingFiltersAvailable.Box), default },
+        { "Resize-Box-100x100", new Resize(100, 100, ResamplingFilter.Box), default },
+        { "Resize-Box-2000x2000", new Resize(2000, 2000, ResamplingFilter.Box), default },
         {
             "Resize-Robidoux-2000x2000",
-            new Resize(2000, 2000, ResamplingFiltersAvailable.Robidoux),
+            new Resize(2000, 2000, ResamplingFilter.Robidoux),
             default
         },
         {
             "Resize-Robidoux-100x100",
-            new Resize(100, 100, ResamplingFiltersAvailable.Robidoux),
+            new Resize(100, 100, ResamplingFilter.Robidoux),
             default
         },
         {
             "Resize-RobidouxSharp-2000x2000",
-            new Resize(2000, 2000, ResamplingFiltersAvailable.RobidouxSharp),
+            new Resize(2000, 2000, ResamplingFilter.RobidouxSharp),
             default
         },
         {
             "Resize-RobidouxSharp-100x100",
-            new Resize(100, 100, ResamplingFiltersAvailable.RobidouxSharp),
+            new Resize(100, 100, ResamplingFilter.RobidouxSharp),
             default
         },
         {
             "Resize-RobidouxSoft-2000x2000",
-            new Resize(2000, 2000, ResamplingFiltersAvailable.RobidouxSoft),
+            new Resize(2000, 2000, ResamplingFilter.RobidouxSoft),
             default
         },
         {
             "Resize-RobidouxSoft-100x100",
-            new Resize(100, 100, ResamplingFiltersAvailable.RobidouxSoft),
+            new Resize(100, 100, ResamplingFilter.RobidouxSoft),
             default
         },
         {
             "Resize-Bicubic-2000x2000",
-            new Resize(2000, 2000, ResamplingFiltersAvailable.Bicubic),
+            new Resize(2000, 2000, ResamplingFilter.Bicubic),
             default
         },
         {
             "Resize-Bicubic-100x100",
-            new Resize(100, 100, ResamplingFiltersAvailable.Bicubic),
+            new Resize(100, 100, ResamplingFilter.Bicubic),
             default
         },
         {
             "Resize-Bell-2000x2000",
-            new Resize(2000, 2000, ResamplingFiltersAvailable.Bell),
+            new Resize(2000, 2000, ResamplingFilter.Bell),
             default
         },
-        { "Resize-Bell-100x100", new Resize(100, 100, ResamplingFiltersAvailable.Bell), default },
+        { "Resize-Bell-100x100", new Resize(100, 100, ResamplingFilter.Bell), default },
         {
             "Resize-CatmullRom-2000x2000",
-            new Resize(2000, 2000, ResamplingFiltersAvailable.CatmullRom),
+            new Resize(2000, 2000, ResamplingFilter.CatmullRom),
             default
         },
         {
             "Resize-CatmullRom-100x100",
-            new Resize(100, 100, ResamplingFiltersAvailable.CatmullRom),
+            new Resize(100, 100, ResamplingFilter.CatmullRom),
             default
         },
         {
             "Resize-Cosine-2000x2000",
-            new Resize(2000, 2000, ResamplingFiltersAvailable.Cosine),
+            new Resize(2000, 2000, ResamplingFilter.Cosine),
             default
         },
         {
             "Resize-Cosine-100x100",
-            new Resize(100, 100, ResamplingFiltersAvailable.Cosine),
+            new Resize(100, 100, ResamplingFilter.Cosine),
             default
         },
         {
             "Resize-CubicBSpline-2000x2000",
-            new Resize(2000, 2000, ResamplingFiltersAvailable.CubicBSpline),
+            new Resize(2000, 2000, ResamplingFilter.CubicBSpline),
             default
         },
         {
             "Resize-CubicBSpline-100x100",
-            new Resize(100, 100, ResamplingFiltersAvailable.CubicBSpline),
+            new Resize(100, 100, ResamplingFilter.CubicBSpline),
             default
         },
         {
             "Resize-CubicConvolution-2000x2000",
-            new Resize(2000, 2000, ResamplingFiltersAvailable.CubicConvolution),
+            new Resize(2000, 2000, ResamplingFilter.CubicConvolution),
             default
         },
         {
             "Resize-CubicConvolution-100x100",
-            new Resize(100, 100, ResamplingFiltersAvailable.CubicConvolution),
+            new Resize(100, 100, ResamplingFilter.CubicConvolution),
             default
         },
         {
             "Resize-Hermite-2000x2000",
-            new Resize(2000, 2000, ResamplingFiltersAvailable.Hermite),
+            new Resize(2000, 2000, ResamplingFilter.Hermite),
             default
         },
         {
             "Resize-Hermite-100x100",
-            new Resize(100, 100, ResamplingFiltersAvailable.Hermite),
+            new Resize(100, 100, ResamplingFilter.Hermite),
             default
         },
         {
             "Resize-Lanczos3-2000x2000",
-            new Resize(2000, 2000, ResamplingFiltersAvailable.Lanczos3),
+            new Resize(2000, 2000, ResamplingFilter.Lanczos3),
             default
         },
         {
             "Resize-Lanczos3-100x100",
-            new Resize(100, 100, ResamplingFiltersAvailable.Lanczos3),
+            new Resize(100, 100, ResamplingFilter.Lanczos3),
             default
         },
         {
             "Resize-Lanczos8-2000x2000",
-            new Resize(2000, 2000, ResamplingFiltersAvailable.Lanczos8),
+            new Resize(2000, 2000, ResamplingFilter.Lanczos8),
             default
         },
         {
             "Resize-Lanczos8-100x100",
-            new Resize(100, 100, ResamplingFiltersAvailable.Lanczos8),
+            new Resize(100, 100, ResamplingFilter.Lanczos8),
             default
         },
         {
             "Resize-Mitchell-2000x2000",
-            new Resize(2000, 2000, ResamplingFiltersAvailable.Mitchell),
+            new Resize(2000, 2000, ResamplingFilter.Mitchell),
             default
         },
         {
             "Resize-Mitchell-100x100",
-            new Resize(100, 100, ResamplingFiltersAvailable.Mitchell),
+            new Resize(100, 100, ResamplingFilter.Mitchell),
             default
         },
         {
             "Resize-Quadratic-2000x2000",
-            new Resize(2000, 2000, ResamplingFiltersAvailable.Quadratic),
+            new Resize(2000, 2000, ResamplingFilter.Quadratic),
             default
         },
         {
             "Resize-Quadratic-100x100",
-            new Resize(100, 100, ResamplingFiltersAvailable.Quadratic),
+            new Resize(100, 100, ResamplingFilter.Quadratic),
             default
         },
         {
             "Resize-QuadraticBSpline-2000x2000",
-            new Resize(2000, 2000, ResamplingFiltersAvailable.QuadraticBSpline),
+            new Resize(2000, 2000, ResamplingFilter.QuadraticBSpline),
             default
         },
         {
             "Resize-QuadraticBSpline-100x100",
-            new Resize(100, 100, ResamplingFiltersAvailable.QuadraticBSpline),
+            new Resize(100, 100, ResamplingFilter.QuadraticBSpline),
             default
         },
         {
             "Resize-Triangle-2000x2000",
-            new Resize(2000, 2000, ResamplingFiltersAvailable.Triangle),
+            new Resize(2000, 2000, ResamplingFilter.Triangle),
             default
         },
         {
             "Resize-Triangle-100x100",
-            new Resize(100, 100, ResamplingFiltersAvailable.Triangle),
+            new Resize(100, 100, ResamplingFilter.Triangle),
             default
         },
     };

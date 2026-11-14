@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-using ChromaFx.Core;
-using ChromaFx.Core.Colors;
 using ChromaFx.Processing.Filters.Effects;
 using Xunit;
 
