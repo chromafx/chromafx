@@ -49,6 +49,9 @@ public class RetroFilters : FilterTestBaseClass
         { "Bevel", new Bevel(2, BevelStyle.Raised), default },
         { "Bevel-Pressed", new Bevel(3, BevelStyle.Pressed), default },
         { "RetroMode-320x200", new RetroMode(320, 200), default },
+        { "Halftone", new Halftone(6, 45f, 1f), default },
+        { "ChromaticAberration", new ChromaticAberration(4f, 1f), default },
+        { "CcdBloom", new CcdBloom(0.85f, 12, 0.65f), default },
     };
 
     [Theory]
@@ -451,5 +454,129 @@ public class RetroModeSyntheticTests
         image.GetRowSpan(0)[0] = new Color(9, 8, 7, 6);
         image.Mutate(ctx => ctx.RetroMode(32, 24));
         Assert.Equal(new Color(9, 8, 7, 6), image.GetRowSpan(0)[0]);
+    }
+}
+
+public class HalftoneSyntheticTests
+{
+    [Fact]
+    public void BlackFillsWithInk_WhiteStaysPaper()
+    {
+        var image = new Image(12, 12);
+        for (var y = 0; y < 12; y++)
+        {
+            var row = image.GetRowSpan(y);
+            for (var x = 0; x < 12; x++)
+                row[x] = x < 6 ? Color.Black : Color.White;
+        }
+
+        image.Mutate(ctx => ctx.Halftone(4, 45f, 1f));
+
+        // Left half (black source) should be mostly ink; right mostly paper.
+        Assert.True(image.GetRowSpan(6)[2].Red < 40);
+        Assert.True(image.GetRowSpan(6)[9].Red > 215);
+    }
+
+    [Fact]
+    public void ZeroStrength_IsNoOp()
+    {
+        var image = new Image(4, 4);
+        image.GetRowSpan(0)[0] = new Color(10, 20, 30, 40);
+        image.Mutate(ctx => ctx.Halftone(strength: 0f));
+        Assert.Equal(new Color(10, 20, 30, 40), image.GetRowSpan(0)[0]);
+    }
+
+    [Fact]
+    public void PreservesAlpha()
+    {
+        var image = new Image(8, 8);
+        for (var y = 0; y < 8; y++)
+            image.GetRowSpan(y).Fill(new Color(128, 128, 128, 180));
+
+        image.Mutate(ctx => ctx.Halftone(4));
+        Assert.Equal(180, image.GetRowSpan(3)[3].Alpha);
+    }
+}
+
+public class ChromaticAberrationSyntheticTests
+{
+    [Fact]
+    public void CenterPixel_UnchangedAtZeroRadial()
+    {
+        var image = new Image(5, 5);
+        for (var y = 0; y < 5; y++)
+            image.GetRowSpan(y).Fill(new Color(100, 150, 200));
+
+        image.GetRowSpan(2)[2] = new Color(10, 20, 30, 255);
+        image.Mutate(ctx => ctx.ChromaticAberration(4f, 1f));
+
+        // Exact center has radial 0 → keep center sample.
+        Assert.Equal(new Color(10, 20, 30, 255), image.GetRowSpan(2)[2]);
+    }
+
+    [Fact]
+    public void Corner_SplitsRedAndBlue()
+    {
+        var image = new Image(9, 9);
+        for (var y = 0; y < 9; y++)
+            image.GetRowSpan(y).Fill(new Color(40, 40, 40));
+
+        // Distinct neighbors so a radial sample shift is visible at the corner.
+        image.GetRowSpan(0)[0] = new Color(200, 40, 40);
+        image.GetRowSpan(0)[1] = new Color(10, 40, 250);
+        image.GetRowSpan(1)[0] = new Color(10, 40, 250);
+
+        image.Mutate(ctx => ctx.ChromaticAberration(3f, 1f));
+
+        var corner = image.GetRowSpan(0)[0];
+        Assert.Equal(40, corner.Green);
+        Assert.True(corner.Red != corner.Blue || corner.Red != 200);
+    }
+
+    [Fact]
+    public void ZeroAmount_IsNoOp()
+    {
+        var image = new Image(3, 3);
+        image.GetRowSpan(0)[0] = new Color(1, 2, 3, 4);
+        image.Mutate(ctx => ctx.ChromaticAberration(0f));
+        Assert.Equal(new Color(1, 2, 3, 4), image.GetRowSpan(0)[0]);
+    }
+}
+
+public class CcdBloomSyntheticTests
+{
+    [Fact]
+    public void HotPixel_StreaksHorizontally()
+    {
+        var image = new Image(21, 7);
+        for (var y = 0; y < 7; y++)
+            image.GetRowSpan(y).Fill(new Color(20, 20, 20));
+
+        image.GetRowSpan(3)[10] = Color.White;
+        image.Mutate(ctx => ctx.CcdBloom(0.8f, 5, 1f));
+
+        Assert.True(image.GetRowSpan(3)[12].Red > 20);
+        Assert.True(image.GetRowSpan(3)[8].Red > 20);
+        Assert.True(image.GetRowSpan(5)[10].Red > 20);
+    }
+
+    [Fact]
+    public void ZeroStrength_IsNoOp()
+    {
+        var image = new Image(4, 4);
+        image.GetRowSpan(0)[0] = Color.White;
+        image.Mutate(ctx => ctx.CcdBloom(strength: 0f));
+        Assert.Equal(Color.White, image.GetRowSpan(0)[0]);
+    }
+
+    [Fact]
+    public void PreservesAlpha()
+    {
+        var image = new Image(5, 5);
+        for (var y = 0; y < 5; y++)
+            image.GetRowSpan(y).Fill(new Color(250, 250, 250, 90));
+
+        image.Mutate(ctx => ctx.CcdBloom(0.5f, 2, 1f));
+        Assert.Equal(90, image.GetRowSpan(2)[2].Alpha);
     }
 }

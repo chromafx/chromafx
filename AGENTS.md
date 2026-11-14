@@ -10,7 +10,7 @@ Pure C# image processing library (PNG, JPEG, GIF, BMP, TGA, TIFF, ICO). Targets 
 | `src/ChromaFx.IO` | Formats, encoders, Load/Save; `ManagedFormats` ids + `ImageFormats` registry (GIF encode uses Core octree) |
 | `src/ChromaFx.Processing` | Filters, Mutate/Clone, numerics; `IFilter` / `Quantize` / `DitherMethod` in `ChromaFx.Processing.Filters`; resampling enum `ResamplingFilter` + `ResamplingKernels.Create` in `…Filters.Resampling` |
 | `src/ChromaFx.PixelArt` | Opt-in Scale2x / Scale3x / Hq2x–4x / CleanEdge / Eagle / SaI and RotateSprite / CleanEdgeRotate (not in meta-package) |
-| `src/ChromaFx.Retro` | Opt-in retro palettes (CGA / EGA approx / VGA DAC / web-safe) with `OrderedDitherMethod`, plus `BadWebScale`, `Bevel`, `RetroMode`; more Millennium filters planned (not in meta-package) |
+| `src/ChromaFx.Retro` | Opt-in retro palettes (CGA / EGA approx / VGA DAC / web-safe) with `OrderedDitherMethod`, plus `BadWebScale`, `Bevel`, `RetroMode`, `Halftone`, `ChromaticAberration`, `CcdBloom`; more Millennium filters planned (not in meta-package) |
 | `src/ChromaFx.Native` | Opt-in still WebP/AVIF/JPEG XL (not in meta-package; build RID libs with `native/build.sh`) |
 | `src/ChromaFx` | Meta-package only (refs + `buildTransitive` usings) |
 | `tests/ChromaFx.Tests` | Unit + golden-file regression |

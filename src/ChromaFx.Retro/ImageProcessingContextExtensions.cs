@@ -92,4 +92,33 @@ public static class ImageProcessingContextExtensions
         int width = 320,
         int height = 200
     ) => context.Apply(new RetroMode(width, height));
+
+    /// <summary>
+    /// Rotated circular-dot halftone screen (black ink on white paper look-alike).
+    /// </summary>
+    public static IImageProcessingContext Halftone(
+        this IImageProcessingContext context,
+        int cellSize = 6,
+        float angleDegrees = 45f,
+        float strength = 1f
+    ) => context.Apply(new Halftone(cellSize, angleDegrees, strength));
+
+    /// <summary>
+    /// Radial red/blue channel shift from the image center (purple-fringe look-alike).
+    /// </summary>
+    public static IImageProcessingContext ChromaticAberration(
+        this IImageProcessingContext context,
+        float amount = 3f,
+        float strength = 1f
+    ) => context.Apply(new ChromaticAberration(amount, strength));
+
+    /// <summary>
+    /// Digicam flash glare: clipped whites plus a faint cross streak from bright sources.
+    /// </summary>
+    public static IImageProcessingContext CcdBloom(
+        this IImageProcessingContext context,
+        float threshold = 0.85f,
+        int radius = 12,
+        float strength = 0.65f
+    ) => context.Apply(new CcdBloom(threshold, radius, strength));
 }
