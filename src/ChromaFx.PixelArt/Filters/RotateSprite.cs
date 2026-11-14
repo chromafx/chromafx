@@ -30,7 +30,15 @@ namespace ChromaFx.PixelArt.Filters;
 /// Positive <see cref="Degrees"/> is counterclockwise.
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class RotateSprite : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="RotateSprite"/> class.
+/// </remarks>
+/// <param name="degrees">Rotation angle in degrees (counterclockwise).</param>
+/// <param name="emptyColor">
+/// Fill for samples outside the sprite. Default (<c>default</c> / transparent black)
+/// resolves to opaque black so uncovered areas are not see-through.
+/// </param>
+public class RotateSprite(float degrees, Color emptyColor = default) : IFilter
 {
     private const int ScaleFactor = 8;
 
@@ -43,25 +51,11 @@ public class RotateSprite : IFilter
     /// <summary>Opaque black used when empty fill is left at default.</summary>
     private static readonly Color OpaqueBlack = new(0, 0, 0, 255);
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="RotateSprite"/> class.
-    /// </summary>
-    /// <param name="degrees">Rotation angle in degrees (counterclockwise).</param>
-    /// <param name="emptyColor">
-    /// Fill for samples outside the sprite. Default (<c>default</c> / transparent black)
-    /// resolves to opaque black so uncovered areas are not see-through.
-    /// </param>
-    public RotateSprite(float degrees, Color emptyColor = default)
-    {
-        Degrees = degrees;
-        EmptyColor = emptyColor.IntData == 0 ? OpaqueBlack : emptyColor;
-    }
-
     /// <summary>Rotation angle in degrees (counterclockwise).</summary>
-    public float Degrees { get; }
+    public float Degrees { get; } = degrees;
 
     /// <summary>Fill for out-of-bounds samples (opaque black when ctor default).</summary>
-    public Color EmptyColor { get; }
+    public Color EmptyColor { get; } = emptyColor.IntData == 0 ? OpaqueBlack : emptyColor;
 
     /// <inheritdoc />
     public Image Apply(Image image, Rectangle targetLocation = default)

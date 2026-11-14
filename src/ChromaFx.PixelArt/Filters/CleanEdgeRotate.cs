@@ -33,52 +33,43 @@ namespace ChromaFx.PixelArt.Filters;
 /// Positive <see cref="Degrees"/> is counterclockwise. Cleanup is off (rotation mode).
 /// </summary>
 /// <seealso cref="IFilter"/>
-public class CleanEdgeRotate : IFilter
+/// <remarks>
+/// Initializes a new instance of the <see cref="CleanEdgeRotate"/> class.
+/// </remarks>
+/// <param name="degrees">Rotation angle in degrees (counterclockwise).</param>
+/// <param name="emptyColor">
+/// Fill for samples outside the sprite. Default resolves to opaque black.
+/// </param>
+/// <param name="lineWidth">Edge spread (shader default 1). Clamped internally.</param>
+/// <param name="similarThreshold">RGBA distance for “similar” (default 0 = exact).</param>
+/// <param name="highestColor">Priority color for overlaps (default white).</param>
+public class CleanEdgeRotate(
+    float degrees,
+    Color emptyColor = default,
+    float lineWidth = 1f,
+    float similarThreshold = 0f,
+    Color highestColor = default
+    ) : IFilter
 {
     private static readonly Color OpaqueBlack = new(0, 0, 0, 255);
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="CleanEdgeRotate"/> class.
-    /// </summary>
-    /// <param name="degrees">Rotation angle in degrees (counterclockwise).</param>
-    /// <param name="emptyColor">
-    /// Fill for samples outside the sprite. Default resolves to opaque black.
-    /// </param>
-    /// <param name="lineWidth">Edge spread (shader default 1). Clamped internally.</param>
-    /// <param name="similarThreshold">RGBA distance for “similar” (default 0 = exact).</param>
-    /// <param name="highestColor">Priority color for overlaps (default white).</param>
-    public CleanEdgeRotate(
-        float degrees,
-        Color emptyColor = default,
-        float lineWidth = 1f,
-        float similarThreshold = 0f,
-        Color highestColor = default
-    )
-    {
-        Degrees = degrees;
-        EmptyColor = emptyColor.IntData == 0 ? OpaqueBlack : emptyColor;
-        LineWidth = lineWidth;
-        SimilarThreshold = similarThreshold;
-        HighestColor =
+    /// <summary>Rotation angle in degrees (counterclockwise).</summary>
+    public float Degrees { get; } = degrees;
+
+    /// <summary>Fill for out-of-bounds samples (opaque black when ctor default).</summary>
+    public Color EmptyColor { get; } = emptyColor.IntData == 0 ? OpaqueBlack : emptyColor;
+
+    /// <summary>How far edges spread into neighbors.</summary>
+    public float LineWidth { get; } = lineWidth;
+
+    /// <summary>Distance threshold for treating colors as similar.</summary>
+    public float SimilarThreshold { get; } = similarThreshold;
+
+    /// <summary>Color preferred in overlap priority (closer colors win).</summary>
+    public Color HighestColor { get; } =
             highestColor.IntData == 0 && highestColor.Alpha == 0
                 ? Color.White
                 : highestColor;
-    }
-
-    /// <summary>Rotation angle in degrees (counterclockwise).</summary>
-    public float Degrees { get; }
-
-    /// <summary>Fill for out-of-bounds samples (opaque black when ctor default).</summary>
-    public Color EmptyColor { get; }
-
-    /// <summary>How far edges spread into neighbors.</summary>
-    public float LineWidth { get; }
-
-    /// <summary>Distance threshold for treating colors as similar.</summary>
-    public float SimilarThreshold { get; }
-
-    /// <summary>Color preferred in overlap priority (closer colors win).</summary>
-    public Color HighestColor { get; }
 
     /// <inheritdoc />
     public Image Apply(Image image, Rectangle targetLocation = default)
