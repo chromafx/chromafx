@@ -43,27 +43,29 @@ public class ColorMatrixFilters : FilterTestBaseClass
         { "Sepiatone", new Sepiatone(), default },
         { "MatrixMultiplication", new PolaroidColorMatrix() * new Brightness(.1f), default },
         {
-            "Temperature--CandleLight",
-            new Temperature(Temperature.Temperatures.CandleLight),
+            "KelvinTint--CandleLight",
+            new KelvinTint(KelvinTint.Presets.CandleLight),
             default
         },
-        { "Temperature--Twilight", new Temperature(Temperature.Temperatures.Twilight), default },
-        { "Temperature--Moonlight", new Temperature(Temperature.Temperatures.Moonlight), default },
-        { "Temperature--SunAtNoon", new Temperature(Temperature.Temperatures.SunAtNoon), default },
-        { "Temperature--CloudySky", new Temperature(Temperature.Temperatures.CloudySky), default },
+        { "KelvinTint--Twilight", new KelvinTint(KelvinTint.Presets.Twilight), default },
+        { "KelvinTint--Moonlight", new KelvinTint(KelvinTint.Presets.Moonlight), default },
+        { "KelvinTint--SunAtNoon", new KelvinTint(KelvinTint.Presets.SunAtNoon), default },
+        { "KelvinTint--CloudySky", new KelvinTint(KelvinTint.Presets.CloudySky), default },
         {
-            "Temperature--OutdoorShade",
-            new Temperature(Temperature.Temperatures.OutdoorShade),
+            "KelvinTint--OutdoorShade",
+            new KelvinTint(KelvinTint.Presets.OutdoorShade),
             default
         },
         {
-            "Temperature--ClearBlueSky",
-            new Temperature(Temperature.Temperatures.ClearBlueSky),
+            "KelvinTint--ClearBlueSky",
+            new KelvinTint(KelvinTint.Presets.ClearBlueSky),
             default
         },
-        { "Temperature--15000", new Temperature(15000), default },
-        { "Temperature--25000", new Temperature(25000), default },
-        { "Temperature--40000", new Temperature(40000), default },
+        { "KelvinTint--15000", new KelvinTint(15000), default },
+        { "KelvinTint--25000", new KelvinTint(25000), default },
+        { "KelvinTint--40000", new KelvinTint(40000), default },
+        { "Tint-Green", new Tint(0.5f), default },
+        { "Tint-Magenta", new Tint(-0.5f), default },
         {
             "ColorMatrix",
             new ColorMatrix(
