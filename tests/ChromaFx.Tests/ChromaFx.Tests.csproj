@@ -31,5 +31,6 @@
     <ProjectReference Include="..\..\src\ChromaFx\ChromaFx.csproj" />
     <ProjectReference Include="..\..\src\ChromaFx.Native\ChromaFx.Native.csproj" />
     <ProjectReference Include="..\..\src\ChromaFx.PixelArt\ChromaFx.PixelArt.csproj" />
+    <ProjectReference Include="..\..\src\ChromaFx.Retro\ChromaFx.Retro.csproj" />
   </ItemGroup>
 </Project>

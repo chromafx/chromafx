@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Title>ChromaFx.Retro</Title>
+    <Authors>Ho Tzin Mein</Authors>
+    <Description>Retro hardware palettes, 90s web/Win9x UI looks, and early-2000s filter effects for ChromaFx. Opt-in pack (not in the meta-package).</Description>
+    <Copyright>Copyright $([System.DateTime]::Now.Year) Ho Tzin Mein</Copyright>
+    <RepositoryUrl>https://github.com/chromafx/chromafx</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>image graphics bitmap retro cga ega vga websafe dither bevel chromafx imageprocessing dotnet csharp</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\assets\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ChromaFx.Core\ChromaFx.Core.csproj" />
+    <ProjectReference Include="..\ChromaFx.Processing\ChromaFx.Processing.csproj" />
+  </ItemGroup>
+</Project>

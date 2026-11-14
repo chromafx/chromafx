@@ -12,7 +12,7 @@
     <File Path="README.md" />
   </Folder>
   <Folder Name="/samples/">
-    <Project Path="samples/TerminalArt/TerminalArt.csproj" />
+    <Project Path="samples/TextArt/TextArt.csproj" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/ChromaFx/ChromaFx.csproj" />
@@ -21,6 +21,7 @@
     <Project Path="src/ChromaFx.Native/ChromaFx.Native.csproj" />
     <Project Path="src/ChromaFx.PixelArt/ChromaFx.PixelArt.csproj" />
     <Project Path="src/ChromaFx.Processing/ChromaFx.Processing.csproj" />
+    <Project Path="src/ChromaFx.Retro/ChromaFx.Retro.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/ChromaFx.Benchmarks/ChromaFx.Benchmarks.csproj" />

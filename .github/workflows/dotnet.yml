@@ -286,6 +286,9 @@ jobs:
       - name: Pack ChromaFx.PixelArt
         if: startsWith(github.ref, 'refs/tags/')
         run: dotnet pack src/ChromaFx.PixelArt/ChromaFx.PixelArt.csproj -c Release -o ./artifacts /p:Version=$VERSION --no-build
+      - name: Pack ChromaFx.Retro
+        if: startsWith(github.ref, 'refs/tags/')
+        run: dotnet pack src/ChromaFx.Retro/ChromaFx.Retro.csproj -c Release -o ./artifacts /p:Version=$VERSION --no-build
       - name: Pack ChromaFx.Native
         if: startsWith(github.ref, 'refs/tags/')
         run: dotnet pack src/ChromaFx.Native/ChromaFx.Native.csproj -c Release -o ./artifacts /p:Version=$VERSION --no-build

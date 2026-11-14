@@ -6,4 +6,5 @@ global using ChromaFx.IO.Formats;
 global using ChromaFx.Processing;
 global using ChromaFx.Processing.Filters.Interfaces;
 global using ChromaFx.Processing.Numerics;
+global using ChromaFx.Processing.HtmlArt;
 global using ChromaFx.Processing.Terminal;
