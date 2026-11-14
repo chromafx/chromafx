@@ -10,6 +10,7 @@ Pure C# image processing library (PNG, JPEG, GIF, BMP, TGA, TIFF, ICO). Targets 
 | `src/ChromaFx.IO` | Formats, encoders, Load/Save, `ImageFormats` registry |
 | `src/ChromaFx.Processing` | Filters, Mutate/Clone, numerics |
 | `src/ChromaFx.PixelArt` | Opt-in Scale2x / Scale3x / Hq2xâ€“4x / CleanEdge / Eagle / SaI and RotateSprite / CleanEdgeRotate (not in meta-package) |
+| `src/ChromaFx.Retro` | Opt-in retro palettes (CGA / EGA approx / VGA DAC / web-safe) and planned dither / UI / Millennium filters (not in meta-package) |
 | `src/ChromaFx.Native` | Opt-in still WebP/AVIF/JPEG XL (not in meta-package; build RID libs with `native/build.sh`) |
 | `src/ChromaFx` | Meta-package only (refs + `buildTransitive` usings) |
 | `tests/ChromaFx.Tests` | Unit + golden-file regression |
@@ -24,6 +25,9 @@ Shared TFMs/version: `Directory.Build.props` (`GeneratePackageOnBuild` is off â€
 ```bash
 dotnet build -c Release
 dotnet test -c Release --verbosity minimal
+
+# NativeCodecTests fail unless native/build.sh has been run; skip them when not touching ChromaFx.Native
+dotnet test -c Release --verbosity minimal --filter-not-class ChromaFx.Tests.NativeCodecTests
 
 # Filter one golden test (Microsoft Testing Platform / xunit.v3)
 dotnet test -c Release --filter-class ResamplingFilters
@@ -52,7 +56,7 @@ Tests use **Microsoft Testing Platform** (`global.json` `test.runner` + xunit.v3
 
 ## Where to look
 
-- Path-scoped agent rules (local only, gitignored): `.devin/rules/`
+- Path-scoped agent rules (local only, gitignored): `.cursor/rules/` (also `.devin/rules/`)
 - Filter harness: `tests/ChromaFx.Tests/BaseClasses/FilterTestBaseClass.cs`
 - Golden compare / tolerance: `tests/ChromaFx.Tests/BaseClasses/TestBaseClass.cs`
 - Parallelism: `tests/ChromaFx.Tests/BaseClasses/FilterCollection.cs`

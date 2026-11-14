@@ -8,8 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.3]
+
+Managed ICO, EXIF orientation, KelvinTint/Tint/WhiteBalance, HtmlArt, Retro quantize, plus filter correctness and perf.
+
 ### Added
+- **`KelvinTint`** (Helland blackbody illuminant tint; replaces `Temperature`) and **`Tint`** (green↔magenta). Fluent: `KelvinTint(kelvin)`, `Tint(amount)`.
+- **`WhiteBalance(kelvin, tint?)`** (inverse Helland correction) and **`AutoWhiteBalance`** (`GrayWorld` / `WhitePatch`). Fluent helpers match.
+- Many Processing fluent helpers: `Median`, `Unsharp`, `Posterize`, `Solarize`, `Jitter`, `Glow`, `Vignette`, `Blend`, `AdaptiveThreshold`, `Canny`, `DrawLine`, `Skew`, `Translate`, `ResizeCanvas`, `AdaptiveEqualize`, `Logarithm`, `Alpha`, `Kodachrome`, `Polaroid`, `Lomograph`, `Kuwahara`, `SnnBlur`, …
+- **`ChromaFx.Processing.HtmlArt`** — `ToHtmlArt` / `AppendHtmlArt` / `WriteHtmlArt` with `HtmlArtOptions` (fixed-width colored HTML; half-block / full-block sampling shared with terminal ANSI). Split from `Terminal` ASCII/ANSI/Kitty/iTerm2 APIs. Sample renamed `samples/TextArt`.
+- Opt-in **`ChromaFx.Retro`** (not in the meta-package): `WebSafeQuantize` (Netscape 6×6×6), `CgaQuantize` (Mode 4 / RGBI / mono palettes), `EgaQuantize` (64-color `00/55/AA/FF` approximation), `VgaQuantize` (6-bit DAC levels). Alpha preserved.
 - Managed ICO. Decode uses the largest image in the file (PNG, or uncompressed 1/4/8/24/32-bit BMP plus the AND mask). `IcoEncoder` writes one PNG image, at most 256×256. `FileFormats.Ico` is `ico`.
+
+### Removed
+- **`Temperature`** — use `KelvinTint` (same Helland math; illuminant tint, not white balance).
 
 ### Changed
 - JPEG, PNG, TIFF, and WebP decode bake EXIF/TIFF orientation (tag 274, values 1–8) into the pixels. TIFF no longer rejects orientations other than top-left. The saved file does not keep the orientation tag, so a later load does not rotate twice.
@@ -18,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Filters: `Median` and `AdaptiveEqualize` slide per-channel histograms instead of sorting/rebuilding per pixel; `Kuwahara` and `AdaptiveThreshold` use column sums; `Dilate`/`Constrict` are separable; `PerlinNoise`/`Turbulence` generate rows in parallel; TGA encodes whole rows and decodes uncompressed 24/32-bit directly (bit-identical output).
 
 ### Fixed
+- Terminal/HTML art: half-block auto `CharacterAspect` is `2` (same as ASCII/full-block). The old `1` made images look about half as wide as they should on typical monospace cells.
+- PNG: decoding files with `iTXt` / `tEXt` chunks no longer throws `NullReferenceException` (`Properties` list was never initialized).
 - JPEG: progressive files with restart intervals decode (non-interleaved scans counted restart intervals per interleaved MCU instead of per block and failed with `MissingFf00`).
 - Pixellate averages the neighborhood pixels (was always sampling the block origin) and no longer divides by zero or hangs for `PixelSize <= 1`.
 - NonMaximalSuppression visits the top-right diagonal during hysteresis (`Right` bound was mistyped as `Left`); strong edges are marked before a serial flood (no parallel races); isolated strong pixels are kept.
