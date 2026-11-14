@@ -22,6 +22,14 @@ host_rid() {
       exit 1
       ;;
   esac
+  # Git Bash / MSYS on Windows ARM64 often runs as an x64 process, so uname -m
+  # is x86_64. Prefer the OS arch from the kernel name or PROCESSOR_* vars.
+  case "$kernel" in
+    *-ARM64 | *-arm64) arch="arm64" ;;
+  esac
+  case "${PROCESSOR_ARCHITECTURE:-}_${PROCESSOR_ARCHITEW6432:-}" in
+    *ARM64* | *arm64*) arch="arm64" ;;
+  esac
   case "$kernel" in
     Darwin) echo "osx-$arch" ;;
     Linux) echo "linux-$arch" ;;
@@ -180,7 +188,11 @@ prefer_msvc_link() {
   fi
   raw="${raw//\\//}"
   [[ "$raw" == */ ]] || raw="${raw}/"
-  local link_dir="${raw}bin/Hostx64/x64"
+  local link_dir
+  case "$RID" in
+    win-arm64) link_dir="${raw}bin/Hostarm64/arm64" ;;
+    *) link_dir="${raw}bin/Hostx64/x64" ;;
+  esac
   if [[ ! -e "$link_dir/link.exe" ]]; then
     echo "MSVC link.exe not found at $link_dir" >&2
     exit 1

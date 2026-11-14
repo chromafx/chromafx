@@ -167,6 +167,9 @@ jobs:
       - name: MSVC environment
         if: startsWith(matrix.os, 'windows')
         uses: ilammy/msvc-dev-cmd@v1
+        with:
+          # windows-11-arm: native ARM64 toolchain (Git Bash still reports x86_64).
+          arch: ${{ matrix.rid == 'win-arm64' && 'arm64' || 'x64' }}
 
       - name: Build codecs
         shell: bash
