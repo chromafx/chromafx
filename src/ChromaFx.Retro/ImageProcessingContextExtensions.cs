@@ -121,4 +121,116 @@ public static class ImageProcessingContextExtensions
         int radius = 12,
         float strength = 0.65f
     ) => context.Apply(new CcdBloom(threshold, radius, strength));
+
+    /// <summary>
+    /// Dramatic lens flare (hot spot, anamorphic streak, colored ghosts).
+    /// </summary>
+    public static IImageProcessingContext LensFlare(
+        this IImageProcessingContext context,
+        float centerX = 0.32f,
+        float centerY = 0.28f,
+        float strength = 0.85f
+    ) => context.Apply(new LensFlare(centerX, centerY, strength));
+
+    /// <summary>
+    /// Liquid-metal chrome (luma metal ramp + fake specular).
+    /// </summary>
+    public static IImageProcessingContext LiquidChrome(
+        this IImageProcessingContext context,
+        float strength = 1f
+    ) => context.Apply(new LiquidChrome(strength));
+
+    /// <summary>
+    /// Plastic-wrap / jelly sheen (edge highlights).
+    /// </summary>
+    public static IImageProcessingContext PlasticWrap(
+        this IImageProcessingContext context,
+        float strength = 0.75f
+    ) => context.Apply(new PlasticWrap(strength));
+
+    /// <summary>
+    /// Early low-quality JPEG macroblock look-alike (NxN crush; not a DCT codec).
+    /// </summary>
+    public static IImageProcessingContext JpegBlocks(
+        this IImageProcessingContext context,
+        int blockSize = 8,
+        float strength = 0.85f
+    ) => context.Apply(new JpegBlocks(blockSize, strength));
+
+    /// <summary>Page curl from a bottom corner.</summary>
+    public static IImageProcessingContext PageCurl(
+        this IImageProcessingContext context,
+        float amount = 0.55f,
+        bool fromRight = true
+    ) => context.Apply(new PageCurl(amount, fromRight));
+
+    /// <summary>Twirl / pinch / sphere warp.</summary>
+    public static IImageProcessingContext Warp(
+        this IImageProcessingContext context,
+        WarpMode mode = WarpMode.Twirl,
+        float amount = 1f,
+        float radius = 0.85f,
+        float centerX = 0.5f,
+        float centerY = 0.5f
+    ) => context.Apply(new Warp(mode, amount, radius, centerX, centerY));
+
+    /// <summary>Circular glass lens refraction + rim.</summary>
+    public static IImageProcessingContext GlassLens(
+        this IImageProcessingContext context,
+        float refraction = 0.65f,
+        float radius = 0.45f,
+        float centerX = 0.5f,
+        float centerY = 0.5f,
+        float rim = 0.7f
+    ) => context.Apply(new GlassLens(refraction, radius, centerX, centerY, rim));
+
+    /// <summary>Polar kaleidoscope mirror.</summary>
+    public static IImageProcessingContext Kaleidoscope(
+        this IImageProcessingContext context,
+        int segments = 8,
+        float centerX = 0.5f,
+        float centerY = 0.5f
+    ) => context.Apply(new Kaleidoscope(segments, centerX, centerY));
+
+    /// <summary>Polar vortex / tile remapping.</summary>
+    public static IImageProcessingContext VortexTile(
+        this IImageProcessingContext context,
+        float twist = 2f,
+        float zoom = 1f,
+        float centerX = 0.5f,
+        float centerY = 0.5f
+    ) => context.Apply(new VortexTile(twist, zoom, centerX, centerY));
+
+    /// <summary>Branching lightning bolt overlay.</summary>
+    public static IImageProcessingContext Lightning(
+        this IImageProcessingContext context,
+        int seed = 42,
+        float strength = 0.9f,
+        int bolts = 2
+    ) => context.Apply(new Lightning(seed, strength, bolts));
+
+    /// <summary>Fractal noise texture overlay.</summary>
+    public static IImageProcessingContext FractalNoise(
+        this IImageProcessingContext context,
+        float strength = 0.55f,
+        float frequency = 0.02f,
+        int seed = 1337,
+        int octaves = 4
+    ) => context.Apply(new FractalNoise(strength, frequency, seed, octaves));
+
+    /// <summary>Multi-sine demoscene plasma.</summary>
+    public static IImageProcessingContext Plasma(
+        this IImageProcessingContext context,
+        float strength = 1f,
+        float scale = 0.08f,
+        float time = 0f
+    ) => context.Apply(new Plasma(strength, scale, time));
+
+    /// <summary>Cooling-buffer fire overlay.</summary>
+    public static IImageProcessingContext Fire(
+        this IImageProcessingContext context,
+        float strength = 0.85f,
+        int seed = 7,
+        float cooling = 1f
+    ) => context.Apply(new Fire(strength, seed, cooling));
 }

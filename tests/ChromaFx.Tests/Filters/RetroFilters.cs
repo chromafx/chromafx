@@ -52,6 +52,21 @@ public class RetroFilters : FilterTestBaseClass
         { "Halftone", new Halftone(6, 45f, 1f), default },
         { "ChromaticAberration", new ChromaticAberration(4f, 1f), default },
         { "CcdBloom", new CcdBloom(0.85f, 12, 0.65f), default },
+        { "LensFlare", new LensFlare(0.32f, 0.28f, 0.85f), default },
+        { "LiquidChrome", new LiquidChrome(1f), default },
+        { "PlasticWrap", new PlasticWrap(0.75f), default },
+        { "JpegBlocks", new JpegBlocks(8, 0.85f), default },
+        { "PageCurl", new PageCurl(0.55f, true), default },
+        { "Warp-Twirl", new Warp(WarpMode.Twirl, 1.2f, 0.85f), default },
+        { "Warp-Pinch", new Warp(WarpMode.Pinch, 0.8f, 0.85f), default },
+        { "Warp-Sphere", new Warp(WarpMode.Sphere, 0.9f, 0.85f), default },
+        { "GlassLens", new GlassLens(0.65f, 0.45f), default },
+        { "Kaleidoscope", new Kaleidoscope(8), default },
+        { "VortexTile", new VortexTile(2f, 1f), default },
+        { "Lightning", new Lightning(42, 0.9f, 2), default },
+        { "FractalNoise", new FractalNoise(0.55f, 0.02f, 1337, 4), default },
+        { "Plasma", new Plasma(1f, 0.08f, 0f), default },
+        { "Fire", new Fire(0.85f, 7, 1f), default },
     };
 
     [Theory]
@@ -578,5 +593,209 @@ public class CcdBloomSyntheticTests
 
         image.Mutate(ctx => ctx.CcdBloom(0.5f, 2, 1f));
         Assert.Equal(90, image.GetRowSpan(2)[2].Alpha);
+    }
+}
+
+public class LensFlareSyntheticTests
+{
+    [Fact]
+    public void HotSpot_BrightensNearCenter()
+    {
+        var image = new Image(64, 64);
+        for (var y = 0; y < 64; y++)
+            image.GetRowSpan(y).Fill(new Color(10, 10, 10));
+
+        image.Mutate(ctx => ctx.LensFlare(0.5f, 0.5f, 1f));
+        Assert.True(image.GetRowSpan(32)[32].Red > 40);
+    }
+
+    [Fact]
+    public void ZeroStrength_IsNoOp()
+    {
+        var image = new Image(4, 4);
+        image.GetRowSpan(0)[0] = new Color(1, 2, 3, 4);
+        image.Mutate(ctx => ctx.LensFlare(strength: 0f));
+        Assert.Equal(new Color(1, 2, 3, 4), image.GetRowSpan(0)[0]);
+    }
+
+    [Fact]
+    public void PreservesAlpha()
+    {
+        var image = new Image(16, 16);
+        for (var y = 0; y < 16; y++)
+            image.GetRowSpan(y).Fill(new Color(20, 20, 20, 77));
+        image.Mutate(ctx => ctx.LensFlare(0.5f, 0.5f, 1f));
+        Assert.Equal(77, image.GetRowSpan(8)[8].Alpha);
+    }
+}
+
+public class LiquidChromeSyntheticTests
+{
+    [Fact]
+    public void White_GoesBrightMetal()
+    {
+        var image = new Image(8, 8);
+        for (var y = 0; y < 8; y++)
+            image.GetRowSpan(y).Fill(Color.White);
+        image.Mutate(ctx => ctx.LiquidChrome(1f));
+        Assert.True(image.GetRowSpan(4)[4].Red > 200);
+    }
+
+    [Fact]
+    public void ZeroStrength_IsNoOp()
+    {
+        var image = new Image(3, 3);
+        image.GetRowSpan(0)[0] = new Color(9, 8, 7, 6);
+        image.Mutate(ctx => ctx.LiquidChrome(0f));
+        Assert.Equal(new Color(9, 8, 7, 6), image.GetRowSpan(0)[0]);
+    }
+}
+
+public class PlasticWrapSyntheticTests
+{
+    [Fact]
+    public void Edge_GetsSheen()
+    {
+        var image = new Image(16, 16);
+        for (var y = 0; y < 16; y++)
+            image.GetRowSpan(y).Fill(new Color(40, 40, 40));
+        for (var y = 4; y < 12; y++)
+            for (var x = 4; x < 12; x++)
+                image.GetRowSpan(y)[x] = Color.White;
+
+        image.Mutate(ctx => ctx.PlasticWrap(1f));
+        // Square edge should be brighter than far field.
+        Assert.True(image.GetRowSpan(4)[8].Red > image.GetRowSpan(0)[0].Red);
+    }
+
+    [Fact]
+    public void ZeroStrength_IsNoOp()
+    {
+        var image = new Image(4, 4);
+        image.GetRowSpan(0)[0] = new Color(5, 6, 7, 8);
+        image.Mutate(ctx => ctx.PlasticWrap(0f));
+        Assert.Equal(new Color(5, 6, 7, 8), image.GetRowSpan(0)[0]);
+    }
+}
+
+public class JpegBlocksSyntheticTests
+{
+    [Fact]
+    public void Gradient_FlattensInsideBlock()
+    {
+        var image = new Image(16, 8);
+        for (var y = 0; y < 8; y++)
+        {
+            var row = image.GetRowSpan(y);
+            for (var x = 0; x < 16; x++)
+                row[x] = new Color((byte)(x * 15), 40, 40);
+        }
+
+        image.Mutate(ctx => ctx.JpegBlocks(8, 1f));
+        // First 8 columns share one block — values should be closer than the original ramp.
+        var a = image.GetRowSpan(4)[1].Red;
+        var b = image.GetRowSpan(4)[6].Red;
+        Assert.True(Math.Abs(a - b) < 40);
+    }
+
+    [Fact]
+    public void ZeroStrength_IsNoOp()
+    {
+        var image = new Image(8, 8);
+        image.GetRowSpan(0)[0] = new Color(11, 22, 33, 44);
+        image.Mutate(ctx => ctx.JpegBlocks(strength: 0f));
+        Assert.Equal(new Color(11, 22, 33, 44), image.GetRowSpan(0)[0]);
+    }
+
+    [Fact]
+    public void PreservesAlpha()
+    {
+        var image = new Image(8, 8);
+        for (var y = 0; y < 8; y++)
+            image.GetRowSpan(y).Fill(new Color(100, 50, 25, 120));
+        image.Mutate(ctx => ctx.JpegBlocks(8, 1f));
+        Assert.Equal(120, image.GetRowSpan(3)[3].Alpha);
+    }
+}
+
+public class WarpSyntheticTests
+{
+    [Fact]
+    public void Twirl_MovesOffCenterPixel()
+    {
+        var image = new Image(33, 33);
+        for (var y = 0; y < 33; y++)
+            image.GetRowSpan(y).Fill(new Color(20, 20, 20));
+        image.GetRowSpan(8)[16] = Color.White;
+        image.Mutate(ctx => ctx.Warp(WarpMode.Twirl, 2f, 0.9f));
+        Assert.NotEqual(Color.White, image.GetRowSpan(8)[16]);
+    }
+
+    [Fact]
+    public void ZeroAmountTwirl_LeavesCenterUntouched()
+    {
+        var image = new Image(9, 9);
+        image.GetRowSpan(4)[4] = new Color(1, 2, 3, 4);
+        image.Mutate(ctx => ctx.Warp(WarpMode.Twirl, 0f));
+        Assert.Equal(new Color(1, 2, 3, 4), image.GetRowSpan(4)[4]);
+    }
+}
+
+public class PageCurlSyntheticTests
+{
+    [Fact]
+    public void ZeroAmount_IsNoOp()
+    {
+        var image = new Image(8, 8);
+        image.GetRowSpan(0)[0] = new Color(9, 8, 7, 6);
+        image.Mutate(ctx => ctx.PageCurl(0f));
+        Assert.Equal(new Color(9, 8, 7, 6), image.GetRowSpan(0)[0]);
+    }
+
+    [Fact]
+    public void FullCurl_ChangesCorner()
+    {
+        var image = new Image(32, 32);
+        for (var y = 0; y < 32; y++)
+            image.GetRowSpan(y).Fill(new Color(40, 80, 120));
+        image.Mutate(ctx => ctx.PageCurl(1f, fromRight: true));
+        Assert.NotEqual(new Color(40, 80, 120), image.GetRowSpan(31)[31]);
+    }
+}
+
+public class PlasmaFireSyntheticTests
+{
+    [Fact]
+    public void Plasma_ReplacesUniformField()
+    {
+        var image = new Image(16, 16);
+        for (var y = 0; y < 16; y++)
+            image.GetRowSpan(y).Fill(new Color(10, 10, 10));
+        image.Mutate(ctx => ctx.Plasma(1f, 0.2f));
+        Assert.NotEqual(new Color(10, 10, 10), image.GetRowSpan(8)[8]);
+    }
+
+    [Fact]
+    public void Fire_BrightensBottom()
+    {
+        var image = new Image(24, 24);
+        for (var y = 0; y < 24; y++)
+            image.GetRowSpan(y).Fill(new Color(0, 0, 0));
+        image.Mutate(ctx => ctx.Fire(1f, 7, 1f));
+        Assert.True(image.GetRowSpan(20)[12].Red > 0 || image.GetRowSpan(22)[12].Red > 0);
+    }
+
+    [Fact]
+    public void Lightning_AddsGlow()
+    {
+        var image = new Image(48, 48);
+        for (var y = 0; y < 48; y++)
+            image.GetRowSpan(y).Fill(new Color(0, 0, 0));
+        image.Mutate(ctx => ctx.Lightning(1, 1f, 1));
+        var max = 0;
+        for (var y = 0; y < 48; y++)
+        for (var x = 0; x < 48; x++)
+            max = Math.Max(max, image.GetRowSpan(y)[x].Blue);
+        Assert.True(max > 10);
     }
 }

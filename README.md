@@ -17,7 +17,7 @@ A lean, managed alternative for .NET apps that need image processing without nat
 - `Load` / `LoadAsync` from path, stream, `byte[]`, memory, or span; matching `Save` / `SaveAsync`
 - Terminal rendering (`ChromaFx.Processing.Terminal`) — ASCII/ANSI art plus Kitty and iTerm2 inline images; HTML art in `ChromaFx.Processing.HtmlArt`
 - Opt-in [`ChromaFx.PixelArt`](https://www.nuget.org/packages/ChromaFx.PixelArt/) — Scale2x / Scale3x / Hq2x–4x / CleanEdge / Eagle / SaI upscalers and `RotateSprite` / `CleanEdgeRotate` (not in the meta-package)
-- Opt-in [`ChromaFx.Retro`](https://www.nuget.org/packages/ChromaFx.Retro/) — retro palettes (`WebSafeQuantize`, `CgaQuantize`, `EgaQuantize`, `VgaQuantize`) with Core `OrderedDitherMethod`, plus `BadWebScale` / `Bevel` / `RetroMode` / `Halftone` / `ChromaticAberration` / `CcdBloom`; more filters planned; not in the meta-package
+- Opt-in [`ChromaFx.Retro`](https://www.nuget.org/packages/ChromaFx.Retro/) — retro palettes, UI/mode helpers, Millennium + classic plug-in FX, plasma/fire; not in the meta-package
 - Adaptive `Quantize` in Processing (`DitherMethod`, shared Core octree with GIF encode)
 - Opt-in [`ChromaFx.Native`](https://www.nuget.org/packages/ChromaFx.Native/) — still WebP, AVIF, and JPEG XL (not in the meta-package; animated WebP/AVIF/JPEG XL are not supported)
 
@@ -34,13 +34,13 @@ Fully managed on .NET 10 — no native codec binaries for Docker/Lambda multi-ar
 | `ChromaFx.IO`          | Image file IO, encoding/decoding support.                                   | [ChromaFx.IO](https://www.nuget.org/packages/ChromaFx.IO/) |
 | `ChromaFx.Processing`  | Image processing algorithms and effects.                                    | [ChromaFx.Processing](https://www.nuget.org/packages/ChromaFx.Processing/) |
 | `ChromaFx.PixelArt`    | Opt-in pixel-art upscaling (Scale2x / Scale3x, Hq2x–4x, CleanEdge, Eagle, SaI) and `RotateSprite` / `CleanEdgeRotate`. Not in the meta-package. | [ChromaFx.PixelArt](https://www.nuget.org/packages/ChromaFx.PixelArt/) |
-| `ChromaFx.Retro`       | Opt-in retro palettes + Bayer dither, `BadWebScale` / `Bevel` / `RetroMode`, Millennium `Halftone` / `ChromaticAberration` / `CcdBloom`. Not in the meta-package. | [ChromaFx.Retro](https://www.nuget.org/packages/ChromaFx.Retro/) |
+| `ChromaFx.Retro`       | Opt-in retro palettes + Bayer, UI/mode helpers, Millennium / classic FX / plasma / fire. Not in the meta-package. | [ChromaFx.Retro](https://www.nuget.org/packages/ChromaFx.Retro/) |
 | `ChromaFx.Native`      | Opt-in still WebP, AVIF, and JPEG XL. Not in the meta-package. | [ChromaFx.Native](https://www.nuget.org/packages/ChromaFx.Native/) |
 
 - Use `ChromaFx` for new projects targeting .NET 10.
 - Use `ChromaFx.Core`, `ChromaFx.IO`, and `ChromaFx.Processing` for modular usage.
 - Add `ChromaFx.PixelArt` for Scale2x / Scale3x / Hq2x–4x / CleanEdge / Eagle / SaI or `RotateSprite` / `CleanEdgeRotate`.
-- Add `ChromaFx.Retro` for retro palettes (`WebSafeQuantize`, `CgaQuantize`, `EgaQuantize`, `VgaQuantize`), `BadWebScale`, `Bevel`, `RetroMode`, `Halftone`, `ChromaticAberration`, `CcdBloom`.
+- Add `ChromaFx.Retro` for retro palettes, UI/mode helpers, and FX through plasma/fire (see [filters guide](https://chromafx.net/guide/filters.html#retro-package)).
 - Add `ChromaFx.Native` for still WebP, AVIF, and JPEG XL. Animated WebP/AVIF/JPEG XL are not supported.
 
 ## Installation
@@ -146,11 +146,12 @@ Modifications and ongoing maintenance by Ho Tzin Mein (2023–2026).
 - ✅ **Modularization** – Core, IO, Processing packages split out.
 - ✅ **API modernization** – `Mutate`/`Clone`, typed encoders, `ImageFormats` registry.
 - ✅ **PixelArt** – opt-in `ChromaFx.PixelArt` (Scale2x / Scale3x / Hq2x–4x / CleanEdge / Eagle / SaI, `RotateSprite` / `CleanEdgeRotate`).
-- ✅ **Retro** – opt-in `ChromaFx.Retro` (palettes + Bayer + `BadWebScale` / `Bevel` / `RetroMode` + `Halftone` / `ChromaticAberration` / `CcdBloom`; LensFlare / Chrome / PlasticWrap / JpegBlocks still planned).
+- ✅ **Retro** – opt-in `ChromaFx.Retro` (palettes + Bayer + UI/mode helpers + Millennium / classic FX / plasma / fire).
 - ✅ **Performance (pass)** – Color ctor alloc fix; faster `ApplyRgbLut`; AdaptiveThreshold / AdaptiveEqualize / Kuwahara / Blend / Pointillism / Resize / NonMaximalSuppression pool reuse; PNG and TGA scanline pools.
 - ✅ **Extended formats** – managed TGA, TIFF, and ICO; opt-in `ChromaFx.Native` still WebP, AVIF, and JPEG XL (no animation). JPEG, PNG, TIFF, and WebP honor EXIF orientation.
 - ✅ **Correctness** – Pixellate; NMS hysteresis/races; Jitter; morphology/Kuwahara alpha; zero-size guards; Resize/Affine weights; classic Kuwahara; nearest-neighbor kernel; affine OOB transparency; drawing Plot composite; BoxBlur alpha.
 - ✅ **Extended features** – drawing P1, blend modes, Levels, EdgeDetect, morph open/close, Effects P2b, Quantize+Dither; format depth (multi-size ICO, TIFF Deflate encode, win-arm64 native).
+- ⏳ **Next (post-0.6.4)** – Core image similarity (MSE/PSNR/SSIM/diff); ChromaLab explorers; optional Curves / metadata / perspective.
 
 ## Contributing
 Contributions, bug reports, and suggestions are welcome.

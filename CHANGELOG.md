@@ -14,7 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`ChromaFx.Retro`**: optional ordered dither on quantizers via `OrderedDitherMethod` (`None`, `Bayer4x4`, `Bayer8x8`) and `strength`. Default `None` keeps undithered snaps bit-identical. Fluent: `WebSafeQuantize(dither, strength)`, same pattern on `CgaQuantize` / `EgaQuantize` / `VgaQuantize`.
 - **`ChromaFx.Retro`**: `BadWebScale` — nearest-neighbor downsample then upsample (optional web-safe on the small image). Fluent: `BadWebScale(factor, webSafe, dither, strength)`.
 - **`ChromaFx.Retro`**: `Bevel` — soft lighten/darken edge bevels (raised/pressed, optional expand + strength); `RetroMode` (nearest-neighbor resolution snap, default 320×200). Fluent: `Bevel(...)`, `RetroMode(w, h)`.
-- **`ChromaFx.Retro` v2 (Millennium slice)**: `Halftone` (rotated circular-dot screen), `ChromaticAberration` (radial R/B shift), `CcdBloom` (clipped whites + cross streak). Fluent: `Halftone(...)`, `ChromaticAberration(...)`, `CcdBloom(...)`.
+- **`ChromaFx.Retro` v2 (Millennium)**: `Halftone`, `ChromaticAberration`, `CcdBloom`, `LensFlare`, `LiquidChrome`, `PlasticWrap`, `JpegBlocks` (NxN crush; not a DCT codec).
+- **`ChromaFx.Retro` v2b**: `PageCurl`, `Warp` (`Twirl` / `Pinch` / `Sphere`), `GlassLens`, `Kaleidoscope`, `VortexTile`, `Lightning`, `FractalNoise`.
+- **`ChromaFx.Retro` v3**: `Plasma`, `Fire` (demoscene hokey). Fluent helpers for all of the above.
 - **Blend modes**: `BlendMode` (`Normal`, `Multiply`, `Screen`, `Overlay`, `SoftLight`) on `Blend`; fluent overload `Blend(overlay, alpha, mode)`.
 - **`Levels`** — input/output black–white + midtone gamma (0–1). Fluent: `Levels(...)`.
 - **`EdgeDetect`** — greyscale + Laplace preset. Fluent: `EdgeDetect()`.
