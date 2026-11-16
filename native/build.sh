@@ -8,6 +8,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 LIBWEBP_TAG="v1.6.0"
 LIBAVIF_TAG="v1.3.0"
+# libavif v1.3.0 pins this; seed ext/dav1d so we can patch MSVC stdatomic (VS 2026).
+DAV1D_TAG="1.5.1"
 LIBJXL_TAG="v0.12.0"
 
 host_rid() {
@@ -324,6 +326,32 @@ copy_shared "$CACHE/libwebp-install" webp
 
 echo "building libavif $LIBAVIF_TAG (dav1d decode, libaom encode) for $RID"
 clone "https://github.com/AOMediaCodec/libavif.git" "$LIBAVIF_TAG" "$CACHE/libavif"
+# Prefer ext/dav1d so libavif skips FetchContent; patch for MSVC 19.52+ (C7780 on
+# undefined __has_include_next). Upstream: videolan/dav1d a34e0685 (after 1.5.1).
+clone "https://github.com/videolan/dav1d.git" "$DAV1D_TAG" "$CACHE/libavif/ext/dav1d"
+DAV1D_STDATOMIC="$CACHE/libavif/ext/dav1d/include/compat/msvc/stdatomic.h"
+if [[ -f "$DAV1D_STDATOMIC" ]] && ! grep -q '#define __has_include_next' "$DAV1D_STDATOMIC"; then
+  python3 - "$DAV1D_STDATOMIC" <<'PY'
+from pathlib import Path
+import sys
+
+path = Path(sys.argv[1])
+text = path.read_text()
+needle = "#pragma warning(disable:4067)    /* newline for __has_include_next */\n"
+insert = (
+    needle
+    + "\n"
+    + "#ifndef __has_include_next\n"
+    + "#define __has_include_next(x) 0\n"
+    + "#endif\n"
+)
+if needle not in text:
+    raise SystemExit("dav1d msvc stdatomic.h missing expected pragma line to patch")
+path.write_text(text.replace(needle, insert, 1))
+print(f"patched {path} for MSVC __has_include_next")
+PY
+fi
+rm -rf "$CACHE/libavif-build"
 run_cmake -S "$CACHE/libavif" -B "$CACHE/libavif-build" \
   -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_SHARED_LIBS=OFF \

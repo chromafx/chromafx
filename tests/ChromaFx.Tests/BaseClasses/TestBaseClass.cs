@@ -30,7 +30,11 @@ public abstract class TestBaseClass
 
     private static bool UsesAffineTransformTolerance(string fileName) =>
         fileName.Contains("Rotate", StringComparison.OrdinalIgnoreCase)
-        || fileName.Contains("Skew", StringComparison.OrdinalIgnoreCase);
+        || fileName.Contains("Skew", StringComparison.OrdinalIgnoreCase)
+        // Geometric remaps / MathF.Pow chrome — Mac vs Linux libm can differ a few pixels.
+        || fileName.Contains("Warp", StringComparison.OrdinalIgnoreCase)
+        || fileName.Contains("LiquidChrome", StringComparison.OrdinalIgnoreCase)
+        || fileName.Contains("VortexTile", StringComparison.OrdinalIgnoreCase);
 
     private static bool CompareBitmapPixels(byte[] expected, byte[] actual, int maxDifferentPixels)
     {

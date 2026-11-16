@@ -281,7 +281,7 @@ jobs:
             VERSION=${RAW#v}
           else
             # master / legacy / PRs — build identity only; never published
-            VERSION="0.6.4-ci.${GITHUB_RUN_NUMBER}"
+            VERSION="0.6.5-ci.${GITHUB_RUN_NUMBER}"
           fi
           echo "Version set to $VERSION"
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
@@ -294,6 +294,15 @@ jobs:
 
       - name: Test
         run: dotnet test -c Release --no-build --verbosity normal
+
+      - name: Upload filter TestOutput on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-output-filters
+          path: tests/ChromaFx.Tests/**/TestOutput/Filters/**
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Pack ChromaFx
         if: startsWith(github.ref, 'refs/tags/')
