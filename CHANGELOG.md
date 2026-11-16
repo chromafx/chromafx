@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+- **`ChromaFx.Native`**: `osx-x64` RID binaries (package ships linux-x64, linux-arm64, osx-arm64, win-x64, win-arm64).
+
 ## [0.6.4]
 
 Retro Millennium / classic FX / plasma / fire, FilmGrain, Quantize + drawing/blend extensions, ManagedFormats flatten, multi-size ICO / TIFF Deflate / win-arm64.

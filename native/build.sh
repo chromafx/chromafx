@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # Build pinned libwebp, libavif (+dav1d/libaom), and libjxl for one RID.
 # Output: src/ChromaFx.Native/runtimes/<rid>/native/
-# Does not commit binaries. Run on the matching OS, except osx-x64 which can
-# cross-compile from an Apple Silicon Mac.
+# Does not commit binaries. Run on the matching OS/arch.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -55,7 +54,7 @@ OUT="$ROOT/src/ChromaFx.Native/runtimes/$RID/native"
 CMAKE_EXTRA=()
 
 case "$RID" in
-  linux-x64 | linux-arm64 | osx-arm64 | osx-x64 | win-x64 | win-arm64) ;;
+  linux-x64 | linux-arm64 | osx-arm64 | win-x64 | win-arm64) ;;
   *)
     echo "unsupported rid: $RID" >&2
     exit 1
@@ -63,20 +62,8 @@ case "$RID" in
 esac
 
 if [[ "$RID" != "$HOST" ]]; then
-  if [[ "$HOST" == "osx-arm64" && "$RID" == "osx-x64" ]]; then
-    # libavif writes these into dav1d's meson cross file. An empty sysroot becomes -isysroot ''.
-    sdk="$(xcrun --sdk macosx --show-sdk-path)"
-    CMAKE_EXTRA+=(
-      -DCMAKE_SYSTEM_NAME=Darwin
-      -DCMAKE_SYSTEM_PROCESSOR=x86_64
-      -DCMAKE_OSX_ARCHITECTURES=x86_64
-      -DCMAKE_OSX_SYSROOT="$sdk"
-      -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
-    )
-  else
-    echo "Build $RID on a $RID machine (this host is $HOST)." >&2
-    exit 1
-  fi
+  echo "Build $RID on a $RID machine (this host is $HOST)." >&2
+  exit 1
 fi
 
 need() {
