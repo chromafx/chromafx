@@ -89,6 +89,18 @@ public static class ImageProcessingContextExtensions
         context.Apply(new Noise(amount));
 
     /// <summary>
+    /// Soft film-like grain (luminance-weighted, optional chroma). Amount/size/colorAmount are 0–1
+    /// except size (0.25–16 px). Optional seed for reproducibility.
+    /// </summary>
+    public static IImageProcessingContext FilmGrain(
+        this IImageProcessingContext context,
+        float amount = 0.35f,
+        float size = 1.25f,
+        float colorAmount = 0.12f,
+        int? seed = null
+    ) => context.Apply(new FilmGrain(amount, size, colorAmount, seed));
+
+    /// <summary>
     /// Pixellates the image.
     /// </summary>
     public static IImageProcessingContext Pixellate(
