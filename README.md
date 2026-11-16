@@ -45,7 +45,7 @@ Fully managed on .NET 10 — no native codec binaries for Docker/Lambda multi-ar
 
 ## Installation
 
-Current NuGet line is **0.6.3** (tag-only releases; 0.x may still change before 1.0):
+Current NuGet line is **0.6.4** (tag-only releases; 0.x may still change before 1.0):
 
 ```bash
 dotnet add package ChromaFx

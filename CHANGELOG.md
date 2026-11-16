@@ -8,9 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.4]
+
+Retro Millennium / classic FX / plasma / fire, FilmGrain, Quantize + drawing/blend extensions, ManagedFormats flatten, multi-size ICO / TIFF Deflate / win-arm64.
+
 ### Added
 - Samples: `samples/PixelArt` (upscalers → PNG) and `samples/NativeCodecs` (still WebP/AVIF/JXL round-trip; needs `native/build.sh`).
 - Drawing: `Polygon` / `Polyline` (optional stroke width; width 1 is AA, wider uses an opaque square brush), `FloodFill` (4-connected exact-color). Fluent: `DrawPolygon`, `DrawPolyline`, `FloodFill`.
+- **`FilmGrain`** — soft luminance-biased grain (optional dye chroma + seed). Fluent: `FilmGrain(amount?, size?, colorAmount?, seed?)`.
 - **`ChromaFx.Retro`**: optional ordered dither on quantizers via `OrderedDitherMethod` (`None`, `Bayer4x4`, `Bayer8x8`) and `strength`. Default `None` keeps undithered snaps bit-identical. Fluent: `WebSafeQuantize(dither, strength)`, same pattern on `CgaQuantize` / `EgaQuantize` / `VgaQuantize`.
 - **`ChromaFx.Retro`**: `BadWebScale` — nearest-neighbor downsample then upsample (optional web-safe on the small image). Fluent: `BadWebScale(factor, webSafe, dither, strength)`.
 - **`ChromaFx.Retro`**: `Bevel` — soft lighten/darken edge bevels (raised/pressed, optional expand + strength); `RetroMode` (nearest-neighbor resolution snap, default 320×200). Fluent: `Bevel(...)`, `RetroMode(w, h)`.
