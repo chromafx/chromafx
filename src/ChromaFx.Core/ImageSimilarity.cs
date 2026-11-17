@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
+using System.Buffers;
+using System.Numerics;
+using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
 using ChromaFx.Core.Colors;
+using ChromaFx.Core.Simd;
 
 namespace ChromaFx.Core;
 
@@ -76,30 +81,41 @@ public static class ImageSimilarity
         if (w == 0 || h == 0)
             return 1.0;
 
-        var lumaA = BuildLuma(a);
-        var lumaB = BuildLuma(b);
-
-        var win = Math.Min(SsimWindow, Math.Min(w, h));
-        if (win < 1)
-            return 1.0;
-
-        var c1 = (SsimK1 * Peak) * (SsimK1 * Peak);
-        var c2 = (SsimK2 * Peak) * (SsimK2 * Peak);
-
-        double sum = 0;
-        var windows = 0;
-        var maxY = h - win;
-        var maxX = w - win;
-        for (var y = 0; y <= maxY; y++)
+        var pixelCount = w * h;
+        var lumaA = ArrayPool<float>.Shared.Rent(pixelCount);
+        var lumaB = ArrayPool<float>.Shared.Rent(pixelCount);
+        try
         {
-            for (var x = 0; x <= maxX; x++)
-            {
-                sum += WindowSsim(lumaA, lumaB, w, x, y, win, c1, c2);
-                windows++;
-            }
-        }
+            FillLuma(a, lumaA);
+            FillLuma(b, lumaB);
 
-        return windows == 0 ? 1.0 : sum / windows;
+            var win = Math.Min(SsimWindow, Math.Min(w, h));
+            if (win < 1)
+                return 1.0;
+
+            var c1 = (SsimK1 * Peak) * (SsimK1 * Peak);
+            var c2 = (SsimK2 * Peak) * (SsimK2 * Peak);
+
+            double sum = 0;
+            var windows = 0;
+            var maxY = h - win;
+            var maxX = w - win;
+            for (var y = 0; y <= maxY; y++)
+            {
+                for (var x = 0; x <= maxX; x++)
+                {
+                    sum += WindowSsim(lumaA, lumaB, w, x, y, win, c1, c2);
+                    windows++;
+                }
+            }
+
+            return windows == 0 ? 1.0 : sum / windows;
+        }
+        finally
+        {
+            ArrayPool<float>.Shared.Return(lumaA);
+            ArrayPool<float>.Shared.Return(lumaB);
+        }
     }
 
     /// <summary>
@@ -124,16 +140,9 @@ public static class ImageSimilarity
             var ra = a.GetRowSpan(y);
             var rb = b.GetRowSpan(y);
             var dest = result.GetRowSpan(y);
-            for (var x = 0; x < a.Width; x++)
-            {
-                var ca = ra[x];
-                var cb = rb[x];
-                dest[x] = new Color(
-                    (byte)Math.Abs(ca.Red - cb.Red),
-                    (byte)Math.Abs(ca.Green - cb.Green),
-                    (byte)Math.Abs(ca.Blue - cb.Blue),
-                    255);
-            }
+            var bytes = MemoryMarshal.AsBytes(dest);
+            ByteSimd.AbsDiff(MemoryMarshal.AsBytes(ra), MemoryMarshal.AsBytes(rb), bytes);
+            ByteSimd.FillOpaqueAlpha(bytes);
         }
 
         return result;
@@ -163,36 +172,125 @@ public static class ImageSimilarity
         {
             var ra = a.GetRowSpan(y);
             var rb = b.GetRowSpan(y);
-            for (var x = 0; x < a.Width; x++)
-            {
-                var ca = ra[x];
-                var cb = rb[x];
-                var dr = ca.Red - cb.Red;
-                var dg = ca.Green - cb.Green;
-                var db = ca.Blue - cb.Blue;
-                sumSq += (double)dr * dr + (double)dg * dg + (double)db * db;
-                sumAbs += Math.Abs(dr) + Math.Abs(dg) + Math.Abs(db);
-                if (dr != 0 || dg != 0 || db != 0)
-                    differingPixels++;
-            }
+            AccumulateRow(ra, rb, ref sumSq, ref sumAbs, ref differingPixels);
         }
     }
 
-    private static float[] BuildLuma(Image image)
+    private static void AccumulateRow(
+        ReadOnlySpan<Color> ra,
+        ReadOnlySpan<Color> rb,
+        ref double sumSq,
+        ref double sumAbs,
+        ref int differingPixels)
     {
-        var luma = new float[image.Width * image.Height];
+        var i = 0;
+        if (Vector128.IsHardwareAccelerated)
+        {
+            // Process 4 pixels (16 bytes) → widen to int32 channels.
+            for (; i <= ra.Length - 4; i += 4)
+            {
+                var va = Vector128.LoadUnsafe(
+                    ref MemoryMarshal.GetReference(MemoryMarshal.AsBytes(ra.Slice(i)))
+                );
+                var vb = Vector128.LoadUnsafe(
+                    ref MemoryMarshal.GetReference(MemoryMarshal.AsBytes(rb.Slice(i)))
+                );
+                var (a0, a1) = Vector128.Widen(va);
+                var (b0, b1) = Vector128.Widen(vb);
+                AccumulateWidened(a0, b0, ref sumSq, ref sumAbs, ref differingPixels);
+                AccumulateWidened(a1, b1, ref sumSq, ref sumAbs, ref differingPixels);
+            }
+        }
+
+        for (; i < ra.Length; i++)
+        {
+            var ca = ra[i];
+            var cb = rb[i];
+            var dr = ca.Red - cb.Red;
+            var dg = ca.Green - cb.Green;
+            var db = ca.Blue - cb.Blue;
+            sumSq += (double)dr * dr + (double)dg * dg + (double)db * db;
+            sumAbs += Math.Abs(dr) + Math.Abs(dg) + Math.Abs(db);
+            if (dr != 0 || dg != 0 || db != 0)
+                differingPixels++;
+        }
+    }
+
+    private static void AccumulateWidened(
+        Vector128<ushort> a,
+        Vector128<ushort> b,
+        ref double sumSq,
+        ref double sumAbs,
+        ref int differingPixels)
+    {
+        // a/b hold 8 ushorts = 2 pixels × RGBA. Process as int diffs.
+        var (aLo, aHi) = Vector128.Widen(a);
+        var (bLo, bHi) = Vector128.Widen(b);
+        AccumulateInt4(aLo.AsInt32() - bLo.AsInt32(), ref sumSq, ref sumAbs, ref differingPixels);
+        AccumulateInt4(aHi.AsInt32() - bHi.AsInt32(), ref sumSq, ref sumAbs, ref differingPixels);
+    }
+
+    private static void AccumulateInt4(
+        Vector128<int> diff,
+        ref double sumSq,
+        ref double sumAbs,
+        ref int differingPixels)
+    {
+        // Lanes: R,G,B,A for one pixel. Ignore alpha (lane 3).
+        var dr = diff.GetElement(0);
+        var dg = diff.GetElement(1);
+        var db = diff.GetElement(2);
+        sumSq += (double)dr * dr + (double)dg * dg + (double)db * db;
+        sumAbs += Math.Abs(dr) + Math.Abs(dg) + Math.Abs(db);
+        if (dr != 0 || dg != 0 || db != 0)
+            differingPixels++;
+    }
+
+    private static void FillLuma(Image image, float[] luma)
+    {
+        var wr = 0.299f;
+        var wg = 0.587f;
+        var wb = 0.114f;
+        var simdWidth = Vector<float>.Count;
+        var useSimd = Vector.IsHardwareAccelerated && image.Width >= simdWidth;
+        Span<float> rTmp = useSimd ? stackalloc float[simdWidth] : default;
+        Span<float> gTmp = useSimd ? stackalloc float[simdWidth] : default;
+        Span<float> bTmp = useSimd ? stackalloc float[simdWidth] : default;
+        var vWr = useSimd ? new Vector<float>(wr) : default;
+        var vWg = useSimd ? new Vector<float>(wg) : default;
+        var vWb = useSimd ? new Vector<float>(wb) : default;
+
         for (var y = 0; y < image.Height; y++)
         {
             var row = image.GetRowSpan(y);
             var rowBase = y * image.Width;
-            for (var x = 0; x < image.Width; x++)
+            var x = 0;
+            if (useSimd)
+            {
+                for (; x <= row.Length - simdWidth; x += simdWidth)
+                {
+                    for (var j = 0; j < simdWidth; j++)
+                    {
+                        var c = row[x + j];
+                        rTmp[j] = c.Red;
+                        gTmp[j] = c.Green;
+                        bTmp[j] = c.Blue;
+                    }
+
+                    var lumaVec =
+                        new Vector<float>(rTmp) * vWr
+                        + new Vector<float>(gTmp) * vWg
+                        + new Vector<float>(bTmp) * vWb;
+                    lumaVec.CopyTo(luma.AsSpan(rowBase + x, simdWidth));
+                }
+            }
+
+            for (; x < row.Length; x++)
             {
                 var c = row[x];
-                luma[rowBase + x] = 0.299f * c.Red + 0.587f * c.Green + 0.114f * c.Blue;
+                luma[rowBase + x] = wr * c.Red + wg * c.Green + wb * c.Blue;
             }
         }
-
-        return luma;
     }
 
     private static double WindowSsim(

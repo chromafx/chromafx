@@ -319,6 +319,24 @@ public static class ImageProcessingContextExtensions
     ) => context.Apply(new Levels(inBlack, inWhite, gamma, outBlack, outWhite));
 
     /// <summary>
+    /// Master RGB tone curve (piecewise-linear). Three-point form: black / mid / white (0–1).
+    /// </summary>
+    public static IImageProcessingContext Curves(
+        this IImageProcessingContext context,
+        float black = 0f,
+        float mid = 0.5f,
+        float white = 1f
+    ) => context.Apply(new Curves(black, mid, white));
+
+    /// <summary>
+    /// Master RGB tone curve from custom control points (0–1).
+    /// </summary>
+    public static IImageProcessingContext Curves(
+        this IImageProcessingContext context,
+        IReadOnlyList<(float X, float Y)> points
+    ) => context.Apply(new Curves(points));
+
+    /// <summary>
     /// Greyscale + Laplace edge detect preset.
     /// </summary>
     public static IImageProcessingContext EdgeDetect(this IImageProcessingContext context) =>
@@ -511,6 +529,15 @@ public static class ImageProcessingContextExtensions
         float yAngle,
         ResamplingFilter filter = ResamplingFilter.NearestNeighbor
     ) => context.Apply(new Skew(xAngle, yAngle, filter));
+
+    /// <summary>
+    /// Perspective-style trapezoid warp. Positive horizontal insets the top edge; positive vertical insets the left.
+    /// </summary>
+    public static IImageProcessingContext Perspective(
+        this IImageProcessingContext context,
+        float horizontal = 0f,
+        float vertical = 0f
+    ) => context.Apply(new Perspective(horizontal, vertical));
 
     /// <summary>
     /// Translates by pixel deltas.

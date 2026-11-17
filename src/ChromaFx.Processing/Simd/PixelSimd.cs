@@ -35,6 +35,23 @@ internal static class PixelSimd
         MemoryMarshal.Cast<Color, uint>(pixels);
 
     /// <summary>
+    /// Absolute per-channel RGB difference into <paramref name="destination"/>; alpha forced to 255.
+    /// </summary>
+    internal static void AbsDiffRgbOpaque(
+        ReadOnlySpan<Color> left,
+        ReadOnlySpan<Color> right,
+        Span<Color> destination
+    )
+    {
+        ByteSimd.AbsDiff(
+            MemoryMarshal.AsBytes(left),
+            MemoryMarshal.AsBytes(right),
+            AsBytes(destination)
+        );
+        ByteSimd.FillOpaqueAlpha(AsBytes(destination));
+    }
+
+    /// <summary>
     /// Inverts RGB channels in place; alpha is unchanged.
     /// </summary>
     internal static void InvertRgb(Span<Color> pixels)

@@ -93,7 +93,13 @@ public partial class Image
         ArgumentNullException.ThrowIfNull(image);
         ReCreate(image.Width, image.Height);
         CopyPixelsFrom(image);
+        Metadata = image.Metadata.Clone();
     }
+
+    /// <summary>
+    /// Optional EXIF / XMP bag. Survives <see cref="Clone"/>; codecs may preserve on JPEG/PNG round-trip.
+    /// </summary>
+    public ImageMetadata Metadata { get; set; } = new();
 
     /// <summary>
     /// Gets the center.

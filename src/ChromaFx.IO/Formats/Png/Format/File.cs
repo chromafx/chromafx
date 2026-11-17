@@ -108,6 +108,8 @@ internal class File : FileBase
     /// </value>
     private Dictionary<ChunkTypes, Action<Chunk>> ChunkActions { get; }
 
+    private ImageMetadata _metadata = new();
+
     /// <summary>
     /// Decodes the specified stream.
     /// </summary>
@@ -117,7 +119,7 @@ internal class File : FileBase
     /// </returns>
     public override FileBase Decode(Stream stream)
     {
-        _orientation = ExifOrientation.ReadPng(stream);
+        _metadata = ImageMetadataIO.ReadPng(stream, out _orientation);
         FileHeader = FileHeader.Read(stream);
         var chunks = ReadChunks(stream);
         ParseChunks(chunks);
@@ -147,6 +149,7 @@ internal class File : FileBase
         LoadImage(image);
         FileHeader.Write(stream);
         ((Chunk)Header).Write(stream);
+        ImageMetadataIO.WritePngAncillary(stream, image.Metadata);
         ((Chunk)Data).Write(stream);
         ((Chunk)FileEnd).Write(stream);
     }
@@ -170,7 +173,9 @@ internal class File : FileBase
     /// </returns>
     protected override Image ToImage()
     {
-        return ExifOrientation.Apply(Data.Parse(Header, Palette, AlphaPalette), _orientation);
+        var image = ExifOrientation.Apply(Data.Parse(Header, Palette, AlphaPalette), _orientation);
+        ImageMetadataIO.Attach(image, _metadata);
+        return image;
     }
 
     /// <summary>

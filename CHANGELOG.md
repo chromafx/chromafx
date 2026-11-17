@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **`ImageSimilarity`** (Core): `Mse` / `Rmse` / `Mae` / `Psnr` / `Ssim` / `CountDifferingPixels` / `CreateDiffImage` — RGB metrics on same-size images (alpha ignored); not an `IFilter`.
+- **`ColorDifference`** (Core): CIE76 ΔE — `Cie76(Color|CieLab)` and `MeanCie76(Image, Image)`.
+- **`Image.Metadata`** (Core): optional EXIF (TIFF IFD bytes) + XMP; JPEG/PNG decode captures and encode writes back (orientation tag forced to 1).
+- **`Curves`** — master RGB tone curve (piecewise-linear). Fluent: `Curves(black?, mid?, white?)` or `Curves(points)`.
+- **`Perspective`** — trapezoid warp (horizontal/vertical inset). Fluent: `Perspective(horizontal?, vertical?)`.
+
+### Changed
+- Perf (Unreleased): JPEG/PNG EXIF·XMP + orientation in one header walk; `ColorDifference` sRGB→Lab LUT; `ImageSimilarity.Ssim` luma via `ArrayPool`; `Perspective` stack homography + tighter bilinear.
+- Perf (SIMD): `ByteSimd.AbsDiff` / opaque-alpha fill (AVX2/SSE2/AdvSimd); `ImageSimilarity` diff/MSE/SSIM luma use hardware paths; color-matrix packing avoids `Vector` indexer; EXIF orientation 2/3/4 use row reverse/copy.
 
 ## [0.6.4]
 

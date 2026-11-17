@@ -147,6 +147,110 @@ internal static class ByteSimd
     }
 
     /// <summary>
+    /// Per-byte absolute difference: <c>dst[i] = |left[i] - right[i]|</c>.
+    /// </summary>
+    internal static void AbsDiff(
+        ReadOnlySpan<byte> left,
+        ReadOnlySpan<byte> right,
+        Span<byte> destination
+    )
+    {
+        int length = left.Length;
+        int i = 0;
+
+        if (Avx2.IsSupported)
+        {
+            int step = Vector256<byte>.Count;
+            for (; i <= length - step; i += step)
+            {
+                var vLeft = Vector256.Create(left.Slice(i));
+                var vRight = Vector256.Create(right.Slice(i));
+                var lo = Avx2.SubtractSaturate(vLeft, vRight);
+                var hi = Avx2.SubtractSaturate(vRight, vLeft);
+                (lo | hi).CopyTo(destination.Slice(i));
+            }
+        }
+        else if (Sse2.IsSupported)
+        {
+            int step = Vector128<byte>.Count;
+            for (; i <= length - step; i += step)
+            {
+                var vLeft = Vector128.Create(left.Slice(i));
+                var vRight = Vector128.Create(right.Slice(i));
+                var lo = Sse2.SubtractSaturate(vLeft, vRight);
+                var hi = Sse2.SubtractSaturate(vRight, vLeft);
+                (lo | hi).CopyTo(destination.Slice(i));
+            }
+        }
+        else if (AdvSimd.IsSupported)
+        {
+            int step = Vector128<byte>.Count;
+            for (; i <= length - step; i += step)
+            {
+                var vLeft = Vector128.Create(left.Slice(i));
+                var vRight = Vector128.Create(right.Slice(i));
+                var lo = AdvSimd.SubtractSaturate(vLeft, vRight);
+                var hi = AdvSimd.SubtractSaturate(vRight, vLeft);
+                (lo | hi).CopyTo(destination.Slice(i));
+            }
+        }
+        else if (Vector.IsHardwareAccelerated)
+        {
+            int step = Vector<byte>.Count;
+            for (; i <= length - step; i += step)
+            {
+                var vLeft = new Vector<byte>(left.Slice(i));
+                var vRight = new Vector<byte>(right.Slice(i));
+                Vector.Widen(vLeft, out Vector<ushort> leftLo, out Vector<ushort> leftHi);
+                Vector.Widen(vRight, out Vector<ushort> rightLo, out Vector<ushort> rightHi);
+                var diffLo = Vector.ConditionalSelect(
+                    Vector.GreaterThanOrEqual(leftLo, rightLo),
+                    leftLo - rightLo,
+                    rightLo - leftLo
+                );
+                var diffHi = Vector.ConditionalSelect(
+                    Vector.GreaterThanOrEqual(leftHi, rightHi),
+                    leftHi - rightHi,
+                    rightHi - leftHi
+                );
+                Vector.Narrow(diffLo, diffHi).CopyTo(destination.Slice(i));
+            }
+        }
+
+        for (; i < length; i++)
+        {
+            int diff = left[i] - right[i];
+            destination[i] = (byte)(diff < 0 ? -diff : diff);
+        }
+    }
+
+    /// <summary>
+    /// Sets every 4th byte (RGBA alpha lane) to 255.
+    /// </summary>
+    internal static void FillOpaqueAlpha(Span<byte> rgbaBytes)
+    {
+        int length = rgbaBytes.Length & ~3;
+        int i = 0;
+        int simdLength = Vector<byte>.Count;
+        if (Vector.IsHardwareAccelerated && simdLength >= 16 && (simdLength & 3) == 0)
+        {
+            Span<byte> pattern = stackalloc byte[simdLength];
+            pattern.Clear();
+            for (var p = 3; p < simdLength; p += 4)
+                pattern[p] = 0xFF;
+            var alphaMask = new Vector<byte>(pattern);
+            for (; i <= length - simdLength; i += simdLength)
+            {
+                var v = new Vector<byte>(rgbaBytes.Slice(i));
+                (v | alphaMask).CopyTo(rgbaBytes.Slice(i));
+            }
+        }
+
+        for (; i + 3 < length; i += 4)
+            rgbaBytes[i + 3] = 0xFF;
+    }
+
+    /// <summary>
     /// Saturating byte subtract clamped to 0–255.
     /// </summary>
     internal static void SubtractSaturating(

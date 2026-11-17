@@ -176,6 +176,20 @@ internal static class ExifOrientation
 
         var width = image.Width;
         var height = image.Height;
+        Image dest = orientation switch
+        {
+            2 => FlipHorizontal(image),
+            3 => Rotate180(image),
+            4 => FlipVertical(image),
+            _ => ApplyScatter(image, orientation, width, height),
+        };
+
+        dest.Metadata = image.Metadata.Clone();
+        return dest;
+    }
+
+    private static Image ApplyScatter(Image image, int orientation, int width, int height)
+    {
         var swapped = orientation is 5 or 6 or 7 or 8;
         var dest = new Image(swapped ? height : width, swapped ? width : height);
         for (var y = 0; y < height; y++)
@@ -191,7 +205,37 @@ internal static class ExifOrientation
         return dest;
     }
 
-    private static int ReadExifBlob(ReadOnlySpan<byte> data)
+    private static Image FlipHorizontal(Image image)
+    {
+        var dest = new Image(image.Width, image.Height);
+        for (var y = 0; y < image.Height; y++)
+        {
+            var src = image.GetRowSpan(y);
+            var dst = dest.GetRowSpan(y);
+            src.CopyTo(dst);
+            dst.Reverse();
+        }
+
+        return dest;
+    }
+
+    private static Image FlipVertical(Image image)
+    {
+        var dest = new Image(image.Width, image.Height);
+        for (var y = 0; y < image.Height; y++)
+            image.GetRowSpan(y).CopyTo(dest.GetRowSpan(image.Height - 1 - y));
+        return dest;
+    }
+
+    private static Image Rotate180(Image image)
+    {
+        var dest = FlipVertical(image);
+        for (var y = 0; y < dest.Height; y++)
+            dest.GetRowSpan(y).Reverse();
+        return dest;
+    }
+
+    internal static int ReadExifBlob(ReadOnlySpan<byte> data)
     {
         if (
             data.Length >= 6

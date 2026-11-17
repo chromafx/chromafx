@@ -62,8 +62,9 @@ internal class File : FileBase
     /// </returns>
     public override FileBase Decode(Stream stream)
     {
-        var orientation = ExifOrientation.ReadJpeg(stream);
+        var metadata = ImageMetadataIO.ReadJpeg(stream, out var orientation);
         _returnValue = ExifOrientation.Apply(ReadSegments(stream), orientation);
+        ImageMetadataIO.Attach(_returnValue, metadata);
         return this;
     }
 
@@ -87,6 +88,7 @@ internal class File : FileBase
     public void Write(BinaryWriter stream, Image image, int quality)
     {
         new StartOfImage().Write(stream);
+        ImageMetadataIO.WriteJpeg(stream, image.Metadata);
         var quantizationTableSegment = new DefineQuantizationTable(Math.Clamp(quality, 1, 100));
         quantizationTableSegment.Write(stream);
         new StartOfFrame(image).Write(stream);

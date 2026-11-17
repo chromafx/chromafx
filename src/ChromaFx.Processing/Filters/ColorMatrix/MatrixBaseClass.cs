@@ -113,8 +113,11 @@ public abstract class MatrixBaseClass : IFilter
 
         int simdWidth = Vector<float>.Count;
         var ones = Vector<float>.One;
+        var scale = new Vector<float>(255f);
+        var zero = Vector<float>.Zero;
         int i = 0;
 
+        // Transform into planar buffers (avoid Vector indexer), then pack.
         for (; i <= rowWidth - simdWidth; i += simdWidth)
         {
             var vr = new Vector<float>(r.Slice(i));
@@ -146,10 +149,10 @@ public abstract class MatrixBaseClass : IFilter
                 + va * matrix.M44
                 + ones * matrix.M54;
 
-            for (int j = 0; j < simdWidth; ++j)
-            {
-                pixels[i + j].IntData = PackRgba(rOut[j], gOut[j], bOut[j], aOut[j]);
-            }
+            Vector.Min(Vector.Max(rOut * scale, zero), scale).CopyTo(r.Slice(i));
+            Vector.Min(Vector.Max(gOut * scale, zero), scale).CopyTo(g.Slice(i));
+            Vector.Min(Vector.Max(bOut * scale, zero), scale).CopyTo(b.Slice(i));
+            Vector.Min(Vector.Max(aOut * scale, zero), scale).CopyTo(a.Slice(i));
         }
 
         for (; i < rowWidth; ++i)
@@ -158,24 +161,35 @@ public abstract class MatrixBaseClass : IFilter
                 gf = g[i],
                 bf = b[i],
                 af = a[i];
-            float rOut =
-                rf * matrix.M11 + gf * matrix.M21 + bf * matrix.M31 + af * matrix.M41 + matrix.M51;
-            float gOut =
-                rf * matrix.M12 + gf * matrix.M22 + bf * matrix.M32 + af * matrix.M42 + matrix.M52;
-            float bOut =
-                rf * matrix.M13 + gf * matrix.M23 + bf * matrix.M33 + af * matrix.M43 + matrix.M53;
-            float aOut =
-                rf * matrix.M14 + gf * matrix.M24 + bf * matrix.M34 + af * matrix.M44 + matrix.M54;
-            pixels[i].IntData = PackRgba(rOut, gOut, bOut, aOut);
+            r[i] = Math.Clamp(
+                rf * matrix.M11 + gf * matrix.M21 + bf * matrix.M31 + af * matrix.M41 + matrix.M51,
+                0f,
+                1f
+            ) * 255f;
+            g[i] = Math.Clamp(
+                rf * matrix.M12 + gf * matrix.M22 + bf * matrix.M32 + af * matrix.M42 + matrix.M52,
+                0f,
+                1f
+            ) * 255f;
+            b[i] = Math.Clamp(
+                rf * matrix.M13 + gf * matrix.M23 + bf * matrix.M33 + af * matrix.M43 + matrix.M53,
+                0f,
+                1f
+            ) * 255f;
+            a[i] = Math.Clamp(
+                rf * matrix.M14 + gf * matrix.M24 + bf * matrix.M34 + af * matrix.M44 + matrix.M54,
+                0f,
+                1f
+            ) * 255f;
         }
-    }
 
-    private static uint PackRgba(float r, float g, float b, float a)
-    {
-        var rb = (byte)Math.Clamp(r * 255f, 0, 255);
-        var gb = (byte)Math.Clamp(g * 255f, 0, 255);
-        var bb = (byte)Math.Clamp(b * 255f, 0, 255);
-        var ab = (byte)Math.Clamp(a * 255f, 0, 255);
-        return rb | ((uint)gb << 8) | ((uint)bb << 16) | ((uint)ab << 24);
+        for (int j = 0; j < rowWidth; ++j)
+        {
+            pixels[j].IntData =
+                (byte)r[j]
+                | ((uint)(byte)g[j] << 8)
+                | ((uint)(byte)b[j] << 16)
+                | ((uint)(byte)a[j] << 24);
+        }
     }
 }
