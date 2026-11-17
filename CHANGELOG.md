@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`ImageSimilarity`** (Core): `Mse` / `Rmse` / `Mae` / `Psnr` / `Ssim` / `CountDifferingPixels` / `CreateDiffImage` — RGB metrics on same-size images (alpha ignored); not an `IFilter`.
+
 ## [0.6.4]
 
 Retro Millennium / classic FX / plasma / fire, FilmGrain, Quantize + drawing/blend extensions, ManagedFormats flatten, multi-size ICO / TIFF Deflate / win-arm64.

@@ -30,7 +30,7 @@ Fully managed on .NET 10 — no native codec binaries for Docker/Lambda multi-ar
 | Package                | Description                                                                 | NuGet Link                                               |
 |------------------------|-----------------------------------------------------------------------------|----------------------------------------------------------|
 | `ChromaFx`             | Meta-package for .NET 10 (`Core` + `IO` + `Processing`).                    | [ChromaFx](https://www.nuget.org/packages/ChromaFx/) |
-| `ChromaFx.Core`        | Core types and abstractions.                                                | [ChromaFx.Core](https://www.nuget.org/packages/ChromaFx.Core/) |
+| `ChromaFx.Core`        | Core types and abstractions (`ImageSimilarity` in Unreleased).              | [ChromaFx.Core](https://www.nuget.org/packages/ChromaFx.Core/) |
 | `ChromaFx.IO`          | Image file IO, encoding/decoding support.                                   | [ChromaFx.IO](https://www.nuget.org/packages/ChromaFx.IO/) |
 | `ChromaFx.Processing`  | Image processing algorithms and effects.                                    | [ChromaFx.Processing](https://www.nuget.org/packages/ChromaFx.Processing/) |
 | `ChromaFx.PixelArt`    | Opt-in pixel-art upscaling (Scale2x / Scale3x, Hq2x–4x, CleanEdge, Eagle, SaI) and `RotateSprite` / `CleanEdgeRotate`. Not in the meta-package. | [ChromaFx.PixelArt](https://www.nuget.org/packages/ChromaFx.PixelArt/) |
@@ -143,15 +143,10 @@ originally developed by JaCraig under the Apache License 2.0.
 Modifications and ongoing maintenance by Ho Tzin Mein (2023–2026).
 
 ## Roadmap
-- ✅ **Modularization** – Core, IO, Processing packages split out.
-- ✅ **API modernization** – `Mutate`/`Clone`, typed encoders, `ImageFormats` registry.
-- ✅ **PixelArt** – opt-in `ChromaFx.PixelArt` (Scale2x / Scale3x / Hq2x–4x / CleanEdge / Eagle / SaI, `RotateSprite` / `CleanEdgeRotate`).
-- ✅ **Retro** – opt-in `ChromaFx.Retro` (palettes + Bayer + UI/mode helpers + Millennium / classic FX / plasma / fire).
-- ✅ **Performance (pass)** – Color ctor alloc fix; faster `ApplyRgbLut`; AdaptiveThreshold / AdaptiveEqualize / Kuwahara / Blend / Pointillism / Resize / NonMaximalSuppression pool reuse; PNG and TGA scanline pools.
-- ✅ **Extended formats** – managed TGA, TIFF, and ICO; opt-in `ChromaFx.Native` still WebP, AVIF, and JPEG XL (no animation). JPEG, PNG, TIFF, and WebP honor EXIF orientation.
-- ✅ **Correctness** – Pixellate; NMS hysteresis/races; Jitter; morphology/Kuwahara alpha; zero-size guards; Resize/Affine weights; classic Kuwahara; nearest-neighbor kernel; affine OOB transparency; drawing Plot composite; BoxBlur alpha.
-- ✅ **Extended features** – drawing P1, blend modes, Levels, EdgeDetect, morph open/close, Effects P2b, Quantize+Dither; format depth (multi-size ICO, TIFF Deflate encode, win-arm64 native).
-- ⏳ **Next (post-0.6.4)** – Core image similarity (MSE/PSNR/SSIM/diff); ChromaLab explorers; optional Curves / metadata / perspective.
+
+Shipped through **0.6.4**: modular Core/IO/Processing, PixelArt / Retro / Native packs, format depth, and classic IQ groundwork in Unreleased (`ImageSimilarity`).
+
+**Next:** optional Curves / EXIF·XMP / perspective / ΔE; ChromaLab GIF playback, canvas-size polish, richer transforms.
 
 ## Contributing
 Contributions, bug reports, and suggestions are welcome.
