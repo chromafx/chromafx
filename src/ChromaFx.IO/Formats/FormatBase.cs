@@ -50,8 +50,8 @@ public abstract class FormatBase : IImageFormat
     /// <summary>
     /// Gets the encoder (classic File-based formats). Codec formats override the public Encode/CanEncode methods instead.
     /// </summary>
-    private protected virtual IEncoder Encoder =>
-        throw new NotSupportedException($"{GetType().Name} does not use an IEncoder.");
+    private protected virtual IFormatEncoder Encoder =>
+        throw new NotSupportedException($"{GetType().Name} does not use an IFormatEncoder.");
 
     /// <inheritdoc />
     public virtual bool CanDecode(Stream stream)

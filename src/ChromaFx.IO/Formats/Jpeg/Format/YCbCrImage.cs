@@ -29,15 +29,15 @@ namespace ChromaFx.IO.Formats.Jpeg.Format;
 /// <summary>
 /// YCbCr image
 /// </summary>
-internal class YcbcrImg
+internal class YCbCrImage
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="YcbcrImg"/> class.
+    /// Initializes a new instance of the <see cref="YCbCrImage"/> class.
     /// </summary>
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
     /// <param name="ratio">The ratio.</param>
-    public YcbcrImg(int width, int height, YCbCrSubsampleRatio ratio)
+    public YCbCrImage(int width, int height, YCbCrSubsampleRatio ratio)
     {
         int cw,
             ch;
@@ -54,7 +54,7 @@ internal class YcbcrImg
         Height = height;
     }
 
-    private YcbcrImg() { }
+    private YCbCrImage() { }
 
     /// <summary>
     /// Gets or sets the cb pixels.
@@ -226,9 +226,9 @@ internal class YcbcrImg
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
     /// <returns>The resulting sub image</returns>
-    public YcbcrImg SubImage(int x, int y, int width, int height)
+    public YCbCrImage SubImage(int x, int y, int width, int height)
     {
-        return new YcbcrImg
+        return new YCbCrImage
         {
             Width = width,
             Height = height,

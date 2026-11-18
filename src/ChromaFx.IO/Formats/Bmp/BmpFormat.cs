@@ -46,5 +46,5 @@ public class BmpFormat : FormatBase
     /// Gets the encoder.
     /// </summary>
     /// <value>The encoder.</value>
-    private protected override IEncoder Encoder => new Encoder();
+    private protected override IFormatEncoder Encoder => new Encoder();
 }

@@ -436,7 +436,7 @@ internal class StartOfScan : SegmentBase
 
     private uint _bits;
     private ushort _endOfBlockRun;
-    private YcbcrImg _img3;
+    private YCbCrImage _img3;
     private uint _nBits;
     private readonly Block[][] _progressiveCoefficients;
 
@@ -1010,7 +1010,7 @@ internal class StartOfScan : SegmentBase
                     break;
             }
 
-            var m = new YcbcrImg(8 * h0 * mxx, 8 * v0 * myy, ratio);
+            var m = new YCbCrImage(8 * h0 * mxx, 8 * v0 * myy, ratio);
             _img3 = m.SubImage(0, 0, frame.Width, frame.Height);
         }
     }

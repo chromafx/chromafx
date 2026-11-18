@@ -22,7 +22,7 @@ namespace ChromaFx.IO.Formats;
 /// <summary>
 /// Encoder interface
 /// </summary>
-internal interface IEncoder
+internal interface IFormatEncoder
 {
     /// <summary>
     /// Determines whether this instance can encode the specified file name.

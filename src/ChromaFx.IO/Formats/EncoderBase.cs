@@ -23,8 +23,8 @@ namespace ChromaFx.IO.Formats;
 /// Encoder base class
 /// </summary>
 /// <typeparam name="TFile">The type of the file.</typeparam>
-/// <seealso cref="IEncoder" />
-internal abstract class EncoderBase<TFile> : IEncoder
+/// <seealso cref="IFormatEncoder" />
+internal abstract class EncoderBase<TFile> : IFormatEncoder
     where TFile : FileBase, new()
 {
     /// <summary>
