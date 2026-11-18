@@ -144,9 +144,7 @@ Modifications and ongoing maintenance by Ho Tzin Mein (2023–2026).
 
 ## Roadmap
 
-Shipped through **0.6.5**: modular Core/IO/Processing, PixelArt / Retro / Native packs, format depth, IQ / tone / warp / metadata (`ImageSimilarity`, `ColorDifference`, `Curves`, `Perspective`, `Image.Metadata` JPEG·PNG), and filter renames.
-
-**Next:** ChromaLab `v0.3.0` tag when ready.
+Shipped through **0.6.5**: modular Core/IO/Processing, PixelArt / Retro / Native packs, format depth, IQ / tone / warp / metadata (`ImageSimilarity`, `ColorDifference`, `Curves`, `Perspective`, `Image.Metadata` JPEG·PNG), and filter renames. Desktop showcase: ChromaLab **v0.3.0**.
 
 ## Contributing
 Contributions, bug reports, and suggestions are welcome.
