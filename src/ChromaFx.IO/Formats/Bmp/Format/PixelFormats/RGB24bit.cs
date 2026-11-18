@@ -17,6 +17,8 @@
 
 using System.Runtime.InteropServices;
 using ChromaFx.Core;
+using ChromaFx.Core.Colors;
+using ChromaFx.Core.Simd;
 
 namespace ChromaFx.IO.Formats.Bmp.Format.PixelFormats;
 
@@ -58,19 +60,7 @@ internal class Rgb24Bit : PixelFormatBase
                 var dest = MemoryMarshal.Cast<byte, uint>(
                     returnValue.AsSpan(destinationRowOffset, width * 4)
                 );
-
-                var x = 0;
-                for (; x <= width - 4; x += 4)
-                {
-                    var o = sourceRowOffset + x * 3;
-                    dest[x] = PackBgr(data, o);
-                    dest[x + 1] = PackBgr(data, o + 3);
-                    dest[x + 2] = PackBgr(data, o + 6);
-                    dest[x + 3] = PackBgr(data, o + 9);
-                }
-
-                for (; x < width; ++x)
-                    dest[x] = PackBgr(data, sourceRowOffset + x * 3);
+                ByteSimd.PackBgr8ToRgba(data.AsSpan(sourceRowOffset, width * 3), dest);
             }
         );
 
@@ -105,25 +95,11 @@ internal class Rgb24Bit : PixelFormatBase
 
                 var sourceRowOffset = sourceY * width * 4;
                 var destinationRowOffset = y * rowBytes;
-
-                var x = 0;
-                for (; x <= width - 4; x += 4)
-                {
-                    var s = sourceRowOffset + x * 4;
-                    var d = destinationRowOffset + x * 3;
-                    UnpackRgba(data, s, returnValue, d);
-                    UnpackRgba(data, s + 4, returnValue, d + 3);
-                    UnpackRgba(data, s + 8, returnValue, d + 6);
-                    UnpackRgba(data, s + 12, returnValue, d + 9);
-                }
-
-                for (; x < width; ++x)
-                    UnpackRgba(
-                        data,
-                        sourceRowOffset + x * 4,
-                        returnValue,
-                        destinationRowOffset + x * 3
-                    );
+                var src = MemoryMarshal.Cast<byte, uint>(data.AsSpan(sourceRowOffset, width * 4));
+                ByteSimd.UnpackRgbaToBgr8(
+                    src,
+                    returnValue.AsSpan(destinationRowOffset, width * 3)
+                );
             }
         );
 
@@ -152,34 +128,14 @@ internal class Rgb24Bit : PixelFormatBase
                 if (sourceY >= height)
                     sourceY = height - 1;
 
-                var sourceRow = image.GetRowSpan(sourceY);
-                var destinationRowOffset = y * rowBytes;
-
-                for (var x = 0; x < width; ++x)
-                {
-                    var d = destinationRowOffset + x * 3;
-                    var pixel = sourceRow[x];
-                    returnValue[d] = pixel.Blue;
-                    returnValue[d + 1] = pixel.Green;
-                    returnValue[d + 2] = pixel.Red;
-                }
+                var sourceRow = MemoryMarshal.Cast<Color, uint>(image.GetRowSpan(sourceY));
+                ByteSimd.UnpackRgbaToBgr8(
+                    sourceRow,
+                    returnValue.AsSpan(y * rowBytes, width * 3)
+                );
             }
         );
 
         return returnValue;
-    }
-
-    /// <summary>BGR → packed RGBA little-endian (<see cref="Color"/> layout) with opaque alpha.</summary>
-    private static uint PackBgr(byte[] data, int offset) =>
-        data[offset + 2]
-        | ((uint)data[offset + 1] << 8)
-        | ((uint)data[offset] << 16)
-        | 0xFF00_0000u;
-
-    private static void UnpackRgba(byte[] rgba, int src, byte[] bgr, int dst)
-    {
-        bgr[dst] = rgba[src + 2];
-        bgr[dst + 1] = rgba[src + 1];
-        bgr[dst + 2] = rgba[src];
     }
 }

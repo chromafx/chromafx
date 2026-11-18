@@ -290,6 +290,65 @@ internal static class ByteSimd
     }
 
     /// <summary>
+    /// Packs tightly-packed BGR8 bytes into opaque RGBA <see cref="uint"/> pixels (R | G&lt;&lt;8 | B&lt;&lt;16 | 0xFF000000).
+    /// </summary>
+    internal static void PackBgr8ToRgba(ReadOnlySpan<byte> bgr, Span<uint> destination)
+    {
+        int width = destination.Length;
+        int x = 0;
+        ref byte src = ref MemoryMarshal.GetReference(bgr);
+        ref uint dst = ref MemoryMarshal.GetReference(destination);
+
+        for (; x <= width - 3; x += 2)
+        {
+            int o = x * 3;
+            uint p0 = Unsafe.ReadUnaligned<uint>(ref Unsafe.Add(ref src, o));
+            uint p1 = Unsafe.ReadUnaligned<uint>(ref Unsafe.Add(ref src, o + 3));
+            Unsafe.Add(ref dst, x) = BgrWordToRgba(p0);
+            Unsafe.Add(ref dst, x + 1) = BgrWordToRgba(p1);
+        }
+
+        for (; x < width; x++)
+        {
+            int o = x * 3;
+            Unsafe.Add(ref dst, x) =
+                Unsafe.Add(ref src, o + 2)
+                | ((uint)Unsafe.Add(ref src, o + 1) << 8)
+                | ((uint)Unsafe.Add(ref src, o) << 16)
+                | 0xFF00_0000u;
+        }
+    }
+
+    /// <summary>
+    /// Unpacks opaque RGBA <see cref="uint"/> pixels into tightly-packed BGR8 bytes.
+    /// </summary>
+    internal static void UnpackRgbaToBgr8(ReadOnlySpan<uint> rgba, Span<byte> bgr)
+    {
+        int width = rgba.Length;
+        ref uint src = ref MemoryMarshal.GetReference(rgba);
+        ref byte dst = ref MemoryMarshal.GetReference(bgr);
+
+        for (int x = 0; x < width; x++)
+        {
+            uint pixel = Unsafe.Add(ref src, x);
+            int o = x * 3;
+            Unsafe.Add(ref dst, o) = (byte)(pixel >> 16); // B
+            Unsafe.Add(ref dst, o + 1) = (byte)(pixel >> 8); // G
+            Unsafe.Add(ref dst, o + 2) = (byte)pixel; // R
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static uint BgrWordToRgba(uint bgrx)
+    {
+        // Little-endian bytes B,G,R,(x) → R | G<<8 | B<<16 | opaque.
+        return ((bgrx >> 16) & 0xFFu)
+            | (bgrx & 0xFF00u)
+            | ((bgrx & 0xFFu) << 16)
+            | 0xFF00_0000u;
+    }
+
+    /// <summary>
     /// Sets every 4th byte (RGBA alpha lane) to 255.
     /// </summary>
     internal static void FillOpaqueAlpha(Span<byte> rgbaBytes)
