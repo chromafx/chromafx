@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
 
 namespace ChromaFx.IO.Formats.Jpeg.Format;
 
@@ -47,19 +51,21 @@ internal class ForwardDiscreteCosineTransform
     /// <param name="b">The block</param>
     public static void Transform(Block b)
     {
-        // Pass 1: process rows.
+        ref var d = ref MemoryMarshal.GetArrayDataReference(b.Data);
+
+        // Pass 1: process rows (scalar — each row mixes eight contiguous samples).
         for (var y = 0; y < 8; y++)
         {
             var y8 = y * 8;
 
-            var x0 = b[y8 + 0];
-            var x1 = b[y8 + 1];
-            var x2 = b[y8 + 2];
-            var x3 = b[y8 + 3];
-            var x4 = b[y8 + 4];
-            var x5 = b[y8 + 5];
-            var x6 = b[y8 + 6];
-            var x7 = b[y8 + 7];
+            var x0 = Unsafe.Add(ref d, y8 + 0);
+            var x1 = Unsafe.Add(ref d, y8 + 1);
+            var x2 = Unsafe.Add(ref d, y8 + 2);
+            var x3 = Unsafe.Add(ref d, y8 + 3);
+            var x4 = Unsafe.Add(ref d, y8 + 4);
+            var x5 = Unsafe.Add(ref d, y8 + 5);
+            var x6 = Unsafe.Add(ref d, y8 + 6);
+            var x7 = Unsafe.Add(ref d, y8 + 7);
 
             var tmp0 = x0 + x7;
             var tmp1 = x1 + x6;
@@ -76,12 +82,12 @@ internal class ForwardDiscreteCosineTransform
             tmp2 = x2 - x5;
             tmp3 = x3 - x4;
 
-            b[y8] = (tmp10 + tmp11 - 8 * CenterJSample) << Pass1Bits;
-            b[y8 + 4] = (tmp10 - tmp11) << Pass1Bits;
+            Unsafe.Add(ref d, y8) = (tmp10 + tmp11 - 8 * CenterJSample) << Pass1Bits;
+            Unsafe.Add(ref d, y8 + 4) = (tmp10 - tmp11) << Pass1Bits;
             var z1 = (tmp12 + tmp13) * Fix0541196100;
             z1 += 1 << (ConstBits - Pass1Bits - 1);
-            b[y8 + 2] = (z1 + tmp12 * Fix0765366865) >> (ConstBits - Pass1Bits);
-            b[y8 + 6] = (z1 - tmp13 * Fix1847759065) >> (ConstBits - Pass1Bits);
+            Unsafe.Add(ref d, y8 + 2) = (z1 + tmp12 * Fix0765366865) >> (ConstBits - Pass1Bits);
+            Unsafe.Add(ref d, y8 + 6) = (z1 - tmp13 * Fix1847759065) >> (ConstBits - Pass1Bits);
 
             tmp10 = tmp0 + tmp3;
             tmp11 = tmp1 + tmp2;
@@ -100,60 +106,119 @@ internal class ForwardDiscreteCosineTransform
 
             tmp12 += z1;
             tmp13 += z1;
-            b[y8 + 1] = (tmp0 + tmp10 + tmp12) >> (ConstBits - Pass1Bits);
-            b[y8 + 3] = (tmp1 + tmp11 + tmp13) >> (ConstBits - Pass1Bits);
-            b[y8 + 5] = (tmp2 + tmp11 + tmp12) >> (ConstBits - Pass1Bits);
-            b[y8 + 7] = (tmp3 + tmp10 + tmp13) >> (ConstBits - Pass1Bits);
+            Unsafe.Add(ref d, y8 + 1) = (tmp0 + tmp10 + tmp12) >> (ConstBits - Pass1Bits);
+            Unsafe.Add(ref d, y8 + 3) = (tmp1 + tmp11 + tmp13) >> (ConstBits - Pass1Bits);
+            Unsafe.Add(ref d, y8 + 5) = (tmp2 + tmp11 + tmp12) >> (ConstBits - Pass1Bits);
+            Unsafe.Add(ref d, y8 + 7) = (tmp3 + tmp10 + tmp13) >> (ConstBits - Pass1Bits);
         }
 
-        // Pass 2: process columns.
-        // We remove pass1Bits scaling, but leave results scaled up by an overall factor of 8.
-        for (var x = 0; x < 8; x++)
+        // Pass 2: process columns — four at a time when Vector128 is available.
+        if (Vector128.IsHardwareAccelerated)
         {
-            var tmp0 = b[x] + b[56 + x];
-            var tmp1 = b[8 + x] + b[48 + x];
-            var tmp2 = b[16 + x] + b[40 + x];
-            var tmp3 = b[24 + x] + b[32 + x];
-
-            var tmp10 = tmp0 + tmp3 + (1 << (Pass1Bits - 1));
-            var tmp12 = tmp0 - tmp3;
-            var tmp11 = tmp1 + tmp2;
-            var tmp13 = tmp1 - tmp2;
-
-            tmp0 = b[x] - b[56 + x];
-            tmp1 = b[8 + x] - b[48 + x];
-            tmp2 = b[16 + x] - b[40 + x];
-            tmp3 = b[24 + x] - b[32 + x];
-
-            b[x] = (tmp10 + tmp11) >> Pass1Bits;
-            b[32 + x] = (tmp10 - tmp11) >> Pass1Bits;
-
-            var z1 = (tmp12 + tmp13) * Fix0541196100;
-            z1 += 1 << (ConstBits + Pass1Bits - 1);
-            b[16 + x] = (z1 + tmp12 * Fix0765366865) >> (ConstBits + Pass1Bits);
-            b[48 + x] = (z1 - tmp13 * Fix1847759065) >> (ConstBits + Pass1Bits);
-
-            tmp10 = tmp0 + tmp3;
-            tmp11 = tmp1 + tmp2;
-            tmp12 = tmp0 + tmp2;
-            tmp13 = tmp1 + tmp3;
-            z1 = (tmp12 + tmp13) * Fix1175875602;
-            z1 += 1 << (ConstBits + Pass1Bits - 1);
-            tmp0 *= Fix1501321110;
-            tmp1 *= Fix3072711026;
-            tmp2 *= Fix2053119869;
-            tmp3 *= Fix0298631336;
-            tmp10 *= -Fix0899976223;
-            tmp11 *= -Fix2562915447;
-            tmp12 *= -Fix0390180644;
-            tmp13 *= -Fix1961570560;
-
-            tmp12 += z1;
-            tmp13 += z1;
-            b[8 + x] = (tmp0 + tmp10 + tmp12) >> (ConstBits + Pass1Bits);
-            b[24 + x] = (tmp1 + tmp11 + tmp13) >> (ConstBits + Pass1Bits);
-            b[40 + x] = (tmp2 + tmp11 + tmp12) >> (ConstBits + Pass1Bits);
-            b[56 + x] = (tmp3 + tmp10 + tmp13) >> (ConstBits + Pass1Bits);
+            TransformColumns(ref d, 0);
+            TransformColumns(ref d, 4);
+            return;
         }
+
+        for (var x = 0; x < 8; x++)
+            TransformColumnScalar(ref d, x);
+    }
+
+    private static void TransformColumnScalar(ref int d, int x)
+    {
+        var tmp0 = Unsafe.Add(ref d, x) + Unsafe.Add(ref d, 56 + x);
+        var tmp1 = Unsafe.Add(ref d, 8 + x) + Unsafe.Add(ref d, 48 + x);
+        var tmp2 = Unsafe.Add(ref d, 16 + x) + Unsafe.Add(ref d, 40 + x);
+        var tmp3 = Unsafe.Add(ref d, 24 + x) + Unsafe.Add(ref d, 32 + x);
+
+        var tmp10 = tmp0 + tmp3 + (1 << (Pass1Bits - 1));
+        var tmp12 = tmp0 - tmp3;
+        var tmp11 = tmp1 + tmp2;
+        var tmp13 = tmp1 - tmp2;
+
+        tmp0 = Unsafe.Add(ref d, x) - Unsafe.Add(ref d, 56 + x);
+        tmp1 = Unsafe.Add(ref d, 8 + x) - Unsafe.Add(ref d, 48 + x);
+        tmp2 = Unsafe.Add(ref d, 16 + x) - Unsafe.Add(ref d, 40 + x);
+        tmp3 = Unsafe.Add(ref d, 24 + x) - Unsafe.Add(ref d, 32 + x);
+
+        Unsafe.Add(ref d, x) = (tmp10 + tmp11) >> Pass1Bits;
+        Unsafe.Add(ref d, 32 + x) = (tmp10 - tmp11) >> Pass1Bits;
+
+        var z1 = (tmp12 + tmp13) * Fix0541196100;
+        z1 += 1 << (ConstBits + Pass1Bits - 1);
+        Unsafe.Add(ref d, 16 + x) = (z1 + tmp12 * Fix0765366865) >> (ConstBits + Pass1Bits);
+        Unsafe.Add(ref d, 48 + x) = (z1 - tmp13 * Fix1847759065) >> (ConstBits + Pass1Bits);
+
+        tmp10 = tmp0 + tmp3;
+        tmp11 = tmp1 + tmp2;
+        tmp12 = tmp0 + tmp2;
+        tmp13 = tmp1 + tmp3;
+        z1 = (tmp12 + tmp13) * Fix1175875602;
+        z1 += 1 << (ConstBits + Pass1Bits - 1);
+        tmp0 *= Fix1501321110;
+        tmp1 *= Fix3072711026;
+        tmp2 *= Fix2053119869;
+        tmp3 *= Fix0298631336;
+        tmp10 *= -Fix0899976223;
+        tmp11 *= -Fix2562915447;
+        tmp12 *= -Fix0390180644;
+        tmp13 *= -Fix1961570560;
+
+        tmp12 += z1;
+        tmp13 += z1;
+        Unsafe.Add(ref d, 8 + x) = (tmp0 + tmp10 + tmp12) >> (ConstBits + Pass1Bits);
+        Unsafe.Add(ref d, 24 + x) = (tmp1 + tmp11 + tmp13) >> (ConstBits + Pass1Bits);
+        Unsafe.Add(ref d, 40 + x) = (tmp2 + tmp11 + tmp12) >> (ConstBits + Pass1Bits);
+        Unsafe.Add(ref d, 56 + x) = (tmp3 + tmp10 + tmp13) >> (ConstBits + Pass1Bits);
+    }
+
+    // Column pass for four columns at once; same integer arithmetic as the scalar loop.
+    private static void TransformColumns(ref int d, int x)
+    {
+        var o = (nuint)x;
+        var tmp0 = Vector128.LoadUnsafe(ref d, o) + Vector128.LoadUnsafe(ref d, o + 56);
+        var tmp1 = Vector128.LoadUnsafe(ref d, o + 8) + Vector128.LoadUnsafe(ref d, o + 48);
+        var tmp2 = Vector128.LoadUnsafe(ref d, o + 16) + Vector128.LoadUnsafe(ref d, o + 40);
+        var tmp3 = Vector128.LoadUnsafe(ref d, o + 24) + Vector128.LoadUnsafe(ref d, o + 32);
+
+        var pass1Round = Vector128.Create(1 << (Pass1Bits - 1));
+        var tmp10 = tmp0 + tmp3 + pass1Round;
+        var tmp12 = tmp0 - tmp3;
+        var tmp11 = tmp1 + tmp2;
+        var tmp13 = tmp1 - tmp2;
+
+        tmp0 = Vector128.LoadUnsafe(ref d, o) - Vector128.LoadUnsafe(ref d, o + 56);
+        tmp1 = Vector128.LoadUnsafe(ref d, o + 8) - Vector128.LoadUnsafe(ref d, o + 48);
+        tmp2 = Vector128.LoadUnsafe(ref d, o + 16) - Vector128.LoadUnsafe(ref d, o + 40);
+        tmp3 = Vector128.LoadUnsafe(ref d, o + 24) - Vector128.LoadUnsafe(ref d, o + 32);
+
+        ((tmp10 + tmp11) >> Pass1Bits).StoreUnsafe(ref d, o);
+        ((tmp10 - tmp11) >> Pass1Bits).StoreUnsafe(ref d, o + 32);
+
+        var constRound = Vector128.Create(1 << (ConstBits + Pass1Bits - 1));
+        var z1 = (tmp12 + tmp13) * Fix0541196100 + constRound;
+        ((z1 + tmp12 * Fix0765366865) >> (ConstBits + Pass1Bits)).StoreUnsafe(ref d, o + 16);
+        ((z1 - tmp13 * Fix1847759065) >> (ConstBits + Pass1Bits)).StoreUnsafe(ref d, o + 48);
+
+        tmp10 = tmp0 + tmp3;
+        tmp11 = tmp1 + tmp2;
+        tmp12 = tmp0 + tmp2;
+        tmp13 = tmp1 + tmp3;
+        z1 = (tmp12 + tmp13) * Fix1175875602 + constRound;
+        tmp0 *= Fix1501321110;
+        tmp1 *= Fix3072711026;
+        tmp2 *= Fix2053119869;
+        tmp3 *= Fix0298631336;
+        tmp10 *= -Fix0899976223;
+        tmp11 *= -Fix2562915447;
+        tmp12 *= -Fix0390180644;
+        tmp13 *= -Fix1961570560;
+
+        tmp12 += z1;
+        tmp13 += z1;
+        ((tmp0 + tmp10 + tmp12) >> (ConstBits + Pass1Bits)).StoreUnsafe(ref d, o + 8);
+        ((tmp1 + tmp11 + tmp13) >> (ConstBits + Pass1Bits)).StoreUnsafe(ref d, o + 24);
+        ((tmp2 + tmp11 + tmp12) >> (ConstBits + Pass1Bits)).StoreUnsafe(ref d, o + 40);
+        ((tmp3 + tmp10 + tmp13) >> (ConstBits + Pass1Bits)).StoreUnsafe(ref d, o + 56);
     }
 }

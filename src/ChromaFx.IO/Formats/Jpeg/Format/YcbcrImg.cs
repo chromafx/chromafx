@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
@@ -341,7 +342,13 @@ internal class YcbcrImg
         Parallel.For(
             0,
             height,
-            () => (new byte[chromaWidth * 2], new byte[chromaWidth * 2], new int[chromaWidth]),
+            () =>
+            {
+                var cb = ArrayPool<byte>.Shared.Rent(chromaWidth * 2);
+                var cr = ArrayPool<byte>.Shared.Rent(chromaWidth * 2);
+                var sum = ArrayPool<int>.Shared.Rent(chromaWidth);
+                return (cb, cr, sum);
+            },
             (y, _, buffers) =>
             {
                 var yRow = YPixels.AsSpan(RowYOffset(y), width);
@@ -351,7 +358,7 @@ internal class YcbcrImg
                     var (cbRow, crRow, colSum) = buffers;
                     UpsampleRow(CbPixels, y, chromaWidth, chromaHeight, colSum, cbRow);
                     UpsampleRow(CrPixels, y, chromaWidth, chromaHeight, colSum, crRow);
-                    ConvertRow(yRow, cbRow, crRow, row);
+                    ConvertRow(yRow, cbRow.AsSpan(0, width), crRow.AsSpan(0, width), row);
                 }
                 else
                 {
@@ -364,7 +371,12 @@ internal class YcbcrImg
                 }
                 return buffers;
             },
-            _ => { }
+            buffers =>
+            {
+                ArrayPool<byte>.Shared.Return(buffers.Item1);
+                ArrayPool<byte>.Shared.Return(buffers.Item2);
+                ArrayPool<int>.Shared.Return(buffers.Item3);
+            }
         );
     }
 
@@ -382,22 +394,7 @@ internal class YcbcrImg
         if (Ratio == YCbCrSubsampleRatio.YCbCrSubsampleRatio422)
         {
             var src = plane.AsSpan(COffset + y * CStride, chromaWidth);
-            if (chromaWidth == 1)
-            {
-                output[0] = output[1] = src[0];
-                return;
-            }
-            output[0] = src[0];
-            output[1] = (byte)((src[0] * 3 + src[1] + 2) >> 2);
-            for (var i = 1; i < chromaWidth - 1; i++)
-            {
-                var v = src[i] * 3;
-                output[2 * i] = (byte)((v + src[i - 1] + 1) >> 2);
-                output[2 * i + 1] = (byte)((v + src[i + 1] + 2) >> 2);
-            }
-            var last = chromaWidth - 1;
-            output[2 * last] = (byte)((src[last] * 3 + src[last - 1] + 1) >> 2);
-            output[2 * last + 1] = src[last];
+            Upsample422(src, output, chromaWidth);
             return;
         }
 
@@ -408,6 +405,67 @@ internal class YcbcrImg
         for (var i = 0; i < chromaWidth; i++)
             colSum[i] = near[i] * 3 + far[i];
 
+        Upsample420(colSum.AsSpan(0, chromaWidth), output, chromaWidth);
+    }
+
+    private static void Upsample422(ReadOnlySpan<byte> src, Span<byte> output, int chromaWidth)
+    {
+        if (chromaWidth == 1)
+        {
+            output[0] = output[1] = src[0];
+            return;
+        }
+        output[0] = src[0];
+        output[1] = (byte)((src[0] * 3 + src[1] + 2) >> 2);
+
+        var i = 1;
+        if (Vector128.IsHardwareAccelerated && chromaWidth >= 9)
+        {
+            // Process interior samples four at a time (needs neighbors i-1 and i+1).
+            for (; i <= chromaWidth - 1 - 4; i += 4)
+            {
+                var cur = Vector128.Create(
+                    (int)src[i],
+                    src[i + 1],
+                    src[i + 2],
+                    src[i + 3]
+                );
+                var left = Vector128.Create(
+                    (int)src[i - 1],
+                    src[i],
+                    src[i + 1],
+                    src[i + 2]
+                );
+                var right = Vector128.Create(
+                    (int)src[i + 1],
+                    src[i + 2],
+                    src[i + 3],
+                    src[i + 4]
+                );
+                var v = cur * 3;
+                var even = (v + left + Vector128.Create(1)) >> 2;
+                var odd = (v + right + Vector128.Create(2)) >> 2;
+                for (var lane = 0; lane < 4; lane++)
+                {
+                    output[2 * (i + lane)] = (byte)even.GetElement(lane);
+                    output[2 * (i + lane) + 1] = (byte)odd.GetElement(lane);
+                }
+            }
+        }
+
+        for (; i < chromaWidth - 1; i++)
+        {
+            var v = src[i] * 3;
+            output[2 * i] = (byte)((v + src[i - 1] + 1) >> 2);
+            output[2 * i + 1] = (byte)((v + src[i + 1] + 2) >> 2);
+        }
+        var last = chromaWidth - 1;
+        output[2 * last] = (byte)((src[last] * 3 + src[last - 1] + 1) >> 2);
+        output[2 * last + 1] = src[last];
+    }
+
+    private static void Upsample420(ReadOnlySpan<int> colSum, Span<byte> output, int chromaWidth)
+    {
         if (chromaWidth == 1)
         {
             output[0] = (byte)((colSum[0] * 4 + 8) >> 4);
@@ -416,7 +474,37 @@ internal class YcbcrImg
         }
         output[0] = (byte)((colSum[0] * 4 + 8) >> 4);
         output[1] = (byte)((colSum[0] * 3 + colSum[1] + 7) >> 4);
-        for (var i = 1; i < chromaWidth - 1; i++)
+
+        var i = 1;
+        if (Vector128.IsHardwareAccelerated && chromaWidth >= 9)
+        {
+            for (; i <= chromaWidth - 1 - 4; i += 4)
+            {
+                var cur = Vector128.Create(colSum[i], colSum[i + 1], colSum[i + 2], colSum[i + 3]);
+                var left = Vector128.Create(
+                    colSum[i - 1],
+                    colSum[i],
+                    colSum[i + 1],
+                    colSum[i + 2]
+                );
+                var right = Vector128.Create(
+                    colSum[i + 1],
+                    colSum[i + 2],
+                    colSum[i + 3],
+                    colSum[i + 4]
+                );
+                var v = cur * 3;
+                var even = (v + left + Vector128.Create(8)) >> 4;
+                var odd = (v + right + Vector128.Create(7)) >> 4;
+                for (var lane = 0; lane < 4; lane++)
+                {
+                    output[2 * (i + lane)] = (byte)even.GetElement(lane);
+                    output[2 * (i + lane) + 1] = (byte)odd.GetElement(lane);
+                }
+            }
+        }
+
+        for (; i < chromaWidth - 1; i++)
         {
             var v = colSum[i] * 3;
             output[2 * i] = (byte)((v + colSum[i - 1] + 8) >> 4);

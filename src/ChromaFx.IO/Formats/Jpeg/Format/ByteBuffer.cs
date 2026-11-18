@@ -77,6 +77,13 @@ internal class ByteBuffer(Stream stream)
         return (int)(_accumulator >> (_bitCount - 8)) & 0xff;
     }
 
+    public int PeekBits(int n)
+    {
+        if (_bitCount < n)
+            Refill(n);
+        return (int)(_accumulator >> (_bitCount - n)) & ((1 << n) - 1);
+    }
+
     public void SkipBits(int n)
     {
         _bitCount -= n;

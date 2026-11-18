@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,9 @@ internal static class Idct
     public static void Transform(Block src)
     {
         ref var d = ref MemoryMarshal.GetArrayDataReference(src.Data);
+
+        // Rows: keep per-row AC-zero short-circuit (common and cheap). Vectorizing four
+        // sparse rows via gather/scatter was a net loss vs this path.
         for (var y = 0; y < 8; y++)
         {
             var y8 = y * 8;
@@ -73,47 +76,7 @@ internal static class Idct
                 continue;
             }
 
-            var x0 = (Unsafe.Add(ref d, y8 + 0) << 11) + 128;
-            var x1 = Unsafe.Add(ref d, y8 + 4) << 11;
-            var x2 = Unsafe.Add(ref d, y8 + 6);
-            var x3 = Unsafe.Add(ref d, y8 + 2);
-            var x4 = Unsafe.Add(ref d, y8 + 1);
-            var x5 = Unsafe.Add(ref d, y8 + 7);
-            var x6 = Unsafe.Add(ref d, y8 + 5);
-            var x7 = Unsafe.Add(ref d, y8 + 3);
-
-            var x8 = W7 * (x4 + x5);
-            x4 = x8 + W1Mw7 * x4;
-            x5 = x8 - W1Pw7 * x5;
-            x8 = W3 * (x6 + x7);
-            x6 = x8 - W3Mw5 * x6;
-            x7 = x8 - W3Pw5 * x7;
-
-            x8 = x0 + x1;
-            x0 -= x1;
-            x1 = W6 * (x3 + x2);
-            x2 = x1 - W2Pw6 * x2;
-            x3 = x1 + W2Mw6 * x3;
-            x1 = x4 + x6;
-            x4 -= x6;
-            x6 = x5 + x7;
-            x5 -= x7;
-
-            x7 = x8 + x3;
-            x8 -= x3;
-            x3 = x0 + x2;
-            x0 -= x2;
-            x2 = (R2 * (x4 + x5) + 128) >> 8;
-            x4 = (R2 * (x4 - x5) + 128) >> 8;
-
-            Unsafe.Add(ref d, y8 + 0) = (x7 + x1) >> 8;
-            Unsafe.Add(ref d, y8 + 1) = (x3 + x2) >> 8;
-            Unsafe.Add(ref d, y8 + 2) = (x0 + x4) >> 8;
-            Unsafe.Add(ref d, y8 + 3) = (x8 + x6) >> 8;
-            Unsafe.Add(ref d, y8 + 4) = (x8 - x6) >> 8;
-            Unsafe.Add(ref d, y8 + 5) = (x0 - x4) >> 8;
-            Unsafe.Add(ref d, y8 + 6) = (x3 - x2) >> 8;
-            Unsafe.Add(ref d, y8 + 7) = (x7 - x1) >> 8;
+            TransformRowScalar(ref d, y8);
         }
 
         if (Vector128.IsHardwareAccelerated)
@@ -124,49 +87,97 @@ internal static class Idct
         }
 
         for (var x = 0; x < 8; x++)
-        {
-            var y0 = (Unsafe.Add(ref d, x) << 8) + 8192;
-            var y1 = Unsafe.Add(ref d, 32 + x) << 8;
-            var y2 = Unsafe.Add(ref d, 48 + x);
-            var y3 = Unsafe.Add(ref d, 16 + x);
-            var y4 = Unsafe.Add(ref d, 8 + x);
-            var y5 = Unsafe.Add(ref d, 56 + x);
-            var y6 = Unsafe.Add(ref d, 40 + x);
-            var y7 = Unsafe.Add(ref d, 24 + x);
+            TransformColumnScalar(ref d, x);
+    }
 
-            var y8 = W7 * (y4 + y5) + 4;
-            y4 = (y8 + W1Mw7 * y4) >> 3;
-            y5 = (y8 - W1Pw7 * y5) >> 3;
-            y8 = W3 * (y6 + y7) + 4;
-            y6 = (y8 - W3Mw5 * y6) >> 3;
-            y7 = (y8 - W3Pw5 * y7) >> 3;
+    private static void TransformRowScalar(ref int d, int y8)
+    {
+        var x0 = (Unsafe.Add(ref d, y8 + 0) << 11) + 128;
+        var x1 = Unsafe.Add(ref d, y8 + 4) << 11;
+        var x2 = Unsafe.Add(ref d, y8 + 6);
+        var x3 = Unsafe.Add(ref d, y8 + 2);
+        var x4 = Unsafe.Add(ref d, y8 + 1);
+        var x5 = Unsafe.Add(ref d, y8 + 7);
+        var x6 = Unsafe.Add(ref d, y8 + 5);
+        var x7 = Unsafe.Add(ref d, y8 + 3);
 
-            y8 = y0 + y1;
-            y0 -= y1;
-            y1 = W6 * (y3 + y2) + 4;
-            y2 = (y1 - W2Pw6 * y2) >> 3;
-            y3 = (y1 + W2Mw6 * y3) >> 3;
-            y1 = y4 + y6;
-            y4 -= y6;
-            y6 = y5 + y7;
-            y5 -= y7;
+        var x8 = W7 * (x4 + x5);
+        x4 = x8 + W1Mw7 * x4;
+        x5 = x8 - W1Pw7 * x5;
+        x8 = W3 * (x6 + x7);
+        x6 = x8 - W3Mw5 * x6;
+        x7 = x8 - W3Pw5 * x7;
 
-            y7 = y8 + y3;
-            y8 -= y3;
-            y3 = y0 + y2;
-            y0 -= y2;
-            y2 = (R2 * (y4 + y5) + 128) >> 8;
-            y4 = (R2 * (y4 - y5) + 128) >> 8;
+        x8 = x0 + x1;
+        x0 -= x1;
+        x1 = W6 * (x3 + x2);
+        x2 = x1 - W2Pw6 * x2;
+        x3 = x1 + W2Mw6 * x3;
+        x1 = x4 + x6;
+        x4 -= x6;
+        x6 = x5 + x7;
+        x5 -= x7;
 
-            Unsafe.Add(ref d, x) = (y7 + y1) >> 14;
-            Unsafe.Add(ref d, 8 + x) = (y3 + y2) >> 14;
-            Unsafe.Add(ref d, 16 + x) = (y0 + y4) >> 14;
-            Unsafe.Add(ref d, 24 + x) = (y8 + y6) >> 14;
-            Unsafe.Add(ref d, 32 + x) = (y8 - y6) >> 14;
-            Unsafe.Add(ref d, 40 + x) = (y0 - y4) >> 14;
-            Unsafe.Add(ref d, 48 + x) = (y3 - y2) >> 14;
-            Unsafe.Add(ref d, 56 + x) = (y7 - y1) >> 14;
-        }
+        x7 = x8 + x3;
+        x8 -= x3;
+        x3 = x0 + x2;
+        x0 -= x2;
+        x2 = (R2 * (x4 + x5) + 128) >> 8;
+        x4 = (R2 * (x4 - x5) + 128) >> 8;
+
+        Unsafe.Add(ref d, y8 + 0) = (x7 + x1) >> 8;
+        Unsafe.Add(ref d, y8 + 1) = (x3 + x2) >> 8;
+        Unsafe.Add(ref d, y8 + 2) = (x0 + x4) >> 8;
+        Unsafe.Add(ref d, y8 + 3) = (x8 + x6) >> 8;
+        Unsafe.Add(ref d, y8 + 4) = (x8 - x6) >> 8;
+        Unsafe.Add(ref d, y8 + 5) = (x0 - x4) >> 8;
+        Unsafe.Add(ref d, y8 + 6) = (x3 - x2) >> 8;
+        Unsafe.Add(ref d, y8 + 7) = (x7 - x1) >> 8;
+    }
+
+    private static void TransformColumnScalar(ref int d, int x)
+    {
+        var y0 = (Unsafe.Add(ref d, x) << 8) + 8192;
+        var y1 = Unsafe.Add(ref d, 32 + x) << 8;
+        var y2 = Unsafe.Add(ref d, 48 + x);
+        var y3 = Unsafe.Add(ref d, 16 + x);
+        var y4 = Unsafe.Add(ref d, 8 + x);
+        var y5 = Unsafe.Add(ref d, 56 + x);
+        var y6 = Unsafe.Add(ref d, 40 + x);
+        var y7 = Unsafe.Add(ref d, 24 + x);
+
+        var y8 = W7 * (y4 + y5) + 4;
+        y4 = (y8 + W1Mw7 * y4) >> 3;
+        y5 = (y8 - W1Pw7 * y5) >> 3;
+        y8 = W3 * (y6 + y7) + 4;
+        y6 = (y8 - W3Mw5 * y6) >> 3;
+        y7 = (y8 - W3Pw5 * y7) >> 3;
+
+        y8 = y0 + y1;
+        y0 -= y1;
+        y1 = W6 * (y3 + y2) + 4;
+        y2 = (y1 - W2Pw6 * y2) >> 3;
+        y3 = (y1 + W2Mw6 * y3) >> 3;
+        y1 = y4 + y6;
+        y4 -= y6;
+        y6 = y5 + y7;
+        y5 -= y7;
+
+        y7 = y8 + y3;
+        y8 -= y3;
+        y3 = y0 + y2;
+        y0 -= y2;
+        y2 = (R2 * (y4 + y5) + 128) >> 8;
+        y4 = (R2 * (y4 - y5) + 128) >> 8;
+
+        Unsafe.Add(ref d, x) = (y7 + y1) >> 14;
+        Unsafe.Add(ref d, 8 + x) = (y3 + y2) >> 14;
+        Unsafe.Add(ref d, 16 + x) = (y0 + y4) >> 14;
+        Unsafe.Add(ref d, 24 + x) = (y8 + y6) >> 14;
+        Unsafe.Add(ref d, 32 + x) = (y8 - y6) >> 14;
+        Unsafe.Add(ref d, 40 + x) = (y0 - y4) >> 14;
+        Unsafe.Add(ref d, 48 + x) = (y3 - y2) >> 14;
+        Unsafe.Add(ref d, 56 + x) = (y7 - y1) >> 14;
     }
 
     // Column pass for four columns at once; same integer arithmetic as the scalar loop.

@@ -14,8 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+using System.Buffers;
+using System.Runtime.CompilerServices;
+using System.Runtime.Intrinsics;
 using ChromaFx.Core;
-using ChromaFx.Core.Colors;
 using ChromaFx.IO.Formats.Jpeg.Format.Enums;
 
 namespace ChromaFx.IO.Formats.Jpeg.Format.Segments;
@@ -439,6 +441,20 @@ internal class StartOfScan : SegmentBase
     private readonly Block[][] _progressiveCoefficients;
 
     private readonly Block _baselineBlock = new();
+    private readonly int[] _dc = new int[MaximumNumberComponents];
+    private byte[] _emitBuffer = ArrayPool<byte>.Shared.Rent(65536);
+    private int _emitLength;
+
+    // BT.601 fixed-point (scale 16), matching YCbCr double coefficients.
+    private const int YR = 19595;
+    private const int YG = 38470;
+    private const int YB = 7471;
+    private const int CbR = -11059;
+    private const int CbG = -21709;
+    private const int CbB = 32768;
+    private const int CrR = 32768;
+    private const int CrG = -27439;
+    private const int CrB = -5329;
 
     /// <summary>
     /// Converts the scan information into an image
@@ -620,7 +636,8 @@ internal class StartOfScan : SegmentBase
         byte expectedRst = SegmentTypes.Restart0;
 
         Block b;
-        var dc = new int[MaximumNumberComponents];
+        Array.Clear(_dc);
+        var dc = _dc;
 
         int bx,
             by;
@@ -800,13 +817,7 @@ internal class StartOfScan : SegmentBase
                             }
                         }
 
-                        for (var y = 0; y < 8; y++)
-                        {
-                            var source = b.Data.AsSpan(y * 8, 8);
-                            var target = dst.AsSpan(offset + y * stride, 8);
-                            for (var x = 0; x < 8; x++)
-                                target[x] = (byte)Math.Clamp(source[x] + 128, 0, 255);
-                        }
+                        StoreBlockClamped(b.Data, dst, offset, stride);
                     }
                 }
 
@@ -830,7 +841,7 @@ internal class StartOfScan : SegmentBase
                         expectedRst = SegmentTypes.Restart0;
                     }
                     Bytes.ResetBits();
-                    dc = new int[MaximumNumberComponents];
+                    Array.Clear(dc);
                     _endOfBlockRun = 0;
                 }
             }
@@ -844,8 +855,12 @@ internal class StartOfScan : SegmentBase
     public override void Write(BinaryWriter writer)
     {
         writer.Write(_sosHeaderYCbCr, 0, _sosHeaderYCbCr.Length);
-        Encode444(writer);
-        Emit(0x7f, 7, writer);
+        _emitLength = 0;
+        _bits = 0;
+        _nBits = 0;
+        Encode444();
+        Emit(0x7f, 7);
+        FlushEmit(writer);
     }
 
     private static int Div(int a, int b)
@@ -856,7 +871,7 @@ internal class StartOfScan : SegmentBase
             return -((-a + (b >> 1)) / b);
     }
 
-    private void Emit(uint bits, uint nBits, BinaryWriter writer)
+    private void Emit(uint bits, uint nBits)
     {
         nBits += this._nBits;
         bits <<= (int)(32 - nBits);
@@ -864,9 +879,9 @@ internal class StartOfScan : SegmentBase
         while (nBits >= 8)
         {
             var b = (byte)(bits >> 24);
-            writer.Write(b);
+            WriteEmitByte(b);
             if (b == 0xff)
-                writer.Write((byte)0x00);
+                WriteEmitByte(0x00);
             bits <<= 8;
             nBits -= 8;
         }
@@ -874,13 +889,33 @@ internal class StartOfScan : SegmentBase
         this._nBits = nBits;
     }
 
-    private void EmitHuff(HuffmanIndex h, int v, BinaryWriter writer)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void WriteEmitByte(byte value)
     {
-        var x = DefineHuffmanTableSegment.HuffmanLookUpTables[(int)h].Values[v];
-        Emit(x & ((1 << 24) - 1), x >> 24, writer);
+        if (_emitLength >= _emitBuffer.Length)
+        {
+            var grown = ArrayPool<byte>.Shared.Rent(_emitBuffer.Length * 2);
+            _emitBuffer.AsSpan(0, _emitLength).CopyTo(grown);
+            ArrayPool<byte>.Shared.Return(_emitBuffer);
+            _emitBuffer = grown;
+        }
+        _emitBuffer[_emitLength++] = value;
     }
 
-    private void EmitHuffRle(HuffmanIndex h, int runLength, int v, BinaryWriter writer)
+    private void FlushEmit(BinaryWriter writer)
+    {
+        if (_emitLength > 0)
+            writer.Write(_emitBuffer, 0, _emitLength);
+        _emitLength = 0;
+    }
+
+    private void EmitHuff(HuffmanIndex h, int v)
+    {
+        var x = DefineHuffmanTableSegment.HuffmanLookUpTables[(int)h].Values[v];
+        Emit(x & ((1 << 24) - 1), x >> 24);
+    }
+
+    private void EmitHuffRle(HuffmanIndex h, int runLength, int v)
     {
         var a = v;
         var b = v;
@@ -895,12 +930,12 @@ internal class StartOfScan : SegmentBase
         else
             nBits = 8 + (uint)_bitCount[a >> 8];
 
-        EmitHuff(h, (int)((uint)(runLength << 4) | nBits), writer);
+        EmitHuff(h, (int)((uint)(runLength << 4) | nBits));
         if (nBits > 0)
-            Emit((uint)b & (uint)((1 << (int)nBits) - 1), nBits, writer);
+            Emit((uint)b & (uint)((1 << (int)nBits) - 1), nBits);
     }
 
-    private void Encode444(BinaryWriter writer)
+    private void Encode444()
     {
         var b = new Block();
         var cb = new Block();
@@ -914,10 +949,22 @@ internal class StartOfScan : SegmentBase
             for (var x = 0; x < Image.Width; x += 8)
             {
                 ToYCbCr(x, y, b, cb, cr);
-                prevDcy = WriteBlock(b, 0, prevDcy, writer);
-                prevDcCb = WriteBlock(cb, (QuantIndex)1, prevDcCb, writer);
-                prevDcCr = WriteBlock(cr, (QuantIndex)1, prevDcCr, writer);
+                prevDcy = WriteBlock(b, 0, prevDcy);
+                prevDcCb = WriteBlock(cb, (QuantIndex)1, prevDcCb);
+                prevDcCr = WriteBlock(cr, (QuantIndex)1, prevDcCr);
             }
+        }
+    }
+
+    private static void StoreBlockClamped(int[] block, byte[] dst, int offset, int stride)
+    {
+        // Scalar clamp: Lane-extract SIMD clamp was slower than Math.Clamp on this path.
+        for (var y = 0; y < 8; y++)
+        {
+            var source = block.AsSpan(y * 8, 8);
+            var target = dst.AsSpan(offset + y * stride, 8);
+            for (var x = 0; x < 8; x++)
+                target[x] = (byte)Math.Clamp(source[x] + 128, 0, 255);
         }
     }
 
@@ -1069,10 +1116,8 @@ internal class StartOfScan : SegmentBase
 
     private void ToYCbCr(int x, int y, Block yBlock, Block cbBlock, Block crBlock)
     {
-        int width = Image.Width;
-        int height = Image.Height;
-        int xmax = width - 1;
-        int ymax = height - 1;
+        int xmax = Image.Width - 1;
+        int ymax = Image.Height - 1;
         var pixels = Image.PixelSpan;
         int stride = Image.Stride;
         var yData = yBlock.Data.AsSpan();
@@ -1090,24 +1135,26 @@ internal class StartOfScan : SegmentBase
                 int col = x + i;
                 if (col > xmax)
                     col = xmax;
-                int offset = col + rowBase;
-                YCbCr color = pixels[offset];
+                var pixel = pixels[col + rowBase];
+                int r = pixel.Red;
+                int g = pixel.Green;
+                int b = pixel.Blue;
 
                 int index = 8 * j + i;
-                yData[index] = (int)color.YLuminance;
-                cbData[index] = (int)color.CbChroma;
-                crData[index] = (int)color.CrChroma;
+                yData[index] = (YR * r + YG * g + YB * b + 32768) >> 16;
+                cbData[index] = 128 + ((CbR * r + CbG * g + CbB * b + 32768) >> 16);
+                crData[index] = 128 + ((CrR * r + CrG * g + CrB * b + 32768) >> 16);
             }
         }
     }
 
-    private int WriteBlock(Block b, QuantIndex q, int prevDc, BinaryWriter writer)
+    private int WriteBlock(Block b, QuantIndex q, int prevDc)
     {
         ForwardDiscreteCosineTransform.Transform(b);
 
         // Emit the DC delta.
         var dc = Div(b[0], 8 * DefineQuantizationTableSegment.Quant[(int)q][0]);
-        EmitHuffRle((HuffmanIndex)(2 * (int)q + 0), 0, dc - prevDc, writer);
+        EmitHuffRle((HuffmanIndex)(2 * (int)q + 0), 0, dc - prevDc);
 
         // Emit the AC components.
         var h = (HuffmanIndex)(2 * (int)q + 1);
@@ -1125,16 +1172,16 @@ internal class StartOfScan : SegmentBase
             {
                 while (runLength > 15)
                 {
-                    EmitHuff(h, 0xf0, writer);
+                    EmitHuff(h, 0xf0);
                     runLength -= 16;
                 }
 
-                EmitHuffRle(h, runLength, ac, writer);
+                EmitHuffRle(h, runLength, ac);
                 runLength = 0;
             }
         }
         if (runLength > 0)
-            EmitHuff(h, 0x00, writer);
+            EmitHuff(h, 0x00);
         return dc;
     }
 }
