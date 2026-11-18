@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.5]
+
+ImageSimilarity / ColorDifference / Image.Metadata, Curves / Perspective, filter renames, JPEG/PNG/GIF/BMP encode–decode perf.
+
 ### Added
 - **`ImageSimilarity`** (Core): `Mse` / `Rmse` / `Mae` / `Psnr` / `Ssim` / `CountDifferingPixels` / `CreateDiffImage` — RGB metrics on same-size images (alpha ignored); not an `IFilter`.
 - **`ColorDifference`** (Core): CIE76 ΔE — `Cie76(Color|CieLab)` and `MeanCie76(Image, Image)`.
@@ -20,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Internal IO cleanup: file names match types (BMP `Rgb*Bit`, `Crc32`, `Idct`/`Fdct`, `Eof`, `LzwEncoder`, histogram/`SnnBlur` filenames); JPEG `YcbcrImg` → `YCbCrImage`; format `IEncoder` → `IFormatEncoder` (public `IImageEncoder` unchanged); `FilterBufferPool` file moved under `Processing/Internal` (namespace unchanged).
 - Perf (GIF/BMP encode–decode): GIF frame expand uses a `uint[256]` palette LUT (LZW table pooling was a net loss); BMP RGB24 PackBgr/Encode unpack via `ByteSimd` unaligned helpers (bit-identical).
 - Perf (JPEG/PNG encode–decode): integer RGB→YCbCr + buffered emit + FDCT column SIMD on encode (JPEG bytes may change; goldens refreshed); decode keeps AC-zero IDCT rows + column SIMD, fancy upsample SIMD + pooled chroma temps (row-IDCT SIMD / wider Huffman LUT / vector clamp-store were net losses); PNG SIMD filter `Score`, RGB8 pack, in-place scanline filter, pooled `<8bpp` expand.
-- Perf (Unreleased): JPEG/PNG EXIF·XMP + orientation in one header walk; `ColorDifference` sRGB→Lab LUT; `ImageSimilarity.Ssim` luma via `ArrayPool`; `Perspective` stack homography + tighter bilinear.
+- Perf: JPEG/PNG EXIF·XMP + orientation in one header walk; `ColorDifference` sRGB→Lab LUT; `ImageSimilarity.Ssim` luma via `ArrayPool`; `Perspective` stack homography + tighter bilinear.
 - Perf (SIMD): `ByteSimd.AbsDiff` / opaque-alpha fill (AVX2/SSE2/AdvSimd); `ImageSimilarity` diff/MSE/SSIM luma use hardware paths; color-matrix packing avoids `Vector` indexer; EXIF orientation 2/3/4 use row reverse/copy.
 
 ### Removed

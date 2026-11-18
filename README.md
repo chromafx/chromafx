@@ -30,9 +30,9 @@ Fully managed on .NET 10 — no native codec binaries for Docker/Lambda multi-ar
 | Package                | Description                                                                 | NuGet Link                                               |
 |------------------------|-----------------------------------------------------------------------------|----------------------------------------------------------|
 | `ChromaFx`             | Meta-package for .NET 10 (`Core` + `IO` + `Processing`).                    | [ChromaFx](https://www.nuget.org/packages/ChromaFx/) |
-| `ChromaFx.Core`        | Core types (`ImageSimilarity` / `ColorDifference` / `Image.Metadata` in Unreleased). | [ChromaFx.Core](https://www.nuget.org/packages/ChromaFx.Core/) |
-| `ChromaFx.IO`          | Image file IO; JPEG/PNG EXIF·XMP preserve in Unreleased.                   | [ChromaFx.IO](https://www.nuget.org/packages/ChromaFx.IO/) |
-| `ChromaFx.Processing`  | Filters and effects (`Curves` / `Perspective` in Unreleased).              | [ChromaFx.Processing](https://www.nuget.org/packages/ChromaFx.Processing/) |
+| `ChromaFx.Core`        | Core types (`ImageSimilarity`, `ColorDifference`, `Image.Metadata`).       | [ChromaFx.Core](https://www.nuget.org/packages/ChromaFx.Core/) |
+| `ChromaFx.IO`          | Image file IO; JPEG/PNG EXIF·XMP preserve.                                 | [ChromaFx.IO](https://www.nuget.org/packages/ChromaFx.IO/) |
+| `ChromaFx.Processing`  | Filters and effects (`Curves`, `Perspective`).                             | [ChromaFx.Processing](https://www.nuget.org/packages/ChromaFx.Processing/) |
 | `ChromaFx.PixelArt`    | Opt-in pixel-art upscaling (Scale2x / Scale3x, Hq2x–4x, CleanEdge, Eagle, SaI) and `RotateSprite` / `CleanEdgeRotate`. Not in the meta-package. | [ChromaFx.PixelArt](https://www.nuget.org/packages/ChromaFx.PixelArt/) |
 | `ChromaFx.Retro`       | Opt-in retro palettes + Bayer, UI/mode helpers, Millennium / classic FX / plasma / fire. Not in the meta-package. | [ChromaFx.Retro](https://www.nuget.org/packages/ChromaFx.Retro/) |
 | `ChromaFx.Native`      | Opt-in still WebP, AVIF, and JPEG XL. Not in the meta-package. | [ChromaFx.Native](https://www.nuget.org/packages/ChromaFx.Native/) |
@@ -45,7 +45,7 @@ Fully managed on .NET 10 — no native codec binaries for Docker/Lambda multi-ar
 
 ## Installation
 
-Current NuGet line is **0.6.4** (tag-only releases; 0.x may still change before 1.0):
+Current NuGet line is **0.6.5** (tag-only releases; 0.x may still change before 1.0):
 
 ```bash
 dotnet add package ChromaFx
@@ -144,9 +144,9 @@ Modifications and ongoing maintenance by Ho Tzin Mein (2023–2026).
 
 ## Roadmap
 
-Shipped through **0.6.4**: modular Core/IO/Processing, PixelArt / Retro / Native packs, format depth, and Unreleased IQ / tone / warp / metadata (`ImageSimilarity`, `ColorDifference`, `Curves`, `Perspective`, `Image.Metadata` JPEG·PNG).
+Shipped through **0.6.5**: modular Core/IO/Processing, PixelArt / Retro / Native packs, format depth, IQ / tone / warp / metadata (`ImageSimilarity`, `ColorDifference`, `Curves`, `Perspective`, `Image.Metadata` JPEG·PNG), and filter renames.
 
-**Next:** library NuGet cut for Unreleased pieces; ChromaLab `v0.3.0` tag when ready.
+**Next:** ChromaLab `v0.3.0` tag when ready.
 
 ## Contributing
 Contributions, bug reports, and suggestions are welcome.
