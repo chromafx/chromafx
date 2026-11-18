@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+using System.Buffers;
 using System.Runtime.InteropServices;
 using ChromaFx.Core.Colors;
 using ChromaFx.Core;
@@ -48,23 +49,37 @@ internal class PaletteReader(Palette palette, Palette alphaPalette) : IColorRead
     /// <inheritdoc />
     public void ReadScanline(ReadOnlySpan<byte> scanline, Span<Color> row, Header header)
     {
-        if (header.BitDepth < 8)
-            scanline = scanline.ExpandArray(header.BitDepth);
-
-        var dest = MemoryMarshal.Cast<Color, uint>(row);
-        var hasAlpha = AlphaPalette.Data.Length > 0;
-
-        for (var x = 0; x < header.Width; ++x)
+        byte[] rented = null;
+        try
         {
-            var index = scanline[x];
-            var pixelOffset = index * 3;
-            var r = Palette.Data[pixelOffset];
-            var g = Palette.Data[pixelOffset + 1];
-            var b = Palette.Data[pixelOffset + 2];
-            var a = hasAlpha && AlphaPalette.Data.Length > index
-                ? AlphaPalette.Data[index]
-                : (byte)255;
-            dest[x] = r | ((uint)g << 8) | ((uint)b << 16) | ((uint)a << 24);
+            if (header.BitDepth < 8)
+            {
+                int expandedLen = scanline.Length * 8 / header.BitDepth;
+                rented = ArrayPool<byte>.Shared.Rent(expandedLen);
+                scanline.ExpandArrayTo(header.BitDepth, rented.AsSpan(0, expandedLen));
+                scanline = rented.AsSpan(0, expandedLen);
+            }
+
+            var dest = MemoryMarshal.Cast<Color, uint>(row);
+            var hasAlpha = AlphaPalette.Data.Length > 0;
+
+            for (var x = 0; x < header.Width; ++x)
+            {
+                var index = scanline[x];
+                var pixelOffset = index * 3;
+                var r = Palette.Data[pixelOffset];
+                var g = Palette.Data[pixelOffset + 1];
+                var b = Palette.Data[pixelOffset + 2];
+                var a = hasAlpha && AlphaPalette.Data.Length > index
+                    ? AlphaPalette.Data[index]
+                    : (byte)255;
+                dest[x] = r | ((uint)g << 8) | ((uint)b << 16) | ((uint)a << 24);
+            }
+        }
+        finally
+        {
+            if (rented is not null)
+                ArrayPool<byte>.Shared.Return(rented);
         }
     }
 }

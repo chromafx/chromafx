@@ -15,6 +15,7 @@
  */
 
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.Arm;
@@ -221,6 +222,70 @@ internal static class ByteSimd
         {
             int diff = left[i] - right[i];
             destination[i] = (byte)(diff < 0 ? -diff : diff);
+        }
+    }
+
+    /// <summary>
+    /// PNG filter heuristic: sum of <c>min(b, 256-b)</c> over bytes (signed-byte absolute value).
+    /// </summary>
+    internal static int SumAbsAsSigned(ReadOnlySpan<byte> data)
+    {
+        int length = data.Length;
+        int i = 0;
+        int sum = 0;
+
+        if (Vector.IsHardwareAccelerated)
+        {
+            int step = Vector<byte>.Count;
+            for (; i <= length - step; i += step)
+            {
+                var v = new Vector<byte>(data.Slice(i));
+                // Wrapping 0-v equals 256-v for nonzero bytes; min(v, 256-v) is signed abs.
+                var abs = Vector.Min(v, Vector<byte>.Zero - v);
+                Vector.Widen(abs, out Vector<ushort> lo, out Vector<ushort> hi);
+                Vector.Widen(lo, out Vector<uint> l0, out Vector<uint> l1);
+                Vector.Widen(hi, out Vector<uint> h0, out Vector<uint> h1);
+                sum += (int)Vector.Sum(l0 + l1 + h0 + h1);
+            }
+        }
+
+        for (; i < length; i++)
+        {
+            int b = data[i];
+            sum += b < 128 ? b : 256 - b;
+        }
+
+        return sum;
+    }
+
+    /// <summary>
+    /// Packs tightly-packed RGB8 bytes into opaque RGBA <see cref="uint"/> pixels (R | G&lt;&lt;8 | B&lt;&lt;16 | 0xFF000000).
+    /// </summary>
+    internal static void PackRgb8ToRgba(ReadOnlySpan<byte> rgb, Span<uint> destination)
+    {
+        int width = destination.Length;
+        int x = 0;
+        ref byte src = ref MemoryMarshal.GetReference(rgb);
+        ref uint dst = ref MemoryMarshal.GetReference(destination);
+
+        // Two pixels / 6 bytes. Unaligned uint for p1 needs one byte past the pair, so stop early.
+        for (; x <= width - 3; x += 2)
+        {
+            int o = x * 3;
+            uint p0 = Unsafe.ReadUnaligned<uint>(ref Unsafe.Add(ref src, o));
+            uint p1 = Unsafe.ReadUnaligned<uint>(ref Unsafe.Add(ref src, o + 3));
+            Unsafe.Add(ref dst, x) = (p0 & 0x00FF_FFFFu) | 0xFF00_0000u;
+            Unsafe.Add(ref dst, x + 1) = (p1 & 0x00FF_FFFFu) | 0xFF00_0000u;
+        }
+
+        for (; x < width; x++)
+        {
+            int o = x * 3;
+            Unsafe.Add(ref dst, x) =
+                Unsafe.Add(ref src, o)
+                | ((uint)Unsafe.Add(ref src, o + 1) << 8)
+                | ((uint)Unsafe.Add(ref src, o + 2) << 16)
+                | 0xFF00_0000u;
         }
     }
 

@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
+using System.Buffers;
 using System.Runtime.InteropServices;
-using ChromaFx.Core.Colors;
 using ChromaFx.Core;
+using ChromaFx.Core.Colors;
 
 namespace ChromaFx.IO.Formats.Png.Format.ColorFormats;
 
@@ -30,17 +31,31 @@ internal class GreyscaleAlphaReader : IColorReader
     /// <inheritdoc />
     public void ReadScanline(ReadOnlySpan<byte> scanline, Span<Color> row, Header header)
     {
-        if (header.BitDepth < 8)
-            scanline = scanline.ExpandArray(header.BitDepth);
-
-        // 16-bit samples keep the high byte of each channel.
-        var channelBytes = header.BitDepth == 16 ? 2 : 1;
-        var dest = MemoryMarshal.Cast<Color, uint>(row);
-        for (var x = 0; x < header.Width; ++x)
+        byte[] rented = null;
+        try
         {
-            var v = scanline[x * 2 * channelBytes];
-            var a = scanline[(x * 2 + 1) * channelBytes];
-            dest[x] = v | ((uint)v << 8) | ((uint)v << 16) | ((uint)a << 24);
+            if (header.BitDepth < 8)
+            {
+                int expandedLen = scanline.Length * 8 / header.BitDepth;
+                rented = ArrayPool<byte>.Shared.Rent(expandedLen);
+                scanline.ExpandArrayTo(header.BitDepth, rented.AsSpan(0, expandedLen));
+                scanline = rented.AsSpan(0, expandedLen);
+            }
+
+            // 16-bit samples keep the high byte of each channel.
+            var channelBytes = header.BitDepth == 16 ? 2 : 1;
+            var dest = MemoryMarshal.Cast<Color, uint>(row);
+            for (var x = 0; x < header.Width; ++x)
+            {
+                var v = scanline[x * 2 * channelBytes];
+                var a = scanline[(x * 2 + 1) * channelBytes];
+                dest[x] = v | ((uint)v << 8) | ((uint)v << 16) | ((uint)a << 24);
+            }
+        }
+        finally
+        {
+            if (rented is not null)
+                ArrayPool<byte>.Shared.Return(rented);
         }
     }
 }

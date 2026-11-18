@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
+using System.Buffers;
 using System.Runtime.InteropServices;
-using ChromaFx.Core.Colors;
 using ChromaFx.Core;
+using ChromaFx.Core.Colors;
 
 namespace ChromaFx.IO.Formats.Png.Format.ColorFormats;
 
@@ -31,23 +32,35 @@ internal class GreyscaleNoAlphaReader : IColorReader
     public void ReadScanline(ReadOnlySpan<byte> scanline, Span<Color> row, Header header)
     {
         // Sub-byte samples are scaled to 0–255; 16-bit samples keep the high byte.
-        var scale = 1;
-        var step = 1;
-        if (header.BitDepth < 8)
+        byte[] rented = null;
+        try
         {
-            scanline = scanline.ExpandArray(header.BitDepth);
-            scale = 255 / ((1 << header.BitDepth) - 1);
-        }
-        else if (header.BitDepth == 16)
-        {
-            step = 2;
-        }
+            var scale = 1;
+            var step = 1;
+            if (header.BitDepth < 8)
+            {
+                int expandedLen = scanline.Length * 8 / header.BitDepth;
+                rented = ArrayPool<byte>.Shared.Rent(expandedLen);
+                scanline.ExpandArrayTo(header.BitDepth, rented.AsSpan(0, expandedLen));
+                scanline = rented.AsSpan(0, expandedLen);
+                scale = 255 / ((1 << header.BitDepth) - 1);
+            }
+            else if (header.BitDepth == 16)
+            {
+                step = 2;
+            }
 
-        var dest = MemoryMarshal.Cast<Color, uint>(row);
-        for (var x = 0; x < header.Width; ++x)
+            var dest = MemoryMarshal.Cast<Color, uint>(row);
+            for (var x = 0; x < header.Width; ++x)
+            {
+                var v = (uint)(scanline[x * step] * scale);
+                dest[x] = v | (v << 8) | (v << 16) | 0xFF00_0000u;
+            }
+        }
+        finally
         {
-            var v = (uint)(scanline[x * step] * scale);
-            dest[x] = v | (v << 8) | (v << 16) | 0xFF00_0000u;
+            if (rented is not null)
+                ArrayPool<byte>.Shared.Return(rented);
         }
     }
 }

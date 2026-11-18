@@ -48,18 +48,32 @@ public static class ByteExtensions
             return bytes.ToArray();
 
         var result = new byte[bytes.Length * 8 / bits];
+        ExpandArrayTo(bytes, bits, result);
+        return result;
+    }
+
+    /// <summary>
+    /// Expands packed low-bit samples into <paramref name="destination"/> (one byte per sample).
+    /// </summary>
+    public static void ExpandArrayTo(this ReadOnlySpan<byte> bytes, int bits, Span<byte> destination)
+    {
+        bits = Math.Clamp(bits, 0, int.MaxValue);
+        if (bits >= 8)
+        {
+            bytes.CopyTo(destination);
+            return;
+        }
+
         var mask = 0xFF >> (8 - bits);
         var offset = 0;
         foreach (var tempByte in bytes)
         {
             for (var x = 0; x < 8; x += bits)
             {
-                result[offset] = (byte)((tempByte >> (8 - bits - x)) & mask);
+                destination[offset] = (byte)((tempByte >> (8 - bits - x)) & mask);
                 ++offset;
             }
         }
-
-        return result;
     }
 
     /// <summary>

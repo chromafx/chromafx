@@ -15,9 +15,11 @@
  * limitations under the License.
  */
 
+using System.Buffers;
 using System.Runtime.InteropServices;
-using ChromaFx.Core.Colors;
 using ChromaFx.Core;
+using ChromaFx.Core.Colors;
+using ChromaFx.Core.Simd;
 
 namespace ChromaFx.IO.Formats.Png.Format.ColorFormats;
 
@@ -30,46 +32,44 @@ internal class TrueColorNoAlphaReader : IColorReader
     /// <inheritdoc />
     public void ReadScanline(ReadOnlySpan<byte> scanline, Span<Color> row, Header header)
     {
-        if (header.BitDepth < 8)
-            scanline = scanline.ExpandArray(header.BitDepth);
-
-        if (header.BitDepth == 8)
+        byte[] rented = null;
+        try
         {
-            var dest = MemoryMarshal.Cast<Color, uint>(row);
-            var src = scanline[..(header.Width * 3)];
-            var x = 0;
-            for (; x <= header.Width - 4; x += 4)
+            if (header.BitDepth < 8)
             {
-                var o = x * 3;
-                dest[x] = PackRgb(src, o);
-                dest[x + 1] = PackRgb(src, o + 3);
-                dest[x + 2] = PackRgb(src, o + 6);
-                dest[x + 3] = PackRgb(src, o + 9);
+                int expandedLen = scanline.Length * 8 / header.BitDepth;
+                rented = ArrayPool<byte>.Shared.Rent(expandedLen);
+                scanline.ExpandArrayTo(header.BitDepth, rented.AsSpan(0, expandedLen));
+                scanline = rented.AsSpan(0, expandedLen);
             }
 
-            for (; x < header.Width; ++x)
-                dest[x] = PackRgb(src, x * 3);
-            return;
+            if (header.BitDepth == 8)
+            {
+                ByteSimd.PackRgb8ToRgba(
+                    scanline[..(header.Width * 3)],
+                    MemoryMarshal.Cast<Color, uint>(row)
+                );
+                return;
+            }
+
+            var bytesPerChannel = header.BitDepth / 8;
+            var scanlineIndex = 0;
+
+            for (var pixelIndex = 0; pixelIndex < header.Width; pixelIndex++)
+            {
+                row[pixelIndex].Red = scanline[scanlineIndex];
+                scanlineIndex += bytesPerChannel;
+                row[pixelIndex].Green = scanline[scanlineIndex];
+                scanlineIndex += bytesPerChannel;
+                row[pixelIndex].Blue = scanline[scanlineIndex];
+                scanlineIndex += bytesPerChannel;
+                row[pixelIndex].Alpha = 255;
+            }
         }
-
-        var bytesPerChannel = header.BitDepth / 8;
-        var scanlineIndex = 0;
-
-        for (var pixelIndex = 0; pixelIndex < header.Width; pixelIndex++)
+        finally
         {
-            row[pixelIndex].Red = scanline[scanlineIndex];
-            scanlineIndex += bytesPerChannel;
-            row[pixelIndex].Green = scanline[scanlineIndex];
-            scanlineIndex += bytesPerChannel;
-            row[pixelIndex].Blue = scanline[scanlineIndex];
-            scanlineIndex += bytesPerChannel;
-            row[pixelIndex].Alpha = 255;
+            if (rented is not null)
+                ArrayPool<byte>.Shared.Return(rented);
         }
     }
-
-    private static uint PackRgb(ReadOnlySpan<byte> rgb, int offset) =>
-        rgb[offset]
-        | ((uint)rgb[offset + 1] << 8)
-        | ((uint)rgb[offset + 2] << 16)
-        | 0xFF00_0000u;
 }

@@ -247,14 +247,9 @@ internal class Data
         }
     }
 
-    private static int Score(ReadOnlySpan<byte> row)
-    {
-        // Heuristic: sum of absolute values of filtered bytes
-        int sum = 0;
-        for (int i = 1; i < row.Length; i++)
-            sum += (row[i] < 128 ? row[i] : 256 - row[i]); // abs as unsigned
-        return sum;
-    }
+    private static int Score(ReadOnlySpan<byte> row) =>
+        // Heuristic: sum of absolute values of filtered bytes (skip filter type byte).
+        ByteSimd.SumAbsAsSigned(row[1..]);
 
     /// <summary>
     /// Reads the scanlines.
@@ -277,8 +272,8 @@ internal class Data
         var scanLineLength = CalculateScanlineLength(colorTypeInformation, header);
         var scanLineStep = CalculateScanLineStep(colorTypeInformation, header);
 
+        // Filter in-place on bytes after the filter-type byte (no intermediate scanline buffer).
         var lastScanLine = ArrayPool<byte>.Shared.Rent(scanLineLength);
-        var currentScanLine = ArrayPool<byte>.Shared.Rent(scanLineLength);
         var rowBuffer = ArrayPool<byte>.Shared.Rent(1 + scanLineLength);
         try
         {
@@ -289,51 +284,43 @@ internal class Data
             {
                 zlib.ReadExactly(rowBuffer.AsSpan(0, 1 + scanLineLength));
                 int filter = rowBuffer[0];
-                rowBuffer.AsSpan(1, scanLineLength).CopyTo(currentScanLine);
+                var currentScanLine = rowBuffer.AsSpan(1, scanLineLength);
 
                 switch (filter)
                 {
                     case 1:
-                        ByteSimd.SubPredictAddInPlace(
-                            currentScanLine.AsSpan(0, scanLineLength),
-                            scanLineStep
-                        );
+                        ByteSimd.SubPredictAddInPlace(currentScanLine, scanLineStep);
                         break;
                     case 2:
                         ByteSimd.AddWrapping(
-                            currentScanLine.AsSpan(0, scanLineLength),
+                            currentScanLine,
                             lastScanLine.AsSpan(0, scanLineLength),
-                            currentScanLine.AsSpan(0, scanLineLength)
+                            currentScanLine
                         );
                         break;
                     case 3:
                         ByteSimd.AveragePredictAddInPlace(
-                            currentScanLine.AsSpan(0, scanLineLength),
+                            currentScanLine,
                             lastScanLine.AsSpan(0, scanLineLength),
                             scanLineStep
                         );
                         break;
                     case 4:
                         ByteSimd.PaethPredictAddInPlace(
-                            currentScanLine.AsSpan(0, scanLineLength),
+                            currentScanLine,
                             lastScanLine.AsSpan(0, scanLineLength),
                             scanLineStep
                         );
                         break;
                 }
 
-                colorReader.ReadScanline(
-                    currentScanLine.AsSpan(0, scanLineLength),
-                    image.GetRowSpan(row),
-                    header
-                );
-                (lastScanLine, currentScanLine) = (currentScanLine, lastScanLine);
+                colorReader.ReadScanline(currentScanLine, image.GetRowSpan(row), header);
+                currentScanLine.CopyTo(lastScanLine.AsSpan(0, scanLineLength));
             }
         }
         finally
         {
             ArrayPool<byte>.Shared.Return(lastScanLine);
-            ArrayPool<byte>.Shared.Return(currentScanLine);
             ArrayPool<byte>.Shared.Return(rowBuffer);
         }
     }
