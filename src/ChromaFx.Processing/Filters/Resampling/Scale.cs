@@ -24,7 +24,7 @@ namespace ChromaFx.Processing.Filters.Resampling;
 /// <summary>
 /// Scales an image to the specified width/height
 /// </summary>
-/// <seealso cref="AffineBaseClass"/>
+/// <seealso cref="AffineTransformBase"/>
 /// <remarks>
 /// Initializes a new instance of the <see cref="Scale"/> class.
 /// </remarks>
@@ -35,7 +35,7 @@ public class Scale(
     int width,
     int height,
     ResamplingFilter filter = ResamplingFilter.NearestNeighbor
-) : AffineBaseClass(width, height, filter)
+) : AffineTransformBase(width, height, filter)
 {
     /// <summary>
     /// Gets the matrix.

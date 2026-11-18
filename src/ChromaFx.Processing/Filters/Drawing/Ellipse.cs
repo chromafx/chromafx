@@ -24,7 +24,7 @@ namespace ChromaFx.Processing.Filters.Drawing;
 /// <summary>
 /// Ellipse drawing class
 /// </summary>
-/// <seealso cref="ShapeBaseClass"/>
+/// <seealso cref="ShapeFilterBase"/>
 /// <remarks>
 /// Initializes a new instance of the <see cref="Ellipse"/> class.
 /// </remarks>
@@ -34,7 +34,7 @@ namespace ChromaFx.Processing.Filters.Drawing;
 /// <param name="height">The height.</param>
 /// <param name="center">The center.</param>
 public class Ellipse(Color color, bool fill, int width, int height, Vector2 center)
-    : ShapeBaseClass(color)
+    : ShapeFilterBase(color)
 {
     /// <summary>
     /// Gets or sets the center.

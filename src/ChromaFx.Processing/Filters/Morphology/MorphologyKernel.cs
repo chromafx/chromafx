@@ -21,7 +21,7 @@ using ChromaFx.Processing.Numerics;
 namespace ChromaFx.Processing.Filters.Morphology;
 
 /// <summary>
-/// Separable max (dilate) / min (constrict) of R, G and B over the [x-r, x+r) x [y-r, y+r)
+/// Separable max (dilate) / min (erode) of R, G and B over the [x-r, x+r) x [y-r, y+r)
 /// window clipped to the image; alpha is kept.
 /// </summary>
 internal static class MorphologyKernel

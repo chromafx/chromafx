@@ -20,32 +20,30 @@ using ChromaFx.Processing.Numerics;
 namespace ChromaFx.Processing.Filters.ColorMatrix;
 
 /// <summary>
-/// Sepiatone color matrix
+/// Green filter color matrix
 /// </summary>
-/// <seealso cref="MatrixBaseClass" />
-public class Sepiatone : MatrixBaseClass
+/// <seealso cref="MatrixFilterBase" />
+public class GreenChannel : MatrixFilterBase
 {
     /// <summary>
     /// Gets the matrix.
     /// </summary>
-    /// <value>
-    /// The matrix.
-    /// </value>
+    /// <value>The matrix.</value>
     public override Matrix5X5 Matrix =>
         new(
-            .393f,
-            .349f,
-            .272f,
             0f,
             0f,
-            .769f,
-            .686f,
-            .534f,
             0f,
             0f,
-            .189f,
-            .168f,
-            .131f,
+            0f,
+            0f,
+            1f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
             0f,
             0f,
             0f,

@@ -24,7 +24,7 @@ namespace ChromaFx.Processing.Filters.Resampling;
 /// <summary>
 /// Affine transformation
 /// </summary>
-/// <seealso cref="AffineBaseClass"/>
+/// <seealso cref="AffineTransformBase"/>
 /// <remarks>
 /// Initializes a new instance of the <see cref="AffineTransformation"/> class.
 /// </remarks>
@@ -37,7 +37,7 @@ public class AffineTransformation(
     int width = -1,
     int height = -1,
     ResamplingFilter filter = ResamplingFilter.NearestNeighbor
-) : AffineBaseClass(width, height, filter)
+) : AffineTransformBase(width, height, filter)
 {
     /// <summary>
     /// Gets or sets the matrix.

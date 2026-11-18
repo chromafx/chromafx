@@ -19,16 +19,17 @@ using System.Numerics;
 using ChromaFx.Core;
 using ChromaFx.Processing.Numerics;
 
+
 namespace ChromaFx.Processing.Filters.Convolution;
 
 /// <summary>
 /// Convolution 2d base class
 /// </summary>
 /// <seealso cref="IFilter" />
-public abstract class Convolution2DBaseClass : IFilter
+public abstract class Convolution2DBase : IFilter
 {
     /// <summary>
-    /// Gets a value indicating whether this <see cref="ConvolutionBaseClass"/> is absolute.
+    /// Gets a value indicating whether this <see cref="ConvolutionBase"/> is absolute.
     /// </summary>
     /// <value><c>true</c> if absolute; otherwise, <c>false</c>.</value>
     public abstract bool Absolute { get; }

@@ -22,8 +22,8 @@ namespace ChromaFx.Processing.Filters.ColorMatrix.ColorBlindness;
 /// <summary>
 /// Achromatopsia matrix
 /// </summary>
-/// <seealso cref="MatrixBaseClass" />
-public class Achromatopsia : MatrixBaseClass
+/// <seealso cref="MatrixFilterBase" />
+public class Achromatopsia : MatrixFilterBase
 {
     /// <summary>
     /// Gets the matrix.

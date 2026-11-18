@@ -22,8 +22,8 @@ namespace ChromaFx.Processing.Filters.ColorMatrix;
 /// <summary>
 /// Black/white matrix
 /// </summary>
-/// <seealso cref="MatrixBaseClass" />
-public class BlackWhite : MatrixBaseClass
+/// <seealso cref="MatrixFilterBase" />
+public class BlackWhite : MatrixFilterBase
 {
     /// <summary>
     /// Gets the matrix.

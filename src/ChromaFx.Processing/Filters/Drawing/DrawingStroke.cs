@@ -27,7 +27,7 @@ internal static class DrawingStroke
     /// Draws a segment. Width 1 uses Xiaolin Wu anti-aliasing; wider strokes use an opaque square brush.
     /// </summary>
     public static void DrawSegment(
-        ShapeBaseClass shape,
+        ShapeFilterBase shape,
         Image image,
         int x1,
         int y1,
@@ -54,7 +54,7 @@ internal static class DrawingStroke
     }
 
     private static void StampSquare(
-        ShapeBaseClass shape,
+        ShapeFilterBase shape,
         Image image,
         int cx,
         int cy,

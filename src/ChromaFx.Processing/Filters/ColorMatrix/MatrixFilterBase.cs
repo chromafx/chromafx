@@ -20,12 +20,13 @@ using ChromaFx.Core;
 using ChromaFx.Core.Colors;
 using ChromaFx.Processing.Numerics;
 
+
 namespace ChromaFx.Processing.Filters.ColorMatrix;
 
 /// <summary>
 /// Color matrix base class
 /// </summary>
-public abstract class MatrixBaseClass : IFilter
+public abstract class MatrixFilterBase : IFilter
 {
     /// <summary>
     /// Gets the matrix.
@@ -39,7 +40,7 @@ public abstract class MatrixBaseClass : IFilter
     /// <param name="value1">The value1.</param>
     /// <param name="value2">The value2.</param>
     /// <returns>The result of the operator.</returns>
-    public static MatrixBaseClass operator *(MatrixBaseClass value1, MatrixBaseClass value2)
+    public static MatrixFilterBase operator *(MatrixFilterBase value1, MatrixFilterBase value2)
     {
         return new ColorMatrix(value1.Matrix * value2.Matrix);
     }

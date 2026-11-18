@@ -24,14 +24,14 @@ namespace ChromaFx.Processing.Filters.Resampling;
 /// <summary>
 /// Translate the image
 /// </summary>
-/// <seealso cref="AffineBaseClass"/>
+/// <seealso cref="AffineTransformBase"/>
 /// <seealso cref="IFilter"/>
 /// <remarks>
 /// Initializes a new instance of the <see cref="Translate"/> class.
 /// </remarks>
 /// <param name="xDelta">The x delta.</param>
 /// <param name="yDelta">The y delta.</param>
-public class Translate(int xDelta, int yDelta) : AffineBaseClass
+public class Translate(int xDelta, int yDelta) : AffineTransformBase
 {
     /// <summary>
     /// Gets or sets the x delta.

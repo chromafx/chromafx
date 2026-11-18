@@ -22,7 +22,7 @@ namespace ChromaFx.Processing.Filters.Pipelines;
 /// <summary>
 /// Convenience edge-detect preset: BT.709 greyscale then Laplace.
 /// </summary>
-public sealed class EdgeDetect : ProcessingPipelineBaseClass
+public sealed class EdgeDetect : ProcessingPipelineBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="EdgeDetect"/> class.

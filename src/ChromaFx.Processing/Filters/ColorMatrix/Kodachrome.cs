@@ -22,8 +22,8 @@ namespace ChromaFx.Processing.Filters.ColorMatrix;
 /// <summary>
 /// Kodachrome color matrix
 /// </summary>
-/// <seealso cref="MatrixBaseClass" />
-public class Kodachrome : MatrixBaseClass
+/// <seealso cref="MatrixFilterBase" />
+public class Kodachrome : MatrixFilterBase
 {
     /// <summary>
     /// Gets the matrix.

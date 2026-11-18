@@ -22,8 +22,8 @@ namespace ChromaFx.Processing.Filters.Pipelines;
 /// <summary>
 /// GaussianBlur pipeline
 /// </summary>
-/// <seealso cref="ProcessingPipelineBaseClass" />
-public class GaussianBlur : ProcessingPipelineBaseClass
+/// <seealso cref="ProcessingPipelineBase" />
+public class GaussianBlur : ProcessingPipelineBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="GaussianBlur"/> class.

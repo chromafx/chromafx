@@ -22,12 +22,12 @@ namespace ChromaFx.Processing.Filters.ColorMatrix;
 /// <summary>
 /// Alpha matrix
 /// </summary>
-/// <seealso cref="MatrixBaseClass" />
+/// <seealso cref="MatrixFilterBase" />
 /// <remarks>
 /// Initializes a new instance of the <see cref="Alpha"/> class.
 /// </remarks>
 /// <param name="value">The alpha value (0 to 1).</param>
-public class Alpha(float value) : MatrixBaseClass
+public class Alpha(float value) : MatrixFilterBase
 {
     /// <summary>
     /// Gets the matrix.

@@ -24,7 +24,7 @@ namespace ChromaFx.Processing.Filters.Resampling;
 /// <summary>
 /// Skews an image
 /// </summary>
-/// <seealso cref="AffineBaseClass"/>
+/// <seealso cref="AffineTransformBase"/>
 /// <seealso cref="IFilter"/>
 /// <remarks>
 /// Initializes a new instance of the <see cref="Skew"/> class.
@@ -36,7 +36,7 @@ public class Skew(
     float xAngle,
     float yAngle,
     ResamplingFilter filter = ResamplingFilter.NearestNeighbor
-) : AffineBaseClass(filter: filter)
+) : AffineTransformBase(filter: filter)
 {
     /// <summary>
     /// Gets or sets the x angle.

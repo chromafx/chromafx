@@ -22,8 +22,8 @@ namespace ChromaFx.Processing.Filters.ColorMatrix;
 /// <summary>
 /// Hue matrix
 /// </summary>
-/// <seealso cref="MatrixBaseClass" />
-public class Hue : MatrixBaseClass
+/// <seealso cref="MatrixFilterBase" />
+public class Hue : MatrixFilterBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="Alpha"/> class.

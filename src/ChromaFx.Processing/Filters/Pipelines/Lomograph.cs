@@ -24,8 +24,8 @@ namespace ChromaFx.Processing.Filters.Pipelines;
 /// <summary>
 /// Lomograph processing pipeline
 /// </summary>
-/// <seealso cref="ProcessingPipelineBaseClass"/>
-public class Lomograph : ProcessingPipelineBaseClass
+/// <seealso cref="ProcessingPipelineBase"/>
+public class Lomograph : ProcessingPipelineBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="Lomograph"/> class.
@@ -33,7 +33,7 @@ public class Lomograph : ProcessingPipelineBaseClass
     public Lomograph()
         : base(true)
     {
-        AddFilter(new LomographColorMatrix())
+        AddFilter(new LomographMatrix())
             .AddFilter(new Vignette(new Color(0, 10, 0, 255), 0, 0));
     }
 }

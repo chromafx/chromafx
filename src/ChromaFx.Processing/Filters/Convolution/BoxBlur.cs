@@ -24,8 +24,8 @@ namespace ChromaFx.Processing.Filters.Convolution;
 /// <summary>
 /// Box blur (separable two-pass implementation).
 /// </summary>
-/// <seealso cref="ConvolutionBaseClass" />
-public class BoxBlur : ConvolutionBaseClass
+/// <seealso cref="ConvolutionBase" />
+public class BoxBlur : ConvolutionBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="BoxBlur"/> class.

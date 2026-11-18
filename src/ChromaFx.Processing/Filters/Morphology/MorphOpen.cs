@@ -33,7 +33,7 @@ public sealed class MorphOpen(int apertureRadius = 1) : IFilter
     /// <inheritdoc />
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
-        new Constrict(ApertureRadius).Apply(image, targetLocation);
+        new Erode(ApertureRadius).Apply(image, targetLocation);
         new Dilate(ApertureRadius).Apply(image, targetLocation);
         return image;
     }

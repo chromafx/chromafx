@@ -22,8 +22,8 @@ namespace ChromaFx.Processing.Filters.ColorMatrix;
 /// <summary>
 /// Greyscale 709 color matrix
 /// </summary>
-/// <seealso cref="MatrixBaseClass" />
-public class Greyscale709 : MatrixBaseClass
+/// <seealso cref="MatrixFilterBase" />
+public class Greyscale709 : MatrixFilterBase
 {
     /// <summary>
     /// Gets the matrix.

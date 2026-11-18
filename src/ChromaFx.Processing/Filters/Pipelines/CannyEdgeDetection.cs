@@ -24,8 +24,8 @@ namespace ChromaFx.Processing.Filters.Pipelines;
 /// <summary>
 /// Canny edge detection processing pipeline
 /// </summary>
-/// <seealso cref="ProcessingPipelineBaseClass" />
-public class CannyEdgeDetection : ProcessingPipelineBaseClass
+/// <seealso cref="ProcessingPipelineBase" />
+public class CannyEdgeDetection : ProcessingPipelineBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="CannyEdgeDetection" /> class.

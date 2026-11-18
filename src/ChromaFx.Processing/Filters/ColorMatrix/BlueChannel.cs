@@ -20,32 +20,30 @@ using ChromaFx.Processing.Numerics;
 namespace ChromaFx.Processing.Filters.ColorMatrix;
 
 /// <summary>
-/// Red filter color matrix
+/// Blue filter color matrix
 /// </summary>
-/// <seealso cref="MatrixBaseClass" />
-public class RedFilter : MatrixBaseClass
+/// <seealso cref="MatrixFilterBase" />
+public class BlueChannel : MatrixFilterBase
 {
     /// <summary>
     /// Gets the matrix.
     /// </summary>
-    /// <value>
-    /// The matrix.
-    /// </value>
+    /// <value>The matrix.</value>
     public override Matrix5X5 Matrix =>
         new(
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
             1f,
-            0f,
-            0f,
-            0f,
-            0f,
-            0f,
-            0f,
-            0f,
-            0f,
-            0f,
-            0f,
-            0f,
-            0f,
             0f,
             0f,
             0f,

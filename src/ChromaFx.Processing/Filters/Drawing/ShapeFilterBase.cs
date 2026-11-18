@@ -25,10 +25,10 @@ namespace ChromaFx.Processing.Filters.Drawing;
 /// </summary>
 /// <seealso cref="IShape"/>
 /// <remarks>
-/// Initializes a new instance of the <see cref="ShapeBaseClass"/> class.
+/// Initializes a new instance of the <see cref="ShapeFilterBase"/> class.
 /// </remarks>
 /// <param name="color">The color.</param>
-public abstract class ShapeBaseClass(Color color) : IShape
+public abstract class ShapeFilterBase(Color color) : IShape
 {
     /// <summary>
     /// Gets or sets the color.

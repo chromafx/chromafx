@@ -23,7 +23,7 @@ namespace ChromaFx.Processing.Filters.Drawing;
 /// <summary>
 /// Line drawing item.
 /// </summary>
-/// <seealso cref="ShapeBaseClass"/>
+/// <seealso cref="ShapeFilterBase"/>
 /// <remarks>
 /// Initializes a new instance of the <see cref="Line"/> class.
 /// </remarks>
@@ -32,7 +32,7 @@ namespace ChromaFx.Processing.Filters.Drawing;
 /// <param name="y1">The y1.</param>
 /// <param name="x2">The x2.</param>
 /// <param name="y2">The y2.</param>
-public class Line(Color color, int x1, int y1, int x2, int y2) : ShapeBaseClass(color)
+public class Line(Color color, int x1, int y1, int x2, int y2) : ShapeFilterBase(color)
 {
     /// <summary>
     /// Gets or sets the x1.

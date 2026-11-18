@@ -23,8 +23,8 @@ namespace ChromaFx.Processing.Filters.Pipelines;
 /// <summary>
 /// Bump map processing pipeline
 /// </summary>
-/// <seealso cref="ProcessingPipelineBaseClass" />
-public class BumpMap : ProcessingPipelineBaseClass
+/// <seealso cref="ProcessingPipelineBase" />
+public class BumpMap : ProcessingPipelineBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="BumpMap"/> class.

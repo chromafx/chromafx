@@ -26,10 +26,10 @@ namespace ChromaFx.Processing.Filters.Arithmetic;
 /// </summary>
 /// <seealso cref="IFilter"/>
 /// <remarks>
-/// Initializes a new instance of the <see cref="XOr"/> class.
+/// Initializes a new instance of the <see cref="Xor"/> class.
 /// </remarks>
 /// <param name="secondImage">The second image.</param>
-public class XOr(Image secondImage) : ArithmeticFilterBase(secondImage)
+public class Xor(Image secondImage) : ArithmeticFilterBase(secondImage)
 {
     /// <inheritdoc />
     protected override void ProcessRow(Span<Color> destination, ReadOnlySpan<Color> source) =>

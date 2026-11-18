@@ -20,10 +20,10 @@ using ChromaFx.Processing.Numerics;
 namespace ChromaFx.Processing.Filters.ColorMatrix;
 
 /// <summary>
-/// Lomograph color matrix
+/// Polaroid color matrix
 /// </summary>
-/// <seealso cref="MatrixBaseClass" />
-public class LomographColorMatrix : MatrixBaseClass
+/// <seealso cref="MatrixFilterBase" />
+public class PolaroidMatrix : MatrixFilterBase
 {
     /// <summary>
     /// Gets the matrix.
@@ -33,19 +33,19 @@ public class LomographColorMatrix : MatrixBaseClass
     /// </value>
     public override Matrix5X5 Matrix =>
         new(
-            1.5f,
+            1.538f,
+            -0.062f,
+            -0.262f,
             0f,
             0f,
+            -0.022f,
+            1.578f,
+            -0.022f,
             0f,
             0f,
-            0f,
-            1.45f,
-            0f,
-            0f,
-            0f,
-            0f,
-            0f,
-            1.11f,
+            .216f,
+            -.16f,
+            1.5831f,
             0f,
             0f,
             0f,
@@ -53,9 +53,9 @@ public class LomographColorMatrix : MatrixBaseClass
             0f,
             1f,
             0f,
-            -.1f,
-            0f,
-            -.08f,
+            -0.02f,
+            -0.05f,
+            -0.05f,
             0f,
             1f
         );

@@ -22,11 +22,11 @@ namespace ChromaFx.Processing.Filters.Convolution;
 /// <summary>
 /// Prewitt edge detection
 /// </summary>
-/// <seealso cref="ProcessingPipelineBaseClass"/>
-public class Prewitt : Convolution2DBaseClass
+/// <seealso cref="ProcessingPipelineBase"/>
+public class Prewitt : Convolution2DBase
 {
     /// <summary>
-    /// Gets a value indicating whether this <see cref="ConvolutionBaseClass"/> is absolute.
+    /// Gets a value indicating whether this <see cref="ConvolutionBase"/> is absolute.
     /// </summary>
     /// <value><c>true</c> if absolute; otherwise, <c>false</c>.</value>
     public override bool Absolute => false;

@@ -23,7 +23,7 @@ namespace ChromaFx.Processing.Filters.ColorMatrix;
 /// Corrects white balance for a known illuminant Kelvin (inverse Helland scales),
 /// optionally with a green↔magenta tint amount (−1…1).
 /// </summary>
-public class WhiteBalance : MatrixBaseClass
+public class WhiteBalance : MatrixFilterBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="WhiteBalance"/> class.

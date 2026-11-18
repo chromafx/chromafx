@@ -18,18 +18,19 @@
 using ChromaFx.Core;
 using ChromaFx.Processing.Numerics;
 
+
 namespace ChromaFx.Processing.Filters.Convolution;
 
 /// <summary>
 /// Convolution base class
 /// </summary>
 /// <seealso cref="IFilter" />
-public abstract class ConvolutionBaseClass : IFilter
+public abstract class ConvolutionBase : IFilter
 {
     private bool[] _nonZeroMask;
 
     /// <summary>
-    /// Gets a value indicating whether this <see cref="ConvolutionBaseClass"/> is absolute.
+    /// Gets a value indicating whether this <see cref="ConvolutionBase"/> is absolute.
     /// </summary>
     /// <value><c>true</c> if absolute; otherwise, <c>false</c>.</value>
     public abstract bool Absolute { get; }
@@ -64,9 +65,9 @@ public abstract class ConvolutionBaseClass : IFilter
     /// <param name="value1">The value1.</param>
     /// <param name="value2">The value2.</param>
     /// <returns>The result of the operator.</returns>
-    public static ConvolutionBaseClass operator *(
-        ConvolutionBaseClass value1,
-        ConvolutionBaseClass value2
+    public static ConvolutionBase operator *(
+        ConvolutionBase value1,
+        ConvolutionBase value2
     )
     {
         if (value1.Matrix.Length > value2.Matrix.Length)

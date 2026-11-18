@@ -22,11 +22,11 @@ namespace ChromaFx.Processing.Filters.Convolution;
 /// <summary>
 /// Roberts Cross edge detection
 /// </summary>
-/// <seealso cref="ProcessingPipelineBaseClass"/>
-public class RobertsCross : Convolution2DBaseClass
+/// <seealso cref="ProcessingPipelineBase"/>
+public class RobertsCross : Convolution2DBase
 {
     /// <summary>
-    /// Gets a value indicating whether this <see cref="ConvolutionBaseClass"/> is absolute.
+    /// Gets a value indicating whether this <see cref="ConvolutionBase"/> is absolute.
     /// </summary>
     /// <value><c>true</c> if absolute; otherwise, <c>false</c>.</value>
     public override bool Absolute => false;

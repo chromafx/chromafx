@@ -20,21 +20,22 @@ using ChromaFx.Core;
 using ChromaFx.Core.Colors;
 using ChromaFx.Processing.Numerics;
 
+
 namespace ChromaFx.Processing.Filters.Resampling;
 
 /// <summary>
 /// Affine transformation base class
 /// </summary>
 /// <seealso cref="IFilter"/>
-public abstract class AffineBaseClass : IFilter
+public abstract class AffineTransformBase : IFilter
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="AffineBaseClass"/> class.
+    /// Initializes a new instance of the <see cref="AffineTransformBase"/> class.
     /// </summary>
     /// <param name="width">The new width.</param>
     /// <param name="height">The new height.</param>
     /// <param name="filter">The filter to use (defaults to nearest neighbor).</param>
-    protected AffineBaseClass(
+    protected AffineTransformBase(
         int width = -1,
         int height = -1,
         ResamplingFilter filter = ResamplingFilter.NearestNeighbor

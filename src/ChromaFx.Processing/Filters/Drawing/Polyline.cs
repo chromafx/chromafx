@@ -23,10 +23,10 @@ namespace ChromaFx.Processing.Filters.Drawing;
 /// <summary>
 /// Open polyline (connected segments; not closed).
 /// </summary>
-/// <seealso cref="ShapeBaseClass"/>
+/// <seealso cref="ShapeFilterBase"/>
 /// <param name="color">Stroke color.</param>
 /// <param name="points">Vertices in order.</param>
-public class Polyline(Color color, params Vector2[] points) : ShapeBaseClass(color)
+public class Polyline(Color color, params Vector2[] points) : ShapeFilterBase(color)
 {
     /// <summary>
     /// Gets or sets the vertices.

@@ -23,11 +23,11 @@ namespace ChromaFx.Processing.Filters.Drawing;
 /// <summary>
 /// Closed polygon (filled or stroked).
 /// </summary>
-/// <seealso cref="ShapeBaseClass"/>
+/// <seealso cref="ShapeFilterBase"/>
 /// <param name="color">Fill or stroke color.</param>
 /// <param name="fill">When true, even-odd scanline fill; otherwise outline.</param>
 /// <param name="points">Vertices in order (closed automatically).</param>
-public class Polygon(Color color, bool fill, params Vector2[] points) : ShapeBaseClass(color)
+public class Polygon(Color color, bool fill, params Vector2[] points) : ShapeFilterBase(color)
 {
     /// <summary>
     /// Gets or sets a value indicating whether the polygon is filled.

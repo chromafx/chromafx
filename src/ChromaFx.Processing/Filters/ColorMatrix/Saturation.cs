@@ -22,8 +22,8 @@ namespace ChromaFx.Processing.Filters.ColorMatrix;
 /// <summary>
 /// Saturation matrix
 /// </summary>
-/// <seealso cref="MatrixBaseClass" />
-public class Saturation : MatrixBaseClass
+/// <seealso cref="MatrixFilterBase" />
+public class Saturation : MatrixFilterBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="Saturation"/> class.

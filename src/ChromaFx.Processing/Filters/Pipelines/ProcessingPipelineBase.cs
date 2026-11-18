@@ -26,15 +26,15 @@ namespace ChromaFx.Processing.Filters.Pipelines;
 /// Processing pipeline base class
 /// </summary>
 /// <remarks>
-/// Initializes a new instance of the <see cref="ProcessingPipelineBaseClass"/> class.
+/// Initializes a new instance of the <see cref="ProcessingPipelineBase"/> class.
 /// </remarks>
 /// <param name="combine">
 /// if set to <c>true</c> [combine] the convolution filters when possible.
 /// </param>
-public abstract class ProcessingPipelineBaseClass(bool combine) : IFilter
+public abstract class ProcessingPipelineBase(bool combine) : IFilter
 {
     /// <summary>
-    /// Gets or sets a value indicating whether this <see cref="ProcessingPipelineBaseClass"/>
+    /// Gets or sets a value indicating whether this <see cref="ProcessingPipelineBase"/>
     /// should combine the filters or not.
     /// </summary>
     /// <value><c>true</c> if combine; otherwise, <c>false</c>.</value>
@@ -51,24 +51,24 @@ public abstract class ProcessingPipelineBaseClass(bool combine) : IFilter
     /// </summary>
     /// <param name="filter">The filter.</param>
     /// <returns>This</returns>
-    public ProcessingPipelineBaseClass AddFilter(IFilter filter)
+    public ProcessingPipelineBase AddFilter(IFilter filter)
     {
-        if (filter as MatrixBaseClass != null && Filters.Count > 0)
+        if (filter as MatrixFilterBase != null && Filters.Count > 0)
         {
             var lastFilter = Filters[^1];
-            if (lastFilter as MatrixBaseClass != null)
+            if (lastFilter as MatrixFilterBase != null)
             {
                 Filters.Remove(lastFilter);
-                filter = (MatrixBaseClass)lastFilter * (MatrixBaseClass)filter;
+                filter = (MatrixFilterBase)lastFilter * (MatrixFilterBase)filter;
             }
         }
-        else if (Combine && filter as ConvolutionBaseClass != null && Filters.Count > 0)
+        else if (Combine && filter as ConvolutionBase != null && Filters.Count > 0)
         {
             var lastFilter = Filters[^1];
-            if (lastFilter as ConvolutionBaseClass != null)
+            if (lastFilter as ConvolutionBase != null)
             {
                 Filters.Remove(lastFilter);
-                filter = (ConvolutionBaseClass)lastFilter * (ConvolutionBaseClass)filter;
+                filter = (ConvolutionBase)lastFilter * (ConvolutionBase)filter;
             }
         }
         Filters.Add(filter);

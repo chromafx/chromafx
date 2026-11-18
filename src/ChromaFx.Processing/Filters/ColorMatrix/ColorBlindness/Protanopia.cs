@@ -22,8 +22,8 @@ namespace ChromaFx.Processing.Filters.ColorMatrix.ColorBlindness;
 /// <summary>
 /// Protanopia matrix
 /// </summary>
-/// <seealso cref="MatrixBaseClass" />
-public class Protanopia : MatrixBaseClass
+/// <seealso cref="MatrixFilterBase" />
+public class Protanopia : MatrixFilterBase
 {
     /// <summary>
     /// Gets the matrix.

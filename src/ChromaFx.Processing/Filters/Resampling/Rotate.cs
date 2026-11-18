@@ -24,13 +24,13 @@ namespace ChromaFx.Processing.Filters.Resampling;
 /// <summary>
 /// Rotates an image
 /// </summary>
-/// <seealso cref="AffineBaseClass"/>
+/// <seealso cref="AffineTransformBase"/>
 /// <seealso cref="IFilter"/>
 /// <remarks>
 /// Initializes a new instance of the <see cref="Rotate"/> class.
 /// </remarks>
 /// <param name="angle">The angle.</param>
-public class Rotate(float angle) : AffineBaseClass
+public class Rotate(float angle) : AffineTransformBase
 {
     /// <summary>
     /// Gets or sets the angle.

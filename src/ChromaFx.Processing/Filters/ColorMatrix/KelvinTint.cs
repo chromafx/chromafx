@@ -23,8 +23,8 @@ namespace ChromaFx.Processing.Filters.ColorMatrix;
 /// (Helland approximation). This colorizes toward the light's color; it is not
 /// photographic white-balance correction.
 /// </summary>
-/// <seealso cref="MatrixBaseClass" />
-public class KelvinTint : MatrixBaseClass
+/// <seealso cref="MatrixFilterBase" />
+public class KelvinTint : MatrixFilterBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="KelvinTint"/> class.

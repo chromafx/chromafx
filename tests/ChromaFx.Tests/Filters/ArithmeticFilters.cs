@@ -13,8 +13,8 @@ public class ArithmeticFilters : FilterTestBaseClass
     public static readonly TheoryData<string, IFilter, Rectangle> Filters = new()
     {
         {
-            "XOr",
-            new XOr(Image.Load("./TestImages/Formats/Bmp/Car.bmp")),
+            "Xor",
+            new Xor(Image.Load("./TestImages/Formats/Bmp/Car.bmp")),
             new Rectangle(100, 100, 500, 500)
         },
         {

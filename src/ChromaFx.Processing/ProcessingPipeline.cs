@@ -22,11 +22,11 @@ namespace ChromaFx.Processing;
 /// <summary>
 /// Generic processing pipeline
 /// </summary>
-/// <seealso cref="ProcessingPipelineBaseClass"/>
+/// <seealso cref="ProcessingPipelineBase"/>
 /// <remarks>
 /// Initializes a new instance of the <see cref="ProcessingPipeline"/> class.
 /// </remarks>
 /// <param name="combine">
 /// if set to <c>true</c> [combine] the convolution filters when possible.
 /// </param>
-public class ProcessingPipeline(bool combine) : ProcessingPipelineBaseClass(combine) { }
+public class ProcessingPipeline(bool combine) : ProcessingPipelineBase(combine) { }

@@ -22,12 +22,12 @@ namespace ChromaFx.Processing.Filters.ColorMatrix;
 /// <summary>
 /// Brightness matrix
 /// </summary>
-/// <seealso cref="MatrixBaseClass" />
+/// <seealso cref="MatrixFilterBase" />
 /// <remarks>
 /// Initializes a new instance of the <see cref="Brightness"/> class.
 /// </remarks>
 /// <param name="value">The brightness value (-1 to 1).</param>
-public class Brightness(float value) : MatrixBaseClass
+public class Brightness(float value) : MatrixFilterBase
 {
     /// <summary>
     /// Gets the matrix.

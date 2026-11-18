@@ -20,11 +20,11 @@ namespace ChromaFx.Processing.Filters.Convolution;
 /// <summary>
 /// Laplace edge detection convolution filter
 /// </summary>
-/// <seealso cref="ConvolutionBaseClass" />
-public class LaplaceEdgeDetection : ConvolutionBaseClass
+/// <seealso cref="ConvolutionBase" />
+public class LaplaceEdgeDetection : ConvolutionBase
 {
     /// <summary>
-    /// Gets a value indicating whether this <see cref="ConvolutionBaseClass"/> is absolute.
+    /// Gets a value indicating whether this <see cref="ConvolutionBase"/> is absolute.
     /// </summary>
     /// <value><c>true</c> if absolute; otherwise, <c>false</c>.</value>
     public override bool Absolute => false;

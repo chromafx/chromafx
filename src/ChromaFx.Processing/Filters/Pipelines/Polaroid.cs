@@ -24,8 +24,8 @@ namespace ChromaFx.Processing.Filters.Pipelines;
 /// <summary>
 /// Polaroid processing pipeline
 /// </summary>
-/// <seealso cref="ProcessingPipelineBaseClass"/>
-public class Polaroid : ProcessingPipelineBaseClass
+/// <seealso cref="ProcessingPipelineBase"/>
+public class Polaroid : ProcessingPipelineBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="Polaroid"/> class.
@@ -33,7 +33,7 @@ public class Polaroid : ProcessingPipelineBaseClass
     public Polaroid()
         : base(true)
     {
-        AddFilter(new PolaroidColorMatrix())
+        AddFilter(new PolaroidMatrix())
             .AddFilter(new Vignette(new Color(102, 34, 0, 255), .75f, .75f))
             .AddFilter(new Glow(new Color(255, 153, 102, 179), .25f, .25f));
     }

@@ -20,15 +20,15 @@ namespace ChromaFx.Processing.Filters.Convolution;
 /// <summary>
 /// Sobel emboss convolution filter
 /// </summary>
-/// <seealso cref="ConvolutionBaseClass" />
+/// <seealso cref="ConvolutionBase" />
 /// <remarks>
 /// Initializes a new instance of the <see cref="SobelEmboss"/> class.
 /// </remarks>
 /// <param name="direction">The direction.</param>
-public class SobelEmboss(Direction direction = Direction.LeftToRight) : ConvolutionBaseClass
+public class SobelEmboss(Direction direction = Direction.LeftToRight) : ConvolutionBase
 {
     /// <summary>
-    /// Gets a value indicating whether this <see cref="ConvolutionBaseClass"/> is absolute.
+    /// Gets a value indicating whether this <see cref="ConvolutionBase"/> is absolute.
     /// </summary>
     /// <value><c>true</c> if absolute; otherwise, <c>false</c>.</value>
     public override bool Absolute => false;

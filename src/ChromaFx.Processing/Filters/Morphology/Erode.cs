@@ -21,14 +21,14 @@ using ChromaFx.Processing.Numerics;
 namespace ChromaFx.Processing.Filters.Morphology;
 
 /// <summary>
-/// Constricts an image
+/// Erodes an image
 /// </summary>
 /// <seealso cref="IFilter"/>
 /// <remarks>
-/// Initializes a new instance of the <see cref="Constrict"/> class.
+/// Initializes a new instance of the <see cref="Erode"/> class.
 /// </remarks>
 /// <param name="apertureRadius">The aperture radius.</param>
-public class Constrict(int apertureRadius) : IFilter
+public class Erode(int apertureRadius) : IFilter
 {
     /// <summary>
     /// Gets or sets the aperture radius.

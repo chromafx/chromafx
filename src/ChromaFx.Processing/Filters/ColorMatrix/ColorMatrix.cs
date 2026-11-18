@@ -22,12 +22,12 @@ namespace ChromaFx.Processing.Filters.ColorMatrix;
 /// <summary>
 /// Generic ColorMatrix
 /// </summary>
-/// <seealso cref="MatrixBaseClass"/>
+/// <seealso cref="MatrixFilterBase"/>
 /// <remarks>
 /// Initializes a new instance of the <see cref="ColorMatrix"/> class.
 /// </remarks>
 /// <param name="matrix">The matrix.</param>
-public class ColorMatrix(Matrix5X5 matrix) : MatrixBaseClass
+public class ColorMatrix(Matrix5X5 matrix) : MatrixFilterBase
 {
     /// <summary>
     /// Gets the matrix.

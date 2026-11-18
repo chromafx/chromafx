@@ -22,8 +22,8 @@ namespace ChromaFx.Processing.Filters.ColorMatrix;
 /// Shifts along the green↔magenta axis (companion to <see cref="KelvinTint"/>'s
 /// blue↔orange / Kelvin axis). Positive values favor green; negative favor magenta.
 /// </summary>
-/// <seealso cref="MatrixBaseClass" />
-public class Tint : MatrixBaseClass
+/// <seealso cref="MatrixFilterBase" />
+public class Tint : MatrixFilterBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="Tint"/> class.

@@ -80,7 +80,7 @@ public static class ImageProcessingContextExtensions
     public static IImageProcessingContext Erode(
         this IImageProcessingContext context,
         int apertureRadius = 1
-    ) => context.Apply(new Constrict(apertureRadius));
+    ) => context.Apply(new Erode(apertureRadius));
 
     /// <summary>
     /// Adds noise (0–255 channel jitter amount).
@@ -112,7 +112,7 @@ public static class ImageProcessingContextExtensions
     /// Sepia tone.
     /// </summary>
     public static IImageProcessingContext Sepia(this IImageProcessingContext context) =>
-        context.Apply(new Sepiatone());
+        context.Apply(new Sepia());
 
     /// <summary>
     /// Emboss convolution.

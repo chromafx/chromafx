@@ -22,11 +22,11 @@ namespace ChromaFx.Processing.Filters.Drawing;
 /// <summary>
 /// 4-connected flood fill from a seed pixel (exact color match).
 /// </summary>
-/// <seealso cref="ShapeBaseClass"/>
+/// <seealso cref="ShapeFilterBase"/>
 /// <param name="color">Replacement color.</param>
 /// <param name="x">Seed X.</param>
 /// <param name="y">Seed Y.</param>
-public class FloodFill(Color color, int x, int y) : ShapeBaseClass(color)
+public class FloodFill(Color color, int x, int y) : ShapeFilterBase(color)
 {
     /// <summary>
     /// Gets or sets the seed X coordinate.

@@ -34,7 +34,7 @@ public sealed class MorphClose(int apertureRadius = 1) : IFilter
     public Image Apply(Image image, Rectangle targetLocation = default)
     {
         new Dilate(ApertureRadius).Apply(image, targetLocation);
-        new Constrict(ApertureRadius).Apply(image, targetLocation);
+        new Erode(ApertureRadius).Apply(image, targetLocation);
         return image;
     }
 }

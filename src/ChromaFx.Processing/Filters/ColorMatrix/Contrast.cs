@@ -22,8 +22,8 @@ namespace ChromaFx.Processing.Filters.ColorMatrix;
 /// <summary>
 /// Contrast matrix
 /// </summary>
-/// <seealso cref="MatrixBaseClass" />
-public class Contrast : MatrixBaseClass
+/// <seealso cref="MatrixFilterBase" />
+public class Contrast : MatrixFilterBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="Contrast"/> class.

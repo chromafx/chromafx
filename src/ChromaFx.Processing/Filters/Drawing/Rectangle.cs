@@ -23,14 +23,14 @@ namespace ChromaFx.Processing.Filters.Drawing;
 /// <summary>
 /// Rectangle drawing class
 /// </summary>
-/// <seealso cref="ShapeBaseClass"/>
+/// <seealso cref="ShapeFilterBase"/>
 /// <remarks>
 /// Initializes a new instance of the <see cref="Rectangle"/> class.
 /// </remarks>
 /// <param name="color">The color.</param>
 /// <param name="fill">if set to <c>true</c> [fill].</param>
 /// <param name="bounds">The bounds.</param>
-public class Rectangle(Color color, bool fill, Numerics.Rectangle bounds) : ShapeBaseClass(color)
+public class Rectangle(Color color, bool fill, Numerics.Rectangle bounds) : ShapeFilterBase(color)
 {
     /// <summary>
     /// Gets or sets the bounds.

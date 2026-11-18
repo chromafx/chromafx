@@ -33,7 +33,7 @@ namespace ChromaFx.Processing.Filters.Resampling;
 public class Flip(
     FlipDirection direction,
     ResamplingFilter filter = ResamplingFilter.NearestNeighbor
-) : AffineBaseClass(filter: filter)
+) : AffineTransformBase(filter: filter)
 {
     /// <summary>
     /// Gets or sets the direction.

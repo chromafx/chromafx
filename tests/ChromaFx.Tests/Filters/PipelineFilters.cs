@@ -17,7 +17,7 @@ public class PipelineFilters : FilterTestBaseClass
         {
             "Pipeline-Polaroid-Brightness",
             new ProcessingPipeline(true)
-                .AddFilter(new PolaroidColorMatrix())
+                .AddFilter(new PolaroidMatrix())
                 .AddFilter(new Brightness(.1f)),
             default
         },
@@ -31,7 +31,7 @@ public class PipelineFilters : FilterTestBaseClass
         {
             "Pipeline-Polaroid-Brightness-Partial",
             new ProcessingPipeline(true)
-                .AddFilter(new PolaroidColorMatrix())
+                .AddFilter(new PolaroidMatrix())
                 .AddFilter(new Brightness(.1f)),
             new Rectangle(100, 100, 500, 500)
         },

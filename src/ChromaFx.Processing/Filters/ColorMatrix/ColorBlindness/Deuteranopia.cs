@@ -22,8 +22,8 @@ namespace ChromaFx.Processing.Filters.ColorMatrix.ColorBlindness;
 /// <summary>
 /// Deuteranopia matrix
 /// </summary>
-/// <seealso cref="MatrixBaseClass" />
-public class Deuteranopia : MatrixBaseClass
+/// <seealso cref="MatrixFilterBase" />
+public class Deuteranopia : MatrixFilterBase
 {
     /// <summary>
     /// Gets the matrix.
