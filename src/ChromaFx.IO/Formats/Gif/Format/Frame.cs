@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2017–2020 JaCraig
- * Modifications Copyright 2023–2025 Ho Tzin Mein
+ * Modifications Copyright 2023–2026 Ho Tzin Mein
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -176,6 +176,20 @@ internal class Frame(
 
         var currentFrameU32 = MemoryMarshal.Cast<byte, uint>(currentFrame.AsSpan());
 
+        // Precompute opaque RGBA for each palette index (bit-identical to per-pixel *3 loads).
+        Span<uint> lut = stackalloc uint[256];
+        var table = colorTable.Data;
+        var colorCount = Math.Min(256, table.Length / 3);
+        for (var c = 0; c < colorCount; c++)
+        {
+            var o = c * 3;
+            lut[c] = table[o] | ((uint)table[o + 1] << 8) | ((uint)table[o + 2] << 16) | 0xFF00_0000u;
+        }
+
+        var hasTransparency =
+            graphicsControl is { TransparencyFlag: true };
+        var transparentIndex = hasTransparency ? graphicsControl.TransparencyIndex : -1;
+
         int i = 0;
         var interlacePass = 0;
         var interlaceIncrement = 8;
@@ -216,24 +230,13 @@ internal class Frame(
                 writeY = y;
             }
 
+            var rowBase = writeY * imageWidth;
             for (int x = descriptor.Left; x < descriptor.Left + descriptor.Width; x++)
             {
                 int index = indices.Indices[i];
 
-                if (
-                    graphicsControl == null
-                    || graphicsControl.TransparencyFlag == false
-                    || graphicsControl.TransparencyIndex != index
-                )
-                {
-                    var indexOffset = index * 3;
-                    var r = colorTable.Data[indexOffset];
-                    var g = colorTable.Data[indexOffset + 1];
-                    var b = colorTable.Data[indexOffset + 2];
-                    // Packed RGBA little-endian (bit-identical to byte stores).
-                    currentFrameU32[writeY * imageWidth + x] =
-                        r | ((uint)g << 8) | ((uint)b << 16) | 0xFF00_0000u;
-                }
+                if (!hasTransparency || index != transparentIndex)
+                    currentFrameU32[rowBase + x] = lut[index];
 
                 i++;
             }
