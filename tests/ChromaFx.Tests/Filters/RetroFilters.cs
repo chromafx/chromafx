@@ -12,6 +12,12 @@ public class RetroFilters : FilterTestBaseClass
 
     public override string OutputDirectory => "./TestOutput/Filters/";
 
+    /// <summary>
+    /// CC0 landscape with saturated color bands (see TestImages/Retro/LICENSE.txt).
+    /// Better Retro/palette demos than the shared insect BitmapFilter source.
+    /// </summary>
+    private static readonly string[] RetroFiles = ["./TestImages/Retro/RainbowMountains.bmp"];
+
     public static readonly TheoryData<string, IFilter, Rectangle> Filters = new()
     {
         { "WebSafeQuantize", new WebSafeQuantize(), default },
@@ -21,14 +27,28 @@ public class RetroFilters : FilterTestBaseClass
             new Rectangle(100, 100, 500, 500)
         },
         { "CgaQuantize", new CgaQuantize(), default },
+        { "CgaQuantize-Palette1Low", new CgaQuantize(CgaPaletteMode.Palette1Low), default },
+        { "CgaQuantize-Palette2High", new CgaQuantize(CgaPaletteMode.Palette2High), default },
+        { "CgaQuantize-Palette2Low", new CgaQuantize(CgaPaletteMode.Palette2Low), default },
         { "CgaQuantize-Standard16", new CgaQuantize(CgaPaletteMode.Standard16), default },
+        { "CgaQuantize-Monochrome2", new CgaQuantize(CgaPaletteMode.Monochrome2), default },
         { "EgaQuantize", new EgaQuantize(), default },
+        {
+            "EgaQuantize-Adaptive16",
+            new EgaQuantize(EgaPaletteMode.Adaptive16),
+            default
+        },
         {
             "EgaQuantize-Partial",
             new EgaQuantize(),
             new Rectangle(100, 100, 500, 500)
         },
         { "VgaQuantize", new VgaQuantize(), default },
+        {
+            "VgaQuantize-Adaptive256",
+            new VgaQuantize(VgaPaletteMode.Adaptive256),
+            default
+        },
         {
             "VgaQuantize-Partial",
             new VgaQuantize(),
@@ -73,7 +93,35 @@ public class RetroFilters : FilterTestBaseClass
     [MemberData(nameof(Filters))]
     public void Run(string name, IFilter filter, Rectangle target)
     {
-        CheckCorrect(name, filter, target);
+        CheckCorrect(name, filter, target, RetroFiles);
+    }
+
+    private void CheckCorrect(string name, IFilter filter, Rectangle target, string[] files)
+    {
+        foreach (var file in files)
+        {
+            var outputFileName =
+                Path.GetFileNameWithoutExtension(file) + "-" + name + Path.GetExtension(file);
+            Image
+                .Load(file)
+                .Mutate(ctx => ctx.Apply(filter, target))
+                .Save(OutputDirectory + outputFileName);
+        }
+
+        foreach (
+            var outputFileName in files.Select(file =>
+                Path.GetFileNameWithoutExtension(file) + "-" + name + Path.GetExtension(file)
+            )
+        )
+        {
+            Assert.True(
+                CheckFileCorrect(
+                    ExpectedDirectory + Path.GetFileName(outputFileName),
+                    OutputDirectory + Path.GetFileName(outputFileName)
+                ),
+                outputFileName
+            );
+        }
     }
 }
 
@@ -246,6 +294,25 @@ public class CgaQuantizeSyntheticTests
     }
 
     [Fact]
+    public void Palette1Low_MapsNearCyanMagentaGray()
+    {
+        var image = new Image(4, 1);
+        var row = image.GetRowSpan(0);
+        row[0] = new Color(0, 0, 0, 200);
+        row[1] = new Color(20, 160, 160, 200);
+        row[2] = new Color(160, 20, 160, 200);
+        row[3] = new Color(160, 160, 160, 200);
+
+        image.Mutate(ctx => ctx.CgaQuantize(CgaPaletteMode.Palette1Low));
+
+        row = image.GetRowSpan(0);
+        Assert.Equal(new Color(0, 0, 0, 200), row[0]);
+        Assert.Equal(new Color(0, 170, 170, 200), row[1]);
+        Assert.Equal(new Color(170, 0, 170, 200), row[2]);
+        Assert.Equal(new Color(170, 170, 170, 200), row[3]);
+    }
+
+    [Fact]
     public void Palette2Low_UsesBrownNotDarkYellow()
     {
         var image = new Image(1, 1);
@@ -254,6 +321,25 @@ public class CgaQuantizeSyntheticTests
         image.Mutate(ctx => ctx.CgaQuantize(CgaPaletteMode.Palette2Low));
 
         Assert.Equal(new Color(170, 85, 0, 255), image.GetRowSpan(0)[0]);
+    }
+
+    [Fact]
+    public void Palette2High_MapsNearGreenRedYellow()
+    {
+        var image = new Image(4, 1);
+        var row = image.GetRowSpan(0);
+        row[0] = new Color(0, 0, 0, 200);
+        row[1] = new Color(40, 240, 40, 200);
+        row[2] = new Color(240, 40, 40, 200);
+        row[3] = new Color(240, 240, 40, 200);
+
+        image.Mutate(ctx => ctx.CgaQuantize(CgaPaletteMode.Palette2High));
+
+        row = image.GetRowSpan(0);
+        Assert.Equal(new Color(0, 0, 0, 200), row[0]);
+        Assert.Equal(new Color(85, 255, 85, 200), row[1]);
+        Assert.Equal(new Color(255, 85, 85, 200), row[2]);
+        Assert.Equal(new Color(255, 255, 85, 200), row[3]);
     }
 
     [Fact]
@@ -267,6 +353,23 @@ public class CgaQuantizeSyntheticTests
 
         Assert.Equal(new Color(0, 0, 0, 64), image.GetRowSpan(0)[0]);
         Assert.Equal(new Color(255, 255, 255, 128), image.GetRowSpan(0)[1]);
+    }
+
+    [Fact]
+    public void Standard16_KeepsRgbIPrimaries()
+    {
+        var image = new Image(3, 1);
+        var row = image.GetRowSpan(0);
+        row[0] = new Color(0, 0, 170, 255);
+        row[1] = new Color(170, 0, 0, 255);
+        row[2] = new Color(85, 255, 85, 255);
+
+        image.Mutate(ctx => ctx.CgaQuantize(CgaPaletteMode.Standard16));
+
+        row = image.GetRowSpan(0);
+        Assert.Equal(new Color(0, 0, 170, 255), row[0]);
+        Assert.Equal(new Color(170, 0, 0, 255), row[1]);
+        Assert.Equal(new Color(85, 255, 85, 255), row[2]);
     }
 }
 
@@ -311,6 +414,108 @@ public class EgaQuantizeSyntheticTests
         Assert.Equal(0xFF, p.Blue);
         Assert.Equal(90, p.Alpha);
     }
+
+    [Fact]
+    public void Adaptive16_WithFewUniqueColors_MatchesFull64()
+    {
+        var image = new Image(4, 1);
+        var row = image.GetRowSpan(0);
+        row[0] = new Color(0x00, 0x00, 0x00);
+        row[1] = new Color(0xFF, 0xFF, 0xFF);
+        row[2] = new Color(0xAA, 0x00, 0x00);
+        row[3] = new Color(0x00, 0x55, 0xAA, 200);
+
+        var full = image.Clone();
+        full.Mutate(ctx => ctx.EgaQuantize(EgaPaletteMode.Full64));
+        image.Mutate(ctx => ctx.EgaQuantize(EgaPaletteMode.Adaptive16));
+
+        for (var x = 0; x < 4; ++x)
+        {
+            var a = image.GetRowSpan(0)[x];
+            var b = full.GetRowSpan(0)[x];
+            Assert.Equal(b.Red, a.Red);
+            Assert.Equal(b.Green, a.Green);
+            Assert.Equal(b.Blue, a.Blue);
+            Assert.Equal(b.Alpha, a.Alpha);
+        }
+    }
+
+    [Fact]
+    public void Adaptive16_KeepsMajorityColorsAndRemapsMinority()
+    {
+        // 20 majority cube colors (only 15 unique) + many copies of two more minorities
+        // would stay ≤16; instead use 20 distinct cube colors with uneven frequency.
+        var image = new Image(100, 1);
+        var row = image.GetRowSpan(0);
+
+        // Indices 0..15 each appear 5 times (majority set).
+        for (var i = 0; i < 16; ++i)
+        {
+            EgaQuantize.UnpackIndex(i, out var r, out var g, out var b);
+            for (var n = 0; n < 5; ++n)
+                row[i * 5 + n] = new Color(r, g, b);
+        }
+
+        // Indices 16..19 appear once each (minority — should be remapped away).
+        for (var i = 0; i < 4; ++i)
+        {
+            EgaQuantize.UnpackIndex(16 + i, out var r, out var g, out var b);
+            row[80 + i] = new Color(r, g, b);
+        }
+
+        // Fill remaining with index 0 so unique count stays > 16.
+        EgaQuantize.UnpackIndex(0, out var r0, out var g0, out var b0);
+        for (var x = 84; x < 100; ++x)
+            row[x] = new Color(r0, g0, b0);
+
+        // Add four more unique rare colors at the end by overwriting fillers with 20..23.
+        for (var i = 0; i < 4; ++i)
+        {
+            EgaQuantize.UnpackIndex(20 + i, out var r, out var g, out var b);
+            row[96 + i] = new Color(r, g, b);
+        }
+
+        image.Mutate(ctx => ctx.EgaQuantize(EgaPaletteMode.Adaptive16));
+
+        var seen = new HashSet<(byte, byte, byte)>();
+        for (var x = 0; x < 100; ++x)
+        {
+            var p = row[x];
+            seen.Add((p.Red, p.Green, p.Blue));
+            Assert.Contains(p.Red, Levels);
+            Assert.Contains(p.Green, Levels);
+            Assert.Contains(p.Blue, Levels);
+        }
+
+        Assert.True(seen.Count <= 16);
+
+        // Majority palette colors 0..15 must remain representable (present or equal after identity remap).
+        for (var i = 0; i < 16; ++i)
+        {
+            EgaQuantize.UnpackIndex(i, out var r, out var g, out var b);
+            Assert.Contains((r, g, b), seen);
+        }
+
+        // Minority cube colors 16..19 and 20..23 must not survive as themselves.
+        for (var i = 16; i < 24; ++i)
+        {
+            EgaQuantize.UnpackIndex(i, out var r, out var g, out var b);
+            Assert.DoesNotContain((r, g, b), seen);
+        }
+    }
+
+    [Theory]
+    [InlineData(0, 0, 0, 0)]
+    [InlineData(0x55, 0xAA, 0xFF, (1 << 4) | (2 << 2) | 3)]
+    [InlineData(0xFF, 0xFF, 0xFF, 63)]
+    public void PackIndex_RoundTripsSnappedLevels(byte r, byte g, byte b, int expected)
+    {
+        Assert.Equal(expected, EgaQuantize.PackIndex(r, g, b));
+        EgaQuantize.UnpackIndex(expected, out var ur, out var ug, out var ub);
+        Assert.Equal(r, ur);
+        Assert.Equal(g, ug);
+        Assert.Equal(b, ub);
+    }
 }
 
 public class VgaQuantizeSyntheticTests
@@ -352,6 +557,59 @@ public class VgaQuantizeSyntheticTests
         Assert.Equal(4, p.Green);
         Assert.Equal(8, p.Blue);
         Assert.Equal(77, p.Alpha);
+    }
+
+    [Fact]
+    public void Adaptive256_WithFewUniqueColors_MatchesDacLevels()
+    {
+        var image = new Image(4, 1);
+        var row = image.GetRowSpan(0);
+        row[0] = new Color(0, 0, 0, 200);
+        row[1] = new Color(252, 252, 252, 200);
+        row[2] = new Color(128, 0, 0, 200);
+        row[3] = new Color(0, 64, 128, 200);
+
+        var dac = image.Clone();
+        dac.Mutate(ctx => ctx.VgaQuantize(VgaPaletteMode.DacLevels));
+        image.Mutate(ctx => ctx.VgaQuantize(VgaPaletteMode.Adaptive256));
+
+        for (var x = 0; x < 4; ++x)
+        {
+            var a = image.GetRowSpan(0)[x];
+            var b = dac.GetRowSpan(0)[x];
+            Assert.Equal(b.Red, a.Red);
+            Assert.Equal(b.Green, a.Green);
+            Assert.Equal(b.Blue, a.Blue);
+            Assert.Equal(b.Alpha, a.Alpha);
+        }
+    }
+
+    [Fact]
+    public void Adaptive256_CapsUniqueColorsAndStaysOnDac()
+    {
+        // 300 distinct DAC-snapped greys → must reduce to ≤256 unique.
+        var image = new Image(300, 1);
+        var row = image.GetRowSpan(0);
+        for (var i = 0; i < 300; ++i)
+        {
+            var level = (byte)Math.Min(252, i * 4);
+            row[i] = new Color(level, level, level, 255);
+        }
+
+        image.Mutate(ctx => ctx.VgaQuantize(VgaPaletteMode.Adaptive256));
+
+        var seen = new HashSet<(byte, byte, byte)>();
+        for (var x = 0; x < 300; ++x)
+        {
+            var p = row[x];
+            Assert.Equal(0, p.Red % 4);
+            Assert.Equal(0, p.Green % 4);
+            Assert.Equal(0, p.Blue % 4);
+            Assert.True(p.Red <= 252);
+            seen.Add((p.Red, p.Green, p.Blue));
+        }
+
+        Assert.True(seen.Count <= 256);
     }
 }
 

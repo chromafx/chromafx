@@ -45,22 +45,26 @@ public static class ImageProcessingContextExtensions
     ) => context.Apply(new CgaQuantize(mode, dither, strength));
 
     /// <summary>
-    /// Snaps RGB to the approximate EGA 64-color cube (<c>00/55/AA/FF</c> per channel). Alpha is preserved.
+    /// Snaps RGB to the approximate EGA 64-color cube (<c>00/55/AA/FF</c> per channel),
+    /// or adaptively selects 16 of 64 by image frequency. Alpha is preserved.
     /// </summary>
     public static IImageProcessingContext EgaQuantize(
         this IImageProcessingContext context,
+        EgaPaletteMode mode = EgaPaletteMode.Full64,
         OrderedDitherMethod dither = OrderedDitherMethod.None,
         float strength = 0.5f
-    ) => context.Apply(new EgaQuantize(dither, strength));
+    ) => context.Apply(new EgaQuantize(mode, dither, strength));
 
     /// <summary>
-    /// Snaps RGB to 6-bit VGA DAC levels (multiples of 4, max 252). Alpha is preserved.
+    /// Snaps RGB to 6-bit VGA DAC levels (multiples of 4, max 252),
+    /// or adaptively selects 256 of ~262 144 (Mode 13h style). Alpha is preserved.
     /// </summary>
     public static IImageProcessingContext VgaQuantize(
         this IImageProcessingContext context,
+        VgaPaletteMode mode = VgaPaletteMode.DacLevels,
         OrderedDitherMethod dither = OrderedDitherMethod.None,
         float strength = 0.5f
-    ) => context.Apply(new VgaQuantize(dither, strength));
+    ) => context.Apply(new VgaQuantize(mode, dither, strength));
 
     /// <summary>
     /// Nearest-neighbor downsample then upsample (optional web-safe on the small image).
