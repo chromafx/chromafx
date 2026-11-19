@@ -13,10 +13,10 @@ public class RetroFilters : FilterTestBaseClass
     public override string OutputDirectory => "./TestOutput/Filters/";
 
     /// <summary>
-    /// CC0 landscape with saturated color bands (see TestImages/Retro/LICENSE.txt).
-    /// Better Retro/palette demos than the shared insect BitmapFilter source.
+    /// CC0 blue-and-yellow macaw portrait (see TestImages/Retro/LICENSE.txt).
+    /// Saturated primaries stress CGA/EGA/VGA adaptive palettes better than soft landscapes.
     /// </summary>
-    private static readonly string[] RetroFiles = ["./TestImages/Retro/RainbowMountains.bmp"];
+    private static readonly string[] RetroFiles = ["./TestImages/Retro/Macaw.bmp"];
 
     public static readonly TheoryData<string, IFilter, Rectangle> Filters = new()
     {
