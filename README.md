@@ -42,7 +42,7 @@ Fully managed on .NET 10 — no native codec binaries for Docker/Lambda multi-ar
 
 ## Installation
 
-Current NuGet line is **0.6.5** (tag-only releases; 0.x may still change before 1.0):
+Current NuGet line is **0.6.6** (tag-only releases; 0.x may still change before 1.0):
 
 ```bash
 dotnet add package ChromaFx
@@ -141,7 +141,7 @@ Modifications and ongoing maintenance by Ho Tzin Mein (2023–2026).
 
 ## Status
 
-Current NuGet is **0.6.5** (modular Core/IO/Processing, PixelArt / Retro / Native, IQ / tone / warp / metadata, filter renames). Next cut **0.6.6** adds Retro `Fire` `imageInfluence`. Desktop editor: ChromaLab **v0.3.0**.
+Current NuGet is **0.6.6** (modular Core/IO/Processing, PixelArt / Retro / Native, IQ / tone / warp / metadata, filter renames, Retro `Fire` `imageInfluence`). Desktop editor: ChromaLab **v0.3.0**.
 
 ## Contributing
 Contributions, bug reports, and suggestions are welcome.
