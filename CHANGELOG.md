@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`ChromaFx.Retro` `Fire`**: optional `imageInfluence` (0–1) luma-seeds bottom sparks and gates upward heat so flames follow the photo; default `0` keeps classic RNG-only fire.
+
 ## [0.6.5]
 
 ImageSimilarity / ColorDifference / Image.Metadata, Curves / Perspective, filter renames, JPEG/PNG/GIF/BMP encode–decode perf.

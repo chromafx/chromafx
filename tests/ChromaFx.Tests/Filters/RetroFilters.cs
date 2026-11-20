@@ -86,7 +86,7 @@ public class RetroFilters : FilterTestBaseClass
         { "Lightning", new Lightning(42, 0.9f, 2), default },
         { "FractalNoise", new FractalNoise(0.55f, 0.02f, 1337, 4), default },
         { "Plasma", new Plasma(1f, 0.08f, 0f), default },
-        { "Fire", new Fire(0.85f, 7, 1f), default },
+        { "Fire", new Fire(0.85f, 7, 1f, imageInfluence: 1f), default },
     };
 
     [Theory]
@@ -1041,6 +1041,35 @@ public class PlasmaFireSyntheticTests
             image.GetRowSpan(y).Fill(new Color(0, 0, 0));
         image.Mutate(ctx => ctx.Fire(1f, 7, 1f));
         Assert.True(image.GetRowSpan(20)[12].Red > 0 || image.GetRowSpan(22)[12].Red > 0);
+    }
+
+    [Fact]
+    public void Fire_ImageInfluence_FollowsBrightColumns()
+    {
+        // Black field with bright fuel only in the right half of the bottom band.
+        var image = new Image(32, 32);
+        for (var y = 0; y < 32; y++)
+            image.GetRowSpan(y).Fill(new Color(0, 0, 0));
+        for (var y = 28; y < 32; y++)
+        {
+            var row = image.GetRowSpan(y);
+            for (var x = 16; x < 32; x++)
+                row[x] = new Color(255, 220, 80);
+        }
+
+        image.Mutate(ctx => ctx.Fire(1f, 7, 1f, imageInfluence: 1f));
+
+        float SumRed(int x0, int x1, int y)
+        {
+            var sum = 0f;
+            var row = image.GetRowSpan(y);
+            for (var x = x0; x < x1; x++)
+                sum += row[x].Red;
+            return sum;
+        }
+
+        // Above the fuel band: heat should rise more over the bright columns.
+        Assert.True(SumRed(16, 32, 24) > SumRed(0, 16, 24));
     }
 
     [Fact]

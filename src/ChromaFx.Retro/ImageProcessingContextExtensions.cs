@@ -230,11 +230,12 @@ public static class ImageProcessingContextExtensions
         float time = 0f
     ) => context.Apply(new Plasma(strength, scale, time));
 
-    /// <summary>Cooling-buffer fire overlay.</summary>
+    /// <summary>Cooling-buffer fire overlay (optional luma-seeded heat).</summary>
     public static IImageProcessingContext Fire(
         this IImageProcessingContext context,
         float strength = 0.85f,
         int seed = 7,
-        float cooling = 1f
-    ) => context.Apply(new Fire(strength, seed, cooling));
+        float cooling = 1f,
+        float imageInfluence = 0f
+    ) => context.Apply(new Fire(strength, seed, cooling, imageInfluence));
 }
