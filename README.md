@@ -11,15 +11,12 @@ A lean, managed alternative for .NET apps that need image processing without nat
 **Key points:**
 - Pure managed C# on .NET 10 — no third-party NuGet dependencies, no native codec binaries to deploy (BMP, PNG, JPEG, GIF, TGA, TIFF, ICO)
 - Uses `Span<T>`, `ArrayPool`, and SIMD on key paths
-- Explicit `Mutate` / `Clone` processing API
+- Explicit `Mutate` / `Clone` processing API with a pipeline-friendly fluent context
 - Typed encoders (`JpegEncoder`, `PngEncoder`, …) and a public `ImageFormats` registry for extensions
-- Pipeline-friendly fluent context for common filters
 - `Load` / `LoadAsync` from path, stream, `byte[]`, memory, or span; matching `Save` / `SaveAsync`
 - Terminal rendering (`ChromaFx.Processing.Terminal`) — ASCII/ANSI art plus Kitty and iTerm2 inline images; HTML art in `ChromaFx.Processing.HtmlArt`
-- Opt-in [`ChromaFx.PixelArt`](https://www.nuget.org/packages/ChromaFx.PixelArt/) — Scale2x / Scale3x / Hq2x–4x / CleanEdge / Eagle / SaI upscalers and `RotateSprite` / `CleanEdgeRotate` (not in the meta-package)
-- Opt-in [`ChromaFx.Retro`](https://www.nuget.org/packages/ChromaFx.Retro/) — retro palettes, UI/mode helpers, Millennium + classic plug-in FX, plasma/fire; not in the meta-package
 - Adaptive `Quantize` in Processing (`DitherMethod`, shared Core octree with GIF encode)
-- Opt-in [`ChromaFx.Native`](https://www.nuget.org/packages/ChromaFx.Native/) — still WebP, AVIF, and JPEG XL (not in the meta-package; animated WebP/AVIF/JPEG XL are not supported)
+- Opt-in packs: [`PixelArt`](https://www.nuget.org/packages/ChromaFx.PixelArt/), [`Retro`](https://www.nuget.org/packages/ChromaFx.Retro/), [`Native`](https://www.nuget.org/packages/ChromaFx.Native/) (still WebP / AVIF / JPEG XL) — see Packages below
 
 ## Performance & Architecture
 
@@ -94,7 +91,7 @@ Console.Write(image.ToAsciiArt(new AsciiArtOptions { MaxWidth = 40, Invert = tru
 
 ### API notes
 
-- Prefer the `ChromaFx` meta-package (`ChromaFx.Core` + `.IO` + `.Processing`). Add `ChromaFx.PixelArt` / `ChromaFx.Retro` separately for those packs.
+- Prefer the `ChromaFx` meta-package (`ChromaFx.Core` + `.IO` + `.Processing`). Add PixelArt / Retro / Native packs separately (see Packages).
 - `Image.Load` / `Save` / `ImageFormats` live in **IO**; Mutate/Clone in **Processing**.
 - Fluent context: core ops on `IImageProcessingContext`, more via extensions (`BoxBlur`, `Saturation`, `Dilate`, `Grayscale`, …); escape hatch `Apply(IFilter)`.
 - Typed encoders: `ChromaFx.IO.Encoders` (`JpegEncoder`, `PngEncoder`, `BmpEncoder`, `GifEncoder` as `IAnimationEncoder`, `TgaEncoder`, `TiffEncoder`, `IcoEncoder`). Still WebP, AVIF, and JPEG XL encoders are in `ChromaFx.Native.Encoders`.
@@ -107,7 +104,7 @@ Console.Write(image.ToAsciiArt(new AsciiArtOptions { MaxWidth = 40, Invert = tru
 
 ### Migration (breaking)
 
-These older APIs are **removed** (not obsolete):
+These older APIs are **removed** (not obsolete). **0.6.5 filter renames** (`Constrict` → `Erode`, `Sepiatone` → `Sepia`, `XOr` → `Xor`, `*Channel` / `*Matrix` / `*Base`, …) are listed in [CHANGELOG.md](CHANGELOG.md) and the [migration guide](https://chromafx.net/guide/migration.html).
 
 | Removed | Use instead |
 |---------|-------------|
@@ -142,9 +139,9 @@ originally developed by JaCraig under the Apache License 2.0.
 
 Modifications and ongoing maintenance by Ho Tzin Mein (2023–2026).
 
-## Roadmap
+## Status
 
-Shipped through **0.6.5**: modular Core/IO/Processing, PixelArt / Retro / Native packs, format depth, IQ / tone / warp / metadata (`ImageSimilarity`, `ColorDifference`, `Curves`, `Perspective`, `Image.Metadata` JPEG·PNG), and filter renames. Desktop showcase: ChromaLab **v0.3.0**.
+Current NuGet is **0.6.5** (modular Core/IO/Processing, PixelArt / Retro / Native, IQ / tone / warp / metadata, filter renames). Next cut **0.6.6** adds Retro `Fire` `imageInfluence`. Desktop editor: ChromaLab **v0.3.0**.
 
 ## Contributing
 Contributions, bug reports, and suggestions are welcome.
