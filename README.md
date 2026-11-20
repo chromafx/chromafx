@@ -141,7 +141,7 @@ Modifications and ongoing maintenance by Ho Tzin Mein (2023–2026).
 
 ## Status
 
-Current NuGet is **0.6.6** (modular Core/IO/Processing, PixelArt / Retro / Native, IQ / tone / warp / metadata, filter renames, Retro `Fire` `imageInfluence`). Desktop editor: ChromaLab **v0.3.0**.
+Current NuGet is **0.6.6** (modular Core/IO/Processing, PixelArt / Retro / Native, IQ / tone / warp / metadata, filter renames, Retro `Fire` `imageInfluence`). Desktop editor: ChromaLab **v0.4.0**.
 
 ## Contributing
 Contributions, bug reports, and suggestions are welcome.
