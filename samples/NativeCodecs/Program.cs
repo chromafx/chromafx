@@ -58,7 +58,7 @@ Console.WriteLine(
 Console.WriteLine($"Output: {options.OutputDir}");
 Console.WriteLine($"  {Path.GetFileName(pngPath)} ({source.Width}×{source.Height})");
 Console.WriteLine();
-Console.WriteLine("Still WebP / AVIF / JPEG XL round-trips (lossless). Requires native/build.sh.");
+Console.WriteLine("WebP / AVIF / JPEG XL still round-trips (lossless). Requires native/build.sh.");
 Console.WriteLine();
 
 var codecs = new (string Label, string Ext, IImageEncoder Encoder)[]
@@ -219,7 +219,7 @@ static void PrintUsage()
 {
     Console.WriteLine(
         """
-        NativeCodecs — still WebP / AVIF / JPEG XL round-trip smoke demo
+        NativeCodecs — WebP / AVIF / JPEG XL still round-trip smoke demo
 
         Usage:
           dotnet run --project samples/NativeCodecs -- [image] [options]

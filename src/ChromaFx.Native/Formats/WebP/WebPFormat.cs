@@ -23,9 +23,9 @@ using ChromaFx.Native.Encoders;
 namespace ChromaFx.Native.Formats.WebP;
 
 /// <summary>
-/// Still WebP (RIFF/WEBP). Animated WebP is rejected.
+/// WebP (RIFF/WEBP). Animated decode is supported; animated encode is not yet.
 /// </summary>
-public sealed class WebPFormat : IImageFormat
+public sealed class WebPFormat : IAnimationFormat
 {
     private static readonly byte[] Riff = "RIFF"u8.ToArray();
     private static readonly byte[] Webp = "WEBP"u8.ToArray();
@@ -71,8 +71,26 @@ public sealed class WebPFormat : IImageFormat
     public Image Decode(Stream stream) => WebPCodec.Decode(stream);
 
     /// <inheritdoc />
+    public Animation DecodeAnimation(Stream stream) => WebPCodec.DecodeAnimation(stream);
+
+    /// <inheritdoc />
     public void Encode(BinaryWriter writer, Image image) =>
         Encode(writer, image, WebPEncoder.DefaultQuality, lossless: false);
+
+    /// <inheritdoc />
+    public void Encode(BinaryWriter writer, Animation animation)
+    {
+        ArgumentNullException.ThrowIfNull(animation);
+        if (animation.Count == 1)
+        {
+            Encode(writer, animation[0]);
+            return;
+        }
+
+        throw new NotSupportedException(
+            "Animated WebP encode is not supported yet. ChromaFx.Native decodes animated WebP; encode a single frame or use GIF."
+        );
+    }
 
     /// <summary>
     /// Encodes a still WebP image. <paramref name="lossless"/> ignores <paramref name="quality"/>.
@@ -84,5 +102,4 @@ public sealed class WebPFormat : IImageFormat
         header.Length >= 12
         && header[..4].SequenceEqual(Riff)
         && header[8..12].SequenceEqual(Webp);
-
 }

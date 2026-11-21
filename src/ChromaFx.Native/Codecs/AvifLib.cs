@@ -23,7 +23,6 @@ internal static unsafe partial class AvifLib
     private const string Lib = "chromaavif";
 
     internal const int Ok = 0;
-    internal const int ErrAnimation = 2;
 
     [LibraryImport(Lib, EntryPoint = "chroma_avif_decode")]
     internal static partial int Decode(
@@ -32,6 +31,18 @@ internal static unsafe partial class AvifLib
         byte** rgba,
         int* width,
         int* height
+    );
+
+    [LibraryImport(Lib, EntryPoint = "chroma_avif_decode_anim")]
+    internal static partial int DecodeAnim(
+        byte* data,
+        nuint size,
+        byte** rgba,
+        int** delaysCs,
+        int* width,
+        int* height,
+        int* frameCount,
+        int* repeatCount
     );
 
     [LibraryImport(Lib, EntryPoint = "chroma_avif_encode")]

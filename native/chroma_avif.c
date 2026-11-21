@@ -33,7 +33,47 @@
 #define CHROMA_ERR_ANIMATION 2
 #define CHROMA_ERR_NOMEM 3
 
+#define CHROMA_MAX_DIM 1000000u
+#define CHROMA_MAX_FRAMES 10000
+
 CHROMA_API void chroma_avif_free(void* ptr) { free(ptr); }
+
+static int duration_to_centiseconds(double duration_seconds)
+{
+    double cs;
+    if (duration_seconds <= 0.0)
+        return 0;
+    cs = duration_seconds * 100.0 + 0.5;
+    if (cs > 32767.0)
+        return 32767;
+    return (int)cs;
+}
+
+/* AVIF repetitionCount: -1 infinite, 0 play once, N = N extra repeats.
+ * Animation.RepeatCount: 0 infinite, N = play N times. */
+static int map_repeat_count(int avif_repetition)
+{
+    if (avif_repetition < 0)
+        return 0;
+    if (avif_repetition >= 65534)
+        return 65535;
+    return avif_repetition + 1;
+}
+
+static int copy_frame_rgba(const avifImage* image, uint8_t* dest)
+{
+    avifRGBImage rgb;
+    avifResult result;
+
+    memset(&rgb, 0, sizeof(rgb));
+    avifRGBImageSetDefaults(&rgb, image);
+    rgb.format = AVIF_RGB_FORMAT_RGBA;
+    rgb.depth = 8;
+    rgb.pixels = dest;
+    rgb.rowBytes = image->width * 4u;
+    result = avifImageYUVToRGB(image, &rgb);
+    return result == AVIF_RESULT_OK ? CHROMA_OK : CHROMA_ERR;
+}
 
 CHROMA_API int chroma_avif_decode(
     const uint8_t* data,
@@ -44,7 +84,6 @@ CHROMA_API int chroma_avif_decode(
 )
 {
     avifDecoder* decoder;
-    avifRGBImage rgb;
     avifResult result;
     uint32_t width;
     uint32_t height;
@@ -76,12 +115,6 @@ CHROMA_API int chroma_avif_decode(
         return CHROMA_ERR;
     }
 
-    if (decoder->imageSequenceTrackPresent)
-    {
-        avifDecoderDestroy(decoder);
-        return CHROMA_ERR_ANIMATION;
-    }
-
     result = avifDecoderNextImage(decoder);
     if (result != AVIF_RESULT_OK || decoder->image == NULL)
     {
@@ -91,7 +124,7 @@ CHROMA_API int chroma_avif_decode(
 
     width = decoder->image->width;
     height = decoder->image->height;
-    if (width == 0 || height == 0 || width > 1000000u || height > 1000000u)
+    if (width == 0 || height == 0 || width > CHROMA_MAX_DIM || height > CHROMA_MAX_DIM)
     {
         avifDecoderDestroy(decoder);
         return CHROMA_ERR;
@@ -104,24 +137,142 @@ CHROMA_API int chroma_avif_decode(
         return CHROMA_ERR_NOMEM;
     }
 
-    memset(&rgb, 0, sizeof(rgb));
-    avifRGBImageSetDefaults(&rgb, decoder->image);
-    rgb.format = AVIF_RGB_FORMAT_RGBA;
-    rgb.depth = 8;
-    rgb.pixels = pixels;
-    rgb.rowBytes = width * 4u;
-
-    result = avifImageYUVToRGB(decoder->image, &rgb);
-    avifDecoderDestroy(decoder);
-    if (result != AVIF_RESULT_OK)
+    if (copy_frame_rgba(decoder->image, pixels) != CHROMA_OK)
     {
         free(pixels);
+        avifDecoderDestroy(decoder);
         return CHROMA_ERR;
     }
 
+    avifDecoderDestroy(decoder);
     *out_rgba = pixels;
     *out_width = (int)width;
     *out_height = (int)height;
+    return CHROMA_OK;
+}
+
+CHROMA_API int chroma_avif_decode_anim(
+    const uint8_t* data,
+    size_t size,
+    uint8_t** out_rgba,
+    int** out_delays_cs,
+    int* out_width,
+    int* out_height,
+    int* out_frame_count,
+    int* out_repeat_count
+)
+{
+    avifDecoder* decoder;
+    avifResult result;
+    uint32_t width = 0;
+    uint32_t height = 0;
+    uint32_t frame_count;
+    uint32_t i;
+    size_t frame_bytes;
+    uint8_t* pixels = NULL;
+    int* delays = NULL;
+
+    if (
+        out_rgba == NULL
+        || out_delays_cs == NULL
+        || out_width == NULL
+        || out_height == NULL
+        || out_frame_count == NULL
+        || out_repeat_count == NULL
+    )
+        return CHROMA_ERR;
+
+    *out_rgba = NULL;
+    *out_delays_cs = NULL;
+    *out_width = 0;
+    *out_height = 0;
+    *out_frame_count = 0;
+    *out_repeat_count = 1;
+    if (data == NULL || size == 0)
+        return CHROMA_ERR;
+
+    decoder = avifDecoderCreate();
+    if (decoder == NULL)
+        return CHROMA_ERR_NOMEM;
+
+    result = avifDecoderSetIOMemory(decoder, data, size);
+    if (result != AVIF_RESULT_OK)
+    {
+        avifDecoderDestroy(decoder);
+        return CHROMA_ERR;
+    }
+
+    result = avifDecoderParse(decoder);
+    if (result != AVIF_RESULT_OK)
+    {
+        avifDecoderDestroy(decoder);
+        return CHROMA_ERR;
+    }
+
+    frame_count = decoder->imageCount;
+    if (frame_count == 0 || frame_count > CHROMA_MAX_FRAMES)
+    {
+        avifDecoderDestroy(decoder);
+        return CHROMA_ERR;
+    }
+
+    for (i = 0; i < frame_count; i++)
+    {
+        result = avifDecoderNextImage(decoder);
+        if (result != AVIF_RESULT_OK || decoder->image == NULL)
+        {
+            free(pixels);
+            free(delays);
+            avifDecoderDestroy(decoder);
+            return CHROMA_ERR;
+        }
+
+        if (i == 0)
+        {
+            width = decoder->image->width;
+            height = decoder->image->height;
+            if (width == 0 || height == 0 || width > CHROMA_MAX_DIM || height > CHROMA_MAX_DIM)
+            {
+                avifDecoderDestroy(decoder);
+                return CHROMA_ERR;
+            }
+            frame_bytes = (size_t)width * (size_t)height * 4u;
+            pixels = (uint8_t*)malloc(frame_bytes * (size_t)frame_count);
+            delays = (int*)malloc(sizeof(int) * (size_t)frame_count);
+            if (pixels == NULL || delays == NULL)
+            {
+                free(pixels);
+                free(delays);
+                avifDecoderDestroy(decoder);
+                return CHROMA_ERR_NOMEM;
+            }
+        }
+        else if (decoder->image->width != width || decoder->image->height != height)
+        {
+            free(pixels);
+            free(delays);
+            avifDecoderDestroy(decoder);
+            return CHROMA_ERR;
+        }
+
+        if (copy_frame_rgba(decoder->image, pixels + frame_bytes * (size_t)i) != CHROMA_OK)
+        {
+            free(pixels);
+            free(delays);
+            avifDecoderDestroy(decoder);
+            return CHROMA_ERR;
+        }
+
+        delays[i] = duration_to_centiseconds(decoder->imageTiming.duration);
+    }
+
+    *out_rgba = pixels;
+    *out_delays_cs = delays;
+    *out_width = (int)width;
+    *out_height = (int)height;
+    *out_frame_count = (int)frame_count;
+    *out_repeat_count = map_repeat_count(decoder->repetitionCount);
+    avifDecoderDestroy(decoder);
     return CHROMA_OK;
 }
 

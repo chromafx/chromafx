@@ -17,6 +17,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using ChromaFx.IO;
+using ChromaFx.IO.Formats;
 using ChromaFx.Native.Formats.Avif;
 using ChromaFx.Native.Formats.Jxl;
 using ChromaFx.Native.Formats.WebP;
@@ -24,7 +25,7 @@ using ChromaFx.Native.Formats.WebP;
 namespace ChromaFx.Native;
 
 /// <summary>
-/// Registers still WebP, AVIF, and JPEG XL formats when this package is referenced.
+/// Registers WebP, AVIF, and JPEG XL formats (including animated decode) when this package is referenced.
 /// </summary>
 internal static class NativeFormatsBootstrap
 {
@@ -37,8 +38,9 @@ internal static class NativeFormatsBootstrap
     internal static void Initialize()
     {
         ImageFormats.EnsureBuiltIns();
-        ImageFormats.Register(new WebPFormat());
-        ImageFormats.Register(new AvifFormat());
-        ImageFormats.Register(new JxlFormat());
+        // IAnimationFormat overload so Animation.Load resolves native codecs.
+        ImageFormats.Register((IAnimationFormat)new WebPFormat());
+        ImageFormats.Register((IAnimationFormat)new AvifFormat());
+        ImageFormats.Register((IAnimationFormat)new JxlFormat());
     }
 }

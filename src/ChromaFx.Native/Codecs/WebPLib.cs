@@ -18,56 +18,45 @@ using System.Runtime.InteropServices;
 
 namespace ChromaFx.Native.Codecs;
 
-[StructLayout(LayoutKind.Sequential)]
-internal struct WebPBitstreamFeatures
-{
-    internal int Width;
-    internal int Height;
-    internal int HasAlpha;
-    internal int HasAnimation;
-    internal int Format;
-    internal uint Pad0;
-    internal uint Pad1;
-    internal uint Pad2;
-    internal uint Pad3;
-    internal uint Pad4;
-}
-
 internal static unsafe partial class WebPLib
 {
-    internal const int DecoderAbiVersion = 0x0210;
-    private const string Lib = "webp";
+    private const string Lib = "chromawebp";
 
-    [LibraryImport(Lib, EntryPoint = "WebPGetFeaturesInternal")]
-    internal static partial int WebPGetFeaturesInternal(
+    internal const int Ok = 0;
+
+    [LibraryImport(Lib, EntryPoint = "chroma_webp_decode")]
+    internal static partial int Decode(
         byte* data,
         nuint size,
-        WebPBitstreamFeatures* features,
-        int version
+        byte** rgba,
+        int* width,
+        int* height
     );
 
-    [LibraryImport(Lib, EntryPoint = "WebPDecodeRGBA")]
-    internal static partial byte* WebPDecodeRGBA(byte* data, nuint size, int* width, int* height);
+    [LibraryImport(Lib, EntryPoint = "chroma_webp_decode_anim")]
+    internal static partial int DecodeAnim(
+        byte* data,
+        nuint size,
+        byte** rgba,
+        int** delaysCs,
+        int* width,
+        int* height,
+        int* frameCount,
+        int* repeatCount
+    );
 
-    [LibraryImport(Lib, EntryPoint = "WebPEncodeRGBA")]
-    internal static partial nuint WebPEncodeRGBA(
+    [LibraryImport(Lib, EntryPoint = "chroma_webp_encode")]
+    internal static partial int Encode(
         byte* rgba,
         int width,
         int height,
         int stride,
-        float quality,
-        byte** output
+        int quality,
+        int lossless,
+        byte** output,
+        nuint* outputSize
     );
 
-    [LibraryImport(Lib, EntryPoint = "WebPEncodeLosslessRGBA")]
-    internal static partial nuint WebPEncodeLosslessRGBA(
-        byte* rgba,
-        int width,
-        int height,
-        int stride,
-        byte** output
-    );
-
-    [LibraryImport(Lib, EntryPoint = "WebPFree")]
-    internal static partial void WebPFree(void* pointer);
+    [LibraryImport(Lib, EntryPoint = "chroma_webp_free")]
+    internal static partial void Free(void* pointer);
 }

@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 namespace ChromaFx.Native.Codecs;
 
 /// <summary>
-/// Loads bundled libwebp / libchromaavif / libchromajxl from the app directory or runtimes/&lt;rid&gt;/native.
+/// Loads bundled libchromawebp / libchromaavif / libchromajxl from the app directory or runtimes/&lt;rid&gt;/native.
 /// </summary>
 internal static class NativeLibraryLoader
 {
@@ -116,7 +116,7 @@ internal static class NativeLibraryLoader
     {
         var stem = libraryName switch
         {
-            "webp" => "webp",
+            "chromawebp" => "chromawebp",
             "chromaavif" => "chromaavif",
             "chromajxl" => "chromajxl",
             _ => null,

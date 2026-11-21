@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`ChromaFx.Native` animated decode** for WebP, AVIF, and JPEG XL via `Animation.Load` / `IAnimationFormat`. `Image.Load` on an animated file returns frame 0. Still encode unchanged; animated encode throws `NotSupportedException`. WebP ships as `libchromawebp` (demux folded in).
+
 ## [0.6.6]
 
 ### Added

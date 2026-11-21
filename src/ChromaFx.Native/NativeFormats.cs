@@ -19,23 +19,24 @@ using ChromaFx.IO.Formats;
 namespace ChromaFx.Native;
 
 /// <summary>
-/// Ids for the still-image codecs shipped by ChromaFx.Native.
+/// Ids for the codecs shipped by ChromaFx.Native.
 /// Referencing this package registers the codecs.
+/// Animated decode is supported; animated encode is not yet.
 /// </summary>
 public static class NativeFormats
 {
     /// <summary>
-    /// Still WebP. Animated WebP is rejected.
+    /// WebP. Animated decode is supported; animated encode is not yet.
     /// </summary>
     public static readonly ImageFormatKey WebP = new("webp");
 
     /// <summary>
-    /// Still AVIF. Animated AVIF is rejected.
+    /// AVIF. Animated decode is supported; animated encode is not yet.
     /// </summary>
     public static readonly ImageFormatKey Avif = new("avif");
 
     /// <summary>
-    /// Still JPEG XL. Animated JPEG XL is rejected.
+    /// JPEG XL. Animated decode is supported; animated encode is not yet.
     /// </summary>
     public static readonly ImageFormatKey JpegXl = new("jxl");
 }

@@ -23,9 +23,9 @@ using ChromaFx.Native.Encoders;
 namespace ChromaFx.Native.Formats.Avif;
 
 /// <summary>
-/// Still AVIF (ISO BMFF). Animated AVIF is rejected.
+/// AVIF (ISO BMFF). Animated decode is supported; animated encode is not yet.
 /// </summary>
-public sealed class AvifFormat : IImageFormat
+public sealed class AvifFormat : IAnimationFormat
 {
     /// <inheritdoc />
     public ImageFormatKey Format => NativeFormats.Avif;
@@ -68,8 +68,26 @@ public sealed class AvifFormat : IImageFormat
     public Image Decode(Stream stream) => AvifCodec.Decode(stream);
 
     /// <inheritdoc />
+    public Animation DecodeAnimation(Stream stream) => AvifCodec.DecodeAnimation(stream);
+
+    /// <inheritdoc />
     public void Encode(BinaryWriter writer, Image image) =>
         Encode(writer, image, AvifEncoder.DefaultQuality, lossless: false);
+
+    /// <inheritdoc />
+    public void Encode(BinaryWriter writer, Animation animation)
+    {
+        ArgumentNullException.ThrowIfNull(animation);
+        if (animation.Count == 1)
+        {
+            Encode(writer, animation[0]);
+            return;
+        }
+
+        throw new NotSupportedException(
+            "Animated AVIF encode is not supported yet. ChromaFx.Native decodes animated AVIF; encode a single frame or use GIF."
+        );
+    }
 
     /// <summary>
     /// Encodes a still AVIF image. <paramref name="lossless"/> uses full-range 4:4:4 identity and ignores <paramref name="quality"/>.
@@ -107,5 +125,4 @@ public sealed class AvifFormat : IImageFormat
 
         return false;
     }
-
 }

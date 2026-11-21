@@ -38,13 +38,6 @@ internal static class JxlCodec
                 int width;
                 int height;
                 var status = JxlLib.Decode(data, (nuint)bytes.Length, &pixels, &width, &height);
-                if (status == JxlLib.ErrAnimation)
-                {
-                    throw new NotSupportedException(
-                        "Animated JPEG XL is not supported. ChromaFx.Native decodes still images only."
-                    );
-                }
-
                 if (status != JxlLib.Ok || pixels == null || width <= 0 || height <= 0)
                     throw new ImageException("JPEG XL decode failed.");
 
@@ -60,6 +53,66 @@ internal static class JxlCodec
                 finally
                 {
                     JxlLib.Free(pixels);
+                }
+            }
+        }
+    }
+
+    internal static Animation DecodeAnimation(Stream stream)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        NativeLibraryLoader.EnsureRegistered();
+        var bytes = NativePixels.ReadStream(stream);
+        if (bytes.Length == 0)
+            throw new ImageException("JPEG XL data is empty.");
+
+        unsafe
+        {
+            fixed (byte* data = bytes)
+            {
+                byte* pixels = null;
+                int* delays = null;
+                int width;
+                int height;
+                int frameCount;
+                int repeatCount;
+                var status = JxlLib.DecodeAnim(
+                    data,
+                    (nuint)bytes.Length,
+                    &pixels,
+                    &delays,
+                    &width,
+                    &height,
+                    &frameCount,
+                    &repeatCount
+                );
+                if (
+                    status != JxlLib.Ok
+                    || pixels == null
+                    || delays == null
+                    || width <= 0
+                    || height <= 0
+                    || frameCount <= 0
+                )
+                    throw new ImageException("JPEG XL animation decode failed.");
+
+                try
+                {
+                    var frameBytes = checked(width * height * 4);
+                    var total = checked(frameBytes * frameCount);
+                    return NativePixels.AnimationFromPacked(
+                        new ReadOnlySpan<byte>(pixels, total),
+                        new ReadOnlySpan<int>(delays, frameCount),
+                        width,
+                        height,
+                        frameCount,
+                        (ushort)Math.Clamp(repeatCount, 0, ushort.MaxValue)
+                    );
+                }
+                finally
+                {
+                    JxlLib.Free(pixels);
+                    JxlLib.Free(delays);
                 }
             }
         }

@@ -35,29 +35,24 @@
 #define CHROMA_ERR 1
 #define CHROMA_ERR_ANIMATION 2
 #define CHROMA_ERR_NOMEM 3
+#define CHROMA_MAX_FRAMES 10000
 
 CHROMA_API void chroma_jxl_free(void* ptr) { free(ptr); }
 
-static int expand_rgba(
+static int expand_rgba_into(
     const uint8_t* src,
     size_t stride,
     int width,
     int height,
     int channels,
-    uint8_t** out_rgba
+    uint8_t* dest
 )
 {
-    size_t count;
-    uint8_t* rgba;
     int y;
     int x;
 
-    if (width <= 0 || height <= 0 || channels < 1 || channels > 4)
+    if (width <= 0 || height <= 0 || channels < 1 || channels > 4 || dest == NULL)
         return CHROMA_ERR;
-    count = (size_t)width * (size_t)height;
-    rgba = (uint8_t*)malloc(count * 4u);
-    if (rgba == NULL)
-        return CHROMA_ERR_NOMEM;
 
     for (y = 0; y < height; y++)
     {
@@ -65,7 +60,7 @@ static int expand_rgba(
         for (x = 0; x < width; x++)
         {
             const uint8_t* p = row + (size_t)x * (size_t)channels;
-            uint8_t* d = rgba + ((size_t)y * (size_t)width + (size_t)x) * 4u;
+            uint8_t* d = dest + ((size_t)y * (size_t)width + (size_t)x) * 4u;
             if (channels == 1)
             {
                 d[0] = d[1] = d[2] = p[0];
@@ -86,8 +81,49 @@ static int expand_rgba(
         }
     }
 
+    return CHROMA_OK;
+}
+
+static int expand_rgba(
+    const uint8_t* src,
+    size_t stride,
+    int width,
+    int height,
+    int channels,
+    uint8_t** out_rgba
+)
+{
+    uint8_t* rgba;
+    size_t count;
+
+    if (out_rgba == NULL)
+        return CHROMA_ERR;
+    count = (size_t)width * (size_t)height;
+    rgba = (uint8_t*)malloc(count * 4u);
+    if (rgba == NULL)
+        return CHROMA_ERR_NOMEM;
+    if (expand_rgba_into(src, stride, width, height, channels, rgba) != CHROMA_OK)
+    {
+        free(rgba);
+        return CHROMA_ERR;
+    }
     *out_rgba = rgba;
     return CHROMA_OK;
+}
+
+static int ticks_to_centiseconds(uint32_t duration_ticks, uint32_t tps_num, uint32_t tps_den)
+{
+    double seconds;
+    double cs;
+    if (duration_ticks == 0 || tps_num == 0)
+        return 0;
+    if (tps_den == 0)
+        tps_den = 1;
+    seconds = ((double)duration_ticks * (double)tps_den) / (double)tps_num;
+    cs = seconds * 100.0 + 0.5;
+    if (cs > 32767.0)
+        return 32767;
+    return (int)cs;
 }
 
 CHROMA_API int chroma_jxl_decode(
@@ -124,7 +160,8 @@ CHROMA_API int chroma_jxl_decode(
 
     if (
         JxlDecoderSetUnpremultiplyAlpha(decoder, JXL_TRUE) != JXL_DEC_SUCCESS
-        || JxlDecoderSubscribeEvents(decoder, JXL_DEC_BASIC_INFO | JXL_DEC_FULL_IMAGE) != JXL_DEC_SUCCESS
+        || JxlDecoderSubscribeEvents(decoder, JXL_DEC_BASIC_INFO | JXL_DEC_FULL_IMAGE)
+            != JXL_DEC_SUCCESS
         || JxlDecoderSetInput(decoder, data, size) != JXL_DEC_SUCCESS
     )
     {
@@ -149,11 +186,6 @@ CHROMA_API int chroma_jxl_decode(
             memset(&info, 0, sizeof(info));
             if (JxlDecoderGetBasicInfo(decoder, &info) != JXL_DEC_SUCCESS)
                 break;
-            if (info.have_animation)
-            {
-                result = CHROMA_ERR_ANIMATION;
-                break;
-            }
             if (info.xsize == 0 || info.ysize == 0 || info.xsize > 65535u || info.ysize > 65535u)
                 break;
             if (info.num_color_channels != 1 && info.num_color_channels != 3)
@@ -173,6 +205,7 @@ CHROMA_API int chroma_jxl_decode(
                 break;
             if (JxlDecoderImageOutBufferSize(decoder, &format, &pixel_bytes) != JXL_DEC_SUCCESS)
                 break;
+            free(pixels);
             pixels = (uint8_t*)malloc(pixel_bytes);
             if (pixels == NULL)
             {
@@ -186,14 +219,8 @@ CHROMA_API int chroma_jxl_decode(
 
         if (status == JXL_DEC_FULL_IMAGE)
         {
-            saw_image = 1;
-            continue;
-        }
-
-        if (status == JXL_DEC_SUCCESS)
-        {
             size_t stride;
-            if (!saw_image || pixels == NULL || height == 0 || pixel_bytes % (size_t)height != 0)
+            if (pixels == NULL || height == 0 || pixel_bytes % (size_t)height != 0)
                 break;
             stride = pixel_bytes / (size_t)height;
             if (stride < (size_t)width * (size_t)channels)
@@ -204,6 +231,14 @@ CHROMA_API int chroma_jxl_decode(
                 *out_width = width;
                 *out_height = height;
             }
+            saw_image = 1;
+            break;
+        }
+
+        if (status == JXL_DEC_SUCCESS)
+        {
+            if (!saw_image)
+                break;
             break;
         }
 
@@ -211,6 +246,222 @@ CHROMA_API int chroma_jxl_decode(
     }
 
     free(pixels);
+    JxlDecoderDestroy(decoder);
+    return result;
+}
+
+CHROMA_API int chroma_jxl_decode_anim(
+    const uint8_t* data,
+    size_t size,
+    uint8_t** out_rgba,
+    int** out_delays_cs,
+    int* out_width,
+    int* out_height,
+    int* out_frame_count,
+    int* out_repeat_count
+)
+{
+    JxlDecoder* decoder;
+    JxlBasicInfo info;
+    JxlFrameHeader frame_header;
+    JxlPixelFormat format;
+    JxlDecoderStatus status;
+    uint8_t* scratch = NULL;
+    uint8_t* packed = NULL;
+    int* delays = NULL;
+    size_t pixel_bytes = 0;
+    size_t frame_bytes = 0;
+    size_t packed_cap = 0;
+    int channels = 0;
+    int width = 0;
+    int height = 0;
+    int frame_count = 0;
+    int result = CHROMA_ERR;
+    uint32_t tps_num = 0;
+    uint32_t tps_den = 1;
+    uint32_t pending_duration = 0;
+    int have_animation = 0;
+
+    if (
+        out_rgba == NULL
+        || out_delays_cs == NULL
+        || out_width == NULL
+        || out_height == NULL
+        || out_frame_count == NULL
+        || out_repeat_count == NULL
+    )
+        return CHROMA_ERR;
+
+    *out_rgba = NULL;
+    *out_delays_cs = NULL;
+    *out_width = 0;
+    *out_height = 0;
+    *out_frame_count = 0;
+    *out_repeat_count = 1;
+    if (data == NULL || size == 0)
+        return CHROMA_ERR;
+
+    decoder = JxlDecoderCreate(NULL);
+    if (decoder == NULL)
+        return CHROMA_ERR_NOMEM;
+
+    if (
+        JxlDecoderSetUnpremultiplyAlpha(decoder, JXL_TRUE) != JXL_DEC_SUCCESS
+        || JxlDecoderSubscribeEvents(
+               decoder,
+               JXL_DEC_BASIC_INFO | JXL_DEC_FRAME | JXL_DEC_FULL_IMAGE
+           )
+            != JXL_DEC_SUCCESS
+        || JxlDecoderSetInput(decoder, data, size) != JXL_DEC_SUCCESS
+    )
+    {
+        JxlDecoderDestroy(decoder);
+        return CHROMA_ERR;
+    }
+    JxlDecoderCloseInput(decoder);
+
+    memset(&format, 0, sizeof(format));
+    format.data_type = JXL_TYPE_UINT8;
+    format.endianness = JXL_NATIVE_ENDIAN;
+    format.align = 0;
+
+    for (;;)
+    {
+        status = JxlDecoderProcessInput(decoder);
+        if (status == JXL_DEC_ERROR || status == JXL_DEC_NEED_MORE_INPUT)
+        {
+            result = CHROMA_ERR;
+            break;
+        }
+
+        if (status == JXL_DEC_BASIC_INFO)
+        {
+            memset(&info, 0, sizeof(info));
+            if (JxlDecoderGetBasicInfo(decoder, &info) != JXL_DEC_SUCCESS)
+                break;
+            if (info.xsize == 0 || info.ysize == 0 || info.xsize > 65535u || info.ysize > 65535u)
+                break;
+            if (info.num_color_channels != 1 && info.num_color_channels != 3)
+                break;
+            if (info.num_extra_channels > 1 || (info.num_extra_channels == 1 && info.alpha_bits == 0))
+                break;
+            width = (int)info.xsize;
+            height = (int)info.ysize;
+            channels = (int)info.num_color_channels + (info.alpha_bits > 0 ? 1 : 0);
+            format.num_channels = (uint32_t)channels;
+            frame_bytes = (size_t)width * (size_t)height * 4u;
+            have_animation = info.have_animation ? 1 : 0;
+            if (have_animation)
+            {
+                tps_num = info.animation.tps_numerator;
+                tps_den = info.animation.tps_denominator == 0 ? 1u : info.animation.tps_denominator;
+                *out_repeat_count = (int)info.animation.num_loops;
+            }
+            continue;
+        }
+
+        if (status == JXL_DEC_FRAME)
+        {
+            memset(&frame_header, 0, sizeof(frame_header));
+            if (JxlDecoderGetFrameHeader(decoder, &frame_header) != JXL_DEC_SUCCESS)
+                break;
+            pending_duration = have_animation ? frame_header.duration : 0;
+            continue;
+        }
+
+        if (status == JXL_DEC_NEED_IMAGE_OUT_BUFFER)
+        {
+            if (channels == 0)
+                break;
+            if (JxlDecoderImageOutBufferSize(decoder, &format, &pixel_bytes) != JXL_DEC_SUCCESS)
+                break;
+            free(scratch);
+            scratch = (uint8_t*)malloc(pixel_bytes);
+            if (scratch == NULL)
+            {
+                result = CHROMA_ERR_NOMEM;
+                break;
+            }
+            if (JxlDecoderSetImageOutBuffer(decoder, &format, scratch, pixel_bytes) != JXL_DEC_SUCCESS)
+                break;
+            continue;
+        }
+
+        if (status == JXL_DEC_FULL_IMAGE)
+        {
+            size_t stride;
+            uint8_t* grown;
+            int* grown_delays;
+            if (scratch == NULL || height == 0 || pixel_bytes % (size_t)height != 0)
+                break;
+            stride = pixel_bytes / (size_t)height;
+            if (stride < (size_t)width * (size_t)channels)
+                break;
+            if (frame_count >= CHROMA_MAX_FRAMES)
+                break;
+
+            if ((size_t)(frame_count + 1) * frame_bytes > packed_cap)
+            {
+                size_t new_cap = packed_cap == 0 ? frame_bytes * 4u : packed_cap * 2u;
+                while (new_cap < (size_t)(frame_count + 1) * frame_bytes)
+                    new_cap *= 2u;
+                grown = (uint8_t*)realloc(packed, new_cap);
+                if (grown == NULL)
+                {
+                    result = CHROMA_ERR_NOMEM;
+                    break;
+                }
+                packed = grown;
+                packed_cap = new_cap;
+            }
+
+            grown_delays = (int*)realloc(delays, sizeof(int) * (size_t)(frame_count + 1));
+            if (grown_delays == NULL)
+            {
+                result = CHROMA_ERR_NOMEM;
+                break;
+            }
+            delays = grown_delays;
+
+            if (
+                expand_rgba_into(
+                    scratch,
+                    stride,
+                    width,
+                    height,
+                    channels,
+                    packed + frame_bytes * (size_t)frame_count
+                )
+                != CHROMA_OK
+            )
+                break;
+
+            delays[frame_count] = ticks_to_centiseconds(pending_duration, tps_num, tps_den);
+            frame_count++;
+            continue;
+        }
+
+        if (status == JXL_DEC_SUCCESS)
+        {
+            if (frame_count <= 0 || packed == NULL || delays == NULL)
+                break;
+            *out_rgba = packed;
+            *out_delays_cs = delays;
+            *out_width = width;
+            *out_height = height;
+            *out_frame_count = frame_count;
+            packed = NULL;
+            delays = NULL;
+            result = CHROMA_OK;
+            break;
+        }
+
+        break;
+    }
+
+    free(scratch);
+    free(packed);
+    free(delays);
     JxlDecoderDestroy(decoder);
     return result;
 }

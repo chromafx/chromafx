@@ -75,4 +75,42 @@ internal static class NativePixels
 
         return image;
     }
+
+    /// <summary>
+    /// Builds an <see cref="Animation"/> from packed RGBA frames and GIF-centisecond delays.
+    /// </summary>
+    internal static Animation AnimationFromPacked(
+        ReadOnlySpan<byte> rgba,
+        ReadOnlySpan<int> delaysCs,
+        int width,
+        int height,
+        int frameCount,
+        ushort repeatCount
+    )
+    {
+        if (width <= 0 || height <= 0 || frameCount <= 0)
+            throw new ImageException("Decoded animation has invalid dimensions.");
+        if (delaysCs.Length < frameCount)
+            throw new ImageException("Decoded animation is missing frame delays.");
+
+        var frameBytes = checked(width * height * 4);
+        var expected = checked(frameBytes * frameCount);
+        if (rgba.Length < expected)
+            throw new ImageException("Decoded animation is shorter than its dimensions.");
+
+        var frames = new Image[frameCount];
+        var delays = new short[frameCount];
+        for (var i = 0; i < frameCount; i++)
+        {
+            frames[i] = ImageFromTight(rgba.Slice(i * frameBytes, frameBytes), width, height);
+            var delay = delaysCs[i];
+            if (delay < short.MinValue)
+                delay = short.MinValue;
+            else if (delay > short.MaxValue)
+                delay = short.MaxValue;
+            delays[i] = (short)delay;
+        }
+
+        return new Animation(frames, delays) { RepeatCount = repeatCount };
+    }
 }

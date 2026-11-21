@@ -11,13 +11,13 @@ Pure C# image processing library (PNG, JPEG, GIF, BMP, TGA, TIFF, ICO). Targets 
 | `src/ChromaFx.Processing` | Filters, Mutate/Clone, numerics; `IFilter` / `Quantize` / `DitherMethod` in `ChromaFx.Processing.Filters`; resampling enum `ResamplingFilter` + `ResamplingKernels.Create` in `…Filters.Resampling` |
 | `src/ChromaFx.PixelArt` | Opt-in Scale2x / Scale3x / Hq2x–4x / CleanEdge / Eagle / SaI and RotateSprite / CleanEdgeRotate (not in meta-package) |
 | `src/ChromaFx.Retro` | Opt-in retro palettes + Bayer, UI/mode helpers, Millennium + classic FX + plasma/fire (not in meta-package) |
-| `src/ChromaFx.Native` | Opt-in still WebP/AVIF/JPEG XL (not in meta-package; build RID libs with `native/build.sh`) |
+| `src/ChromaFx.Native` | Opt-in WebP/AVIF/JPEG XL (animated decode in tree / Unreleased; not in meta-package; build RID libs with `native/build.sh`) |
 | `src/ChromaFx` | Meta-package only (refs + `buildTransitive` usings) |
 | `tests/ChromaFx.Tests` | Unit + golden-file regression |
 | `tests/ChromaFx.Benchmarks` | BenchmarkDotNet |
 | `samples/TextArt` | ASCII / ANSI / HTML / Kitty / iTerm2 smoke |
 | `samples/PixelArt` | PixelArt upscalers → PNG out |
-| `samples/NativeCodecs` | Native still WebP/AVIF/JXL round-trip (needs `native/build.sh`) |
+| `samples/NativeCodecs` | Native WebP/AVIF/JXL still round-trip (needs `native/build.sh`) |
 
 This repository is the library only. Sibling folders in the local workspace (`chromafx-site`, `github-org`) are documented in the workspace root `AGENTS.md`.
 

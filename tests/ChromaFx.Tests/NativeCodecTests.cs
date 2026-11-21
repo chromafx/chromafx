@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+using ChromaFx.Core;
+using ChromaFx.IO.Formats;
 using ChromaFx.Native.Encoders;
 using ChromaFx.Native.Formats.Avif;
 using ChromaFx.Native.Formats.Jxl;
@@ -23,10 +25,13 @@ using Xunit;
 namespace ChromaFx.Tests;
 
 /// <summary>
-/// Still WebP, AVIF, and JPEG XL round-trips. Requires native/build.sh for this machine.
+/// WebP, AVIF, and JPEG XL still round-trips + animated decode. Requires native/build.sh for this machine.
 /// </summary>
 public class NativeCodecTests
 {
+    private static string AnimFixture(string name) =>
+        Path.Combine("./ExpectedResults/Formats/NativeAnim", name);
+
     [Fact]
     public void WebPProbeMatchesRiffHeader()
     {
@@ -126,6 +131,70 @@ public class NativeCodecTests
         src.Save(ms, new WebPEncoder { Lossless = true });
         var loaded = Image.Load(ms.ToArray());
         AssertPixels(src, loaded, maxChannelDelta: 0);
+    }
+
+    [Fact]
+    public void AvifAnimated_DecodesFramesAndImageLoadReturnsFrame0() =>
+        AssertAnimatedDecode(new AvifFormat(), AnimFixture("anim-2x2.avif"), expectedRepeat: 1);
+
+    [Fact]
+    public void JxlAnimated_DecodesFramesAndImageLoadReturnsFrame0() =>
+        AssertAnimatedDecode(new JxlFormat(), AnimFixture("anim-2x2.jxl"), expectedRepeat: 0);
+
+    [Fact]
+    public void WebPAnimated_DecodesFramesAndImageLoadReturnsFrame0() =>
+        AssertAnimatedDecode(new WebPFormat(), AnimFixture("anim-2x2.webp"), expectedRepeat: 0);
+
+    [Fact]
+    public void AvifStill_AnimationLoadIsSingleFrame()
+    {
+        var src = Sample(8, 8, alpha: true);
+        using var ms = new MemoryStream();
+        src.Save(ms, new AvifEncoder { Lossless = true });
+        ms.Position = 0;
+        var anim = new AvifFormat().DecodeAnimation(ms);
+        Assert.Single(anim);
+        AssertPixels(src, anim[0], maxChannelDelta: 0);
+    }
+
+    [Fact]
+    public void NativeAnimationEncode_MultiFrameThrows()
+    {
+        var anim = new Animation([Sample(2, 2, alpha: false), Sample(2, 2, alpha: true)], 10);
+        using var ms = new MemoryStream();
+        using var writer = new BinaryWriter(ms);
+        Assert.Throws<NotSupportedException>(() => new AvifFormat().Encode(writer, anim));
+        Assert.Throws<NotSupportedException>(() => new JxlFormat().Encode(writer, anim));
+        Assert.Throws<NotSupportedException>(() => new WebPFormat().Encode(writer, anim));
+    }
+
+    private static void AssertAnimatedDecode(
+        IAnimationFormat format,
+        string path,
+        ushort expectedRepeat
+    )
+    {
+        Assert.True(File.Exists(path), $"Missing fixture {path}; run native/tools/gen_anim_fixtures.sh");
+        using (var stream = File.OpenRead(path))
+        {
+            var anim = format.DecodeAnimation(stream);
+            Assert.Equal(2, anim.Count);
+            Assert.Equal(2, anim[0].Width);
+            Assert.Equal(2, anim[0].Height);
+            Assert.Equal(expectedRepeat, anim.RepeatCount);
+            Assert.True(anim.GetFrameDelay(0) >= 0);
+            Assert.True(anim.GetFrameDelay(1) >= 0);
+            // Solid red then solid blue (fixtures from gen_anim_fixtures).
+            Assert.Equal(255, anim[0][0, 0].Red);
+            Assert.Equal(0, anim[0][0, 0].Blue);
+            Assert.Equal(0, anim[1][0, 0].Red);
+            Assert.Equal(255, anim[1][0, 0].Blue);
+        }
+
+        var frame0 = Image.Load(path);
+        Assert.Equal(2, frame0.Width);
+        Assert.Equal(255, frame0[0, 0].Red);
+        Assert.Equal(0, frame0[0, 0].Blue);
     }
 
     private static Image RoundTrip(Image src, IImageEncoder encoder, IImageFormat format)

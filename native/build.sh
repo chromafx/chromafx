@@ -275,9 +275,9 @@ copy_shared() {
   echo "staged $OUT/$dest_name"
 }
 
-echo "building libwebp $LIBWEBP_TAG for $RID"
+echo "building libwebp $LIBWEBP_TAG (static + demux → libchromawebp) for $RID"
 clone "https://github.com/webmproject/libwebp.git" "$LIBWEBP_TAG" "$CACHE/libwebp"
-# Keep sharpyuv inside libwebp so the package does not need a second dylib.
+# Keep sharpyuv static so chromawebp does not need a second dylib.
 if ! grep -q 'add_library(sharpyuv STATIC' "$CACHE/libwebp/CMakeLists.txt"; then
   python3 - "$CACHE/libwebp/CMakeLists.txt" <<'PY'
 import pathlib, sys
@@ -290,10 +290,11 @@ if old not in text:
 path.write_text(text.replace(old, new, 1))
 PY
 fi
-rm -rf "$CACHE/libwebp-build"
+rm -rf "$CACHE/libwebp-build" "$CACHE/libwebp-install"
 run_cmake -S "$CACHE/libwebp" -B "$CACHE/libwebp-build" \
   -DCMAKE_BUILD_TYPE=Release \
-  -DBUILD_SHARED_LIBS=ON \
+  -DBUILD_SHARED_LIBS=OFF \
+  -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
   -DWEBP_LINK_STATIC=ON \
   -DWEBP_BUILD_ANIM_UTILS=OFF \
   -DWEBP_BUILD_CWEBP=OFF \
@@ -309,7 +310,30 @@ run_cmake -S "$CACHE/libwebp" -B "$CACHE/libwebp-build" \
   -DCMAKE_INSTALL_PREFIX="$CACHE/libwebp-install"
 cmake_build "$CACHE/libwebp-build"
 cmake_install "$CACHE/libwebp-build"
-copy_shared "$CACHE/libwebp-install" webp
+
+WEBP_LIB="$(find "$CACHE/libwebp-install" "$CACHE/libwebp-build" \( -name 'libwebp.a' -o -name 'webp.lib' \) -type f -print -quit)"
+WEBPDEMUX_LIB="$(find "$CACHE/libwebp-install" "$CACHE/libwebp-build" \( -name 'libwebpdemux.a' -o -name 'webpdemux.lib' \) -type f -print -quit)"
+SHARPYUV_LIB="$(find "$CACHE/libwebp-install" "$CACHE/libwebp-build" \( -name 'libsharpyuv.a' -o -name 'sharpyuv.lib' \) -type f -print -quit || true)"
+if [[ -z "$WEBP_LIB" || -z "$WEBPDEMUX_LIB" ]]; then
+  echo "missing static webp library (webp=$WEBP_LIB demux=$WEBPDEMUX_LIB)" >&2
+  exit 1
+fi
+
+rm -rf "$CACHE/chromawebp-build"
+WEBP_CMAKE_ARGS=(
+  -DCMAKE_BUILD_TYPE=Release
+  -DWEBP_INCLUDE_DIR="$CACHE/libwebp-install/include"
+  -DWEBP_LIBRARY="$WEBP_LIB"
+  -DWEBPDEMUX_LIBRARY="$WEBPDEMUX_LIB"
+)
+if [[ -n "$SHARPYUV_LIB" ]]; then
+  WEBP_CMAKE_ARGS+=(-DSHARPYUV_LIBRARY="$SHARPYUV_LIB")
+fi
+run_cmake -S "$ROOT/native/chroma_webp" -B "$CACHE/chromawebp-build" "${WEBP_CMAKE_ARGS[@]}"
+cmake_build "$CACHE/chromawebp-build"
+copy_shared "$CACHE/chromawebp-build" chromawebp
+# Remove legacy standalone libwebp if a previous build left it.
+rm -f "$OUT/libwebp.dylib" "$OUT/libwebp.so" "$OUT/webp.dll"
 
 echo "building libavif $LIBAVIF_TAG (dav1d decode, libaom encode) for $RID"
 clone "https://github.com/AOMediaCodec/libavif.git" "$LIBAVIF_TAG" "$CACHE/libavif"
@@ -432,12 +456,12 @@ cmake_build "$CACHE/chromajxl-build"
 copy_shared "$CACHE/chromajxl-build" chromajxl
 
 if [[ "$RID" == osx-* ]]; then
-  if otool -L "$OUT/libwebp.dylib" "$OUT/libchromaavif.dylib" "$OUT/libchromajxl.dylib" | grep -E 'sharpyuv|libavif|libdav1d|libaom|libjxl|libhwy|brotli|skcms'; then
+  if otool -L "$OUT/libchromawebp.dylib" "$OUT/libchromaavif.dylib" "$OUT/libchromajxl.dylib" | grep -E 'sharpyuv|libwebp|libavif|libdav1d|libaom|libjxl|libhwy|brotli|skcms'; then
     echo "shared libraries still depend on another codec dylib" >&2
     exit 1
   fi
 elif [[ "$RID" == linux-* ]]; then
-  if ldd "$OUT/libwebp.so" "$OUT/libchromaavif.so" "$OUT/libchromajxl.so" | grep -E 'sharpyuv|libavif|libdav1d|libaom|libjxl|libhwy|brotli|skcms'; then
+  if ldd "$OUT/libchromawebp.so" "$OUT/libchromaavif.so" "$OUT/libchromajxl.so" | grep -E 'sharpyuv|libwebp|libavif|libdav1d|libaom|libjxl|libhwy|brotli|skcms'; then
     echo "shared libraries still depend on another codec so" >&2
     exit 1
   fi

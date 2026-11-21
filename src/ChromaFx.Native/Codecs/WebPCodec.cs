@@ -36,26 +36,11 @@ internal static class WebPCodec
         {
             fixed (byte* data = bytes)
             {
-                WebPBitstreamFeatures features;
-                var status = WebPLib.WebPGetFeaturesInternal(
-                    data,
-                    (nuint)bytes.Length,
-                    &features,
-                    WebPLib.DecoderAbiVersion
-                );
-                if (status != 0)
-                    throw new ImageException("WebP bitstream could not be read.");
-                if (features.HasAnimation != 0)
-                {
-                    throw new NotSupportedException(
-                        "Animated WebP is not supported. ChromaFx.Native decodes still images only."
-                    );
-                }
-
+                byte* pixels = null;
                 int width;
                 int height;
-                var pixels = WebPLib.WebPDecodeRGBA(data, (nuint)bytes.Length, &width, &height);
-                if (pixels == null || width <= 0 || height <= 0)
+                var status = WebPLib.Decode(data, (nuint)bytes.Length, &pixels, &width, &height);
+                if (status != WebPLib.Ok || pixels == null || width <= 0 || height <= 0)
                     throw new ImageException("WebP decode failed.");
 
                 try
@@ -72,7 +57,67 @@ internal static class WebPCodec
                 }
                 finally
                 {
-                    WebPLib.WebPFree(pixels);
+                    WebPLib.Free(pixels);
+                }
+            }
+        }
+    }
+
+    internal static Animation DecodeAnimation(Stream stream)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        NativeLibraryLoader.EnsureRegistered();
+        var bytes = NativePixels.ReadStream(stream);
+        if (bytes.Length == 0)
+            throw new ImageException("WebP data is empty.");
+
+        unsafe
+        {
+            fixed (byte* data = bytes)
+            {
+                byte* pixels = null;
+                int* delays = null;
+                int width;
+                int height;
+                int frameCount;
+                int repeatCount;
+                var status = WebPLib.DecodeAnim(
+                    data,
+                    (nuint)bytes.Length,
+                    &pixels,
+                    &delays,
+                    &width,
+                    &height,
+                    &frameCount,
+                    &repeatCount
+                );
+                if (
+                    status != WebPLib.Ok
+                    || pixels == null
+                    || delays == null
+                    || width <= 0
+                    || height <= 0
+                    || frameCount <= 0
+                )
+                    throw new ImageException("WebP animation decode failed.");
+
+                try
+                {
+                    var frameBytes = checked(width * height * 4);
+                    var total = checked(frameBytes * frameCount);
+                    return NativePixels.AnimationFromPacked(
+                        new ReadOnlySpan<byte>(pixels, total),
+                        new ReadOnlySpan<int>(delays, frameCount),
+                        width,
+                        height,
+                        frameCount,
+                        (ushort)Math.Clamp(repeatCount, 0, ushort.MaxValue)
+                    );
+                }
+                finally
+                {
+                    WebPLib.Free(pixels);
+                    WebPLib.Free(delays);
                 }
             }
         }
@@ -92,23 +137,18 @@ internal static class WebPCodec
                 fixed (byte* rgba = rented)
                 {
                     byte* output = null;
-                    nuint size = lossless
-                        ? WebPLib.WebPEncodeLosslessRGBA(
-                            rgba,
-                            image.Width,
-                            image.Height,
-                            image.Width * 4,
-                            &output
-                        )
-                        : WebPLib.WebPEncodeRGBA(
-                            rgba,
-                            image.Width,
-                            image.Height,
-                            image.Width * 4,
-                            quality,
-                            &output
-                        );
-                    if (size == 0 || output == null)
+                    nuint size = 0;
+                    var status = WebPLib.Encode(
+                        rgba,
+                        image.Width,
+                        image.Height,
+                        image.Width * 4,
+                        quality,
+                        lossless ? 1 : 0,
+                        &output,
+                        &size
+                    );
+                    if (status != WebPLib.Ok || output == null || size == 0)
                         throw new ImageException("WebP encode failed.");
 
                     try
@@ -117,7 +157,7 @@ internal static class WebPCodec
                     }
                     finally
                     {
-                        WebPLib.WebPFree(output);
+                        WebPLib.Free(output);
                     }
                 }
             }
