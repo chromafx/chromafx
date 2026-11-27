@@ -311,10 +311,11 @@ run_cmake -S "$CACHE/libwebp" -B "$CACHE/libwebp-build" \
 cmake_build "$CACHE/libwebp-build"
 cmake_install "$CACHE/libwebp-build"
 
-WEBP_LIB="$(find "$CACHE/libwebp-install" "$CACHE/libwebp-build" \( -name 'libwebp.a' -o -name 'webp.lib' \) -type f -print -quit)"
-WEBPDEMUX_LIB="$(find "$CACHE/libwebp-install" "$CACHE/libwebp-build" \( -name 'libwebpdemux.a' -o -name 'webpdemux.lib' \) -type f -print -quit)"
-WEBPMUX_LIB="$(find "$CACHE/libwebp-install" "$CACHE/libwebp-build" \( -name 'libwebpmux.a' -o -name 'webpmux.lib' \) -type f -print -quit)"
-SHARPYUV_LIB="$(find "$CACHE/libwebp-install" "$CACHE/libwebp-build" \( -name 'libsharpyuv.a' -o -name 'sharpyuv.lib' \) -type f -print -quit || true)"
+# Unix: libwebp.a; MSVC install uses libwebp.lib (prefix kept), older trees may use webp.lib.
+WEBP_LIB="$(find "$CACHE/libwebp-install" "$CACHE/libwebp-build" \( -name 'libwebp.a' -o -name 'libwebp.lib' -o -name 'webp.lib' \) -type f -print -quit)"
+WEBPDEMUX_LIB="$(find "$CACHE/libwebp-install" "$CACHE/libwebp-build" \( -name 'libwebpdemux.a' -o -name 'libwebpdemux.lib' -o -name 'webpdemux.lib' \) -type f -print -quit)"
+WEBPMUX_LIB="$(find "$CACHE/libwebp-install" "$CACHE/libwebp-build" \( -name 'libwebpmux.a' -o -name 'libwebpmux.lib' -o -name 'webpmux.lib' \) -type f -print -quit)"
+SHARPYUV_LIB="$(find "$CACHE/libwebp-install" "$CACHE/libwebp-build" \( -name 'libsharpyuv.a' -o -name 'libsharpyuv.lib' -o -name 'sharpyuv.lib' \) -type f -print -quit || true)"
 if [[ -z "$WEBP_LIB" || -z "$WEBPDEMUX_LIB" || -z "$WEBPMUX_LIB" ]]; then
   echo "missing static webp library (webp=$WEBP_LIB demux=$WEBPDEMUX_LIB mux=$WEBPMUX_LIB)" >&2
   exit 1
