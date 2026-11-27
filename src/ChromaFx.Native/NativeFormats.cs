@@ -20,23 +20,22 @@ namespace ChromaFx.Native;
 
 /// <summary>
 /// Ids for the codecs shipped by ChromaFx.Native.
-/// Referencing this package registers the codecs.
-/// Animated decode is supported; animated encode is not yet.
+/// Referencing this package registers the codecs (still and animated).
 /// </summary>
 public static class NativeFormats
 {
     /// <summary>
-    /// WebP. Animated decode is supported; animated encode is not yet.
+    /// WebP (still and animated).
     /// </summary>
     public static readonly ImageFormatKey WebP = new("webp");
 
     /// <summary>
-    /// AVIF. Animated decode is supported; animated encode is not yet.
+    /// AVIF (still and animated).
     /// </summary>
     public static readonly ImageFormatKey Avif = new("avif");
 
     /// <summary>
-    /// JPEG XL. Animated decode is supported; animated encode is not yet.
+    /// JPEG XL (still and animated).
     /// </summary>
     public static readonly ImageFormatKey JpegXl = new("jxl");
 }

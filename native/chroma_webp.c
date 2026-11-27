@@ -19,6 +19,7 @@
 #include <webp/decode.h>
 #include <webp/demux.h>
 #include <webp/encode.h>
+#include <webp/mux.h>
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -316,5 +317,143 @@ CHROMA_API int chroma_webp_encode(
     WebPFree(encoded);
     *out_data = copy;
     *out_size = size;
+    return CHROMA_OK;
+}
+
+CHROMA_API int chroma_webp_encode_anim(
+    const uint8_t* rgba,
+    const int* delays_cs,
+    int width,
+    int height,
+    int frame_count,
+    int repeat_count,
+    int quality,
+    int lossless,
+    uint8_t** out_data,
+    size_t* out_size
+)
+{
+    WebPAnimEncoderOptions opts;
+    WebPAnimEncoder* enc = NULL;
+    WebPConfig config;
+    WebPData webp;
+    uint8_t* copy;
+    size_t frame_bytes;
+    int stride;
+    int timestamp_ms;
+    int i;
+    int q;
+
+    if (out_data == NULL || out_size == NULL)
+        return CHROMA_ERR;
+    *out_data = NULL;
+    *out_size = 0;
+    memset(&webp, 0, sizeof(webp));
+    if (
+        rgba == NULL
+        || delays_cs == NULL
+        || width <= 0
+        || height <= 0
+        || frame_count <= 0
+        || frame_count > CHROMA_MAX_FRAMES
+    )
+        return CHROMA_ERR;
+
+    q = quality;
+    if (q < 0)
+        q = 0;
+    if (q > 100)
+        q = 100;
+
+    if (!WebPAnimEncoderOptionsInit(&opts))
+        return CHROMA_ERR;
+    /* GIF RepeatCount matches WebP loop_count (0 = infinite). */
+    opts.anim_params.loop_count = repeat_count <= 0 ? 0 : repeat_count;
+
+    enc = WebPAnimEncoderNew(width, height, &opts);
+    if (enc == NULL)
+        return CHROMA_ERR_NOMEM;
+
+    if (!WebPConfigInit(&config))
+    {
+        WebPAnimEncoderDelete(enc);
+        return CHROMA_ERR;
+    }
+    if (lossless)
+    {
+        if (!WebPConfigLosslessPreset(&config, 0))
+        {
+            WebPAnimEncoderDelete(enc);
+            return CHROMA_ERR;
+        }
+    }
+    else
+    {
+        config.lossless = 0;
+        config.quality = (float)q;
+    }
+
+    stride = width * 4;
+    frame_bytes = (size_t)stride * (size_t)height;
+    timestamp_ms = 0;
+    for (i = 0; i < frame_count; i++)
+    {
+        WebPPicture pic;
+        int delay_cs;
+        int delay_ms;
+
+        if (!WebPPictureInit(&pic))
+        {
+            WebPAnimEncoderDelete(enc);
+            return CHROMA_ERR;
+        }
+        pic.width = width;
+        pic.height = height;
+        pic.use_argb = 1;
+        if (!WebPPictureImportRGBA(&pic, rgba + frame_bytes * (size_t)i, stride))
+        {
+            WebPPictureFree(&pic);
+            WebPAnimEncoderDelete(enc);
+            return CHROMA_ERR;
+        }
+        if (!WebPAnimEncoderAdd(enc, &pic, timestamp_ms, &config))
+        {
+            WebPPictureFree(&pic);
+            WebPAnimEncoderDelete(enc);
+            return CHROMA_ERR;
+        }
+        WebPPictureFree(&pic);
+
+        delay_cs = delays_cs[i] < 0 ? 0 : delays_cs[i];
+        delay_ms = delay_cs * 10;
+        if (delay_ms <= 0)
+            delay_ms = 10;
+        timestamp_ms += delay_ms;
+    }
+
+    if (!WebPAnimEncoderAdd(enc, NULL, timestamp_ms, &config))
+    {
+        WebPAnimEncoderDelete(enc);
+        return CHROMA_ERR;
+    }
+    if (!WebPAnimEncoderAssemble(enc, &webp) || webp.bytes == NULL || webp.size == 0)
+    {
+        WebPDataClear(&webp);
+        WebPAnimEncoderDelete(enc);
+        return CHROMA_ERR;
+    }
+
+    copy = (uint8_t*)malloc(webp.size);
+    if (copy == NULL)
+    {
+        WebPDataClear(&webp);
+        WebPAnimEncoderDelete(enc);
+        return CHROMA_ERR_NOMEM;
+    }
+    memcpy(copy, webp.bytes, webp.size);
+    *out_data = copy;
+    *out_size = webp.size;
+    WebPDataClear(&webp);
+    WebPAnimEncoderDelete(enc);
     return CHROMA_OK;
 }

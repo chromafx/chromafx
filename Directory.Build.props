@@ -15,6 +15,6 @@
 
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://chromafx.net</PackageProjectUrl>
-    <PackageReleaseNotes>0.6.6: Retro Fire optional imageInfluence (luma-seeded heat; default 0 = classic). See CHANGELOG.md. API may still change before 1.0 (0.x).</PackageReleaseNotes>
+    <PackageReleaseNotes>0.6.7: Native animated WebP/AVIF/JPEG XL decode + encode (Animation.Load/Save, IAnimationEncoder; Image.Load → frame 0). See CHANGELOG.md. API may still change before 1.0 (0.x).</PackageReleaseNotes>
   </PropertyGroup>
 </Project>

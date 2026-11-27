@@ -23,9 +23,9 @@ using ChromaFx.Native.Formats.WebP;
 namespace ChromaFx.Native.Encoders;
 
 /// <summary>
-/// Typed still-WebP encoder.
+/// Typed WebP still-image and animation encoder.
 /// </summary>
-public sealed class WebPEncoder : IImageEncoder
+public sealed class WebPEncoder : IImageEncoder, IAnimationEncoder
 {
     /// <summary>
     /// Default lossy quality (0–100), matching cwebp.
@@ -52,5 +52,14 @@ public sealed class WebPEncoder : IImageEncoder
         ArgumentNullException.ThrowIfNull(image);
         using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
         new WebPFormat().Encode(writer, image, Quality, Lossless);
+    }
+
+    /// <inheritdoc />
+    public void Encode(Stream stream, Animation animation)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(animation);
+        using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
+        new WebPFormat().Encode(writer, animation, Quality, Lossless);
     }
 }

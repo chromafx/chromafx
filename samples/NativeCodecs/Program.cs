@@ -58,7 +58,7 @@ Console.WriteLine(
 Console.WriteLine($"Output: {options.OutputDir}");
 Console.WriteLine($"  {Path.GetFileName(pngPath)} ({source.Width}×{source.Height})");
 Console.WriteLine();
-Console.WriteLine("WebP / AVIF / JPEG XL still round-trips (lossless). Requires native/build.sh.");
+Console.WriteLine("WebP / AVIF / JPEG XL still + animated round-trips (lossless). Requires native/build.sh.");
 Console.WriteLine();
 
 var codecs = new (string Label, string Ext, IImageEncoder Encoder)[]
@@ -99,6 +99,48 @@ if (failures == codecs.Length)
     Console.Error.WriteLine();
     Console.Error.WriteLine("All native codecs failed — nothing to round-trip.");
     return 2;
+}
+
+Console.WriteLine();
+Console.WriteLine("Animated lossless round-trips (2 frames).");
+var frame1 = CreateDemo(Math.Max(8, source.Width / 4), Math.Max(8, source.Height / 4));
+frame1[0, 0] = new Color(255, 0, 0, 255);
+var animSource = new Animation(
+    [CreateDemo(frame1.Width, frame1.Height), frame1],
+    (short)10
+)
+{
+    RepeatCount = 0,
+};
+
+var animCodecs = new (string Label, string Ext, IAnimationEncoder Encoder)[]
+{
+    ("WebP", "webp", new WebPEncoder { Lossless = true }),
+    ("AVIF", "avif", new AvifEncoder { Lossless = true }),
+    ("JPEG XL", "jxl", new JxlEncoder { Lossless = true }),
+};
+
+foreach (var (label, ext, encoder) in animCodecs)
+{
+    var animPath = Path.Combine(options.OutputDir, $"03-anim.{ext}");
+    try
+    {
+        animSource.Save(animPath, encoder);
+        var loaded = Animation.Load(animPath);
+        Console.WriteLine(
+            $"  {label,-8} → {Path.GetFileName(animPath)} ({new FileInfo(animPath).Length:N0} bytes) frames={loaded.Count} repeat={loaded.RepeatCount}"
+        );
+        if (loaded.Count != 2)
+        {
+            failures++;
+            Console.Error.WriteLine($"           expected 2 frames, got {loaded.Count}");
+        }
+    }
+    catch (Exception ex)
+    {
+        failures++;
+        Console.Error.WriteLine($"  {label,-8} anim failed: {ex.Message}");
+    }
 }
 
 Console.WriteLine();
@@ -219,7 +261,7 @@ static void PrintUsage()
 {
     Console.WriteLine(
         """
-        NativeCodecs — WebP / AVIF / JPEG XL still round-trip smoke demo
+        NativeCodecs — WebP / AVIF / JPEG XL still + animated round-trip smoke demo
 
         Usage:
           dotnet run --project samples/NativeCodecs -- [image] [options]

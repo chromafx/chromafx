@@ -630,3 +630,213 @@ CHROMA_API int chroma_jxl_encode(
     JxlEncoderDestroy(encoder);
     return CHROMA_OK;
 }
+
+CHROMA_API int chroma_jxl_encode_anim(
+    const uint8_t* rgba,
+    const int* delays_cs,
+    int width,
+    int height,
+    int frame_count,
+    int repeat_count,
+    int quality,
+    int lossless,
+    uint8_t** out_bytes,
+    size_t* out_size
+)
+{
+    JxlEncoder* encoder;
+    JxlEncoderFrameSettings* settings;
+    JxlBasicInfo info;
+    JxlColorEncoding color;
+    JxlExtraChannelInfo extra;
+    JxlPixelFormat format;
+    JxlEncoderStatus status;
+    uint8_t* compressed;
+    uint8_t* next;
+    size_t cap;
+    size_t avail;
+    int lossless_frame;
+    float distance;
+    size_t frame_bytes;
+    size_t stride;
+    int i;
+    uint32_t num_loops;
+
+    if (out_bytes == NULL || out_size == NULL)
+        return CHROMA_ERR;
+    *out_bytes = NULL;
+    *out_size = 0;
+    if (
+        rgba == NULL
+        || delays_cs == NULL
+        || width <= 0
+        || height <= 0
+        || frame_count <= 0
+        || frame_count > CHROMA_MAX_FRAMES
+    )
+        return CHROMA_ERR;
+    if (quality < 0)
+        quality = 0;
+    if (quality > 100)
+        quality = 100;
+
+    lossless_frame = lossless || quality == 100;
+    distance = lossless_frame ? 0.f : (float)(100 - quality) / 10.f;
+    /* GIF RepeatCount matches JXL num_loops (0 = infinite). */
+    num_loops = repeat_count <= 0 ? 0u : (uint32_t)repeat_count;
+
+    encoder = JxlEncoderCreate(NULL);
+    if (encoder == NULL)
+        return CHROMA_ERR_NOMEM;
+
+    JxlEncoderInitBasicInfo(&info);
+    info.xsize = (uint32_t)width;
+    info.ysize = (uint32_t)height;
+    info.bits_per_sample = 8;
+    info.num_color_channels = 3;
+    info.num_extra_channels = 1;
+    info.alpha_bits = 8;
+    info.alpha_premultiplied = JXL_FALSE;
+    info.uses_original_profile = lossless_frame ? JXL_TRUE : JXL_FALSE;
+    info.have_animation = JXL_TRUE;
+    info.animation.tps_numerator = 100;
+    info.animation.tps_denominator = 1;
+    info.animation.num_loops = num_loops;
+    info.animation.have_timecodes = JXL_FALSE;
+    if (JxlEncoderSetBasicInfo(encoder, &info) != JXL_ENC_SUCCESS)
+    {
+        JxlEncoderDestroy(encoder);
+        return CHROMA_ERR;
+    }
+
+    memset(&color, 0, sizeof(color));
+    JxlColorEncodingSetToSRGB(&color, JXL_FALSE);
+    if (JxlEncoderSetColorEncoding(encoder, &color) != JXL_ENC_SUCCESS)
+    {
+        JxlEncoderDestroy(encoder);
+        return CHROMA_ERR;
+    }
+
+    JxlEncoderInitExtraChannelInfo(JXL_CHANNEL_ALPHA, &extra);
+    extra.bits_per_sample = 8;
+    if (JxlEncoderSetExtraChannelInfo(encoder, 0, &extra) != JXL_ENC_SUCCESS)
+    {
+        JxlEncoderDestroy(encoder);
+        return CHROMA_ERR;
+    }
+
+    settings = JxlEncoderFrameSettingsCreate(encoder, NULL);
+    if (settings == NULL)
+    {
+        JxlEncoderDestroy(encoder);
+        return CHROMA_ERR_NOMEM;
+    }
+    if (
+        JxlEncoderFrameSettingsSetOption(settings, JXL_ENC_FRAME_SETTING_EFFORT, 5) != JXL_ENC_SUCCESS
+    )
+    {
+        JxlEncoderDestroy(encoder);
+        return CHROMA_ERR;
+    }
+    if (lossless_frame)
+    {
+        if (JxlEncoderSetFrameLossless(settings, JXL_TRUE) != JXL_ENC_SUCCESS)
+        {
+            JxlEncoderDestroy(encoder);
+            return CHROMA_ERR;
+        }
+    }
+    else if (JxlEncoderSetFrameDistance(settings, distance) != JXL_ENC_SUCCESS)
+    {
+        JxlEncoderDestroy(encoder);
+        return CHROMA_ERR;
+    }
+
+    memset(&format, 0, sizeof(format));
+    format.num_channels = 4;
+    format.data_type = JXL_TYPE_UINT8;
+    format.endianness = JXL_NATIVE_ENDIAN;
+    format.align = 0;
+
+    stride = (size_t)width * 4u;
+    frame_bytes = stride * (size_t)height;
+    for (i = 0; i < frame_count; i++)
+    {
+        JxlFrameHeader header;
+        uint32_t duration;
+
+        JxlEncoderInitFrameHeader(&header);
+        duration = delays_cs[i] < 0 ? 0u : (uint32_t)delays_cs[i];
+        if (duration == 0)
+            duration = 1;
+        header.duration = duration;
+        if (JxlEncoderSetFrameHeader(settings, &header) != JXL_ENC_SUCCESS)
+        {
+            JxlEncoderDestroy(encoder);
+            return CHROMA_ERR;
+        }
+        if (
+            JxlEncoderAddImageFrame(
+                settings,
+                &format,
+                rgba + frame_bytes * (size_t)i,
+                frame_bytes
+            )
+            != JXL_ENC_SUCCESS
+        )
+        {
+            JxlEncoderDestroy(encoder);
+            return CHROMA_ERR;
+        }
+    }
+    JxlEncoderCloseInput(encoder);
+
+    cap = 65536;
+    compressed = (uint8_t*)malloc(cap);
+    if (compressed == NULL)
+    {
+        JxlEncoderDestroy(encoder);
+        return CHROMA_ERR_NOMEM;
+    }
+    next = compressed;
+    avail = cap;
+    for (;;)
+    {
+        size_t used;
+        uint8_t* grown;
+        size_t new_cap;
+        status = JxlEncoderProcessOutput(encoder, &next, &avail);
+        if (status == JXL_ENC_SUCCESS)
+            break;
+        if (status != JXL_ENC_NEED_MORE_OUTPUT)
+        {
+            free(compressed);
+            JxlEncoderDestroy(encoder);
+            return CHROMA_ERR;
+        }
+        used = (size_t)(next - compressed);
+        new_cap = cap * 2u;
+        grown = (uint8_t*)realloc(compressed, new_cap);
+        if (grown == NULL)
+        {
+            free(compressed);
+            JxlEncoderDestroy(encoder);
+            return CHROMA_ERR_NOMEM;
+        }
+        compressed = grown;
+        next = compressed + used;
+        avail = new_cap - used;
+        cap = new_cap;
+    }
+
+    *out_size = (size_t)(next - compressed);
+    if (*out_size == 0)
+    {
+        free(compressed);
+        JxlEncoderDestroy(encoder);
+        return CHROMA_ERR;
+    }
+    *out_bytes = compressed;
+    JxlEncoderDestroy(encoder);
+    return CHROMA_OK;
+}

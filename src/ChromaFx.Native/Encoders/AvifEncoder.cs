@@ -23,9 +23,9 @@ using ChromaFx.Native.Formats.Avif;
 namespace ChromaFx.Native.Encoders;
 
 /// <summary>
-/// Typed still-AVIF encoder.
+/// Typed AVIF still-image and animation encoder.
 /// </summary>
-public sealed class AvifEncoder : IImageEncoder
+public sealed class AvifEncoder : IImageEncoder, IAnimationEncoder
 {
     /// <summary>
     /// Default lossy quality (0–100).
@@ -52,5 +52,14 @@ public sealed class AvifEncoder : IImageEncoder
         ArgumentNullException.ThrowIfNull(image);
         using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
         new AvifFormat().Encode(writer, image, Quality, Lossless);
+    }
+
+    /// <inheritdoc />
+    public void Encode(Stream stream, Animation animation)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(animation);
+        using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
+        new AvifFormat().Encode(writer, animation, Quality, Lossless);
     }
 }

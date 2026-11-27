@@ -370,3 +370,139 @@ CHROMA_API int chroma_avif_encode(
     avifRWDataFree(&output);
     return CHROMA_OK;
 }
+
+/* GIF RepeatCount → AVIF: 0 infinite → -1; N plays → N-1 extra repeats. */
+static int unmap_repeat_count(int gif_repeat)
+{
+    if (gif_repeat <= 0)
+        return AVIF_REPETITION_COUNT_INFINITE;
+    return gif_repeat - 1;
+}
+
+CHROMA_API int chroma_avif_encode_anim(
+    const uint8_t* rgba,
+    const int* delays_cs,
+    int width,
+    int height,
+    int frame_count,
+    int repeat_count,
+    int quality,
+    int lossless,
+    uint8_t** out_data,
+    size_t* out_size
+)
+{
+    avifEncoder* encoder;
+    avifRWData output = AVIF_DATA_EMPTY;
+    avifResult result;
+    uint8_t* copy;
+    size_t frame_bytes;
+    int i;
+    int q;
+
+    if (out_data == NULL || out_size == NULL)
+        return CHROMA_ERR;
+    *out_data = NULL;
+    *out_size = 0;
+    if (
+        rgba == NULL
+        || delays_cs == NULL
+        || width <= 0
+        || height <= 0
+        || frame_count <= 0
+        || frame_count > CHROMA_MAX_FRAMES
+    )
+        return CHROMA_ERR;
+
+    q = quality;
+    if (q < 0)
+        q = 60;
+    if (q > 100)
+        q = 100;
+
+    encoder = avifEncoderCreate();
+    if (encoder == NULL)
+        return CHROMA_ERR_NOMEM;
+
+    encoder->maxThreads = 1;
+    encoder->speed = 6;
+    encoder->timescale = 100; /* delays are GIF centiseconds */
+    encoder->repetitionCount = unmap_repeat_count(repeat_count);
+    if (lossless)
+        q = AVIF_QUALITY_LOSSLESS;
+    encoder->quality = q;
+    encoder->qualityAlpha = q;
+
+    frame_bytes = (size_t)width * (size_t)height * 4u;
+    for (i = 0; i < frame_count; i++)
+    {
+        avifImage* image;
+        avifRGBImage rgb;
+        uint64_t duration;
+
+        image = avifImageCreate(
+            (uint32_t)width,
+            (uint32_t)height,
+            8,
+            lossless ? AVIF_PIXEL_FORMAT_YUV444 : AVIF_PIXEL_FORMAT_YUV420
+        );
+        if (image == NULL)
+        {
+            avifEncoderDestroy(encoder);
+            return CHROMA_ERR_NOMEM;
+        }
+
+        if (lossless)
+        {
+            image->matrixCoefficients = AVIF_MATRIX_COEFFICIENTS_IDENTITY;
+            image->yuvRange = AVIF_RANGE_FULL;
+        }
+
+        memset(&rgb, 0, sizeof(rgb));
+        avifRGBImageSetDefaults(&rgb, image);
+        rgb.format = AVIF_RGB_FORMAT_RGBA;
+        rgb.depth = 8;
+        rgb.pixels = (uint8_t*)(rgba + frame_bytes * (size_t)i);
+        rgb.rowBytes = (uint32_t)(width * 4);
+
+        result = avifImageRGBToYUV(image, &rgb);
+        if (result != AVIF_RESULT_OK)
+        {
+            avifImageDestroy(image);
+            avifEncoderDestroy(encoder);
+            return CHROMA_ERR;
+        }
+
+        duration = delays_cs[i] < 0 ? 0u : (uint64_t)delays_cs[i];
+        if (duration == 0)
+            duration = 1;
+        result = avifEncoderAddImage(encoder, image, duration, AVIF_ADD_IMAGE_FLAG_NONE);
+        avifImageDestroy(image);
+        if (result != AVIF_RESULT_OK)
+        {
+            avifEncoderDestroy(encoder);
+            return CHROMA_ERR;
+        }
+    }
+
+    result = avifEncoderFinish(encoder, &output);
+    avifEncoderDestroy(encoder);
+    if (result != AVIF_RESULT_OK || output.data == NULL || output.size == 0)
+    {
+        avifRWDataFree(&output);
+        return CHROMA_ERR;
+    }
+
+    copy = (uint8_t*)malloc(output.size);
+    if (copy == NULL)
+    {
+        avifRWDataFree(&output);
+        return CHROMA_ERR_NOMEM;
+    }
+
+    memcpy(copy, output.data, output.size);
+    *out_data = copy;
+    *out_size = output.size;
+    avifRWDataFree(&output);
+    return CHROMA_OK;
+}

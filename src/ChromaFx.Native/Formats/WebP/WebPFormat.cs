@@ -23,7 +23,7 @@ using ChromaFx.Native.Encoders;
 namespace ChromaFx.Native.Formats.WebP;
 
 /// <summary>
-/// WebP (RIFF/WEBP). Animated decode is supported; animated encode is not yet.
+/// WebP (RIFF/WEBP). Animated decode and encode are supported.
 /// </summary>
 public sealed class WebPFormat : IAnimationFormat
 {
@@ -35,6 +35,9 @@ public sealed class WebPFormat : IAnimationFormat
 
     /// <inheritdoc />
     public IImageEncoder CreateEncoder() => new WebPEncoder();
+
+    /// <inheritdoc />
+    public IAnimationEncoder CreateAnimationEncoder() => new WebPEncoder();
 
     /// <inheritdoc />
     public bool CanDecode(string fileName) =>
@@ -78,25 +81,20 @@ public sealed class WebPFormat : IAnimationFormat
         Encode(writer, image, WebPEncoder.DefaultQuality, lossless: false);
 
     /// <inheritdoc />
-    public void Encode(BinaryWriter writer, Animation animation)
-    {
-        ArgumentNullException.ThrowIfNull(animation);
-        if (animation.Count == 1)
-        {
-            Encode(writer, animation[0]);
-            return;
-        }
-
-        throw new NotSupportedException(
-            "Animated WebP encode is not supported yet. ChromaFx.Native decodes animated WebP; encode a single frame or use GIF."
-        );
-    }
+    public void Encode(BinaryWriter writer, Animation animation) =>
+        Encode(writer, animation, WebPEncoder.DefaultQuality, lossless: false);
 
     /// <summary>
     /// Encodes a still WebP image. <paramref name="lossless"/> ignores <paramref name="quality"/>.
     /// </summary>
     public void Encode(BinaryWriter writer, Image image, int quality, bool lossless) =>
         WebPCodec.Encode(writer, image, quality, lossless);
+
+    /// <summary>
+    /// Encodes an animated WebP.
+    /// </summary>
+    public void Encode(BinaryWriter writer, Animation animation, int quality, bool lossless) =>
+        WebPCodec.Encode(writer, animation, quality, lossless);
 
     private static bool LooksLikeWebP(ReadOnlySpan<byte> header) =>
         header.Length >= 12

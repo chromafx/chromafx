@@ -57,6 +57,20 @@ internal static unsafe partial class WebPLib
         nuint* outputSize
     );
 
+    [LibraryImport(Lib, EntryPoint = "chroma_webp_encode_anim")]
+    internal static partial int EncodeAnim(
+        byte* rgba,
+        int* delaysCs,
+        int width,
+        int height,
+        int frameCount,
+        int repeatCount,
+        int quality,
+        int lossless,
+        byte** output,
+        nuint* outputSize
+    );
+
     [LibraryImport(Lib, EntryPoint = "chroma_webp_free")]
     internal static partial void Free(void* pointer);
 }

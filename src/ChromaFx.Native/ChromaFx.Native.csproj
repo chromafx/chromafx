@@ -7,7 +7,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Title>ChromaFx.Native</Title>
     <Authors>Ho Tzin Mein</Authors>
-    <Description>Optional native WebP, AVIF, and JPEG XL codecs for ChromaFx (animated decode; still encode). Not in the meta-package. Animated encode is not yet supported.</Description>
+    <Description>Optional native WebP, AVIF, and JPEG XL codecs for ChromaFx (still and animated decode/encode). Not in the meta-package.</Description>
     <Copyright>Copyright $([System.DateTime]::Now.Year) Ho Tzin Mein</Copyright>
     <RepositoryUrl>https://github.com/chromafx/chromafx</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

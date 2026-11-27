@@ -57,6 +57,20 @@ internal static unsafe partial class AvifLib
         nuint* outputSize
     );
 
+    [LibraryImport(Lib, EntryPoint = "chroma_avif_encode_anim")]
+    internal static partial int EncodeAnim(
+        byte* rgba,
+        int* delaysCs,
+        int width,
+        int height,
+        int frameCount,
+        int repeatCount,
+        int quality,
+        int lossless,
+        byte** output,
+        nuint* outputSize
+    );
+
     [LibraryImport(Lib, EntryPoint = "chroma_avif_free")]
     internal static partial void Free(void* pointer);
 }

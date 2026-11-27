@@ -167,4 +167,60 @@ internal static class WebPCodec
             ArrayPool<byte>.Shared.Return(rented);
         }
     }
+
+    internal static void Encode(BinaryWriter writer, Animation animation, int quality, bool lossless)
+    {
+        ArgumentNullException.ThrowIfNull(writer);
+        ArgumentNullException.ThrowIfNull(animation);
+        if (animation.Count == 0)
+            throw new ImageException("Animation has no frames.");
+        if (animation.Count == 1)
+        {
+            Encode(writer, animation[0], quality, lossless);
+            return;
+        }
+
+        NativeLibraryLoader.EnsureRegistered();
+        quality = Math.Clamp(quality, 0, 100);
+        var rented = NativePixels.RentAnimationPacked(animation, out var delaysCs, out _);
+        try
+        {
+            unsafe
+            {
+                fixed (byte* rgba = rented)
+                fixed (int* delays = delaysCs)
+                {
+                    byte* output = null;
+                    nuint size = 0;
+                    var status = WebPLib.EncodeAnim(
+                        rgba,
+                        delays,
+                        animation[0].Width,
+                        animation[0].Height,
+                        animation.Count,
+                        animation.RepeatCount,
+                        quality,
+                        lossless ? 1 : 0,
+                        &output,
+                        &size
+                    );
+                    if (status != WebPLib.Ok || output == null || size == 0)
+                        throw new ImageException("WebP animation encode failed.");
+
+                    try
+                    {
+                        writer.Write(new ReadOnlySpan<byte>(output, checked((int)size)));
+                    }
+                    finally
+                    {
+                        WebPLib.Free(output);
+                    }
+                }
+            }
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(rented);
+        }
+    }
 }

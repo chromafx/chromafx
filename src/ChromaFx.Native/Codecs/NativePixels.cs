@@ -113,4 +113,41 @@ internal static class NativePixels
 
         return new Animation(frames, delays) { RepeatCount = repeatCount };
     }
+
+    /// <summary>
+    /// Packs animation frames into a contiguous RGBA buffer (ArrayPool). Caller must Return.
+    /// </summary>
+    internal static byte[] RentAnimationPacked(Animation animation, out int[] delaysCs, out int length)
+    {
+        ArgumentNullException.ThrowIfNull(animation);
+        if (animation.Count == 0)
+            throw new ImageException("Animation has no frames.");
+
+        var width = animation[0].Width;
+        var height = animation[0].Height;
+        if (width <= 0 || height <= 0)
+            throw new ImageException("Animation frame has invalid dimensions.");
+
+        var frameBytes = checked(width * height * 4);
+        length = checked(frameBytes * animation.Count);
+        var buffer = ArrayPool<byte>.Shared.Rent(length);
+        delaysCs = new int[animation.Count];
+        for (var i = 0; i < animation.Count; i++)
+        {
+            var frame = animation[i];
+            if (frame.Width != width || frame.Height != height)
+            {
+                ArrayPool<byte>.Shared.Return(buffer);
+                throw new ImageException("Animation frames must share the same dimensions.");
+            }
+
+            var dest = buffer.AsSpan(i * frameBytes, frameBytes);
+            var rowBytes = width * 4;
+            for (var y = 0; y < height; y++)
+                MemoryMarshal.AsBytes(frame.GetRowSpan(y)).CopyTo(dest[(y * rowBytes)..]);
+            delaysCs[i] = animation.GetFrameDelay(i);
+        }
+
+        return buffer;
+    }
 }

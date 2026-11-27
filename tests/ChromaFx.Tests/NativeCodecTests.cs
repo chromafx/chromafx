@@ -15,6 +15,7 @@
  */
 
 using ChromaFx.Core;
+using ChromaFx.IO.Encoders;
 using ChromaFx.IO.Formats;
 using ChromaFx.Native.Encoders;
 using ChromaFx.Native.Formats.Avif;
@@ -25,7 +26,7 @@ using Xunit;
 namespace ChromaFx.Tests;
 
 /// <summary>
-/// WebP, AVIF, and JPEG XL still round-trips + animated decode. Requires native/build.sh for this machine.
+/// WebP, AVIF, and JPEG XL still/animated round-trips. Requires native/build.sh for this machine.
 /// </summary>
 public class NativeCodecTests
 {
@@ -158,14 +159,60 @@ public class NativeCodecTests
     }
 
     [Fact]
-    public void NativeAnimationEncode_MultiFrameThrows()
+    public void AvifAnimated_LosslessRoundTrip() =>
+        AssertAnimatedRoundTrip(
+            new AvifEncoder { Lossless = true },
+            new AvifFormat(),
+            delayCs: 10,
+            repeatCount: 1
+        );
+
+    [Fact]
+    public void JxlAnimated_LosslessRoundTrip() =>
+        AssertAnimatedRoundTrip(
+            new JxlEncoder { Lossless = true },
+            new JxlFormat(),
+            delayCs: 10,
+            repeatCount: 0
+        );
+
+    [Fact]
+    public void WebPAnimated_LosslessRoundTrip() =>
+        AssertAnimatedRoundTrip(
+            new WebPEncoder { Lossless = true },
+            new WebPFormat(),
+            delayCs: 10,
+            repeatCount: 0
+        );
+
+    private static void AssertAnimatedRoundTrip(
+        IAnimationEncoder encoder,
+        IAnimationFormat format,
+        int delayCs,
+        ushort repeatCount
+    )
     {
-        var anim = new Animation([Sample(2, 2, alpha: false), Sample(2, 2, alpha: true)], 10);
+        var frame0 = Sample(4, 4, alpha: true);
+        var frame1 = Sample(4, 4, alpha: false);
+        // Distinct second frame so pixel equality is meaningful.
+        frame1[0, 0] = new Color(10, 20, 30, 255);
+        var src = new Animation([frame0, frame1], [(short)delayCs, (short)delayCs])
+        {
+            RepeatCount = repeatCount,
+        };
+
         using var ms = new MemoryStream();
-        using var writer = new BinaryWriter(ms);
-        Assert.Throws<NotSupportedException>(() => new AvifFormat().Encode(writer, anim));
-        Assert.Throws<NotSupportedException>(() => new JxlFormat().Encode(writer, anim));
-        Assert.Throws<NotSupportedException>(() => new WebPFormat().Encode(writer, anim));
+        src.Save(ms, encoder);
+        Assert.True(ms.Length > 12);
+        ms.Position = 0;
+        var loaded = format.DecodeAnimation(ms);
+
+        Assert.Equal(2, loaded.Count);
+        Assert.Equal(repeatCount, loaded.RepeatCount);
+        Assert.Equal(delayCs, loaded.GetFrameDelay(0));
+        Assert.Equal(delayCs, loaded.GetFrameDelay(1));
+        AssertPixels(frame0, loaded[0], maxChannelDelta: 0);
+        AssertPixels(frame1, loaded[1], maxChannelDelta: 0);
     }
 
     private static void AssertAnimatedDecode(

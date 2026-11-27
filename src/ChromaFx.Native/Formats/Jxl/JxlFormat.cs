@@ -23,7 +23,7 @@ using ChromaFx.Native.Encoders;
 namespace ChromaFx.Native.Formats.Jxl;
 
 /// <summary>
-/// JPEG XL (codestream or container). Animated decode is supported; animated encode is not yet.
+/// JPEG XL (codestream or container). Animated decode and encode are supported.
 /// </summary>
 public sealed class JxlFormat : IAnimationFormat
 {
@@ -32,6 +32,9 @@ public sealed class JxlFormat : IAnimationFormat
 
     /// <inheritdoc />
     public IImageEncoder CreateEncoder() => new JxlEncoder();
+
+    /// <inheritdoc />
+    public IAnimationEncoder CreateAnimationEncoder() => new JxlEncoder();
 
     /// <inheritdoc />
     public bool CanDecode(string fileName) =>
@@ -75,25 +78,20 @@ public sealed class JxlFormat : IAnimationFormat
         Encode(writer, image, JxlEncoder.DefaultQuality, lossless: false);
 
     /// <inheritdoc />
-    public void Encode(BinaryWriter writer, Animation animation)
-    {
-        ArgumentNullException.ThrowIfNull(animation);
-        if (animation.Count == 1)
-        {
-            Encode(writer, animation[0]);
-            return;
-        }
-
-        throw new NotSupportedException(
-            "Animated JPEG XL encode is not supported yet. ChromaFx.Native decodes animated JPEG XL; encode a single frame or use GIF."
-        );
-    }
+    public void Encode(BinaryWriter writer, Animation animation) =>
+        Encode(writer, animation, JxlEncoder.DefaultQuality, lossless: false);
 
     /// <summary>
     /// Encodes a still JPEG XL image. <paramref name="lossless"/> ignores <paramref name="quality"/>.
     /// </summary>
     public void Encode(BinaryWriter writer, Image image, int quality, bool lossless) =>
         JxlCodec.Encode(writer, image, quality, lossless);
+
+    /// <summary>
+    /// Encodes an animated JPEG XL image sequence.
+    /// </summary>
+    public void Encode(BinaryWriter writer, Animation animation, int quality, bool lossless) =>
+        JxlCodec.Encode(writer, animation, quality, lossless);
 
     private static bool LooksLikeJxl(ReadOnlySpan<byte> header)
     {

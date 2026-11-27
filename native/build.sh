@@ -275,7 +275,7 @@ copy_shared() {
   echo "staged $OUT/$dest_name"
 }
 
-echo "building libwebp $LIBWEBP_TAG (static + demux → libchromawebp) for $RID"
+echo "building libwebp $LIBWEBP_TAG (static + demux + mux → libchromawebp) for $RID"
 clone "https://github.com/webmproject/libwebp.git" "$LIBWEBP_TAG" "$CACHE/libwebp"
 # Keep sharpyuv static so chromawebp does not need a second dylib.
 if ! grep -q 'add_library(sharpyuv STATIC' "$CACHE/libwebp/CMakeLists.txt"; then
@@ -303,7 +303,7 @@ run_cmake -S "$CACHE/libwebp" -B "$CACHE/libwebp-build" \
   -DWEBP_BUILD_IMG2WEBP=OFF \
   -DWEBP_BUILD_VWEBP=OFF \
   -DWEBP_BUILD_WEBPINFO=OFF \
-  -DWEBP_BUILD_LIBWEBPMUX=OFF \
+  -DWEBP_BUILD_LIBWEBPMUX=ON \
   -DWEBP_BUILD_WEBPMUX=OFF \
   -DWEBP_BUILD_EXTRAS=OFF \
   -DWEBP_BUILD_WEBP_JS=OFF \
@@ -313,9 +313,10 @@ cmake_install "$CACHE/libwebp-build"
 
 WEBP_LIB="$(find "$CACHE/libwebp-install" "$CACHE/libwebp-build" \( -name 'libwebp.a' -o -name 'webp.lib' \) -type f -print -quit)"
 WEBPDEMUX_LIB="$(find "$CACHE/libwebp-install" "$CACHE/libwebp-build" \( -name 'libwebpdemux.a' -o -name 'webpdemux.lib' \) -type f -print -quit)"
+WEBPMUX_LIB="$(find "$CACHE/libwebp-install" "$CACHE/libwebp-build" \( -name 'libwebpmux.a' -o -name 'webpmux.lib' \) -type f -print -quit)"
 SHARPYUV_LIB="$(find "$CACHE/libwebp-install" "$CACHE/libwebp-build" \( -name 'libsharpyuv.a' -o -name 'sharpyuv.lib' \) -type f -print -quit || true)"
-if [[ -z "$WEBP_LIB" || -z "$WEBPDEMUX_LIB" ]]; then
-  echo "missing static webp library (webp=$WEBP_LIB demux=$WEBPDEMUX_LIB)" >&2
+if [[ -z "$WEBP_LIB" || -z "$WEBPDEMUX_LIB" || -z "$WEBPMUX_LIB" ]]; then
+  echo "missing static webp library (webp=$WEBP_LIB demux=$WEBPDEMUX_LIB mux=$WEBPMUX_LIB)" >&2
   exit 1
 fi
 
@@ -325,6 +326,7 @@ WEBP_CMAKE_ARGS=(
   -DWEBP_INCLUDE_DIR="$CACHE/libwebp-install/include"
   -DWEBP_LIBRARY="$WEBP_LIB"
   -DWEBPDEMUX_LIBRARY="$WEBPDEMUX_LIB"
+  -DWEBPMUX_LIBRARY="$WEBPMUX_LIB"
 )
 if [[ -n "$SHARPYUV_LIB" ]]; then
   WEBP_CMAKE_ARGS+=(-DSHARPYUV_LIBRARY="$SHARPYUV_LIB")

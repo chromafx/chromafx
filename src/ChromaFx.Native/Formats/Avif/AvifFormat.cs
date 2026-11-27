@@ -23,7 +23,7 @@ using ChromaFx.Native.Encoders;
 namespace ChromaFx.Native.Formats.Avif;
 
 /// <summary>
-/// AVIF (ISO BMFF). Animated decode is supported; animated encode is not yet.
+/// AVIF (ISO BMFF). Animated decode and encode are supported.
 /// </summary>
 public sealed class AvifFormat : IAnimationFormat
 {
@@ -32,6 +32,9 @@ public sealed class AvifFormat : IAnimationFormat
 
     /// <inheritdoc />
     public IImageEncoder CreateEncoder() => new AvifEncoder();
+
+    /// <inheritdoc />
+    public IAnimationEncoder CreateAnimationEncoder() => new AvifEncoder();
 
     /// <inheritdoc />
     public bool CanDecode(string fileName) =>
@@ -75,25 +78,20 @@ public sealed class AvifFormat : IAnimationFormat
         Encode(writer, image, AvifEncoder.DefaultQuality, lossless: false);
 
     /// <inheritdoc />
-    public void Encode(BinaryWriter writer, Animation animation)
-    {
-        ArgumentNullException.ThrowIfNull(animation);
-        if (animation.Count == 1)
-        {
-            Encode(writer, animation[0]);
-            return;
-        }
-
-        throw new NotSupportedException(
-            "Animated AVIF encode is not supported yet. ChromaFx.Native decodes animated AVIF; encode a single frame or use GIF."
-        );
-    }
+    public void Encode(BinaryWriter writer, Animation animation) =>
+        Encode(writer, animation, AvifEncoder.DefaultQuality, lossless: false);
 
     /// <summary>
     /// Encodes a still AVIF image. <paramref name="lossless"/> uses full-range 4:4:4 identity and ignores <paramref name="quality"/>.
     /// </summary>
     public void Encode(BinaryWriter writer, Image image, int quality, bool lossless) =>
         AvifCodec.Encode(writer, image, quality, lossless);
+
+    /// <summary>
+    /// Encodes an AVIF image sequence.
+    /// </summary>
+    public void Encode(BinaryWriter writer, Animation animation, int quality, bool lossless) =>
+        AvifCodec.Encode(writer, animation, quality, lossless);
 
     private static bool LooksLikeAvif(ReadOnlySpan<byte> header)
     {

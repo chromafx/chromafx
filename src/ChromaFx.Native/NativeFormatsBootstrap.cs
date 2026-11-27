@@ -25,7 +25,7 @@ using ChromaFx.Native.Formats.WebP;
 namespace ChromaFx.Native;
 
 /// <summary>
-/// Registers WebP, AVIF, and JPEG XL formats (including animated decode) when this package is referenced.
+/// Registers WebP, AVIF, and JPEG XL formats (including animated decode/encode) when this package is referenced.
 /// </summary>
 internal static class NativeFormatsBootstrap
 {

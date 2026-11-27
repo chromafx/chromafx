@@ -23,9 +23,9 @@ using ChromaFx.Native.Formats.Jxl;
 namespace ChromaFx.Native.Encoders;
 
 /// <summary>
-/// Typed still-JPEG XL encoder. Lossy distance is <c>(100 - quality) / 10</c>.
+/// Typed JPEG XL still-image and animation encoder. Lossy distance is <c>(100 - quality) / 10</c>.
 /// </summary>
-public sealed class JxlEncoder : IImageEncoder
+public sealed class JxlEncoder : IImageEncoder, IAnimationEncoder
 {
     /// <summary>
     /// Default lossy quality (0–100). 75 is butteraugli distance 2.5.
@@ -53,5 +53,14 @@ public sealed class JxlEncoder : IImageEncoder
         ArgumentNullException.ThrowIfNull(image);
         using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
         new JxlFormat().Encode(writer, image, Quality, Lossless);
+    }
+
+    /// <inheritdoc />
+    public void Encode(Stream stream, Animation animation)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(animation);
+        using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
+        new JxlFormat().Encode(writer, animation, Quality, Lossless);
     }
 }
