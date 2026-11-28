@@ -11,7 +11,7 @@ Pure C# image processing library (PNG, JPEG, GIF, BMP, TGA, TIFF, ICO). Targets 
 | `src/ChromaFx.Processing` | Filters, Mutate/Clone, numerics; `IFilter` / `Quantize` / `DitherMethod` in `ChromaFx.Processing.Filters`; resampling enum `ResamplingFilter` + `ResamplingKernels.Create` in `…Filters.Resampling` |
 | `src/ChromaFx.PixelArt` | Opt-in Scale2x / Scale3x / Hq2x–4x / CleanEdge / Eagle / SaI and RotateSprite / CleanEdgeRotate (not in meta-package) |
 | `src/ChromaFx.Retro` | Opt-in retro palettes + Bayer, UI/mode helpers, Millennium + classic FX + plasma/fire (not in meta-package) |
-| `src/ChromaFx.Native` | Opt-in WebP/AVIF/JPEG XL still + animated (NuGet **0.6.7+**; not in meta-package; `native/build.sh`) |
+| `src/ChromaFx.Native` | Opt-in WebP/AVIF/JPEG XL still + animated (not in meta-package; `native/build.sh`) |
 | `src/ChromaFx` | Meta-package only (refs + `buildTransitive` usings) |
 | `tests/ChromaFx.Tests` | Unit + golden-file regression |
 | `tests/ChromaFx.Benchmarks` | BenchmarkDotNet |

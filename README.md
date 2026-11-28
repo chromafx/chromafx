@@ -58,7 +58,7 @@ dotnet add package ChromaFx.Native   # WebP / AVIF / JPEG XL
 |---------|----------------|
 | [`samples/TextArt`](samples/TextArt) | ASCII / ANSI / HTML / Kitty / iTerm2 |
 | [`samples/PixelArt`](samples/PixelArt) | Scale2x / HQX / Eagle / SaI / CleanEdgeRotate → PNGs |
-| [`samples/NativeCodecs`](samples/NativeCodecs) | WebP / AVIF / JPEG XL still round-trip (needs `native/build.sh`) |
+| [`samples/NativeCodecs`](samples/NativeCodecs) | WebP / AVIF / JPEG XL still + animated round-trip (needs `native/build.sh`) |
 
 ```bash
 dotnet run --project samples/TextArt
@@ -141,7 +141,7 @@ Modifications and ongoing maintenance by Ho Tzin Mein (2023–2026).
 
 ## Status
 
-NuGet **0.6.7** (Native animated WebP/AVIF/JPEG XL IO). ChromaLab release **v0.4.0**.
+NuGet **0.6.7**. ChromaLab **v0.5.0**.
 
 ## Contributing
 Contributions, bug reports, and suggestions are welcome.
